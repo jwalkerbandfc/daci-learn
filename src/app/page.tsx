@@ -7,3 +7,4 @@ export default function Home() {
     redirect('https://canvas.instructure.com/courses/13420265');
   }
   return ();
+}
