@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { redirect } from 'next/navigation';
 
 export default function Home() {
@@ -6,5 +5,5 @@ export default function Home() {
   if (!userIsLoggedIn) {
     redirect('https://canvas.instructure.com/courses/13420265');
   }
-  return ();
+  return null;
 }
