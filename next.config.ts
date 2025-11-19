@@ -1,14 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async redirects() {
+  /*async redirects() {
     return [{
       source: '/',
       destination: 'https://canvas.instructure.com/courses/13420265',
       permanent: true, // Use true for 308 (Permanent), false for 307 (Temporary)
     },
     ];
-  },
+  },*/
 };
 
 export default nextConfig;
