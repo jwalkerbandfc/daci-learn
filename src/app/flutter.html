@@ -1,0 +1,1350 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Flutter Tutorial</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100%;
+      overflow: hidden;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      color: #ffffff;
+      font-size: 2.5rem;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .header p {
+      color: #f0f0f0;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+
+    .tutorial-wrapper {
+      display: flex;
+      gap: 1.5rem;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      font-size: 1.2rem;
+      margin: 0 0 1rem 0;
+      color: #333;
+    }
+
+    .lesson-item {
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+      border-left: 4px solid transparent;
+    }
+
+    .lesson-item:hover {
+      background: #e9ecef;
+      transform: translateX(4px);
+    }
+
+    .lesson-item.active {
+      background: #667eea;
+      color: white;
+      border-left-color: #764ba2;
+      font-weight: 600;
+    }
+
+    .lesson-item.completed {
+      border-left-color: #48bb78;
+    }
+
+    .lesson-item.completed::after {
+      content: " ✓";
+      color: #48bb78;
+      font-weight: bold;
+    }
+
+    .lesson-item.active.completed::after {
+      color: white;
+    }
+
+    .content-area {
+      flex: 1;
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lesson-content {
+      display: none;
+    }
+
+    .lesson-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .lesson-content h2 {
+      color: #667eea;
+      font-size: 2rem;
+      margin: 0 0 1rem 0;
+    }
+
+    .lesson-content h3 {
+      color: #333;
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.75rem 0;
+    }
+
+    .lesson-content p {
+      color: #555;
+      line-height: 1.6;
+      margin: 0.75rem 0;
+    }
+
+    .lesson-content ul, .lesson-content ol {
+      color: #555;
+      line-height: 1.8;
+      margin: 0.75rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .code-block {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1.25rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .code-block .comment {
+      color: #6a9955;
+    }
+
+    .code-block .keyword {
+      color: #569cd6;
+    }
+
+    .code-block .string {
+      color: #ce9178;
+    }
+
+    .code-block .class-name {
+      color: #4ec9b0;
+    }
+
+    .interactive-demo {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .interactive-demo h4 {
+      margin: 0 0 1rem 0;
+      color: #667eea;
+      font-size: 1.1rem;
+    }
+
+    .demo-button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin: 0.5rem 0.5rem 0.5rem 0;
+      transition: all 0.3s ease;
+    }
+
+    .demo-button:hover {
+      background: #764ba2;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .demo-button:active {
+      transform: translateY(0);
+    }
+
+    .demo-output {
+      background: white;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      min-height: 60px;
+      font-family: monospace;
+      color: #333;
+    }
+
+    .code-challenge {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .code-challenge h4 {
+      margin: 0 0 1rem 0;
+      color: #667eea;
+      font-size: 1.1rem;
+    }
+
+    .code-challenge-question {
+      background: white;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      border-left: 4px solid #667eea;
+    }
+
+    .code-input {
+      width: 100%;
+      min-height: 120px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      padding: 1rem;
+      border: 2px solid #dee2e6;
+      border-radius: 6px;
+      margin: 1rem 0;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .code-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .challenge-feedback {
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      display: none;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .challenge-feedback.correct {
+      background: #d4edda;
+      border: 2px solid #28a745;
+      color: #155724;
+      display: block;
+    }
+
+    .challenge-feedback.incorrect {
+      background: #f8d7da;
+      border: 2px solid #dc3545;
+      color: #721c24;
+      display: block;
+    }
+
+    .challenge-feedback.hint {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      color: #856404;
+      display: block;
+    }
+
+    .feedback-icon {
+      font-size: 1.5rem;
+      margin-right: 0.5rem;
+    }
+
+    .error-details {
+      background: rgba(0,0,0,0.05);
+      padding: 0.75rem;
+      margin-top: 0.75rem;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+
+    .hint-button {
+      background: #ffc107;
+      color: #333;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .hint-button:hover {
+      background: #e0a800;
+      transform: translateY(-1px);
+    }
+
+    .challenge-controls {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .run-output {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      min-height: 80px;
+      white-space: pre-wrap;
+      border: 2px solid #667eea;
+    }
+
+    .run-button {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin: 0.5rem 0.5rem 0.5rem 0;
+      transition: all 0.3s ease;
+    }
+
+    .run-button:hover {
+      background: #218838;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+    }
+
+    .output-label {
+      color: #667eea;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .tip-box {
+      background: #e6f7ff;
+      border-left: 4px solid #1890ff;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+    }
+
+    .tip-box strong {
+      color: #1890ff;
+    }
+
+    .warning-box {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+    }
+
+    .warning-box strong {
+      color: #856404;
+    }
+
+    .navigation-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid #e9ecef;
+    }
+
+    .nav-button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-button:hover:not(:disabled) {
+      background: #764ba2;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .nav-button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .progress-bar {
+      background: #e9ecef;
+      height: 8px;
+      border-radius: 4px;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      background: linear-gradient(90deg, #48bb78, #38a169);
+      height: 100%;
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .tutorial-wrapper {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="header">
+    <h1 id="tutorial-title">Interactive Flutter Tutorial</h1>
+    <p id="welcome-message">Master Flutter basics through hands-on learning</p>
+    <div class="progress-bar">
+     <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+    </div>
+   </div>
+   <div class="tutorial-wrapper">
+    <aside class="sidebar">
+     <h2>📚 Lessons</h2>
+     <div class="lesson-item" data-lesson="0">
+      1. Getting Started
+     </div>
+     <div class="lesson-item" data-lesson="1">
+      2. Understanding Widgets
+     </div>
+     <div class="lesson-item" data-lesson="2">
+      3. Using Assets
+     </div>
+     <div class="lesson-item" data-lesson="3">
+      4. Navigation
+     </div>
+     <div class="lesson-item" data-lesson="4">
+      5. Theme Switching
+     </div>
+     <div class="lesson-item" data-lesson="5">
+      6. Persistent Storage
+     </div>
+     <div class="lesson-item" data-lesson="6">
+      7. pubspec.yaml
+     </div>
+     <div class="lesson-item" data-lesson="7">
+      8. Console Logging
+     </div>
+    </aside>
+    <main class="content-area"><!-- Lesson 0: Getting Started -->
+     <div class="lesson-content" data-lesson="0">
+      <h2>🚀 Getting Started with Flutter</h2>
+      <p>Flutter is Google's UI toolkit for building beautiful, natively compiled applications for mobile, web, and desktop from a single codebase.</p>
+      <h3>Prerequisites</h3>
+      <ul>
+       <li>Install Flutter SDK from <a href="https://flutter.dev" target="_blank" rel="noopener noreferrer">flutter.dev</a></li>
+       <li>Install an IDE (VS Code or Android Studio)</li>
+       <li>Set up an emulator or physical device</li>
+      </ul>
+      <h3>Creating Your First App</h3>
+      <p>Open your terminal and run:</p>
+      <div class="code-block"><span class="comment"># Create a new Flutter project</span> flutter create my_first_app <span class="comment"># Navigate to the project</span> cd my_first_app <span class="comment"># Run the app</span> flutter run
+      </div>
+      <h3>Understanding main.dart</h3>
+      <p>Every Flutter app starts with <code>main.dart</code>. Here's the basic structure:</p>
+      <div class="code-block"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span>; <span class="keyword">void</span> main() { runApp(<span class="class-name">MyApp</span>()); } <span class="keyword">class</span> <span class="class-name">MyApp</span> <span class="keyword">extends</span> <span class="class-name">StatelessWidget</span> { <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { <span class="keyword">return</span> <span class="class-name">MaterialApp</span>( title: <span class="string">'My First App'</span>, home: <span class="class-name">HomePage</span>(), ); } }
+      </div>
+      <div class="tip-box"><strong>💡 Tip:</strong> The <code>main()</code> function is the entry point, and <code>runApp()</code> inflates the given widget and attaches it to the screen.
+      </div>
+      <div class="interactive-demo">
+       <h4>🎮 Try it: Hot Reload</h4>
+       <p>One of Flutter's best features is hot reload. When you save changes, your app updates instantly!</p><button class="demo-button" onclick="simulateHotReload()">Simulate Hot Reload</button>
+       <div class="demo-output" id="hot-reload-output">
+        Press the button to see hot reload in action...
+       </div>
+      </div>
+      <div class="code-challenge">
+       <h4>✏️ Code Challenge: Create Your First App</h4>
+       <div class="code-challenge-question"><strong>Task:</strong> Complete the main() function to run a MaterialApp with the title "Hello Flutter"
+       </div><textarea class="code-input" id="challenge-0" placeholder="Type your code here...
+void main() {
+  // Your code here
+}">void main() {
+  
+}</textarea>
+       <div class="challenge-controls"><button class="run-button" onclick="runCode(0)">▶ Run Code</button> <button class="demo-button" onclick="checkChallenge(0)">Check Answer</button> <button class="hint-button" onclick="showHint(0)">💡 Show Hint</button>
+       </div>
+       <div class="challenge-feedback" id="feedback-0"></div>
+       <div id="output-0" style="display:none;">
+        <div class="output-label">
+         📺 Output:
+        </div>
+        <div class="run-output" id="run-output-0"></div>
+       </div>
+      </div>
+     </div><!-- Lesson 1: Understanding Widgets -->
+     <div class="lesson-content" data-lesson="1">
+      <h2>🧩 Understanding Widgets</h2>
+      <p>In Flutter, everything is a widget! Widgets are the building blocks of your UI.</p>
+      <h3>Two Types of Widgets</h3>
+      <ul>
+       <li><strong>StatelessWidget:</strong> Immutable widgets that don't change</li>
+       <li><strong>StatefulWidget:</strong> Widgets that can change state over time</li>
+      </ul>
+      <h3>StatelessWidget Example</h3>
+      <div class="code-block"><span class="keyword">class</span> <span class="class-name">GreetingWidget</span> <span class="keyword">extends</span> <span class="class-name">StatelessWidget</span> { <span class="keyword">final</span> <span class="class-name">String</span> name; <span class="class-name">GreetingWidget</span>({<span class="keyword">required</span> <span class="keyword">this</span>.name}); <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { <span class="keyword">return</span> <span class="class-name">Text</span>( <span class="string">'Hello, $name!'</span>, style: <span class="class-name">TextStyle</span>(fontSize: 24), ); } }
+      </div>
+      <h3>StatefulWidget Example</h3>
+      <div class="code-block"><span class="keyword">class</span> <span class="class-name">CounterWidget</span> <span class="keyword">extends</span> <span class="class-name">StatefulWidget</span> { <span class="keyword">@override</span> _CounterWidgetState createState() =&gt; _CounterWidgetState(); } <span class="keyword">class</span> <span class="class-name">_CounterWidgetState</span> <span class="keyword">extends</span> <span class="class-name">State</span>&lt;<span class="class-name">CounterWidget</span>&gt; { <span class="keyword">int</span> counter = 0; <span class="keyword">void</span> _incrementCounter() { setState(() { counter++; }); } <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { <span class="keyword">return</span> <span class="class-name">Column</span>( children: [ <span class="class-name">Text</span>(<span class="string">'Count: $counter'</span>), <span class="class-name">ElevatedButton</span>( onPressed: _incrementCounter, child: <span class="class-name">Text</span>(<span class="string">'Increment'</span>), ), ], ); } }
+      </div>
+      <div class="interactive-demo">
+       <h4>🎮 Interactive Counter</h4>
+       <p>This simulates a Flutter StatefulWidget with state management:</p><button class="demo-button" onclick="incrementCounter()">Increment Counter</button> <button class="demo-button" onclick="resetCounter()">Reset</button>
+       <div class="demo-output" id="counter-output">
+        Count: 0
+       </div>
+      </div>
+      <div class="code-challenge">
+       <h4>✏️ Code Challenge: Create a StatelessWidget</h4>
+       <div class="code-challenge-question"><strong>Task:</strong> Create a StatelessWidget called WelcomeText that displays "Welcome to Flutter!" in a Text widget
+       </div><textarea class="code-input" id="challenge-1" placeholder="Type your code here...">class WelcomeText extends StatelessWidget {
+  
+}</textarea>
+       <div class="challenge-controls"><button class="run-button" onclick="runCode(1)">▶ Run Code</button> <button class="demo-button" onclick="checkChallenge(1)">Check Answer</button> <button class="hint-button" onclick="showHint(1)">💡 Show Hint</button>
+       </div>
+       <div class="challenge-feedback" id="feedback-1"></div>
+       <div id="output-1" style="display:none;">
+        <div class="output-label">
+         📺 Output:
+        </div>
+        <div class="run-output" id="run-output-1"></div>
+       </div>
+      </div>
+      <h3>Common Layout Widgets</h3>
+      <ul>
+       <li><strong>Container:</strong> Box model with padding, margin, decoration</li>
+       <li><strong>Row/Column:</strong> Arrange children horizontally/vertically</li>
+       <li><strong>Stack:</strong> Overlay widgets on top of each other</li>
+       <li><strong>ListView:</strong> Scrollable list of widgets</li>
+      </ul>
+     </div><!-- Lesson 3: Using Assets -->
+     <div class="lesson-content" data-lesson="2">
+      <h2>��️ Using Assets</h2>
+      <p>Assets are resources like images, fonts, and JSON files bundled with your app.</p>
+      <h3>Step 1: Create Assets Folder</h3>
+      <p>Create an <code>assets</code> folder in your project root:</p>
+      <div class="code-block">
+       my_app/ ├── assets/ │ ├── images/ │ │ └── logo.png │ └── fonts/ │ └── custom_font.ttf ├── lib/ └── pubspec.yaml
+      </div>
+      <h3>Step 2: Declare in pubspec.yaml</h3>
+      <div class="code-block">
+       flutter: assets: - assets/images/ - assets/images/logo.png fonts: - family: CustomFont fonts: - asset: assets/fonts/custom_font.ttf weight: 400
+      </div>
+      <h3>Step 3: Use Assets in Code</h3>
+      <div class="code-block"><span class="comment">// Display an image</span> <span class="class-name">Image</span>.asset(<span class="string">'assets/images/logo.png'</span>) <span class="comment">// Use custom font</span> <span class="class-name">Text</span>( <span class="string">'Custom Font Text'</span>, style: <span class="class-name">TextStyle</span>( fontFamily: <span class="string">'CustomFont'</span>, fontSize: 24, ), ) <span class="comment">// Load JSON data</span> <span class="keyword">import</span> <span class="string">'dart:convert'</span>; <span class="keyword">import</span> <span class="string">'package:flutter/services.dart'</span>; <span class="keyword">Future</span>&lt;<span class="class-name">Map</span>&gt; loadJsonData() <span class="keyword">async</span> { <span class="class-name">String</span> jsonString = <span class="keyword">await</span> rootBundle .loadString(<span class="string">'assets/data.json'</span>); <span class="keyword">return</span> json.decode(jsonString); }
+      </div>
+      <div class="warning-box"><strong>⚠️ Important:</strong> After adding assets to pubspec.yaml, run <code>flutter pub get</code> to register them.
+      </div>
+      <div class="interactive-demo">
+       <h4>🎮 Asset Loading Simulation</h4><button class="demo-button" onclick="simulateAssetLoad('image')">Load Image</button> <button class="demo-button" onclick="simulateAssetLoad('font')">Load Font</button> <button class="demo-button" onclick="simulateAssetLoad('json')">Load JSON</button>
+       <div class="demo-output" id="asset-output">
+        Click a button to simulate asset loading...
+       </div>
+      </div>
+     </div><!-- Lesson 4: Navigation -->
+     <div class="lesson-content" data-lesson="3">
+      <h2>🧭 Navigation</h2>
+      <p>Flutter uses a Navigator to manage a stack of Route objects for screen transitions.</p>
+      <h3>Basic Navigation</h3>
+      <div class="code-block"><span class="comment">// Navigate to a new screen</span> <span class="class-name">Navigator</span>.push( context, <span class="class-name">MaterialPageRoute</span>(builder: (context) =&gt; <span class="class-name">SecondScreen</span>()), ); <span class="comment">// Go back to previous screen</span> <span class="class-name">Navigator</span>.pop(context);
+      </div>
+      <h3>Named Routes</h3>
+      <p>For larger apps, use named routes for better organization:</p>
+      <div class="code-block"><span class="comment">// Define routes in MaterialApp</span> <span class="class-name">MaterialApp</span>( initialRoute: <span class="string">'/'</span>, routes: { <span class="string">'/'</span>: (context) =&gt; <span class="class-name">HomeScreen</span>(), <span class="string">'/details'</span>: (context) =&gt; <span class="class-name">DetailsScreen</span>(), <span class="string">'/settings'</span>: (context) =&gt; <span class="class-name">SettingsScreen</span>(), }, ) <span class="comment">// Navigate using named routes</span> <span class="class-name">Navigator</span>.pushNamed(context, <span class="string">'/details'</span>);
+      </div>
+      <h3>Passing Data Between Screens</h3>
+      <div class="code-block"><span class="comment">// Send data to next screen</span> <span class="class-name">Navigator</span>.push( context, <span class="class-name">MaterialPageRoute</span>( builder: (context) =&gt; <span class="class-name">DetailScreen</span>( title: <span class="string">'Item 1'</span>, description: <span class="string">'Details about item'</span>, ), ), ); <span class="comment">// Receive data in the screen</span> <span class="keyword">class</span> <span class="class-name">DetailScreen</span> <span class="keyword">extends</span> <span class="class-name">StatelessWidget</span> { <span class="keyword">final</span> <span class="class-name">String</span> title; <span class="keyword">final</span> <span class="class-name">String</span> description; <span class="class-name">DetailScreen</span>({<span class="keyword">required</span> <span class="keyword">this</span>.title, <span class="keyword">required</span> <span class="keyword">this</span>.description}); <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { <span class="keyword">return</span> <span class="class-name">Scaffold</span>( appBar: <span class="class-name">AppBar</span>(title: <span class="class-name">Text</span>(title)), body: <span class="class-name">Text</span>(description), ); } }
+      </div>
+      <div class="interactive-demo">
+       <h4>🎮 Navigation Simulator</h4><button class="demo-button" onclick="simulateNavigation('push')">Push Screen</button> <button class="demo-button" onclick="simulateNavigation('pop')">Pop Screen</button> <button class="demo-button" onclick="simulateNavigation('replace')">Replace Screen</button>
+       <div class="demo-output" id="navigation-output">
+        Navigation Stack: [Home]
+       </div>
+      </div>
+      <div class="code-challenge">
+       <h4>✏️ Code Challenge: Navigate to a Screen</h4>
+       <div class="code-challenge-question"><strong>Task:</strong> Write the code to navigate to a screen called SettingsScreen using Navigator.push
+       </div><textarea class="code-input" id="challenge-3" placeholder="Type your code here...">// Navigate to SettingsScreen
+</textarea>
+       <div class="challenge-controls"><button class="run-button" onclick="runCode(3)">▶ Run Code</button> <button class="demo-button" onclick="checkChallenge(3)">Check Answer</button> <button class="hint-button" onclick="showHint(3)">💡 Show Hint</button>
+       </div>
+       <div class="challenge-feedback" id="feedback-3"></div>
+       <div id="output-3" style="display:none;">
+        <div class="output-label">
+         📺 Output:
+        </div>
+        <div class="run-output" id="run-output-3"></div>
+       </div>
+      </div>
+     </div><!-- Lesson 5: Theme Switching -->
+     <div class="lesson-content" data-lesson="4">
+      <h2>🎨 Theme Switching</h2>
+      <p>Implement dark mode and custom themes in your Flutter app.</p>
+      <h3>Basic Theme Setup</h3>
+      <div class="code-block"><span class="keyword">class</span> <span class="class-name">MyApp</span> <span class="keyword">extends</span> <span class="class-name">StatefulWidget</span> { <span class="keyword">@override</span> _MyAppState createState() =&gt; _MyAppState(); } <span class="keyword">class</span> <span class="class-name">_MyAppState</span> <span class="keyword">extends</span> <span class="class-name">State</span>&lt;<span class="class-name">MyApp</span>&gt; { <span class="class-name">ThemeMode</span> _themeMode = <span class="class-name">ThemeMode</span>.light; <span class="keyword">void</span> _toggleTheme() { setState(() { _themeMode = _themeMode == <span class="class-name">ThemeMode</span>.light ? <span class="class-name">ThemeMode</span>.dark : <span class="class-name">ThemeMode</span>.light; }); } <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { <span class="keyword">return</span> <span class="class-name">MaterialApp</span>( themeMode: _themeMode, theme: <span class="class-name">ThemeData</span>.light(), darkTheme: <span class="class-name">ThemeData</span>.dark(), home: <span class="class-name">HomePage</span>(onToggleTheme: _toggleTheme), ); } }
+      </div>
+      <h3>Custom Theme</h3>
+      <div class="code-block"><span class="class-name">ThemeData</span> customLightTheme = <span class="class-name">ThemeData</span>( primarySwatch: <span class="class-name">Colors</span>.blue, brightness: <span class="class-name">Brightness</span>.light, scaffoldBackgroundColor: <span class="class-name">Colors</span>.white, appBarTheme: <span class="class-name">AppBarTheme</span>( backgroundColor: <span class="class-name">Colors</span>.blue, elevation: 0, ), textTheme: <span class="class-name">TextTheme</span>( headlineLarge: <span class="class-name">TextStyle</span>( fontSize: 32, fontWeight: <span class="class-name">FontWeight</span>.bold, color: <span class="class-name">Colors</span>.black, ), ), ); <span class="class-name">ThemeData</span> customDarkTheme = <span class="class-name">ThemeData</span>( primarySwatch: <span class="class-name">Colors</span>.deepPurple, brightness: <span class="class-name">Brightness</span>.dark, scaffoldBackgroundColor: <span class="class-name">Colors</span>.grey[900], );
+      </div>
+      <div class="interactive-demo">
+       <h4>🎮 Theme Switcher</h4><button class="demo-button" onclick="toggleTheme()">Toggle Light/Dark Mode</button>
+       <div class="demo-output" id="theme-output" style="background: white; color: black;">
+        Current Theme: Light Mode
+       </div>
+      </div>
+      <div class="tip-box"><strong>💡 Pro Tip:</strong> Use <code>Theme.of(context)</code> to access current theme values anywhere in your widget tree.
+      </div>
+     </div><!-- Lesson 6: Persistent Storage -->
+     <div class="lesson-content" data-lesson="5">
+      <h2>💾 Persistent Storage</h2>
+      <p>Store data locally on the device using SharedPreferences for simple key-value pairs.</p>
+      <h3>Add Dependency</h3>
+      <p>Add to pubspec.yaml:</p>
+      <div class="code-block">
+       dependencies: shared_preferences: ^2.2.0
+      </div>
+      <h3>Saving Data</h3>
+      <div class="code-block"><span class="keyword">import</span> <span class="string">'package:shared_preferences/shared_preferences.dart'</span>; <span class="comment">// Save data</span> <span class="keyword">Future</span>&lt;<span class="keyword">void</span>&gt; saveUserData() <span class="keyword">async</span> { <span class="keyword">final</span> prefs = <span class="keyword">await</span> <span class="class-name">SharedPreferences</span>.getInstance(); <span class="keyword">await</span> prefs.setString(<span class="string">'username'</span>, <span class="string">'JohnDoe'</span>); <span class="keyword">await</span> prefs.setInt(<span class="string">'age'</span>, 25); <span class="keyword">await</span> prefs.setBool(<span class="string">'isDarkMode'</span>, <span class="keyword">true</span>); <span class="keyword">await</span> prefs.setDouble(<span class="string">'score'</span>, 98.5); <span class="comment">// Save list</span> <span class="keyword">await</span> prefs.setStringList(<span class="string">'favorites'</span>, [<span class="string">'item1'</span>, <span class="string">'item2'</span>]); }
+      </div>
+      <h3>Loading Data</h3>
+      <div class="code-block"><span class="comment">// Load data</span> <span class="keyword">Future</span>&lt;<span class="keyword">void</span>&gt; loadUserData() <span class="keyword">async</span> { <span class="keyword">final</span> prefs = <span class="keyword">await</span> <span class="class-name">SharedPreferences</span>.getInstance(); <span class="class-name">String</span>? username = prefs.getString(<span class="string">'username'</span>); <span class="keyword">int</span>? age = prefs.getInt(<span class="string">'age'</span>); <span class="keyword">bool</span>? isDarkMode = prefs.getBool(<span class="string">'isDarkMode'</span>) ?? <span class="keyword">false</span>; <span class="keyword">double</span>? score = prefs.getDouble(<span class="string">'score'</span>); <span class="class-name">List</span>&lt;<span class="class-name">String</span>&gt;? favorites = prefs.getStringList(<span class="string">'favorites'</span>); }
+      </div>
+      <h3>Complete Example</h3>
+      <div class="code-block"><span class="keyword">class</span> <span class="class-name">SettingsScreen</span> <span class="keyword">extends</span> <span class="class-name">StatefulWidget</span> { <span class="keyword">@override</span> _SettingsScreenState createState() =&gt; _SettingsScreenState(); } <span class="keyword">class</span> <span class="class-name">_SettingsScreenState</span> <span class="keyword">extends</span> <span class="class-name">State</span>&lt;<span class="class-name">SettingsScreen</span>&gt; { <span class="keyword">bool</span> _notifications = <span class="keyword">false</span>; <span class="keyword">@override</span> <span class="keyword">void</span> initState() { <span class="keyword">super</span>.initState(); _loadSettings(); } <span class="keyword">Future</span>&lt;<span class="keyword">void</span>&gt; _loadSettings() <span class="keyword">async</span> { <span class="keyword">final</span> prefs = <span class="keyword">await</span> <span class="class-name">SharedPreferences</span>.getInstance(); setState(() { _notifications = prefs.getBool(<span class="string">'notifications'</span>) ?? <span class="keyword">false</span>; }); } <span class="keyword">Future</span>&lt;<span class="keyword">void</span>&gt; _saveSettings() <span class="keyword">async</span> { <span class="keyword">final</span> prefs = <span class="keyword">await</span> <span class="class-name">SharedPreferences</span>.getInstance(); <span class="keyword">await</span> prefs.setBool(<span class="string">'notifications'</span>, _notifications); } <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { <span class="keyword">return</span> <span class="class-name">SwitchListTile</span>( title: <span class="class-name">Text</span>(<span class="string">'Enable Notifications'</span>), value: _notifications, onChanged: (value) { setState(() { _notifications = value; }); _saveSettings(); }, ); } }
+      </div>
+      <div class="interactive-demo">
+       <h4>🎮 Storage Simulator</h4><button class="demo-button" onclick="simulateStorage('save')">Save Settings</button> <button class="demo-button" onclick="simulateStorage('load')">Load Settings</button> <button class="demo-button" onclick="simulateStorage('clear')">Clear Storage</button>
+       <div class="demo-output" id="storage-output">
+        No data stored yet...
+       </div>
+      </div>
+     </div><!-- Lesson 7: pubspec.yaml -->
+     <div class="lesson-content" data-lesson="6">
+      <h2>📦 Understanding pubspec.yaml</h2>
+      <p>The pubspec.yaml file is the heart of your Flutter project. It defines dependencies, assets, and metadata.</p>
+      <h3>Basic Structure</h3>
+      <div class="code-block">
+       name: my_app description: A new Flutter project. publish_to: 'none' version: 1.0.0+1 environment: sdk: '&gt;=3.0.0 &lt;4.0.0' dependencies: flutter: sdk: flutter cupertino_icons: ^1.0.2 http: ^1.1.0 shared_preferences: ^2.2.0 dev_dependencies: flutter_test: sdk: flutter flutter_lints: ^2.0.0 flutter: uses-material-design: true assets: - assets/images/ - assets/data.json fonts: - family: Roboto fonts: - asset: assets/fonts/Roboto-Regular.ttf - asset: assets/fonts/Roboto-Bold.ttf weight: 700
+      </div>
+      <h3>Key Sections Explained</h3>
+      <ul>
+       <li><strong>name:</strong> Your app's package name (lowercase, underscores)</li>
+       <li><strong>version:</strong> Format is major.minor.patch+buildNumber</li>
+       <li><strong>environment:</strong> Dart SDK version constraints</li>
+       <li><strong>dependencies:</strong> Packages your app uses at runtime</li>
+       <li><strong>dev_dependencies:</strong> Packages for development only</li>
+      </ul>
+      <h3>Adding Dependencies</h3>
+      <div class="code-block"><span class="comment"># Method 1: Add to pubspec.yaml manually</span> dependencies: package_name: ^1.0.0 <span class="comment"># Method 2: Use command line</span> flutter pub add package_name <span class="comment"># After adding, run:</span> flutter pub get
+      </div>
+      <h3>Version Constraints</h3>
+      <div class="code-block"><span class="comment"># Caret syntax (recommended) - compatible updates</span> http: ^1.1.0 <span class="comment"># Allows 1.1.0 to &lt;2.0.0</span> <span class="comment"># Exact version</span> http: 1.1.0 <span class="comment"># Range</span> http: '&gt;=1.0.0 &lt;2.0.0' <span class="comment"># Any version</span> http: any
+      </div>
+      <div class="tip-box"><strong>💡 Best Practice:</strong> Use caret syntax (^) for automatic compatible updates. Run <code>flutter pub outdated</code> to check for updates.
+      </div>
+      <div class="interactive-demo">
+       <h4>🎮 Dependency Manager</h4><button class="demo-button" onclick="simulatePubspec('add')">Add Package</button> <button class="demo-button" onclick="simulatePubspec('get')">flutter pub get</button> <button class="demo-button" onclick="simulatePubspec('outdated')">Check Outdated</button>
+       <div class="demo-output" id="pubspec-output">
+        Ready to manage dependencies...
+       </div>
+      </div>
+      <h3>Common Packages</h3>
+      <ul>
+       <li><strong>http:</strong> HTTP requests</li>
+       <li><strong>provider:</strong> State management</li>
+       <li><strong>shared_preferences:</strong> Local storage</li>
+       <li><strong>sqflite:</strong> SQLite database</li>
+       <li><strong>image_picker:</strong> Pick images from device</li>
+      </ul>
+     </div><!-- Lesson 8: Console Logging -->
+     <div class="lesson-content" data-lesson="7">
+      <h2>🐛 Console Logging &amp; Debugging</h2>
+      <p>Learn how to debug your Flutter apps effectively using console logging.</p>
+      <h3>Basic Print Statements</h3>
+      <div class="code-block"><span class="comment">// Simple print</span> print(<span class="string">'Hello from Flutter!'</span>); <span class="comment">// Print variables</span> <span class="keyword">int</span> counter = 5; print(<span class="string">'Counter value: $counter'</span>); <span class="comment">// Print objects</span> <span class="class-name">List</span>&lt;<span class="class-name">String</span>&gt; items = [<span class="string">'Apple'</span>, <span class="string">'Banana'</span>]; print(<span class="string">'Items: $items'</span>);
+      </div>
+      <h3>debugPrint (Recommended)</h3>
+      <div class="code-block"><span class="keyword">import</span> <span class="string">'package:flutter/foundation.dart'</span>; <span class="comment">// Better for Flutter - handles large outputs</span> debugPrint(<span class="string">'This is a debug message'</span>); <span class="comment">// Automatically removed in release builds</span> <span class="keyword">if</span> (kDebugMode) { debugPrint(<span class="string">'Debug-only message'</span>); }
+      </div>
+      <h3>Developer Logger</h3>
+      <div class="code-block"><span class="keyword">import</span> <span class="string">'dart:developer'</span> <span class="keyword">as</span> developer; <span class="comment">// More structured logging</span> developer.log( <span class="string">'User logged in'</span>, name: <span class="string">'AuthService'</span>, error: errorObject, stackTrace: stackTrace, ); <span class="comment">// With custom levels</span> developer.log( <span class="string">'API call completed'</span>, name: <span class="string">'NetworkService'</span>, level: 800, <span class="comment">// INFO level</span> );
+      </div>
+      <h3>Logging Best Practices</h3>
+      <div class="code-block"><span class="keyword">class</span> <span class="class-name">ApiService</span> { <span class="keyword">Future</span>&lt;<span class="keyword">void</span>&gt; fetchData() <span class="keyword">async</span> { <span class="keyword">try</span> { debugPrint(<span class="string">'[API] Fetching data...'</span>); <span class="comment">// API call</span> <span class="keyword">final</span> response = <span class="keyword">await</span> http.get(url); debugPrint(<span class="string">'[API] Response: ${response.statusCode}'</span>); debugPrint(<span class="string">'[API] Body length: ${response.body.length}'</span>); } <span class="keyword">catch</span> (e, stackTrace) { developer.log( <span class="string">'Failed to fetch data'</span>, name: <span class="string">'ApiService'</span>, error: e, stackTrace: stackTrace, ); } } }
+      </div>
+      <h3>Common Debugging Scenarios</h3>
+      <div class="code-block"><span class="comment">// 1. Widget lifecycle</span> <span class="keyword">@override</span> <span class="keyword">void</span> initState() { <span class="keyword">super</span>.initState(); debugPrint(<span class="string">'[Widget] initState called'</span>); } <span class="comment">// 2. Button press tracking</span> <span class="keyword">void</span> onButtonPressed() { debugPrint(<span class="string">'[UI] Button pressed at ${DateTime.now()}'</span>); <span class="comment">// action code</span> } <span class="comment">// 3. Navigation tracking</span> <span class="class-name">Navigator</span>.push(context, route).then((_) { debugPrint(<span class="string">'[Navigation] Returned from DetailScreen'</span>); }); <span class="comment">// 4. State changes</span> setState(() { counter++; debugPrint(<span class="string">'[State] Counter updated to $counter'</span>); });
+      </div>
+      <div class="interactive-demo">
+       <h4>🎮 Logging Simulator</h4><button class="demo-button" onclick="simulateLog('info')">Log Info</button> <button class="demo-button" onclick="simulateLog('warning')">Log Warning</button> <button class="demo-button" onclick="simulateLog('error')">Log Error</button> <button class="demo-button" onclick="clearLogs()">Clear Console</button>
+       <div class="demo-output" id="log-output" style="font-family: monospace; white-space: pre-wrap; max-height: 200px; overflow-y: auto;">
+        Console output will appear here...
+       </div>
+      </div>
+      <div class="code-challenge">
+       <h4>✏️ Code Challenge: Debug with Logging</h4>
+       <div class="code-challenge-question"><strong>Task:</strong> Write code to log "Button clicked!" using debugPrint when a button is pressed
+       </div><textarea class="code-input" id="challenge-7" placeholder="Type your code here...">void onButtonPressed() {
+  // Add your debug logging here
+}</textarea>
+       <div class="challenge-controls"><button class="run-button" onclick="runCode(7)">▶ Run Code</button> <button class="demo-button" onclick="checkChallenge(7)">Check Answer</button> <button class="hint-button" onclick="showHint(7)">💡 Show Hint</button>
+       </div>
+       <div class="challenge-feedback" id="feedback-7"></div>
+       <div id="output-7" style="display:none;">
+        <div class="output-label">
+         📺 Output:
+        </div>
+        <div class="run-output" id="run-output-7"></div>
+       </div>
+      </div>
+      <div class="tip-box"><strong>💡 Pro Tip:</strong> Use DevTools in VS Code or Android Studio for advanced debugging with breakpoints, widget inspector, and performance profiling.
+      </div>
+      <div class="warning-box"><strong>⚠️ Remember:</strong> Remove or disable verbose logging before releasing your app to production to improve performance.
+      </div>
+     </div>
+     <div class="navigation-buttons"><button class="nav-button" id="prev-btn" onclick="previousLesson()" disabled> ← Previous </button> <button class="nav-button" id="next-btn" onclick="nextLesson()"> Next → </button>
+     </div>
+    </main>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      tutorial_title: "Interactive Flutter Tutorial",
+      welcome_message: "Master Flutter basics through hands-on learning"
+    };
+
+    let currentLesson = 0;
+    const totalLessons = 8;
+    const completedLessons = new Set();
+    let counter = 0;
+    let isDarkMode = false;
+    let navigationStack = ['Home'];
+    let logMessages = [];
+
+    function showLesson(lessonIndex) {
+      document.querySelectorAll('.lesson-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      document.querySelectorAll('.lesson-item').forEach(item => {
+        item.classList.remove('active');
+      });
+
+      const lessonContent = document.querySelector(`.lesson-content[data-lesson="${lessonIndex}"]`);
+      const lessonItem = document.querySelector(`.lesson-item[data-lesson="${lessonIndex}"]`);
+      
+      if (lessonContent) lessonContent.classList.add('active');
+      if (lessonItem) lessonItem.classList.add('active');
+
+      currentLesson = lessonIndex;
+      updateNavigationButtons();
+      updateProgress();
+    }
+
+    function nextLesson() {
+      if (currentLesson < totalLessons - 1) {
+        completedLessons.add(currentLesson);
+        updateLessonCompletion();
+        showLesson(currentLesson + 1);
+      }
+    }
+
+    function previousLesson() {
+      if (currentLesson > 0) {
+        showLesson(currentLesson - 1);
+      }
+    }
+
+    function updateNavigationButtons() {
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      
+      prevBtn.disabled = currentLesson === 0;
+      nextBtn.disabled = currentLesson === totalLessons - 1;
+    }
+
+    function updateProgress() {
+      const progress = (completedLessons.size / totalLessons) * 100;
+      document.getElementById('progress-fill').style.width = `${progress}%`;
+    }
+
+    function updateLessonCompletion() {
+      document.querySelectorAll('.lesson-item').forEach((item, index) => {
+        if (completedLessons.has(index)) {
+          item.classList.add('completed');
+        }
+      });
+    }
+
+    function simulateHotReload() {
+      const output = document.getElementById('hot-reload-output');
+      output.textContent = '🔄 Hot reloading...\n✅ Reloaded 1 of 523 libraries in 847ms.';
+      setTimeout(() => {
+        output.textContent += '\n✨ Your changes are now live!';
+      }, 1000);
+    }
+
+    function incrementCounter() {
+      counter++;
+      document.getElementById('counter-output').textContent = `Count: ${counter}`;
+    }
+
+    function resetCounter() {
+      counter = 0;
+      document.getElementById('counter-output').textContent = `Count: ${counter}`;
+    }
+
+    function simulateAssetLoad(type) {
+      const output = document.getElementById('asset-output');
+      const messages = {
+        image: '🖼️ Loading image asset...\n✅ assets/images/logo.png loaded successfully!\nDimensions: 512x512px',
+        font: '🔤 Loading font asset...\n✅ CustomFont loaded successfully!\nFont family registered: CustomFont',
+        json: '📄 Loading JSON asset...\n✅ assets/data.json loaded successfully!\nParsed 15 data entries'
+      };
+      output.textContent = messages[type];
+    }
+
+    function simulateNavigation(action) {
+      const output = document.getElementById('navigation-output');
+      
+      if (action === 'push') {
+        const screenName = `Screen${navigationStack.length + 1}`;
+        navigationStack.push(screenName);
+      } else if (action === 'pop' && navigationStack.length > 1) {
+        navigationStack.pop();
+      } else if (action === 'replace' && navigationStack.length > 0) {
+        navigationStack[navigationStack.length - 1] = `Replaced${navigationStack.length}`;
+      }
+      
+      output.textContent = `Navigation Stack: [${navigationStack.join(' → ')}]`;
+    }
+
+    function toggleTheme() {
+      isDarkMode = !isDarkMode;
+      const output = document.getElementById('theme-output');
+      
+      if (isDarkMode) {
+        output.style.background = '#1a1a1a';
+        output.style.color = 'white';
+        output.textContent = 'Current Theme: Dark Mode ���';
+      } else {
+        output.style.background = 'white';
+        output.style.color = 'black';
+        output.textContent = 'Current Theme: Light Mode ☀️';
+      }
+    }
+
+    function simulateStorage(action) {
+      const output = document.getElementById('storage-output');
+      
+      if (action === 'save') {
+        output.textContent = '💾 Saving to SharedPreferences...\n✅ Saved:\n  - notifications: true\n  - theme: "dark"\n  - language: "en"';
+      } else if (action === 'load') {
+        output.textContent = '📂 Loading from SharedPreferences...\n✅ Retrieved:\n  - notifications: true\n  - theme: "dark"\n  - language: "en"';
+      } else if (action === 'clear') {
+        output.textContent = '🗑️ Clearing SharedPreferences...\n✅ All data cleared!';
+      }
+    }
+
+    function simulatePubspec(action) {
+      const output = document.getElementById('pubspec-output');
+      
+      if (action === 'add') {
+        output.textContent = '📦 Adding package "provider"...\n✅ Added provider ^6.0.5 to dependencies\n💡 Run "flutter pub get" to install';
+      } else if (action === 'get') {
+        output.textContent = '⬇️ Running flutter pub get...\n📦 Resolving dependencies...\n✅ Got dependencies!\n  - provider 6.0.5\n  - http 1.1.0\n  - shared_preferences 2.2.0';
+      } else if (action === 'outdated') {
+        output.textContent = '🔍 Checking for outdated packages...\n📊 Results:\n  - http: 1.1.0 → 1.2.0 available\n  - provider: up to date ✓';
+      }
+    }
+
+    function simulateLog(level) {
+      const output = document.getElementById('log-output');
+      const timestamp = new Date().toLocaleTimeString();
+      
+      const messages = {
+        info: `[${timestamp}] ℹ️ INFO: User navigated to HomeScreen`,
+        warning: `[${timestamp}] ⚠️ WARNING: API response took 3.2s`,
+        error: `[${timestamp}] ❌ ERROR: Failed to load data\n  Exception: NetworkException\n  at ApiService.fetchData()`
+      };
+      
+      logMessages.push(messages[level]);
+      output.textContent = logMessages.join('\n\n');
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function clearLogs() {
+      logMessages = [];
+      document.getElementById('log-output').textContent = 'Console cleared.';
+    }
+
+    const challenges = {
+      0: {
+        check: (code) => {
+          code = code.toLowerCase().replace(/\s+/g, ' ').trim();
+          const hasMain = code.includes('void main()');
+          const hasRunApp = code.includes('runapp(');
+          const hasMaterialApp = code.includes('materialapp(');
+          
+          if (!hasMain) {
+            return { correct: false, error: 'Missing void main() function' };
+          }
+          if (!hasRunApp) {
+            return { correct: false, error: 'Missing runApp() call inside main()' };
+          }
+          if (!hasMaterialApp) {
+            return { correct: false, error: 'Need to pass MaterialApp() to runApp()' };
+          }
+          return { correct: true };
+        },
+        hint: 'Use runApp() to start your app, and pass it a MaterialApp widget. The structure should be: void main() { runApp(MaterialApp(...)); }'
+      },
+      1: {
+        check: (code) => {
+          code = code.replace(/\s+/g, ' ').trim();
+          const hasClass = code.includes('class WelcomeText');
+          const extendsStateless = code.toLowerCase().includes('extends statelesswidget');
+          const hasBuild = code.includes('build(');
+          const hasText = code.includes('Text(');
+          const hasWelcome = code.includes('Welcome to Flutter');
+          
+          if (!hasClass) {
+            return { correct: false, error: 'Class name should be WelcomeText' };
+          }
+          if (!extendsStateless) {
+            return { correct: false, error: 'WelcomeText must extend StatelessWidget' };
+          }
+          if (!hasBuild) {
+            return { correct: false, error: 'Missing the build() method' };
+          }
+          if (!hasText || !hasWelcome) {
+            return { correct: false, error: 'Need to return Text("Welcome to Flutter!") from build()' };
+          }
+          return { correct: true };
+        },
+        hint: 'Structure: class WelcomeText extends StatelessWidget { @override Widget build(BuildContext context) { return Text("Welcome to Flutter!"); } }'
+      },
+      3: {
+        check: (code) => {
+          code = code.toLowerCase().replace(/\s+/g, ' ').trim();
+          const hasNavigator = code.includes('navigator.');
+          const hasPush = code.includes('.push(');
+          const hasMaterialPageRoute = code.includes('materialpageroute(');
+          const hasSettingsScreen = code.includes('settingsscreen');
+          
+          if (!hasNavigator) {
+            return { correct: false, error: 'Need to use Navigator class' };
+          }
+          if (!hasPush) {
+            return { correct: false, error: 'Use Navigator.push() method' };
+          }
+          if (!hasMaterialPageRoute) {
+            return { correct: false, error: 'Wrap the route in MaterialPageRoute' };
+          }
+          if (!hasSettingsScreen) {
+            return { correct: false, error: 'Navigate to SettingsScreen()' };
+          }
+          return { correct: true };
+        },
+        hint: 'Use Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()))'
+      },
+      7: {
+        check: (code) => {
+          code = code.toLowerCase().replace(/\s+/g, ' ').trim();
+          const hasDebugPrint = code.includes('debugprint(');
+          const hasMessage = code.includes('button clicked');
+          
+          if (!hasDebugPrint) {
+            return { correct: false, error: 'Use debugPrint() function for logging' };
+          }
+          if (!hasMessage) {
+            return { correct: false, error: 'Log message should say "Button clicked!"' };
+          }
+          return { correct: true };
+        },
+        hint: 'Use debugPrint("Button clicked!"); inside the function'
+      }
+    };
+
+    function checkChallenge(challengeId) {
+      const input = document.getElementById(`challenge-${challengeId}`);
+      const feedback = document.getElementById(`feedback-${challengeId}`);
+      const code = input.value;
+      
+      if (!code.trim()) {
+        showFeedback(feedback, 'incorrect', 'Please write some code first!');
+        return;
+      }
+      
+      const challenge = challenges[challengeId];
+      const result = challenge.check(code);
+      
+      if (result.correct) {
+        showFeedback(feedback, 'correct', 
+          '<span class="feedback-icon">✅</span><strong>Perfect!</strong> Your code is correct! ' +
+          'You\'ve mastered this concept. Keep going!');
+        completedLessons.add(currentLesson);
+        updateLessonCompletion();
+        updateProgress();
+      } else {
+        showFeedback(feedback, 'incorrect', 
+          `<span class="feedback-icon">❌</span><strong>Not quite right.</strong><div class="error-details"><strong>Issue:</strong> ${result.error}</div><p>Review the lesson above and try again!</p>`);
+      }
+    }
+
+    function showHint(challengeId) {
+      const feedback = document.getElementById(`feedback-${challengeId}`);
+      const challenge = challenges[challengeId];
+      
+      showFeedback(feedback, 'hint', 
+        `<span class="feedback-icon">💡</span><strong>Hint:</strong> ${challenge.hint}`);
+    }
+
+    function showFeedback(element, type, message) {
+      element.className = 'challenge-feedback ' + type;
+      element.innerHTML = message;
+    }
+
+    function runCode(challengeId) {
+      const input = document.getElementById(`challenge-${challengeId}`);
+      const outputContainer = document.getElementById(`output-${challengeId}`);
+      const output = document.getElementById(`run-output-${challengeId}`);
+      const code = input.value.trim();
+      
+      if (!code) {
+        output.textContent = '❌ Error: No code to run. Please write some code first!';
+        outputContainer.style.display = 'block';
+        return;
+      }
+      
+      outputContainer.style.display = 'block';
+      output.textContent = '⏳ Running your code...\n';
+      
+      setTimeout(() => {
+        try {
+          const result = executeFlutterCode(challengeId, code);
+          output.innerHTML = result;
+        } catch (e) {
+          output.innerHTML = `<span style="color: #ff6b6b;">❌ Runtime Error:</span>\n${e.message}\n\n<span style="color: #ffa502;">💡 Tip:</span> Check your syntax and make sure all required elements are present.`;
+        }
+      }, 500);
+    }
+
+    function executeFlutterCode(challengeId, code) {
+      const codeLower = code.toLowerCase().replace(/\s+/g, ' ');
+      let output = '';
+      
+      switch(challengeId) {
+        case 0: // main() challenge
+          if (!codeLower.includes('void main()')) {
+            return '<span style="color: #ff6b6b;">❌ Compilation Error:</span>\n' +
+                   'Missing entry point: void main() function not found.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• Every Flutter app needs a main() function as the entry point\n' +
+                   '• Syntax: void main() { ... }';
+          }
+          
+          if (!codeLower.includes('runapp(')) {
+            return '<span style="color: #ff6b6b;">❌ Runtime Error:</span>\n' +
+                   'runApp() function not called.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• runApp() is required to start your Flutter app\n' +
+                   '• It should be called inside main()\n' +
+                   '• Example: runApp(MaterialApp());';
+          }
+          
+          if (!codeLower.includes('materialapp')) {
+            return '<span style="color: #ff6b6b;">❌ Runtime Error:</span>\n' +
+                   'MaterialApp widget not found.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• MaterialApp is the root widget for Material Design apps\n' +
+                   '• Pass it to runApp(): runApp(MaterialApp())';
+          }
+          
+          output = '<span style="color: #51cf66;">✅ Successfully compiled!</span>\n\n';
+          output += '📱 App Output:\n';
+          output += '┌─────────────────────────┐\n';
+          output += '│   Flutter App Running   │\n';
+          output += '│                         │\n';
+          if (code.includes('Hello Flutter') || code.includes('hello flutter')) {
+            output += '│  Title: Hello Flutter   │\n';
+          } else {
+            output += '│  Title: My App          │\n';
+          }
+          output += '│                         │\n';
+          output += '│   [Material Design UI]  │\n';
+          output += '└─────────────────────────┘\n\n';
+          output += '<span style="color: #4dabf7;">ℹ️ Info:</span> App initialized successfully!';
+          return output;
+          
+        case 1: // StatelessWidget challenge
+          if (!code.includes('class WelcomeText')) {
+            return '<span style="color: #ff6b6b;">❌ Compilation Error:</span>\n' +
+                   'Class "WelcomeText" not found.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• You need to create a class named WelcomeText\n' +
+                   '• Class names should start with a capital letter\n' +
+                   '• Syntax: class WelcomeText extends StatelessWidget { ... }';
+          }
+          
+          if (!codeLower.includes('extends statelesswidget')) {
+            return '<span style="color: #ff6b6b;">❌ Compilation Error:</span>\n' +
+                   'WelcomeText must extend StatelessWidget.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• StatelessWidget is required for static widgets\n' +
+                   '• Syntax: class WelcomeText extends StatelessWidget\n' +
+                   '• Don\'t forget to import: package:flutter/material.dart';
+          }
+          
+          if (!codeLower.includes('build(') || !codeLower.includes('buildcontext')) {
+            return '<span style="color: #ff6b6b;">❌ Compilation Error:</span>\n' +
+                   'Missing build() method.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• Every widget needs a build() method\n' +
+                   '• It must return a Widget\n' +
+                   '• Syntax: Widget build(BuildContext context) { return ...; }';
+          }
+          
+          if (!code.includes('Text(')) {
+            return '<span style="color: #ff6b6b;">❌ Runtime Error:</span>\n' +
+                   'Text widget not found in build() method.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• build() should return a Text widget\n' +
+                   '• Syntax: return Text("Welcome to Flutter!");';
+          }
+          
+          if (!code.includes('Welcome to Flutter')) {
+            return '<span style="color: #ff6b6b;">❌ Incorrect Output:</span>\n' +
+                   'Text content doesn\'t match requirements.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• The Text should display "Welcome to Flutter!"\n' +
+                   '• Check your string content inside Text()';
+          }
+          
+          output = '<span style="color: #51cf66;">✅ Successfully compiled!</span>\n\n';
+          output += '📱 Widget Rendered:\n';
+          output += '┌─────────────────────────┐\n';
+          output += '│                         │\n';
+          output += '│  Welcome to Flutter!    │\n';
+          output += '│                         │\n';
+          output += '└─────────────────────────┘\n\n';
+          output += '<span style="color: #4dabf7;">ℹ️ Info:</span> WelcomeText widget created successfully!';
+          return output;
+          
+        case 3: // Navigation challenge
+          if (!codeLower.includes('navigator.')) {
+            return '<span style="color: #ff6b6b;">❌ Compilation Error:</span>\n' +
+                   'Navigator class not used.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• Navigator is required for screen navigation\n' +
+                   '• It manages the navigation stack\n' +
+                   '• Start with: Navigator.push(...)';
+          }
+          
+          if (!codeLower.includes('.push(')) {
+            return '<span style="color: #ff6b6b;">❌ Compilation Error:</span>\n' +
+                   'push() method not called.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• Use Navigator.push() to navigate to a new screen\n' +
+                   '• push() adds a route to the navigation stack\n' +
+                   '• Syntax: Navigator.push(context, route)';
+          }
+          
+          if (!codeLower.includes('materialpageroute')) {
+            return '<span style="color: #ff6b6b;">❌ Compilation Error:</span>\n' +
+                   'MaterialPageRoute not found.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• Routes need to be wrapped in MaterialPageRoute\n' +
+                   '• This provides Material Design page transitions\n' +
+                   '• Syntax: MaterialPageRoute(builder: (context) => Screen())';
+          }
+          
+          if (!codeLower.includes('settingsscreen')) {
+            return '<span style="color: #ff6b6b;">❌ Runtime Error:</span>\n' +
+                   'SettingsScreen not specified.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• The builder should return SettingsScreen()\n' +
+                   '• Make sure the class name matches exactly\n' +
+                   '• Example: builder: (context) => SettingsScreen()';
+          }
+          
+          output = '<span style="color: #51cf66;">✅ Successfully compiled!</span>\n\n';
+          output += '📱 Navigation Output:\n';
+          output += '🔄 Navigating...\n\n';
+          output += 'Stack: [HomePage] → [SettingsScreen]\n\n';
+          output += '┌─────────────────────────┐\n';
+          output += '│ ← Settings              │\n';
+          output += '├─────────────────────────┤\n';
+          output += '│                         │\n';
+          output += '│   Settings Screen       │\n';
+          output += '│   Content Here          │\n';
+          output += '│                         │\n';
+          output += '└─────────────────────────┘\n\n';
+          output += '<span style="color: #4dabf7;">ℹ️ Info:</span> Navigation successful!';
+          return output;
+          
+        case 7: // Logging challenge
+          if (!codeLower.includes('debugprint(')) {
+            return '<span style="color: #ff6b6b;">❌ Compilation Error:</span>\n' +
+                   'debugPrint() function not found.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• debugPrint() is the recommended logging function in Flutter\n' +
+                   '• It\'s better than print() for large outputs\n' +
+                   '• Syntax: debugPrint("Your message");';
+          }
+          
+          if (!codeLower.includes('button clicked')) {
+            return '<span style="color: #ff6b6b;">❌ Incorrect Output:</span>\n' +
+                   'Message doesn\'t match requirements.\n\n' +
+                   '<span style="color: #ffa502;">What went wrong:</span>\n' +
+                   '• The message should be "Button clicked!"\n' +
+                   '• Check the string inside debugPrint()\n' +
+                   '• Example: debugPrint("Button clicked!");';
+          }
+          
+          output = '<span style="color: #51cf66;">✅ Successfully compiled!</span>\n\n';
+          output += '📱 Function Executed:\n';
+          output += 'Simulating button press...\n\n';
+          output += '🖥️ Console Output:\n';
+          output += '─────────────────────────\n';
+          output += '[DEBUG] Button clicked!\n';
+          output += '─────────────────────────\n\n';
+          output += '<span style="color: #4dabf7;">ℹ️ Info:</span> Debug message logged successfully!\n';
+          output += '<span style="color: #4dabf7;">💡 Tip:</span> Check your debug console in VS Code or Android Studio to see logs.';
+          return output;
+          
+        default:
+          return '<span style="color: #4dabf7;">ℹ️</span> Code execution not available for this challenge.';
+      }
+    }
+
+    document.querySelectorAll('.lesson-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const lessonIndex = parseInt(item.getAttribute('data-lesson'));
+        showLesson(lessonIndex);
+      });
+    });
+
+    async function onConfigChange(config) {
+      const titleElement = document.getElementById('tutorial-title');
+      const messageElement = document.getElementById('welcome-message');
+      
+      if (titleElement) {
+        titleElement.textContent = config.tutorial_title || defaultConfig.tutorial_title;
+      }
+      if (messageElement) {
+        messageElement.textContent = config.welcome_message || defaultConfig.welcome_message;
+      }
+    }
+
+    const element = {
+      defaultConfig,
+      onConfigChange,
+      mapToCapabilities: (config) => ({
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      }),
+      mapToEditPanelValues: (config) => new Map([
+        ["tutorial_title", config.tutorial_title || defaultConfig.tutorial_title],
+        ["welcome_message", config.welcome_message || defaultConfig.welcome_message]
+      ])
+    };
+
+    if (window.elementSdk) {
+      window.elementSdk.init(element);
+    }
+
+    showLesson(0);
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a17003877ddf491',t:'MTc2MzYzMTc4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
