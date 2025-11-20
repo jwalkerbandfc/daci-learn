@@ -1,0 +1,506 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAID Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e6eeff 100%);
+        }
+        .raid-card {
+            transition: all 0.3s ease;
+        }
+        .raid-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1);
+        }
+        .disk {
+            transition: all 0.2s ease;
+        }
+        .disk:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="bg-blue-600 p-6 text-white">
+            <h1 class="text-2xl md:text-3xl font-bold">RAID Calculator</h1>
+            <p class="opacity-90 mt-1">Calculate storage capacity and performance for different RAID configurations</p>
+        </div>
+        
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Input Section -->
+                <div class="bg-gray-50 p-6 rounded-xl">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Configuration</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">RAID Level</label>
+                            <select id="raidLevel" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="0">RAID 0 (Striping)</option>
+                                <option value="1">RAID 1 (Mirroring)</option>
+                                <option value="5">RAID 5 (Striping with Parity)</option>
+                                <option value="6">RAID 6 (Striping with Double Parity)</option>
+                                <option value="10">RAID 10 (1+0)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of Disks</label>
+                            <input type="number" id="diskCount" min="2" value="4" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <p id="minDisksWarning" class="text-red-500 text-xs mt-1 hidden">Minimum 3 disks required for RAID 5</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Disk Capacity (GB)</label>
+                            <input type="number" id="diskCapacity" min="1" value="1000" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <button id="calculateBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                            Calculate
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Results Section -->
+                <div class="bg-gray-50 p-6 rounded-xl">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Results</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <p class="text-sm text-gray-500">Total Raw Capacity</p>
+                                <p id="rawCapacity" class="text-xl font-semibold text-gray-800">4000 GB</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <p class="text-sm text-gray-500">Usable Capacity</p>
+                                <p id="usableCapacity" class="text-xl font-semibold text-blue-600">3000 GB</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <p class="text-sm text-gray-500">Fault Tolerance</p>
+                            <p id="faultTolerance" class="font-semibold text-gray-800">Can survive 1 disk failure</p>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between mb-2">
+                                <p class="text-sm text-gray-500">Read Performance</p>
+                                <span id="readPerformance" class="text-sm font-medium text-green-600">Excellent</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="readPerformanceBar" class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between mb-2">
+                                <p class="text-sm text-gray-500">Write Performance</p>
+                                <span id="writePerformance" class="text-sm font-medium text-green-600">Excellent</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="writePerformanceBar" class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Visualization Section -->
+            <div class="mt-8 bg-gray-50 p-6 rounded-xl">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">RAID Visualization</h2>
+                <div id="visualization" class="flex flex-wrap justify-center gap-4 p-4"></div>
+            </div>
+            
+            <!-- RAID Information Section -->
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="raid-card bg-white p-5 rounded-xl border border-gray-200 hover:border-blue-300">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">What is RAID?</h3>
+                    <p class="text-gray-600">RAID (Redundant Array of Independent Disks) is a technology that combines multiple disk drives into a logical unit for data redundancy, performance improvement, or both.</p>
+                </div>
+                
+                <div class="raid-card bg-white p-5 rounded-xl border border-gray-200 hover:border-blue-300">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Common Use Cases</h3>
+                    <p class="text-gray-600">RAID is commonly used in servers, workstations, and storage systems where data reliability, availability, or performance is important.</p>
+                </div>
+                
+                <div class="raid-card bg-white p-5 rounded-xl border border-gray-200 hover:border-blue-300">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Important Note</h3>
+                    <p class="text-gray-600">RAID is not a backup solution. While it provides protection against disk failures, it doesn't protect against data corruption, accidental deletion, or disasters.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gray-50 p-6 border-t border-gray-200">
+            <p class="text-center text-gray-500 text-sm">This calculator provides estimates for planning purposes. Actual usable capacity may vary based on filesystem overhead and other factors.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const raidLevelSelect = document.getElementById('raidLevel');
+            const diskCountInput = document.getElementById('diskCount');
+            const diskCapacityInput = document.getElementById('diskCapacity');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const minDisksWarning = document.getElementById('minDisksWarning');
+            
+            // Initial calculation
+            calculateRAID();
+            updateVisualization();
+            
+            // Event listeners
+            calculateBtn.addEventListener('click', function() {
+                calculateRAID();
+                updateVisualization();
+            });
+            
+            raidLevelSelect.addEventListener('change', function() {
+                validateDiskCount();
+            });
+            
+            diskCountInput.addEventListener('input', function() {
+                validateDiskCount();
+            });
+            
+            function validateDiskCount() {
+                const raidLevel = parseInt(raidLevelSelect.value);
+                const diskCount = parseInt(diskCountInput.value);
+                
+                let minDisks = 2;
+                
+                if (raidLevel === 5) minDisks = 3;
+                if (raidLevel === 6) minDisks = 4;
+                if (raidLevel === 10) minDisks = 4;
+                
+                if (diskCount < minDisks) {
+                    minDisksWarning.textContent = `Minimum ${minDisks} disks required for RAID ${raidLevel}`;
+                    minDisksWarning.classList.remove('hidden');
+                    calculateBtn.disabled = true;
+                    calculateBtn.classList.add('opacity-50');
+                } else {
+                    minDisksWarning.classList.add('hidden');
+                    calculateBtn.disabled = false;
+                    calculateBtn.classList.remove('opacity-50');
+                }
+            }
+            
+            function calculateRAID() {
+                const raidLevel = parseInt(raidLevelSelect.value);
+                const diskCount = parseInt(diskCountInput.value);
+                const diskCapacity = parseInt(diskCapacityInput.value);
+                
+                const rawCapacity = diskCount * diskCapacity;
+                let usableCapacity = 0;
+                let faultTolerance = '';
+                let readPerformance = '';
+                let writePerformance = '';
+                let readPerformancePercent = 0;
+                let writePerformancePercent = 0;
+                
+                switch(raidLevel) {
+                    case 0:
+                        usableCapacity = rawCapacity;
+                        faultTolerance = 'None (data loss if any disk fails)';
+                        readPerformance = 'Excellent';
+                        writePerformance = 'Excellent';
+                        readPerformancePercent = 100;
+                        writePerformancePercent = 100;
+                        break;
+                    case 1:
+                        usableCapacity = rawCapacity / 2;
+                        faultTolerance = 'Can survive 1 disk failure';
+                        readPerformance = 'Very Good';
+                        writePerformance = 'Good';
+                        readPerformancePercent = 90;
+                        writePerformancePercent = 70;
+                        break;
+                    case 5:
+                        usableCapacity = (diskCount - 1) * diskCapacity;
+                        faultTolerance = 'Can survive 1 disk failure';
+                        readPerformance = 'Very Good';
+                        writePerformance = 'Good';
+                        readPerformancePercent = 90;
+                        writePerformancePercent = 60;
+                        break;
+                    case 6:
+                        usableCapacity = (diskCount - 2) * diskCapacity;
+                        faultTolerance = 'Can survive 2 disk failures';
+                        readPerformance = 'Very Good';
+                        writePerformance = 'Fair';
+                        readPerformancePercent = 85;
+                        writePerformancePercent = 50;
+                        break;
+                    case 10:
+                        usableCapacity = rawCapacity / 2;
+                        faultTolerance = 'Can survive multiple disk failures (if not in same mirror)';
+                        readPerformance = 'Excellent';
+                        writePerformance = 'Good';
+                        readPerformancePercent = 95;
+                        writePerformancePercent = 75;
+                        break;
+                }
+                
+                // Update results
+                document.getElementById('rawCapacity').textContent = `${rawCapacity} GB`;
+                document.getElementById('usableCapacity').textContent = `${usableCapacity} GB`;
+                document.getElementById('faultTolerance').textContent = faultTolerance;
+                document.getElementById('readPerformance').textContent = readPerformance;
+                document.getElementById('writePerformance').textContent = writePerformance;
+                
+                document.getElementById('readPerformanceBar').style.width = `${readPerformancePercent}%`;
+                document.getElementById('writePerformanceBar').style.width = `${writePerformancePercent}%`;
+                
+                // Update performance bar colors
+                updatePerformanceBarColor('readPerformanceBar', readPerformancePercent);
+                updatePerformanceBarColor('writePerformanceBar', writePerformancePercent);
+            }
+            
+            function updatePerformanceBarColor(elementId, percent) {
+                const element = document.getElementById(elementId);
+                if (percent >= 90) {
+                    element.className = 'bg-green-500 h-2 rounded-full';
+                } else if (percent >= 70) {
+                    element.className = 'bg-green-400 h-2 rounded-full';
+                } else if (percent >= 50) {
+                    element.className = 'bg-yellow-400 h-2 rounded-full';
+                } else {
+                    element.className = 'bg-orange-400 h-2 rounded-full';
+                }
+            }
+            
+            function updateVisualization() {
+                const raidLevel = parseInt(raidLevelSelect.value);
+                const diskCount = parseInt(diskCountInput.value);
+                const visualizationDiv = document.getElementById('visualization');
+                
+                visualizationDiv.innerHTML = '';
+                
+                // Create disk visualization based on RAID level
+                switch(raidLevel) {
+                    case 0: // Striping
+                        createStripingVisualization(diskCount);
+                        break;
+                    case 1: // Mirroring
+                        createMirroringVisualization(diskCount);
+                        break;
+                    case 5: // Striping with Parity
+                        createRaid5Visualization(diskCount);
+                        break;
+                    case 6: // Striping with Double Parity
+                        createRaid6Visualization(diskCount);
+                        break;
+                    case 10: // RAID 10
+                        createRaid10Visualization(diskCount);
+                        break;
+                }
+            }
+            
+            function createStripingVisualization(diskCount) {
+                const visualizationDiv = document.getElementById('visualization');
+                
+                const container = document.createElement('div');
+                container.className = 'w-full flex flex-col items-center';
+                
+                const title = document.createElement('p');
+                title.className = 'text-center text-gray-600 mb-4';
+                title.textContent = 'Data is striped across all disks (no redundancy)';
+                container.appendChild(title);
+                
+                const disksContainer = document.createElement('div');
+                disksContainer.className = 'flex flex-wrap justify-center gap-2';
+                
+                for (let i = 0; i < diskCount; i++) {
+                    const disk = createDiskElement(i);
+                    
+                    // Add data blocks
+                    for (let j = 0; j < 4; j++) {
+                        const dataBlock = document.createElement('div');
+                        dataBlock.className = 'h-6 mb-1 rounded';
+                        dataBlock.style.backgroundColor = getDataColor(j);
+                        disk.appendChild(dataBlock);
+                    }
+                    
+                    disksContainer.appendChild(disk);
+                }
+                
+                container.appendChild(disksContainer);
+                visualizationDiv.appendChild(container);
+            }
+            
+            function createMirroringVisualization(diskCount) {
+                const visualizationDiv = document.getElementById('visualization');
+                
+                const container = document.createElement('div');
+                container.className = 'w-full flex flex-col items-center';
+                
+                const title = document.createElement('p');
+                title.className = 'text-center text-gray-600 mb-4';
+                title.textContent = 'Each disk is mirrored (identical data on pairs)';
+                container.appendChild(title);
+                
+                const disksContainer = document.createElement('div');
+                disksContainer.className = 'flex flex-wrap justify-center gap-2';
+                
+                for (let i = 0; i < diskCount; i++) {
+                    const disk = createDiskElement(i);
+                    
+                    // Add data blocks - same color for mirrored pairs
+                    for (let j = 0; j < 4; j++) {
+                        const dataBlock = document.createElement('div');
+                        dataBlock.className = 'h-6 mb-1 rounded';
+                        dataBlock.style.backgroundColor = getDataColor(j);
+                        disk.appendChild(dataBlock);
+                    }
+                    
+                    disksContainer.appendChild(disk);
+                }
+                
+                container.appendChild(disksContainer);
+                visualizationDiv.appendChild(container);
+            }
+            
+            function createRaid5Visualization(diskCount) {
+                const visualizationDiv = document.getElementById('visualization');
+                
+                const container = document.createElement('div');
+                container.className = 'w-full flex flex-col items-center';
+                
+                const title = document.createElement('p');
+                title.className = 'text-center text-gray-600 mb-4';
+                title.textContent = 'Data striped with distributed parity blocks';
+                container.appendChild(title);
+                
+                const disksContainer = document.createElement('div');
+                disksContainer.className = 'flex flex-wrap justify-center gap-2';
+                
+                for (let i = 0; i < diskCount; i++) {
+                    const disk = createDiskElement(i);
+                    
+                    // Add data and parity blocks
+                    for (let j = 0; j < 4; j++) {
+                        const block = document.createElement('div');
+                        block.className = 'h-6 mb-1 rounded';
+                        
+                        // Distribute parity blocks (P)
+                        if ((i + j) % diskCount === 0) {
+                            block.style.backgroundColor = '#FF9800';
+                            block.textContent = 'P';
+                            block.className += ' flex items-center justify-center text-white font-bold';
+                        } else {
+                            block.style.backgroundColor = getDataColor(j);
+                        }
+                        
+                        disk.appendChild(block);
+                    }
+                    
+                    disksContainer.appendChild(disk);
+                }
+                
+                container.appendChild(disksContainer);
+                visualizationDiv.appendChild(container);
+            }
+            
+            function createRaid6Visualization(diskCount) {
+                const visualizationDiv = document.getElementById('visualization');
+                
+                const container = document.createElement('div');
+                container.className = 'w-full flex flex-col items-center';
+                
+                const title = document.createElement('p');
+                title.className = 'text-center text-gray-600 mb-4';
+                title.textContent = 'Data striped with double distributed parity blocks';
+                container.appendChild(title);
+                
+                const disksContainer = document.createElement('div');
+                disksContainer.className = 'flex flex-wrap justify-center gap-2';
+                
+                for (let i = 0; i < diskCount; i++) {
+                    const disk = createDiskElement(i);
+                    
+                    // Add data and parity blocks
+                    for (let j = 0; j < 4; j++) {
+                        const block = document.createElement('div');
+                        block.className = 'h-6 mb-1 rounded';
+                        
+                        // Distribute P and Q parity blocks
+                        if ((i + j) % diskCount === 0) {
+                            block.style.backgroundColor = '#FF9800';
+                            block.textContent = 'P';
+                            block.className += ' flex items-center justify-center text-white font-bold';
+                        } else if ((i + j + 1) % diskCount === 0) {
+                            block.style.backgroundColor = '#E91E63';
+                            block.textContent = 'Q';
+                            block.className += ' flex items-center justify-center text-white font-bold';
+                        } else {
+                            block.style.backgroundColor = getDataColor(j);
+                        }
+                        
+                        disk.appendChild(block);
+                    }
+                    
+                    disksContainer.appendChild(disk);
+                }
+                
+                container.appendChild(disksContainer);
+                visualizationDiv.appendChild(container);
+            }
+            
+            function createRaid10Visualization(diskCount) {
+                const visualizationDiv = document.getElementById('visualization');
+                
+                const container = document.createElement('div');
+                container.className = 'w-full flex flex-col items-center';
+                
+                const title = document.createElement('p');
+                title.className = 'text-center text-gray-600 mb-4';
+                title.textContent = 'Striped set of mirrored disks';
+                container.appendChild(title);
+                
+                const disksContainer = document.createElement('div');
+                disksContainer.className = 'flex flex-wrap justify-center gap-2';
+                
+                for (let i = 0; i < diskCount; i++) {
+                    const disk = createDiskElement(i);
+                    
+                    // Add data blocks - same color for mirrored pairs
+                    for (let j = 0; j < 4; j++) {
+                        const dataBlock = document.createElement('div');
+                        dataBlock.className = 'h-6 mb-1 rounded';
+                        // Use same color for mirrored pairs
+                        dataBlock.style.backgroundColor = getDataColor(j);
+                        disk.appendChild(dataBlock);
+                    }
+                    
+                    disksContainer.appendChild(disk);
+                }
+                
+                container.appendChild(disksContainer);
+                visualizationDiv.appendChild(container);
+            }
+            
+            function createDiskElement(index) {
+                const disk = document.createElement('div');
+                disk.className = 'disk bg-white border border-gray-300 rounded-lg p-2 w-20';
+                
+                const diskLabel = document.createElement('div');
+                diskLabel.className = 'text-center text-xs font-medium text-gray-600 mb-2';
+                diskLabel.textContent = `Disk ${index + 1}`;
+                disk.appendChild(diskLabel);
+                
+                return disk;
+            }
+            
+            function getDataColor(index) {
+                const colors = ['#4299E1', '#48BB78', '#9F7AEA', '#ED8936'];
+                return colors[index % colors.length];
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94e140f013892718',t:'MTc0OTY0NjQzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
