@@ -46,9 +46,11 @@ function render(list: FileItem[]) {
         </div>
       </div>
       <div class="actions">
-        ${item.path}Open</a>
+        <a class="button primary" href="${item.path}" target="_blank">Open</a>
         <a class="button secondary" href="${item.path}" download>Download</a>
-li);
+      </div>
+    `;
+    fileList.appendChild(li);
   });
 }
 
@@ -67,3 +69,4 @@ searchInput.addEventListener('input', applyFilters);
 typeSelect.addEventListener('change', applyFilters);
 
 // initial render
+render(files);
