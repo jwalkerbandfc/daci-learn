@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 
 const EXTERNAL_ROUTES = [
   ['/ai', 'https://canvas.instructure.com/courses/13420265'],
-  ['/excel', 'https://example.com/excel-redirect'],
+  ['/excel', 'https://canvas.instructure.com/courses/13193221'],
 ];
 
 const PUBLIC_FOLDER_ROUTES = ['flutter', 'resources', 'cisco-sim', 'raid-calc'];
