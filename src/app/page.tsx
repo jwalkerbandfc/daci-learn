@@ -8,7 +8,7 @@ const EXTERNAL_ROUTES = [
   ['/excel', 'https://canvas.instructure.com/courses/13193221'],
 ];
 
-const PUBLIC_FOLDER_ROUTES = ['flutter', 'resources', 'cisco-sim', 'raid-calc'];
+const PUBLIC_FOLDER_ROUTES = ['Flutter', 'resources', 'Cisco-Sim', 'Raid-Calc'];
 
 const DEFAULT = '';
 
