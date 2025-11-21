@@ -1,9 +1,9 @@
 type FileItem = {
   name: string;
-  path: string;   // relative path (e.g., "./resources/Workbook.pdf")
+  path: string;
   type: 'pdf' | 'docx' | 'pptx' | 'xlsx' | 'image' | 'code' | 'other';
-  size?: string;  // human-readable e.g., "2.1 MB"
-  updated?: string; // e.g., "2025-11-10"
+  size?: string;
+  updated?: string;
 };
 
 const files: FileItem[] = [
@@ -14,9 +14,13 @@ const files: FileItem[] = [
   { name: "Training Banner", path: "./resources/banner.png", type: "image", size: "820 KB", updated: "2025-11-01" },
 ];
 
-const searchInput = document.getElementById('searchInput') as HTMLInputElement;
-const typeSelect = document.getElementById('typeSelect') as HTMLSelectElement;
-const fileList = document.getElementById('fileList') as HTMLUListElement;
+const searchInput = document.getElementById('searchInput') as HTMLInputElement | null;
+const typeSelect = document.getElementById('typeSelect') as HTMLSelectElement | null;
+const fileList = document.getElementById('fileList') as HTMLUListElement | null;
+
+if (!searchInput || !typeSelect || !fileList) {
+  throw new Error('Required DOM elements not found');
+}
 
 function iconFor(type: FileItem['type']): string {
   switch (type) {
@@ -68,5 +72,4 @@ function applyFilters() {
 searchInput.addEventListener('input', applyFilters);
 typeSelect.addEventListener('change', applyFilters);
 
-// initial render
 render(files);
