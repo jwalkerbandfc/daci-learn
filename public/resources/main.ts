@@ -8,13 +8,17 @@ type FileItem = {
 
 let files: FileItem[] = [];
 
-const searchInput = document.getElementById('searchInput') as HTMLInputElement | null;
-const typeSelect = document.getElementById('typeSelect') as HTMLSelectElement | null;
-const fileList = document.getElementById('fileList') as HTMLUListElement | null;
+const searchInputEl = document.getElementById('searchInput') as HTMLInputElement | null;
+const typeSelectEl = document.getElementById('typeSelect') as HTMLSelectElement | null;
+const fileListEl = document.getElementById('fileList') as HTMLUListElement | null;
 
-if (!searchInput || !typeSelect || !fileList) {
+if (!searchInputEl || !typeSelectEl || !fileListEl) {
   throw new Error('Required DOM elements not found');
 }
+
+const searchInput = searchInputEl;
+const typeSelect = typeSelectEl;
+const fileList = fileListEl;
 
 function iconFor(type: FileItem['type']): string {
   switch (type) {
