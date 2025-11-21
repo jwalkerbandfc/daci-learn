@@ -6,13 +6,7 @@ type FileItem = {
   updated?: string;
 };
 
-const files: FileItem[] = [
-  { name: "DACI Workbook", path: "./resources/DACI-Workbook.pdf", type: "pdf", size: "3.2 MB", updated: "2025-09-18" },
-  { name: "Exercise 1 – Mobile Apps", path: "./resources/exercise-1.docx", type: "docx", size: "410 KB", updated: "2025-09-20" },
-  { name: "Example Prompt Pack", path: "./resources/prompts.pptx", type: "pptx", size: "1.6 MB", updated: "2025-10-04" },
-  { name: "Adult Learners Notes", path: "./resources/notes.xlsx", type: "xlsx", size: "245 KB", updated: "2025-10-10" },
-  { name: "Training Banner", path: "./resources/banner.png", type: "image", size: "820 KB", updated: "2025-11-01" },
-];
+let files: FileItem[] = [];
 
 const searchInput = document.getElementById('searchInput') as HTMLInputElement | null;
 const typeSelect = document.getElementById('typeSelect') as HTMLSelectElement | null;
@@ -36,6 +30,12 @@ function iconFor(type: FileItem['type']): string {
 
 function render(list: FileItem[]) {
   fileList.innerHTML = '';
+  
+  if (list.length === 0) {
+    fileList.innerHTML = '<li class="empty-state">No files found</li>';
+    return;
+  }
+  
   list.forEach(item => {
     const li = document.createElement('li');
     li.className = 'file-card';
@@ -69,7 +69,19 @@ function applyFilters() {
   render(filtered);
 }
 
+async function loadFiles() {
+  try {
+    const response = await fetch('/api/resources');
+    if (!response.ok) throw new Error('Failed to load files');
+    files = await response.json();
+    render(files);
+  } catch (error) {
+    console.error('Error loading files:', error);
+    fileList.innerHTML = '<li class="empty-state error">Error loading files</li>';
+  }
+}
+
 searchInput.addEventListener('input', applyFilters);
 typeSelect.addEventListener('change', applyFilters);
 
-render(files);
+loadFiles();
