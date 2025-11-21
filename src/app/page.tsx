@@ -10,7 +10,7 @@ const EXTERNAL_ROUTES = [
 
 const PUBLIC_FOLDER_ROUTES = ['flutter', 'resources', 'cisco-sim', 'raid-calc'];
 
-const DEFAULT = 'https://canvas.instructure.com/courses/13420265';
+const DEFAULT = '';
 
 function useSimpleRedirect(isLoggedIn: boolean) {
   const router = useRouter();
