@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" data-theme="daci-dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>DACI | File Library</title>
+
+    <!-- DACI Color System + Modern UI -->
+    styles.css
+  </head>
+
+  <body>
+    <header class="daci-header">
+      <div class="branding">
+        <!-- Optional logo -->
+        assets/daci-logo.svg
+        <h1 class="title">Digital & Creative Innovation</h1>
+      </div>
+
+      <div class="tools">
+        <label class="search">
+          <span class="visually-hidden">Search files</span>
+          <input id="searchInput" type="search" placeholder="Search files…" aria-label="Search files" />
+        </label>
+
+        <label class="filter">
+          <span class="visually-hidden">Filter by type</span>
+          <select id="typeSelect" aria-label="Filter by type">
+            <option value="">All types</option>
+            <option value="pdf">PDF</option>
+            <option value="docx">Word</option>
+            <option value="pptx">PowerPoint</option>
+            <option value="xlsx">Excel</option>
+            <option value="image">Images</option>
+            <option value="code">Code</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+      </div>
+    </header>
+
+    <main>
+      <section class="list-container">
+        <ul id="fileList" class="file-list" aria-live="polite"></ul>
+      </section>
+    </main>
+
+    <footer class="daci-footer">
+      <small>© DACI · Programme Resources</small>
+    </footer>
+
+    main.ts</script>
+  </body>
