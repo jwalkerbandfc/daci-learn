@@ -1,0 +1,72 @@
+type FileItem = {
+  name: string;
+  path: string;
+  type: string;
+  size?: string;
+  updated?: string;
+};
+
+const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+const typeSelect = document.getElementById('typeSelect') as HTMLSelectElement;
+const fileList = document.getElementById('fileList') as HTMLUListElement;
+
+function iconFor(type: string): string {
+  const t = type.toLowerCase();
+  if (['pdf'].includes(t)) return '📕';
+  if (['docx', 'doc'].includes(t)) return '📝';
+  if (['pptx', 'ppt'].includes(t)) return '📊';
+  if (['xlsx', 'xls'].includes(t)) return '📈';
+  if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(t)) return '🖼️';
+  if (['ts', 'js', 'json', 'html', 'css'].includes(t)) return '💻';
+  return '📁';
+}
+
+let files: FileItem[] = [];
+
+async function loadFiles() {
+  const res = await fetch('files.json');
+  files = await res.json();
+  render(files);
+}
+
+function render(list: FileItem[]) {
+  fileList.innerHTML = '';
+  list.forEach(item => {
+    const li = document.createElement('li');
+    li.className = 'file-card';
+    li.innerHTML = `
+      <div class="icon" aria-hidden="true">${iconFor(item.type)}</div>
+      <div class="file-meta">
+        <h3 class="file-title">${item.name}</h3>
+        <div class="file-sub">${item.updated ? `Updated ${item.updated}` : ''}</div>
+        <div class="badges">
+          <span class="badge type">${item.type.toUpperCase()}</span>
+          ${item.size ? `<span class="badge size">${item.size}</span>` : ''}
+        </div>
+      </div>
+      <div class="actions">
+        ${item.path}Open</a>
+        ${item.path}Download</a>
+      </div>
+    `;
+    fileList.appendChild(li);
+  });
+}
+
+function applyFilters() {
+  const q = searchInput.value.trim().toLowerCase();
+  const t = typeSelect.value;
+  const filtered = files.filter(f => {
+    const matchText = f.name.toLowerCase().includes(q);
+    const matchType = t ? f.type.toLowerCase() === t.toLowerCase() : true;
+    return matchText && matchType;
+  });
+  render(filtered);
+}
+
+searchInput.addEventListener('input', applyFilters);
+typeSelect.addEventListener('change', applyFilters);
+
+loadFiles().catch(err => {
+  console.error('Failed to load files.json', err);
+});
