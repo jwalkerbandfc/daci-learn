@@ -525,11 +525,28 @@
       </ul>
       <h3>Creating Your First App</h3>
       <p>Open your terminal and run:</p>
-      <div class="code-block"><span class="comment"># Create a new Flutter project</span> flutter create my_first_app <span class="comment"># Navigate to the project</span> cd my_first_app <span class="comment"># Run the app</span> flutter run
+      <div class="code-block"><span class="comment"># Create a new Flutter project</span> 
+       <br />flutter create my_first_app <span class="comment">
+       <br /># Navigate to the project</span> 
+       <br />cd my_first_app 
+       <br /><span class="comment"># Run the app</span> 
+       <br />flutter run
       </div>
       <h3>Understanding main.dart</h3>
       <p>Every Flutter app starts with <code>main.dart</code>. Here's the basic structure:</p>
-      <div class="code-block"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span>; <span class="keyword">void</span> main() { runApp(<span class="class-name">MyApp</span>()); } <span class="keyword">class</span> <span class="class-name">MyApp</span> <span class="keyword">extends</span> <span class="class-name">StatelessWidget</span> { <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { <span class="keyword">return</span> <span class="class-name">MaterialApp</span>( title: <span class="string">'My First App'</span>, home: <span class="class-name">HomePage</span>(), ); } }
+      <div class="code-block"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span>; 
+       <br /><span class="keyword">void</span> main() { 
+       <br />runApp(<span class="class-name">MyApp</span>());
+       <br /> } 
+       <br /><span class="keyword">class</span> <span class="class-name">MyApp</span> <span class="keyword">extends</span> <span class="class-name">StatelessWidget</span> { 
+       <br /><span class="keyword">@override</span> 
+       <br /><span class="class-name">Widget</span> build(
+       <br /><span class="class-name">BuildContext</span> context) { 
+       <br /><span class="keyword">return</span> 
+       <br /><span class="class-name">MaterialApp</span>( 
+       <br />title: <span class="string">'My First App'</span>, 
+       <br />home: <span class="class-name">HomePage</span>(), );
+       <br /> } }
       </div>
       <div class="tip-box"><strong>💡 Tip:</strong> The <code>main()</code> function is the entry point, and <code>runApp()</code> inflates the given widget and attaches it to the screen.
       </div>
@@ -571,15 +588,36 @@ void main() {
       <h3>StatelessWidget Example</h3>
       <div class="code-block"><span class="keyword">class</span> <span class="class-name">GreetingWidget</span> <span class="keyword">extends</span> <span class="class-name">StatelessWidget</span> { 
        <br /><span class="keyword">final</span> <span class="class-name">String</span> name; 
-       <br /><span class="class-name">GreetingWidget</span>({<span class="keyword">required</span> <span class="keyword">this</span>.name}); 
-       <br /> <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) {  
+       <br /><span class="class-name">GreetingWidget</span>({
+       <br /><span class="keyword">required</span> <span class="keyword">this</span>.name
+       <br />}); 
+       <br /> <span class="keyword">@override</span> 
+       <br /><span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) {  
        <br /><span class="keyword">return</span> <span class="class-name">Text</span>(  
        <br /><span class="string">'Hello, $name!'</span>,  
        <br />style: <span class="class-name">TextStyle</span>(fontSize: 24), ); 
        <br /> } }
       </div>
       <h3>StatefulWidget Example</h3>
-      <div class="code-block"><span class="keyword">class</span> <span class="class-name">CounterWidget</span> <span class="keyword">extends</span> <span class="class-name">StatefulWidget</span> { <span class="keyword">@override</span> _CounterWidgetState createState() =&gt; _CounterWidgetState(); } <span class="keyword">class</span> <span class="class-name">_CounterWidgetState</span> <span class="keyword">extends</span> <span class="class-name">State</span>&lt;<span class="class-name">CounterWidget</span>&gt; { <span class="keyword">int</span> counter = 0; <span class="keyword">void</span> _incrementCounter() { setState(() { counter++; }); } <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { <span class="keyword">return</span> <span class="class-name">Column</span>( children: [ <span class="class-name">Text</span>(<span class="string">'Count: $counter'</span>), <span class="class-name">ElevatedButton</span>( onPressed: _incrementCounter, child: <span class="class-name">Text</span>(<span class="string">'Increment'</span>), ), ], ); } }
+      <div class="code-block"><span class="keyword">class</span> <span class="class-name">CounterWidget</span> <span class="keyword">extends</span> <span class="class-name">StatefulWidget</span> { 
+       <br /><span class="keyword">@override</span> 
+       <br />_CounterWidgetState createState() =&gt; _CounterWidgetState(); 
+       <br />} 
+       <br /><span class="keyword">class</span> <span class="class-name">_CounterWidgetState</span> <span class="keyword">extends</span> <span class="class-name">State</span>&lt;<span class="class-name">CounterWidget</span>&gt; { 
+       <br /><span class="keyword">int</span> counter = 0; 
+       <br /><span class="keyword">void</span> _incrementCounter() { 
+       <br />setState(() { counter++; }); 
+       <br />} 
+       <br /><span class="keyword">@override</span> 
+       <br /><span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { 
+       <br /><span class="keyword">return</span> <span class="class-name">Column</span>( 
+       <br />children: [ 
+       <br /><span class="class-name">Text</span>(<span class="string">'Count: $counter'</span>),
+       <br /> <span class="class-name">ElevatedButton</span>( 
+       <br />onPressed: _incrementCounter,
+       <br /> child: <span class="class-name">Text</span>(<span class="string">'Increment'</span>),
+       <br /> ), ], );
+       <br /> } }
       </div>
       <div class="interactive-demo">
        <h4>🎮 Interactive Counter</h4>
@@ -628,14 +666,30 @@ void main() {
       </div>
       <h3>Step 2: Declare in pubspec.yaml</h3>
       <div class="code-block">
-       flutter: assets: - assets/images/  
-       <br />- assets/images/logo.png fonts:  
+       flutter: 
+       <br />assets: 
+       <br />- assets/images/  
+       <br />- assets/images/logo.png 
+       <br />fonts:  
        <br />- family: CustomFont fonts:  
        <br />- asset: assets/fonts/custom_font.ttf  
        <br />weight: 400
       </div>
       <h3>Step 3: Use Assets in Code</h3>
-      <div class="code-block"><span class="comment">// Display an image</span> <span class="class-name">Image</span>.asset(<span class="string">'assets/images/logo.png'</span>) <span class="comment">// Use custom font</span> <span class="class-name">Text</span>( <span class="string">'Custom Font Text'</span>, style: <span class="class-name">TextStyle</span>( fontFamily: <span class="string">'CustomFont'</span>, fontSize: 24, ), ) <span class="comment">// Load JSON data</span> <span class="keyword">import</span> <span class="string">'dart:convert'</span>; <span class="keyword">import</span> <span class="string">'package:flutter/services.dart'</span>; <span class="keyword">Future</span>&lt;<span class="class-name">Map</span>&gt; loadJsonData() <span class="keyword">async</span> { <span class="class-name">String</span> jsonString = <span class="keyword">await</span> rootBundle .loadString(<span class="string">'assets/data.json'</span>); <span class="keyword">return</span> json.decode(jsonString); }
+      <div class="code-block"><span class="comment">// Display an image</span> 
+       <br /><span class="class-name">Image</span>.asset(<span class="string">'assets/images/logo.png'</span>) 
+       <br /><span class="comment">// Use custom font</span> <span class="class-name">Text</span>( 
+       <br /><span class="string">'Custom Font Text'</span>, 
+       <br />style: <span class="class-name">TextStyle</span>( 
+       <br />fontFamily: <span class="string">'CustomFont'</span>, fontSize: 24, ),
+       <br /> )
+       <br /> <span class="comment">// Load JSON data</span> 
+       <br /><span class="keyword">import</span> <span class="string">'dart:convert'</span>;
+       <br /> <span class="keyword">import</span> <span class="string">'package:flutter/services.dart'</span>;
+       <br /> <span class="keyword">Future</span>&lt;<span class="class-name">Map</span>&gt; loadJsonData() <span class="keyword">async</span> { 
+       <br /><span class="class-name">String</span> jsonString = <span class="keyword">await</span> rootBundle .loadString(<span class="string">'assets/data.json'</span>);
+       <br /> <span class="keyword">return</span> json.decode(jsonString); 
+       <br />}
       </div>
       <div class="warning-box"><strong>⚠️ Important:</strong> After adding assets to pubspec.yaml, run <code>flutter pub get</code> to register them.
       </div>
