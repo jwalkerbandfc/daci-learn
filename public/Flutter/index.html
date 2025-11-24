@@ -662,7 +662,8 @@ void main() {
        <br />│ │ └── logo.png  
        <br />│ └── fonts/  
        <br />│ └── custom_font.ttf  
-       <br />├── lib/ └── pubspec.yaml
+       <br />├── lib/   
+       <br />└── pubspec.yaml
       </div>
       <h3>Step 2: Declare in pubspec.yaml</h3>
       <div class="code-block">
@@ -671,8 +672,10 @@ void main() {
        <br />- assets/images/  
        <br />- assets/images/logo.png 
        <br />fonts:  
-       <br />- family: CustomFont fonts:  
-       <br />- asset: assets/fonts/custom_font.ttf  
+       <br />- family:   
+       <br />CustomFont fonts:  
+       <br />- asset:   
+       <br />assets/fonts/custom_font.ttf  
        <br />weight: 400
       </div>
       <h3>Step 3: Use Assets in Code</h3>
@@ -681,7 +684,10 @@ void main() {
        <br /><span class="comment">// Use custom font</span> <span class="class-name">Text</span>( 
        <br /><span class="string">'Custom Font Text'</span>, 
        <br />style: <span class="class-name">TextStyle</span>( 
-       <br />fontFamily: <span class="string">'CustomFont'</span>, fontSize: 24, ),
+       <br />fontFamily:   
+       <br /><span class="string">'CustomFont'</span>,   
+       <br />fontSize: 24,   
+       <br />),
        <br /> )
        <br /> <span class="comment">// Load JSON data</span> 
        <br /><span class="keyword">import</span> <span class="string">'dart:convert'</span>;
@@ -704,14 +710,43 @@ void main() {
       <h2>🧭 Navigation</h2>
       <p>Flutter uses a Navigator to manage a stack of Route objects for screen transitions.</p>
       <h3>Basic Navigation</h3>
-      <div class="code-block"><span class="comment">// Navigate to a new screen</span> <span class="class-name">Navigator</span>.push( context, <span class="class-name">MaterialPageRoute</span>(builder: (context) =&gt; <span class="class-name">SecondScreen</span>()), ); <span class="comment">// Go back to previous screen</span> <span class="class-name">Navigator</span>.pop(context);
+      <div class="code-block"><span class="comment">// Navigate to a new screen</span>   
+       <br /><span class="class-name">Navigator</span>.push( context, <span class="class-name">MaterialPageRoute</span>(builder: (context) =&gt; <span class="class-name">SecondScreen</span>()), );   
+       <br /><span class="comment">// Go back to previous screen</span>   
+       <br /><span class="class-name">Navigator</span>.pop(context);
       </div>
       <h3>Named Routes</h3>
       <p>For larger apps, use named routes for better organization:</p>
-      <div class="code-block"><span class="comment">// Define routes in MaterialApp</span> <span class="class-name">MaterialApp</span>( initialRoute: <span class="string">'/'</span>, routes: { <span class="string">'/'</span>: (context) =&gt; <span class="class-name">HomeScreen</span>(), <span class="string">'/details'</span>: (context) =&gt; <span class="class-name">DetailsScreen</span>(), <span class="string">'/settings'</span>: (context) =&gt; <span class="class-name">SettingsScreen</span>(), }, ) <span class="comment">// Navigate using named routes</span> <span class="class-name">Navigator</span>.pushNamed(context, <span class="string">'/details'</span>);
+      <div class="code-block"><span class="comment">// Define routes in MaterialApp</span>   
+       <br /><span class="class-name">MaterialApp</span>( initialRoute: <span class="string">'/'</span>, routes: {   
+       <br /><span class="string">'/'</span>: (context) =&gt; <span class="class-name">HomeScreen</span>(),   
+       <br /><span class="string">'/details'</span>: (context) =&gt; <span class="class-name">DetailsScreen</span>(),   
+       <br /><span class="string">'/settings'</span>: (context) =&gt; <span class="class-name">SettingsScreen</span>(),   
+       <br />}, )   
+       <br /><span class="comment">// Navigate using named routes</span>   
+       <br /><span class="class-name">Navigator</span>.pushNamed(context, <span class="string">'/details'</span>);
       </div>
       <h3>Passing Data Between Screens</h3>
-      <div class="code-block"><span class="comment">// Send data to next screen</span> <span class="class-name">Navigator</span>.push( context, <span class="class-name">MaterialPageRoute</span>( builder: (context) =&gt; <span class="class-name">DetailScreen</span>( title: <span class="string">'Item 1'</span>, description: <span class="string">'Details about item'</span>, ), ), ); <span class="comment">// Receive data in the screen</span> <span class="keyword">class</span> <span class="class-name">DetailScreen</span> <span class="keyword">extends</span> <span class="class-name">StatelessWidget</span> { <span class="keyword">final</span> <span class="class-name">String</span> title; <span class="keyword">final</span> <span class="class-name">String</span> description; <span class="class-name">DetailScreen</span>({<span class="keyword">required</span> <span class="keyword">this</span>.title, <span class="keyword">required</span> <span class="keyword">this</span>.description}); <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { <span class="keyword">return</span> <span class="class-name">Scaffold</span>( appBar: <span class="class-name">AppBar</span>(title: <span class="class-name">Text</span>(title)), body: <span class="class-name">Text</span>(description), ); } }
+      <div class="code-block"><span class="comment">// Send data to next screen</span>   
+       <br /><span class="class-name">Navigator</span>.push( context, <span class="class-name">MaterialPageRoute</span>( builder: (context) =&gt; <span class="class-name">DetailScreen</span>(   
+       <br />title: <span class="string">'Item 1'</span>,   
+       <br />description: <span class="string">'Details about item'</span>, ), ),   
+       <br />);   
+       <br /><span class="comment">// Receive data in the screen</span>   
+       <br /><span class="keyword">class</span> <span class="class-name">DetailScreen</span> <span class="keyword">extends</span> <span class="class-name">StatelessWidget</span> {   
+       <br /><span class="keyword">final</span> <span class="class-name">String</span> title;   
+       <br /><span class="keyword">final</span> <span class="class-name">String</span> description;   
+       <br /><span class="class-name">DetailScreen</span>({  
+       <br /><span class="keyword">required</span> <span class="keyword">this</span>.title,   
+       <br /><span class="keyword">required</span> <span class="keyword">this</span>.description  
+       <br />});   
+       <br /><span class="keyword">@override</span>   
+       <br /><span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) {   
+       <br /><span class="keyword">return</span> <span class="class-name">Scaffold</span>(   
+       <br />appBar: <span class="class-name">AppBar</span>(  
+       <br />title: <span class="class-name">Text</span>(title)),  
+       <br /> body: <span class="class-name">Text</span>(description),   
+       <br />); } }
       </div>
       <div class="interactive-demo">
        <h4>🎮 Navigation Simulator</h4><button class="demo-button" onclick="simulateNavigation('push')">Push Screen</button> <button class="demo-button" onclick="simulateNavigation('pop')">Pop Screen</button> <button class="demo-button" onclick="simulateNavigation('replace')">Replace Screen</button>
@@ -739,10 +774,40 @@ void main() {
       <h2>🎨 Theme Switching</h2>
       <p>Implement dark mode and custom themes in your Flutter app.</p>
       <h3>Basic Theme Setup</h3>
-      <div class="code-block"><span class="keyword">class</span> <span class="class-name">MyApp</span> <span class="keyword">extends</span> <span class="class-name">StatefulWidget</span> { <span class="keyword">@override</span> _MyAppState createState() =&gt; _MyAppState(); } <span class="keyword">class</span> <span class="class-name">_MyAppState</span> <span class="keyword">extends</span> <span class="class-name">State</span>&lt;<span class="class-name">MyApp</span>&gt; { <span class="class-name">ThemeMode</span> _themeMode = <span class="class-name">ThemeMode</span>.light; <span class="keyword">void</span> _toggleTheme() { setState(() { _themeMode = _themeMode == <span class="class-name">ThemeMode</span>.light ? <span class="class-name">ThemeMode</span>.dark : <span class="class-name">ThemeMode</span>.light; }); } <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { <span class="keyword">return</span> <span class="class-name">MaterialApp</span>( themeMode: _themeMode, theme: <span class="class-name">ThemeData</span>.light(), darkTheme: <span class="class-name">ThemeData</span>.dark(), home: <span class="class-name">HomePage</span>(onToggleTheme: _toggleTheme), ); } }
+      <div class="code-block"><span class="keyword">class</span> <span class="class-name">MyApp</span> <span class="keyword">extends</span> <span class="class-name">StatefulWidget</span> {   
+       <br /><span class="keyword">@override</span> _MyAppState createState() =&gt; _MyAppState();   
+       <br />} <span class="keyword">class</span> <span class="class-name">_MyAppState</span> <span class="keyword">extends</span> <span class="class-name">State</span>&lt;<span class="class-name">MyApp</span>&gt; {   
+       <br /><span class="class-name">ThemeMode</span> _themeMode = <span class="class-name">ThemeMode</span>.light;   
+       <br /><span class="keyword">void</span> _toggleTheme() { setState(() {   
+       <br />_themeMode = _themeMode == <span class="class-name">ThemeMode</span>.light ? <span class="class-name">ThemeMode</span>.dark : <span class="class-name">ThemeMode</span>.light; });  
+       <br /> }   
+       <br /><span class="keyword">@override</span>   
+       <br /><span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) {   
+       <br /><span class="keyword">return</span> <span class="class-name">MaterialApp</span>(   
+       <br />themeMode: _themeMode, theme: <span class="class-name">ThemeData</span>.light(),  
+       <br /> darkTheme: <span class="class-name">ThemeData</span>.dark(),   
+       <br />home: <span class="class-name">HomePage</span>(onToggleTheme: _toggleTheme), );  
+       <br /> } }
       </div>
       <h3>Custom Theme</h3>
-      <div class="code-block"><span class="class-name">ThemeData</span> customLightTheme = <span class="class-name">ThemeData</span>( primarySwatch: <span class="class-name">Colors</span>.blue, brightness: <span class="class-name">Brightness</span>.light, scaffoldBackgroundColor: <span class="class-name">Colors</span>.white, appBarTheme: <span class="class-name">AppBarTheme</span>( backgroundColor: <span class="class-name">Colors</span>.blue, elevation: 0, ), textTheme: <span class="class-name">TextTheme</span>( headlineLarge: <span class="class-name">TextStyle</span>( fontSize: 32, fontWeight: <span class="class-name">FontWeight</span>.bold, color: <span class="class-name">Colors</span>.black, ), ), ); <span class="class-name">ThemeData</span> customDarkTheme = <span class="class-name">ThemeData</span>( primarySwatch: <span class="class-name">Colors</span>.deepPurple, brightness: <span class="class-name">Brightness</span>.dark, scaffoldBackgroundColor: <span class="class-name">Colors</span>.grey[900], );
+      <div class="code-block"><span class="class-name">ThemeData</span> customLightTheme = <span class="class-name">ThemeData</span>(   
+       <br />primarySwatch: <span class="class-name">Colors</span>.blue,   
+       <br />brightness: <span class="class-name">Brightness</span>.light,   
+       <br />scaffoldBackgroundColor: <span class="class-name">Colors</span>.white,   
+       <br />appBarTheme: <span class="class-name">AppBarTheme</span>(   
+       <br />backgroundColor: <span class="class-name">Colors</span>.blue,  
+       <br /> elevation: 0, ),   
+       <br />textTheme: <span class="class-name">TextTheme</span>(   
+       <br />headlineLarge: <span class="class-name">TextStyle</span>(   
+       <br />fontSize: 32,   
+       <br />fontWeight: <span class="class-name">FontWeight</span>.bold,   
+       <br />color: <span class="class-name">Colors</span>.black, ), ),   
+       <br />);   
+       <br /><span class="class-name">ThemeData</span> customDarkTheme = <span class="class-name">ThemeData</span>(   
+       <br />primarySwatch: <span class="class-name">Colors</span>.deepPurple,   
+       <br />brightness: <span class="class-name">Brightness</span>.dark,   
+       <br />scaffoldBackgroundColor: <span class="class-name">Colors</span>.grey[900],  
+       <br /> );
       </div>
       <div class="interactive-demo">
        <h4>🎮 Theme Switcher</h4><button class="demo-button" onclick="toggleTheme()">Toggle Light/Dark Mode</button>
