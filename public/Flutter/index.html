@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interactive Flutter Tutorial</title>
-  <script src="/_sdk/element_sdk.js"></script>
   <style>
     body {
       box-sizing: border-box;
@@ -570,7 +569,14 @@ void main() {
        <li><strong>StatefulWidget:</strong> Widgets that can change state over time</li>
       </ul>
       <h3>StatelessWidget Example</h3>
-      <div class="code-block"><span class="keyword">class</span> <span class="class-name">GreetingWidget</span> <span class="keyword">extends</span> <span class="class-name">StatelessWidget</span> { <span class="keyword">final</span> <span class="class-name">String</span> name; <span class="class-name">GreetingWidget</span>({<span class="keyword">required</span> <span class="keyword">this</span>.name}); <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { <span class="keyword">return</span> <span class="class-name">Text</span>( <span class="string">'Hello, $name!'</span>, style: <span class="class-name">TextStyle</span>(fontSize: 24), ); } }
+      <div class="code-block"><span class="keyword">class</span> <span class="class-name">GreetingWidget</span> <span class="keyword">extends</span> <span class="class-name">StatelessWidget</span> { 
+       <br /><span class="keyword">final</span> <span class="class-name">String</span> name; 
+       <br /><span class="class-name">GreetingWidget</span>({<span class="keyword">required</span> <span class="keyword">this</span>.name}); 
+       <br /> <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) {  
+       <br /><span class="keyword">return</span> <span class="class-name">Text</span>(  
+       <br /><span class="string">'Hello, $name!'</span>,  
+       <br />style: <span class="class-name">TextStyle</span>(fontSize: 24), ); 
+       <br /> } }
       </div>
       <h3>StatefulWidget Example</h3>
       <div class="code-block"><span class="keyword">class</span> <span class="class-name">CounterWidget</span> <span class="keyword">extends</span> <span class="class-name">StatefulWidget</span> { <span class="keyword">@override</span> _CounterWidgetState createState() =&gt; _CounterWidgetState(); } <span class="keyword">class</span> <span class="class-name">_CounterWidgetState</span> <span class="keyword">extends</span> <span class="class-name">State</span>&lt;<span class="class-name">CounterWidget</span>&gt; { <span class="keyword">int</span> counter = 0; <span class="keyword">void</span> _incrementCounter() { setState(() { counter++; }); } <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { <span class="keyword">return</span> <span class="class-name">Column</span>( children: [ <span class="class-name">Text</span>(<span class="string">'Count: $counter'</span>), <span class="class-name">ElevatedButton</span>( onPressed: _incrementCounter, child: <span class="class-name">Text</span>(<span class="string">'Increment'</span>), ), ], ); } }
@@ -612,11 +618,21 @@ void main() {
       <h3>Step 1: Create Assets Folder</h3>
       <p>Create an <code>assets</code> folder in your project root:</p>
       <div class="code-block">
-       my_app/ ├── assets/ │ ├── images/ │ │ └── logo.png │ └── fonts/ │ └── custom_font.ttf ├── lib/ └── pubspec.yaml
+       my_app/  
+       <br />├── assets/  
+       <br />│ ├── images/  
+       <br />│ │ └── logo.png  
+       <br />│ └── fonts/  
+       <br />│ └── custom_font.ttf  
+       <br />├── lib/ └── pubspec.yaml
       </div>
       <h3>Step 2: Declare in pubspec.yaml</h3>
       <div class="code-block">
-       flutter: assets: - assets/images/ - assets/images/logo.png fonts: - family: CustomFont fonts: - asset: assets/fonts/custom_font.ttf weight: 400
+       flutter: assets: - assets/images/  
+       <br />- assets/images/logo.png fonts:  
+       <br />- family: CustomFont fonts:  
+       <br />- asset: assets/fonts/custom_font.ttf  
+       <br />weight: 400
       </div>
       <h3>Step 3: Use Assets in Code</h3>
       <div class="code-block"><span class="comment">// Display an image</span> <span class="class-name">Image</span>.asset(<span class="string">'assets/images/logo.png'</span>) <span class="comment">// Use custom font</span> <span class="class-name">Text</span>( <span class="string">'Custom Font Text'</span>, style: <span class="class-name">TextStyle</span>( fontFamily: <span class="string">'CustomFont'</span>, fontSize: 24, ), ) <span class="comment">// Load JSON data</span> <span class="keyword">import</span> <span class="string">'dart:convert'</span>; <span class="keyword">import</span> <span class="string">'package:flutter/services.dart'</span>; <span class="keyword">Future</span>&lt;<span class="class-name">Map</span>&gt; loadJsonData() <span class="keyword">async</span> { <span class="class-name">String</span> jsonString = <span class="keyword">await</span> rootBundle .loadString(<span class="string">'assets/data.json'</span>); <span class="keyword">return</span> json.decode(jsonString); }
@@ -692,13 +708,48 @@ void main() {
        dependencies: shared_preferences: ^2.2.0
       </div>
       <h3>Saving Data</h3>
-      <div class="code-block"><span class="keyword">import</span> <span class="string">'package:shared_preferences/shared_preferences.dart'</span>; <span class="comment">// Save data</span> <span class="keyword">Future</span>&lt;<span class="keyword">void</span>&gt; saveUserData() <span class="keyword">async</span> { <span class="keyword">final</span> prefs = <span class="keyword">await</span> <span class="class-name">SharedPreferences</span>.getInstance(); <span class="keyword">await</span> prefs.setString(<span class="string">'username'</span>, <span class="string">'JohnDoe'</span>); <span class="keyword">await</span> prefs.setInt(<span class="string">'age'</span>, 25); <span class="keyword">await</span> prefs.setBool(<span class="string">'isDarkMode'</span>, <span class="keyword">true</span>); <span class="keyword">await</span> prefs.setDouble(<span class="string">'score'</span>, 98.5); <span class="comment">// Save list</span> <span class="keyword">await</span> prefs.setStringList(<span class="string">'favorites'</span>, [<span class="string">'item1'</span>, <span class="string">'item2'</span>]); }
+      <div class="code-block"><span class="keyword">import</span> <span class="string">'package:shared_preferences/shared_preferences.dart'</span>; 
+       <br /> <span class="comment">// Save data</span> <span class="keyword">Future</span>&lt;<span class="keyword">void</span>&gt; 
+       <br /> saveUserData() <span class="keyword">async</span> { 
+       <br /> <span class="keyword">final</span> prefs = <span class="keyword">await</span> <span class="class-name">SharedPreferences</span>.getInstance(); 
+       <br /> <span class="keyword">await</span> prefs.setString(<span class="string">'username'</span>, <span class="string">'JohnDoe'</span>); 
+       <br /> <span class="keyword">await</span> prefs.setInt(<span class="string">'age'</span>, 25); 
+       <br /> <span class="keyword">await</span> prefs.setBool(<span class="string">'isDarkMode'</span>, 
+       <br /> <span class="keyword">true</span>); 
+       <br /> <span class="keyword">await</span> prefs.setDouble(<span class="string">'score'</span>, 98.5); 
+       <br /> <span class="comment">// Save list</span> <span class="keyword">await</span> prefs.setStringList(<span class="string">'favorites'</span>, 
+       <br /> [<span class="string">'item1'</span>, <span class="string">'item2'</span>]); }
       </div>
       <h3>Loading Data</h3>
-      <div class="code-block"><span class="comment">// Load data</span> <span class="keyword">Future</span>&lt;<span class="keyword">void</span>&gt; loadUserData() <span class="keyword">async</span> { <span class="keyword">final</span> prefs = <span class="keyword">await</span> <span class="class-name">SharedPreferences</span>.getInstance(); <span class="class-name">String</span>? username = prefs.getString(<span class="string">'username'</span>); <span class="keyword">int</span>? age = prefs.getInt(<span class="string">'age'</span>); <span class="keyword">bool</span>? isDarkMode = prefs.getBool(<span class="string">'isDarkMode'</span>) ?? <span class="keyword">false</span>; <span class="keyword">double</span>? score = prefs.getDouble(<span class="string">'score'</span>); <span class="class-name">List</span>&lt;<span class="class-name">String</span>&gt;? favorites = prefs.getStringList(<span class="string">'favorites'</span>); }
+      <div class="code-block"><span class="comment">// Load data</span> <span class="keyword">Future</span>&lt; 
+       <br /><span class="keyword">void</span>&gt; 
+       <br /> loadUserData() <span class="keyword">async</span> { <span class="keyword">final</span> prefs = <span class="keyword">await</span> <span class="class-name">SharedPreferences</span>.getInstance(); 
+       <br /> <span class="class-name">String</span>? username = prefs.getString(<span class="string">'username'</span>); 
+       <br /> <span class="keyword">int</span>? age = prefs.getInt(<span class="string">'age'</span>); 
+       <br /> <span class="keyword">bool</span>? isDarkMode = prefs.getBool(<span class="string">'isDarkMode'</span>) ?? <span class="keyword">false</span>; 
+       <br /> <span class="keyword">double</span>? score = prefs.getDouble(<span class="string">'score'</span>); 
+       <br /> <span class="class-name">List</span>&lt;<span class="class-name">String</span>&gt;? favorites = prefs.getStringList(<span class="string">'favorites'</span>); 
+       <br /> }
       </div>
       <h3>Complete Example</h3>
-      <div class="code-block"><span class="keyword">class</span> <span class="class-name">SettingsScreen</span> <span class="keyword">extends</span> <span class="class-name">StatefulWidget</span> { <span class="keyword">@override</span> _SettingsScreenState createState() =&gt; _SettingsScreenState(); } <span class="keyword">class</span> <span class="class-name">_SettingsScreenState</span> <span class="keyword">extends</span> <span class="class-name">State</span>&lt;<span class="class-name">SettingsScreen</span>&gt; { <span class="keyword">bool</span> _notifications = <span class="keyword">false</span>; <span class="keyword">@override</span> <span class="keyword">void</span> initState() { <span class="keyword">super</span>.initState(); _loadSettings(); } <span class="keyword">Future</span>&lt;<span class="keyword">void</span>&gt; _loadSettings() <span class="keyword">async</span> { <span class="keyword">final</span> prefs = <span class="keyword">await</span> <span class="class-name">SharedPreferences</span>.getInstance(); setState(() { _notifications = prefs.getBool(<span class="string">'notifications'</span>) ?? <span class="keyword">false</span>; }); } <span class="keyword">Future</span>&lt;<span class="keyword">void</span>&gt; _saveSettings() <span class="keyword">async</span> { <span class="keyword">final</span> prefs = <span class="keyword">await</span> <span class="class-name">SharedPreferences</span>.getInstance(); <span class="keyword">await</span> prefs.setBool(<span class="string">'notifications'</span>, _notifications); } <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) { <span class="keyword">return</span> <span class="class-name">SwitchListTile</span>( title: <span class="class-name">Text</span>(<span class="string">'Enable Notifications'</span>), value: _notifications, onChanged: (value) { setState(() { _notifications = value; }); _saveSettings(); }, ); } }
+      <div class="code-block"><span class="keyword">class</span> <span class="class-name">SettingsScreen</span> <span class="keyword">extends</span> <span class="class-name">StatefulWidget</span> {  
+       <br /><span class="keyword">@override</span> _SettingsScreenState createState() =&gt; _SettingsScreenState(); 
+       <br /> } <span class="keyword">class</span> <span class="class-name">_SettingsScreenState</span> <span class="keyword">extends</span> <span class="class-name">State</span>&lt;<span class="class-name">SettingsScreen</span>&gt; { 
+       <br /> <span class="keyword">bool</span> _notifications = <span class="keyword">false</span>; 
+       <br /> <span class="keyword">@override</span> <span class="keyword">void</span> initState() { 
+       <br /> <span class="keyword">super</span>.initState(); _loadSettings(); 
+       <br /> } <span class="keyword">Future</span>&lt;<span class="keyword">void</span>&gt; _loadSettings() <span class="keyword">async</span> {  
+       <br /><span class="keyword">final</span> prefs = <span class="keyword">await</span> <span class="class-name">SharedPreferences</span>.getInstance(); 
+       <br /> setState(() { _notifications = prefs.getBool(<span class="string">'notifications'</span>) ?? <span class="keyword">false</span>; 
+       <br /> }); 
+       <br /> } <span class="keyword">Future</span>&lt;<span class="keyword">void</span>&gt; _saveSettings() <span class="keyword">async</span> {  
+       <br /><span class="keyword">final</span> prefs = <span class="keyword">await</span> <span class="class-name">SharedPreferences</span>.getInstance(); 
+       <br /> <span class="keyword">await</span> prefs.setBool(<span class="string">'notifications'</span>, _notifications); 
+       <br /> } <span class="keyword">@override</span> <span class="class-name">Widget</span> build(<span class="class-name">BuildContext</span> context) {  
+       <br /><span class="keyword">return</span> <span class="class-name">SwitchListTile</span>( title: <span class="class-name">Text</span>(<span class="string">'Enable Notifications'</span>), 
+       <br /> value: _notifications, onChanged: (value) { setState(() { _notifications = value; }); _saveSettings(); 
+       <br /> }, ); 
+       <br /> } }
       </div>
       <div class="interactive-demo">
        <h4>🎮 Storage Simulator</h4><button class="demo-button" onclick="simulateStorage('save')">Save Settings</button> <button class="demo-button" onclick="simulateStorage('load')">Load Settings</button> <button class="demo-button" onclick="simulateStorage('clear')">Clear Storage</button>
@@ -712,7 +763,29 @@ void main() {
       <p>The pubspec.yaml file is the heart of your Flutter project. It defines dependencies, assets, and metadata.</p>
       <h3>Basic Structure</h3>
       <div class="code-block">
-       name: my_app description: A new Flutter project. publish_to: 'none' version: 1.0.0+1 environment: sdk: '&gt;=3.0.0 &lt;4.0.0' dependencies: flutter: sdk: flutter cupertino_icons: ^1.0.2 http: ^1.1.0 shared_preferences: ^2.2.0 dev_dependencies: flutter_test: sdk: flutter flutter_lints: ^2.0.0 flutter: uses-material-design: true assets: - assets/images/ - assets/data.json fonts: - family: Roboto fonts: - asset: assets/fonts/Roboto-Regular.ttf - asset: assets/fonts/Roboto-Bold.ttf weight: 700
+       name: my_app description: A new Flutter project.  
+       <br />publish_to: 'none'  
+       <br />version: 1.0.0+1  
+       <br />environment:  
+       <br />sdk: '&gt;=3.0.0 &lt;4.0.0'  
+       <br />dependencies:  
+       <br />flutter: sdk: flutter  
+       <br />cupertino_icons: ^1.0.2  
+       <br />http: ^1.1.0  
+       <br />shared_preferences: ^2.2.0  
+       <br />dev_dependencies:  
+       <br />flutter_test:  
+       <br />sdk: flutter 
+       <br /> flutter_lints: ^2.0.0  
+       <br />flutter:  
+       <br />uses-material-design: true 
+       <br /> assets: 
+       <br /> - assets/images/  
+       <br />- assets/data.json fonts:  
+       <br />- family: Roboto fonts:  
+       <br />- asset: assets/fonts/Roboto-Regular.ttf  
+       <br />- asset: assets/fonts/Roboto-Bold.ttf  
+       <br />weight: 700
       </div>
       <h3>Key Sections Explained</h3>
       <ul>
@@ -723,7 +796,12 @@ void main() {
        <li><strong>dev_dependencies:</strong> Packages for development only</li>
       </ul>
       <h3>Adding Dependencies</h3>
-      <div class="code-block"><span class="comment"># Method 1: Add to pubspec.yaml manually</span> dependencies: package_name: ^1.0.0 <span class="comment"># Method 2: Use command line</span> flutter pub add package_name <span class="comment"># After adding, run:</span> flutter pub get
+      <div class="code-block"><span class="comment"># Method 1: Add to pubspec.yaml manually</span>  
+       <br />dependencies: package_name: ^1.0.0  
+       <br /><span class="comment"># Method 2: Use command line</span>  
+       <br />flutter pub add package_name  
+       <br /><span class="comment"># After adding,  
+       <br />run:</span> <br />flutter pub get
       </div>
       <h3>Version Constraints</h3>
       <div class="code-block"><span class="comment"># Caret syntax (recommended) - compatible updates</span> http: ^1.1.0 <span class="comment"># Allows 1.1.0 to &lt;2.0.0</span> <span class="comment"># Exact version</span> http: 1.1.0 <span class="comment"># Range</span> http: '&gt;=1.0.0 &lt;2.0.0' <span class="comment"># Any version</span> http: any
