@@ -669,7 +669,7 @@ style>
 
         @media (max-width: 1200px) {
             .editor-content > div:last-child {
-                flex-direction: column;
+                /*flex-direction: column;*/
             }
 
             .code-editor-wrapper {
@@ -684,9 +684,9 @@ style>
         }
 
         @media (max-width: 768px) {
-            .main-content {
+            /*.main-content {
                 flex-direction: column;
-            }
+            }*/
 
             .sidebar {
                 width: 100%;
@@ -695,7 +695,7 @@ style>
             }
 
             .editor-content > div:last-child {
-                flex-direction: column;
+                /*flex-direction: column;*/
                 padding: 1rem;
             }
 
