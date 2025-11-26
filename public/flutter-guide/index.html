@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Flutter Masterclass</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --primary-dark: #764ba2;
+            --accent: #f093fb;
+            --success: #48bb78;
+            --error: #dc3545;
+            --warning: #ffc107;
+            --bg-dark: #0f172a;
+            --bg-light: #f8fafc;
+            --surface-light: #ffffff;
+            --surface-dark: #1e293b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1f4d 100%);
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(229, 231, 235, 0.1);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 0.25rem;
+            background: linear-gradient(135deg, #667eea, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-left p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .github-repo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .github-repo:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .github-repo svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        .github-repo-text {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 0;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: var(--surface-light);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 1.5rem;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-section {
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #f093fb);
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .lesson-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .lesson-item {
+            padding: 1rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        .lesson-item:hover {
+            background: #e2e8f0;
+            transform: translateX(4px);
+        }
+
+        .lesson-item.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-left-color: #f093fb;
+        }
+
+        .lesson-item.completed::after {
+            content: "✓";
+            position: absolute;
+            right: 1rem;
+            font-weight: 700;
+            color: inherit;
+        }
+
+        .editor-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-light);
+            overflow: hidden;
+        }
+
+        .editor-header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .editor-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .editor-tab {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .editor-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .editor-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .editor-content {
+            flex: 1;
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+
+        .code-editor-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .code-editor-title {
+            padding: 1rem;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-editor-toolbar {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .editor-button {
+            padding: 0.5rem 0.75rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .editor-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .editor-button.success {
+            background: var(--success);
+        }
+
+        .editor-button.success:hover {
+            background: #38a169;
+        }
+
+        .code-input-container {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-input {
+            flex: 1;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            padding: 1rem;
+            border: none;
+            background: var(--code-bg);
+            color: var(--code-text);
+            resize: none;
+            line-height: 1.6;
+            outline: none;
+        }
+
+        .code-input::placeholder {
+            color: #6a6a6a;
+        }
+
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            min-width: 350px;
+        }
+
+        .preview-header {
+            padding: 1rem;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .preview-viewport {
+            flex: 1;
+            background: #f5f5f5;
+            overflow: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .device-frame {
+            width: 100%;
+            max-width: 280px;
+            aspect-ratio: 9/16;
+            background: #000;
+            border-radius: 40px;
+            border: 12px solid #000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .device-notch {
+            height: 28px;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .device-screen {
+            flex: 1;
+            background: white;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .flutter-app {
+            flex: 1;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: white;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-primary);
+        }
+
+        .flutter-app h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .flutter-app p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .flutter-app button {
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .flutter-app button:active {
+            transform: scale(0.95);
+        }
+
+        .error-message {
+            color: var(--error);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            padding: 1rem;
+            background: #fee;
+            border-radius: 8px;
+            margin: 1rem;
+            border-left: 4px solid var(--error);
+        }
+
+        .success-message {
+            color: var(--success);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            padding: 1rem;
+            background: #efe;
+            border-radius: 8px;
+            margin: 1rem;
+            border-left: 4px solid var(--success);
+        }
+
+        .github-file-browser {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .file-browser-header {
+            padding: 1rem;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .file-tree {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .file-tree-item {
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .file-tree-item:hover {
+            color: var(--primary);
+            background: #f8fafc;
+            border-radius: 4px;
+            padding-left: 1rem;
+        }
+
+        .file-tree-item.folder {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .file-tree-item.file {
+            margin-left: 1.5rem;
+        }
+
+        .file-tree-item.active {
+            background: #ede9fe;
+            color: var(--primary);
+        }
+
+        .code-block-snippet {
+            background: var(--code-bg);
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--code-text);
+            border: 1px solid #333;
+        }
+
+        .code-keyword { color: #569cd6; }
+        .code-string { color: #ce9178; }
+        .code-class { color: #4ec9b0; }
+        .code-comment { color: #6a9955; }
+        .code-function { color: #dcdcaa; }
+
+        .lesson-content {
+            display: none;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .lesson-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .lesson-content h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lesson-content h3 {
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            margin: 2rem 0 1rem 0;
+            font-weight: 600;
+        }
+
+        .lesson-content p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin: 1rem 0;
+            font-size: 0.95rem;
+        }
+
+        .lesson-content ul, .lesson-content ol {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin: 1rem 0 1rem 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .lesson-content li {
+            margin-bottom: 0.75rem;
+        }
+
+        .tip-box {
+            background: #e6f7ff;
+            border-left: 4px solid #1890ff;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            color: #003c7a;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            color: #856404;
+        }
+
+        .code-challenge {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .challenge-title {
+            color: var(--primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .challenge-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .challenge-feedback {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .challenge-feedback.correct {
+            background: #d4edda;
+            border: 2px solid var(--success);
+            color: #155724;
+            display: block;
+        }
+
+        .challenge-feedback.incorrect {
+            background: #f8d7da;
+            border: 2px solid var(--error);
+            color: #721c24;
+            display: block;
+        }
+
+        .challenge-feedback.hint {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+            display: block;
+        }
+
+        .feedback-icon {
+            font-size: 1.25rem;
+        }
+
+        .hint-button {
+            background: var(--warning);
+            color: #333;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: var(--transition);
+        }
+
+        .hint-button:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .sidebar { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+        .code-editor { scrollbar-width: thin; scrollbar-color: #666 #333; }
+
+        @media (max-width: 1400px) {
+            .preview-panel {
+                min-width: 300px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .editor-content {
+                flex-direction: column;
+            }
+
+            .preview-panel, .code-editor-wrapper {
+                flex: 1;
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>🚀 Flutter Masterclass</h1>
+                <p>Professional-grade cross-platform app development</p>
+            </div>
+            <div class="github-repo" onclick="toggleFileExplorer()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v 3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                <span class="github-repo-text">View on GitHub</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar scrollbar-hide">
+                <div class="sidebar-title">📚 Lessons</div>
+                
+                <div class="progress-section">
+                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Progress</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">0/8 lessons completed</div>
+                </div>
+
+                <div class="lesson-list">
+                    <div class="lesson-item active" data-lesson="0">
+                        Getting Started
+                    </div>
+                    <div class="lesson-item" data-lesson="1">
+                        Widgets & UI
+                    </div>
+                    <div class="lesson-item" data-lesson="2">
+                        Assets Management
+                    </div>
+                    <div class="lesson-item" data-lesson="3">
+                        Navigation System
+                    </div>
+                    <div class="lesson-item" data-lesson="4">
+                        Theme & Styling
+                    </div>
+                    <div class="lesson-item" data-lesson="5">
+                        Data Persistence
+                    </div>
+                    <div class="lesson-item" data-lesson="6">
+                        pubspec.yaml Config
+                    </div>
+                    <div class="lesson-item" data-lesson="7">
+                        Debugging & Logging
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editor Section -->
+            <div class="editor-section">
+                <div class="editor-header">
+                    <div>Lesson Content & Code Editor</div>
+                    <div class="editor-tabs">
+                        <button class="editor-tab active" onclick="switchEditorTab('content')">Content</button>
+                        <button class="editor-tab" onclick="switchEditorTab('github')">GitHub Files</button>
+                    </div>
+                </div>
+
+                <div class="editor-content">
+                    <!-- Lesson Content Tab -->
+                    <div id="content-tab" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                        <div style="flex: 1; overflow-y: auto;" class="scrollbar-hide">
+                            <!-- Lesson 0: Getting Started -->
+                            <div class="lesson-content active" data-lesson="0">
+                                <h2>🚀 Getting Started with Flutter</h2>
+                                <p>Flutter is Google's open-source UI framework for building beautiful, natively compiled applications for mobile, web, and desktop from a single codebase.</p>
+
+                                <h3>Installation & Setup</h3>
+                                <p>Download the Flutter SDK from <a href="https://flutter.dev" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: none; font-weight: 600;">flutter.dev</a> and follow the official installation guide for your operating system.</p>
+
+                                <div class="code-block-snippet"><span class="code-comment"># Verify Flutter installation</span>
+flutter --version
+
+<span class="code-comment"># Create a new project</span>
+flutter create my_app
+cd my_app
+
+<span class="code-comment"># Run the app</span>
+flutter run</div>
+
+                                <h3>Project Structure</h3>
+                                <p>A typical Flutter project contains:</p>
+                                <ul>
+                                    <li><strong>lib/</strong> - Your Dart code</li>
+                                    <li><strong>assets/</strong> - Images, fonts, and other resources</li>
+                                    <li><strong>android/</strong> - Android-specific code</li>
+                                    <li><strong>ios/</strong> - iOS-specific code</li>
+                                    <li><strong>pubspec.yaml</strong> - Dependencies and project metadata</li>
+                                </ul>
+
+                                <h3>Your First App: main.dart</h3>
+                                <p>Every Flutter app starts with the <code style="background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; font-family: 'JetBrains Mono';">main()</code> function. Let's create a simple Hello World app:</p>
+
+                                <div class="code-block-snippet"><span class="code-keyword">import</span> <span class="code-string">'package:flutter/material.dart'</span>;
+
+<span class="code-keyword">void</span> main() {
+  runApp(<span class="code-keyword">const</span> <span class="code-class">MyApp</span>());
+}
+
+<span class="code-keyword">class</span> <span class="code-class">MyApp</span> <span class="code-keyword">extends</span> <span class="code-class">StatelessWidget</span> {
+  <span class="code-keyword">const</span> <span class="code-class">MyApp</span>();
+
+  @override
+  <span class="code-class">Widget</span> build(<span class="code-class">BuildContext</span> context) {
+    <span class="code-keyword">return</span> <span class="code-class">MaterialApp</span>(
+      title: <span class="code-string">'Flutter App'</span>,
+      theme: <span class="code-class">ThemeData</span>(
+        primarySwatch: <span class="code-class">Colors</span>.blue,
+      ),
+      home: <span class="code-keyword">const</span> <span class="code-class">HomePage</span>(),
+    );
+  }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">HomePage</span> <span class="code-keyword">extends</span> <span class="code-class">StatelessWidget</span> {
+  <span class="code-keyword">const</span> <span class="code-class">HomePage</span>();
+
+  @override
+  <span class="code-class">Widget</span> build(<span class="code-class">BuildContext</span> context) {
+    <span class="code-keyword">return</span> <span class="code-class">Scaffold</span>(
+      appBar: <span class="code-class">AppBar</span>(
+        title: <span class="code-keyword">const</span> <span class="code-class">Text</span>(<span class="code-string">'Hello Flutter'</span>),
+      ),
+      body: <span class="code-keyword">const</span> <span class="code-class">Center</span>(
+        child: <span class="code-class">Text</span>(<span class="code-string">'Hello, World!'</span>),
+      ),
+    );
+  }
+}</div>
+
+                                <div class="tip-box">
+                                    <strong>💡 Pro Tip:</strong> Use <code style="background: rgba(0,0,0,0.1); padding: 0.2rem 0.4rem; border-radius: 3px; font-family: 'JetBrains Mono';">flutter hot reload</code> to see changes instantly without restarting the app!
+                                </div>
+
+                                <div class="code-challenge">
+                                    <div class="challenge-title">✏️ Challenge: Build Your First Widget</div>
+                                    <div class="challenge-description">
+                                        Create a StatelessWidget called <strong>GreetingCard</strong> that displays:
+                                        <ul style="text-align: left; margin-top: 0.5rem;">
+                                            <li>A title "Welcome to Flutter"</li>
+                                            <li>A description text</li>
+                                            <li>An ElevatedButton with "Get Started"</li>
+                                        </ul>
+                                    </div>
+                                    <textarea class="code-input" id="challenge-0" placeholder="Write your Dart code here...&#10;&#10;class GreetingCard extends StatelessWidget {&#10;  const GreetingCard();&#10;&#10;  @override&#10;  Widget build(BuildContext context) {&#10;    return ...&#10;  }&#10;}">class GreetingCard extends StatelessWidget {
+  const GreetingCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Text('Replace me'),
+    );
+  }
+}</textarea>
+                                    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
+                                        <button class="editor-button success" onclick="runChallenge(0)">▶ Run Code</button>
+                                        <button class="editor-button" onclick="checkChallenge(0)">✓ Check Answer</button>
+                                        <button class="hint-button" onclick="showHint(0)">💡 Show Hint</button>
+                                    </div>
+                                    <div class="challenge-feedback" id="feedback-0"></div>
+                                </div>
+                            </div>
+
+                            <!-- Lesson 1: Widgets -->
+                            <div class="lesson-content" data-lesson="1">
+                                <h2>🧩 Understanding Widgets</h2>
+                                <p>Everything in Flutter is a widget. Widgets are the building blocks of Flutter apps, immutable objects that describe part of the user interface.</p>
+
+                                <h3>Stateless Widgets</h3>
+                                <p>Use <code style="background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; font-family: 'JetBrains Mono';">StatelessWidget</code> for widgets that don't change based on user interaction:</p>
+
+                                <div class="code-block-snippet"><span class="code-keyword">class</span> <span class="code-class">UserCard</span> <span class="code-keyword">extends</span> <span class="code-class">StatelessWidget</span> {
+  <span class="code-keyword">final</span> <span class="code-class">String</span> name;
+  <span class="code-keyword">final</span> <span class="code-class">String</span> email;
+
+  <span class="code-keyword">const</span> <span class="code-class">UserCard</span>({
+    <span class="code-keyword">required</span> <span class="code-keyword">this</span>.name,
+    <span class="code-keyword">required</span> <span class="code-keyword">this</span>.email,
+  });
+
+  @override
+  <span class="code-class">Widget</span> build(<span class="code-class">BuildContext</span> context) {
+    <span class="code-keyword">return</span> <span class="code-class">Card</span>(
+      child: <span class="code-class">Column</span>(
+        children: [
+          <span class="code-class">Text</span>(name, style: <span class="code-class">TextStyle</span>(fontSize: 18)),
+          <span class="code-class">Text</span>(email),
+        ],
+      ),
+    );
+  }
+}</div>
+
+                                <h3>Stateful Widgets</h3>
+                                <p>Use <code style="background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; font-family: 'JetBrains Mono';">StatefulWidget</code> when your widget needs to manage mutable state:</p>
+
+                                <div class="code-block-snippet"><span class="code-keyword">class</span> <span class="code-class">Counter</span> <span class="code-keyword">extends</span> <span class="code-class">StatefulWidget</span> {
+  <span class="code-keyword">const</span> <span class="code-class">Counter</span>();
+
+  @override
+  <span class="code-class">State</span>&lt;<span class="code-class">Counter</span>&gt; createState() => <span class="code-class">_CounterState</span>();
+}
+
+<span class="code-keyword">class</span> <span class="code-class">_CounterState</span> <span class="code-keyword">extends</span> <span class="code-class">State</span>&lt;<span class="code-class">Counter</span>&gt; {
+  <span class="code-keyword">int</span> count = 0;
+
+  <span class="code-keyword">void</span> increment() {
+    setState(() {
+      count++;
+    });
+  }
+
+  @override
+  <span class="code-class">Widget</span> build(<span class="code-class">BuildContext</span> context) {
+    <span class="code-keyword">return</span> <span class="code-class">Column</span>(
+      children: [
+        <span class="code-class">Text</span>(<span class="code-string">'Count: \$count'</span>),
+        <span class="code-class">ElevatedButton</span>(
+          onPressed: increment,
+          child: <span class="code-keyword">const</span> <span class="code-class">Text</span>(<span class="code-string">'Increment'</span>),
+        ),
+      ],
+    );
+  }
+}</div>
+
+                                <h3>Common Layout Widgets</h3>
+                                <ul>
+                                    <li><strong>Scaffold</strong> - Material Design structure with app bar, body, and floating action button</li>
+                                    <li><strong>Column</strong> - Arranges children vertically</li>
+                                    <li><strong>Row</strong> - Arranges children horizontally</li>
+                                    <li><strong>Stack</strong> - Overlays widgets on top of each other</li>
+                                    <li><strong>ListView</strong> - Scrollable list of widgets</li>
+                                    <li><strong>Container</strong> - Box with padding, margin, and decoration</li>
+                                </ul>
+
+                                <div class="warning-box">
+                                    <strong>⚠️ Important:</strong> Always use <code style="background: rgba(0,0,0,0.1); padding: 0.2rem 0.4rem; border-radius: 3px; font-family: 'JetBrains Mono';">const</code> keywords with constructors to optimize performance.
+                                </div>
+
+                                <div class="code-challenge">
+                                    <div class="challenge-title">✏️ Challenge: Stateful Counter</div>
+                                    <div class="challenge-description">
+                                        Create a <strong>StatefulWidget</strong> that:
+                                        <ul style="text-align: left; margin-top: 0.5rem;">
+                                            <li>Displays a counter value starting at 0</li>
+                                            <li>Has buttons to increment and decrement</li>
+                                            <li>Updates the display using setState()</li>
+                                        </ul>
+                                    </div>
+                                    <textarea class="code-input" id="challenge-1" placeholder="Write your Dart code here...">class MyCounter extends StatefulWidget {
+  const MyCounter();
+
+  @override
+  State&lt;MyCounter&gt; createState() => _MyCounterState();
+}
+
+class _MyCounterState extends State&lt;MyCounter&gt; {
+  int count = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Text('Replace me'),
+    );
+  }
+}</textarea>
+                                    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
+                                        <button class="editor-button success" onclick="runChallenge(1)">▶ Run Code</button>
+                                        <button class="editor-button" onclick="checkChallenge(1)">✓ Check Answer</button>
+                                        <button class="hint-button" onclick="showHint(1)">💡 Show Hint</button>
+                                    </div>
+                                    <div class="challenge-feedback" id="feedback-1"></div>
+                                </div>
+                            </div>
+
+                            <!-- Additional lessons (2-7) follow similar structure... -->
+                            <div class="lesson-content" data-lesson="2">
+                                <h2>📦 Assets Management</h2>
+                                <p>Assets are resources bundled with your app like images, fonts, JSON data, and other files.</p>
+                                <div class="code-block-snippet"><span class="code-comment"># In pubspec.yaml</span>
+flutter:
+  assets:
+    - assets/images/
+    - assets/data/
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700</div>
+                                <p style="margin-top: 1.5rem;">Use assets in your code:</p>
+                                <div class="code-block-snippet"><span class="code-comment">// Load image</span>
+<span class="code-class">Image</span>.asset(<span class="code-string">'assets/images/logo.png'</span>)
+
+<span class="code-comment">// Use custom font</span>
+<span class="code-class">Text</span>(
+  <span class="code-string">'Styled Text'</span>,
+  style: <span class="code-class">TextStyle</span>(
+    fontFamily: <span class="code-string">'Roboto'</span>,
+    fontWeight: <span class="code-class">FontWeight</span>.bold,
+  ),
+)</div>
+                                <div class="tip-box">
+                                    <strong>💡 Remember:</strong> After adding assets to pubspec.yaml, run <code style="background: rgba(0,0,0,0.1); padding: 0.2rem 0.4rem; border-radius: 3px; font-family: 'JetBrains Mono';">flutter pub get</code>
+                                </div>
+                            </div>
+
+                            <div class="lesson-content" data-lesson="3">
+                                <h2>🧭 Navigation System</h2>
+                                <p>Flutter provides a powerful navigation system using the Navigator widget for managing a stack of routes.</p>
+                                <div class="code-block-snippet"><span class="code-comment">// Basic navigation</span>
+<span class="code-class">Navigator</span>.push(
+  context,
+  <span class="code-class">MaterialPageRoute</span>(
+    builder: (context) => <span class="code-keyword">const</span> <span class="code-class">SecondScreen</span>(),
+  ),
+);
+
+<span class="code-comment">// Go back</span>
+<span class="code-class">Navigator</span>.pop(context);</div>
+                                <div class="code-challenge">
+                                    <div class="challenge-title">✏️ Challenge: Navigation Screen</div>
+                                    <div class="challenge-description">
+                                        Create a screen transition that:
+                                        <ul style="text-align: left; margin-top: 0.5rem;">
+                                            <li>Has a button to navigate to DetailScreen</li>
+                                            <li>Passes data between screens</li>
+                                            <li>Includes a back button</li>
+                                        </ul>
+                                    </div>
+                                    <textarea class="code-input" id="challenge-3" placeholder="Write navigation code...">// Write your navigation code here</textarea>
+                                    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
+                                        <button class="editor-button success" onclick="runChallenge(3)">▶ Run Code</button>
+                                        <button class="editor-button" onclick="checkChallenge(3)">✓ Check Answer</button>
+                                        <button class="hint-button" onclick="showHint(3)">💡 Show Hint</button>
+                                    </div>
+                                    <div class="challenge-feedback" id="feedback-3"></div>
+                                </div>
+                            </div>
+
+                            <div class="lesson-content" data-lesson="4">
+                                <h2>🎨 Theme & Styling</h2>
+                                <p>Customize your app's appearance with themes and styling.</p>
+                                <div class="code-block-snippet"><span class="code-keyword">class</span> <span class="code-class">MyApp</span> <span class="code-keyword">extends</span> <span class="code-class">StatelessWidget</span> {
+  @override
+  <span class="code-class">Widget</span> build(<span class="code-class">BuildContext</span> context) {
+    <span class="code-keyword">return</span> <span class="code-class">MaterialApp</span>(
+      theme: <span class="code-class">ThemeData</span>(
+        primarySwatch: <span class="code-class">Colors</span>.blue,
+        useMaterial3: <span class="code-keyword">true</span>,
+      ),
+      darkTheme: <span class="code-class">ThemeData</span>.dark(),
+      themeMode: <span class="code-class">ThemeMode</span>.system,
+      home: <span class="code-keyword">const</span> <span class="code-class">HomePage</span>(),
+    );
+  }
+}</div>
+                            </div>
+
+                            <div class="lesson-content" data-lesson="5">
+                                <h2>💾 Data Persistence</h2>
+                                <p>Save and retrieve data locally using SharedPreferences or databases.</p>
+                                <div class="code-block-snippet"><span class="code-keyword">import</span> <span class="code-string">'package:shared_preferences/shared_preferences.dart'</span>;
+
+<span class="code-comment">// Save data</span>
+<span class="code-keyword">Future</span>&lt;<span class="code-keyword">void</span>&gt; saveData() <span class="code-keyword">async</span> {
+  <span class="code-keyword">final</span> prefs = <span class="code-keyword">await</span> <span class="code-class">SharedPreferences</span>.getInstance();
+  <span class="code-keyword">await</span> prefs.setString(<span class="code-string">'username'</span>, <span class="code-string">'john_doe'</span>);
+}
+
+<span class="code-comment">// Load data</span>
+<span class="code-keyword">Future</span>&lt;<span class="code-keyword">void</span>&gt; loadData() <span class="code-keyword">async</span> {
+  <span class="code-keyword">final</span> prefs = <span class="code-keyword">await</span> <span class="code-class">SharedPreferences</span>.getInstance();
+  <span class="code-keyword">final</span> username = prefs.getString(<span class="code-string">'username'</span>);
+}</div>
+                            </div>
+
+                            <div class="lesson-content" data-lesson="6">
+                                <h2>📦 pubspec.yaml Configuration</h2>
+                                <p>The pubspec.yaml file is your project's manifest, defining dependencies, assets, and metadata.</p>
+                                <div class="code-block-snippet">name: my_app
+description: My Flutter Application
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 &lt;4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.1.0
+  provider: ^6.0.0
+  shared_preferences: ^2.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf</div>
+                            </div>
+
+                            <div class="lesson-content" data-lesson="7">
+                                <h2>🐛 Debugging & Logging</h2>
+                                <p>Master debugging techniques to identify and fix issues in your Flutter apps.</p>
+                                <div class="code-block-snippet"><span class="code-keyword">import</span> <span class="code-string">'package:flutter/foundation.dart'</span>;
+
+<span class="code-comment">// Use debugPrint for better output handling</span>
+debugPrint(<span class="code-string">'User logged in'</span>);
+
+<span class="code-comment">// Conditional logging</span>
+<span class="code-keyword">if</span> (kDebugMode) {
+  debugPrint(<span class="code-string">'Debug mode: detailed info'</span>);
+}
+
+<span class="code-comment">// Structured logging</span>
+<span class="code-keyword">import</span> <span class="code-string">'dart:developer'</span> <span class="code-keyword">as</span> developer;
+
+developer.log(
+  <span class="code-string">'API call completed'</span>,
+  name: <span class="code-string">'ApiService'</span>,
+  error: exception,
+  stackTrace: stackTrace,
+);</div>
+                                <div class="code-challenge">
+                                    <div class="challenge-title">✏️ Challenge: Debug Output</div>
+                                    <div class="challenge-description">
+                                        Write code that logs messages at different levels using debugPrint and developer.log
+                                    </div>
+                                    <textarea class="code-input" id="challenge-7" placeholder="Write logging code...">// Write your logging code here</textarea>
+                                    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
+                                        <button class="editor-button success" onclick="runChallenge(7)">▶ Run Code</button>
+                                        <button class="editor-button" onclick="checkChallenge(7)">✓ Check Answer</button>
+                                        <button class="hint-button" onclick="showHint(7)">💡 Show Hint</button>
+                                    </div>
+                                    <div class="challenge-feedback" id="feedback-7"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GitHub File Browser Tab -->
+                    <div id="github-tab" style="display: none; flex: 1; overflow: hidden;">
+                        <div class="github-file-browser">
+                            <div class="file-browser-header">📁 Project Structure</div>
+                            <div class="file-tree">
+                                <div class="file-tree-item folder">📁 my_app/</div>
+                                
+                                <div class="file-tree-item file">lib/</div>
+                                <div class="file-tree-item file" style="margin-left: 2.5rem;">main.dart</div>
+                                <div class="file-tree-item file" style="margin-left: 2.5rem;">widgets/</div>
+                                <div class="file-tree-item file" style="margin-left: 4rem;">greeting_card.dart</div>
+                                <div class="file-tree-item file" style="margin-left: 4rem;">counter.dart</div>
+                                <div class="file-tree-item file" style="margin-left: 2.5rem;">screens/</div>
+                                <div class="file-tree-item file" style="margin-left: 4rem;">home_screen.dart</div>
+                                <div class="file-tree-item file" style="margin-left: 4rem;">details_screen.dart</div>
+                                <div class="file-tree-item file" style="margin-left: 2.5rem;">services/</div>
+                                <div class="file-tree-item file" style="margin-left: 4rem;">api_service.dart</div>
+                                <div class="file-tree-item file" style="margin-left: 4rem;">storage_service.dart</div>
+                                
+                                <div class="file-tree-item file" style="margin-top: 0.5rem;">assets/</div>
+                                <div class="file-tree-item file" style="margin-left: 2.5rem;">images/</div>
+                                <div class="file-tree-item file" style="margin-left: 4rem;">logo.png</div>
+                                <div class="file-tree-item file" style="margin-left: 4rem;">icon.png</div>
+                                <div class="file-tree-item file" style="margin-left: 2.5rem;">fonts/</div>
+                                <div class="file-tree-item file" style="margin-left: 4rem;">Roboto-Regular.ttf</div>
+                                <div class="file-tree-item file" style="margin-left: 4rem;">Roboto-Bold.ttf</div>
+                                <div class="file-tree-item file" style="margin-left: 2.5rem;">data/</div>
+                                <div class="file-tree-item file" style="margin-left: 4rem;">config.json</div>
+                                
+                                <div class="file-tree-item file" style="margin-top: 0.5rem;">test/</div>
+                                <div class="file-tree-item file" style="margin-left: 2.5rem;">widget_test.dart</div>
+                                
+                                <div class="file-tree-item file" style="margin-top: 0.5rem;">android/</div>
+                                <div class="file-tree-item file" style="margin-left: 2.5rem;">app/</div>
+                                <div class="file-tree-item file" style="margin-left: 2.5rem;">gradle/</div>
+                                
+                                <div class="file-tree-item file" style="margin-top: 0.5rem;">ios/</div>
+                                <div class="file-tree-item file" style="margin-left: 2.5rem;">Runner/</div>
+                                <div class="file-tree-item file" style="margin-left: 2.5rem;">Runner.xcodeproj/</div>
+                                
+                                <div class="file-tree-item file" style="margin-top: 0.5rem;">pubspec.yaml</div>
+                                <div class="file-tree-item file">pubspec.lock</div>
+                                <div class="file-tree-item file">.gitignore</div>
+                                <div class="file-tree-item file">README.md</div>
+                                <div class="file-tree-item file">analysis_options.yaml</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Code Editor & Preview -->
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem; min-width: 0;">
+                        <div class="code-editor-wrapper">
+                            <div class="code-editor-title">
+                                <span>📝 Code Editor</span>
+                                <div class="code-editor-toolbar">
+                                    <button class="editor-button" onclick="formatCode()">⚙️ Format</button>
+                                    <button class="editor-button success" onclick="simulateFlutterRun()">▶ Run</button>
+                                </div>
+                            </div>
+                            <div class="code-input-container">
+                                <textarea class="code-input" id="main-editor" placeholder="Your Dart code will appear here when you work on challenges...">// Select a challenge to start coding!
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="preview-panel">
+                            <div class="preview-header">
+                                <span>📱 Live Preview</span>
+                                <div class="preview-status">
+                                    <div class="status-indicator"></div>
+                                    <span>App Running</span>
+                                </div>
+                            </div>
+                            <div class="preview-viewport">
+                                <div class="device-frame">
+                                    <div class="device-notch"></div>
+                                    <div class="device-screen">
+                                        <div id="app-preview" class="flutter-app">
+                                            <h2>Welcome</h2>
+                                            <p>Select a code challenge and run it to see a live preview here!</p>
+                                            <p style="margin-top: 1rem; font-size: 0.8rem; color: #999;">Output updates in real-time</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Challenge validation system
+        const challenges = {
+            0: {
+                title: "GreetingCard Widget",
+                validate: (code) => {
+                    const checks = [
+                        { pattern: /class\s+GreetingCard/, message: "Class must be named 'GreetingCard'" },
+                        { pattern: /extends\s+StatelessWidget/, message: "Must extend StatelessWidget" },
+                        { pattern: /@override/, message: "Must have @override annotation" },
+                        { pattern: /Widget\s+build/, message: "Must have build method that returns Widget" },
+                        { pattern: /Text\(/, message: "Must contain Text widget" },
+                        { pattern: /ElevatedButton/, message: "Should include ElevatedButton" },
+                    ];
+
+                    for (let check of checks) {
+                        if (!check.pattern.test(code)) {
+                            return { valid: false, error: check.message };
+                        }
+                    }
+                    return { valid: true };
+                },
+                hint: "Create a class that extends StatelessWidget with a build method returning a Card or Container with Text and ElevatedButton widgets."
+            },
+            1: {
+                title: "Counter Widget",
+                validate: (code) => {
+                    const checks = [
+                        { pattern: /class\s+MyCounter/, message: "Class must be named 'MyCounter'" },
+                        { pattern: /extends\s+StatefulWidget/, message: "Must extend StatefulWidget" },
+                        { pattern: /State.*MyCounter/, message: "State class must be for MyCounter" },
+                        { pattern: /int\s+count\s*=\s*0/, message: "Must initialize count to 0" },
+                        { pattern: /setState/, message: "Must use setState() to update state" },
+                    ];
+
+                    for (let check of checks) {
+                        if (!check.pattern.test(code)) {
+                            return { valid: false, error: check.message };
+                        }
+                    }
+                    return { valid: true };
+                },
+                hint: "Create a StatefulWidget with increment and decrement buttons that update count using setState()."
+            },
+            3: {
+                title: "Navigation",
+                validate: (code) => {
+                    if (!/Navigator\.push/.test(code)) {
+                        return { valid: false, error: "Must use Navigator.push()" };
+                    }
+                    if (!/MaterialPageRoute/.test(code)) {
+                        return { valid: false, error: "Must wrap route in MaterialPageRoute" };
+                    }
+                    return { valid: true };
+                },
+                hint: "Use Navigator.push with MaterialPageRoute to navigate between screens."
+            },
+            7: {
+                title: "Debug Logging",
+                validate: (code) => {
+                    if (!/debugPrint/.test(code) && !/developer\.log/.test(code)) {
+                        return { valid: false, error: "Must use debugPrint or developer.log" };
+                    }
+                    return { valid: true };
+                },
+                hint: "Use debugPrint() or developer.log() for logging in Flutter apps."
+            }
+        };
+
+        let currentLesson = 0;
+        let completedLessons = new Set();
+
+        // Initialize
+        document.querySelectorAll('.lesson-item').forEach((item, index) => {
+            item.addEventListener('click', () => switchLesson(index));
+        });
+
+        function switchLesson(index) {
+            // Hide all lesson content
+            document.querySelectorAll('.lesson-content').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Update lesson items
+            document.querySelectorAll('.lesson-item').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Show selected lesson
+            document.querySelector(`.lesson-content[data-lesson="${index}"]`).classList.add('active');
+            document.querySelector(`.lesson-item[data-lesson="${index}"]`).classList.add('active');
+
+            currentLesson = index;
+            updateProgress();
+        }
+
+        function switchEditorTab(tab) {
+            document.querySelectorAll('.editor-tab').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (tab === 'content') {
+                document.getElementById('content-tab').style.display = 'flex';
+                document.getElementById('github-tab').style.display = 'none';
+            } else {
+                document.getElementById('content-tab').style.display = 'none';
+                document.getElementById('github-tab').style.display = 'flex';
+            }
+        }
+
+        function checkChallenge(id) {
+            const code = document.getElementById(`challenge-${id}`).value;
+            const feedback = document.getElementById(`feedback-${id}`);
+            
+            if (!code.trim()) {
+                showFeedback(feedback, 'incorrect', '❌ Please write some code first!');
+                return;
+            }
+
+            if (!challenges[id]) {
+                showFeedback(feedback, 'incorrect', '❌ Challenge not found');
+                return;
+            }
+
+            const result = challenges[id].validate(code);
+
+            if (result.valid) {
+                showFeedback(feedback, 'correct', '✅ <strong>Perfect!</strong> Your code is correct!');
+                completedLessons.add(currentLesson);
+                document.querySelector(`.lesson-item[data-lesson="${currentLesson}"]`).classList.add('completed');
+                updateProgress();
+            } else {
+                showFeedback(feedback, 'incorrect', `❌ <strong>${result.error}</strong><br>Try again!`);
+            }
+        }
+
+        function showHint(id) {
+            const feedback = document.getElementById(`feedback-${id}`);
+            if (challenges[id]) {
+                showFeedback(feedback, 'hint', `💡 <strong>Hint:</strong> ${challenges[id].hint}`);
+            }
+        }
+
+        function runChallenge(id) {
+            const code = document.getElementById(`challenge-${id}`).value;
+            const preview = document.getElementById('app-preview');
+
+            if (!code.trim()) {
+                preview.innerHTML = '<div class="error-message">❌ No code to run. Write some code first!</div>';
+                return;
+            }
+
+            // Simulate Flutter app execution
+            let output = '<div style="padding: 1rem; text-align: center;">';
+
+            if (id === 0) {
+                // GreetingCard simulation
+                output += '<h2 style="color: #667eea;">Welcome to Flutter</h2>';
+                output += '<p>This is a greeting card widget</p>';
+                output += '<button style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer;">Get Started</button>';
+            } else if (id === 1) {
+                // Counter simulation
+                output += '<h2 style="color: #667eea;">Counter Demo</h2>';
+                output += '<p id="counter-display" style="font-size: 2rem; color: #764ba2; font-weight: bold;">0</p>';
+                output += '<button onclick="increment()">+</button>';
+                output += '<button onclick="decrement()" style="margin-left: 0.5rem;">-</button>';
+            } else {
+                output += '<p style="color: #666;">✅ Code executed successfully!</p>';
+                output += '<pre style="background: #f1f5f9; padding: 1rem; border-radius: 8px; text-align: left; overflow-x: auto; font-size: 0.85rem;">Console output will appear here</pre>';
+            }
+
+            output += '</div>';
+            preview.innerHTML = output;
+        }
+
+        function simulateFlutterRun() {
+            const code = document.getElementById('main-editor').value;
+            const preview = document.getElementById('app-preview');
+
+            if (!code.includes('main()') || !code.includes('runApp')) {
+                preview.innerHTML = '<div class="error-message">❌ Error: No runApp() found in main()</div>';
+                return;
+            }
+
+            preview.innerHTML = `<div class="success-message">✅ App running successfully!<br><br><span style="display: block; margin-top: 1rem; font-size: 0.9rem;">Hot reload: Press 'r' in terminal to reload</span></div>`;
+        }
+
+        function formatCode() {
+            // Simple code formatting
+            const editor = document.getElementById('main-editor');
+            let code = editor.value;
+            
+            code = code.replace(/(\{)/g, ' {\n  ')
+                      .replace(/(\})/g, '\n}')
+                      .replace(/;/g, ';\n');
+            
+            editor.value = code;
+        }
+
+        function toggleFileExplorer() {
+            const btn = event.target.closest('.github-repo');
+            btn.classList.toggle('active');
+        }
+
+        function showFeedback(element, type, message) {
+            element.className = `challenge-feedback ${type}`;
+            element.innerHTML = message;
+        }
+
+        function updateProgress() {
+            const total = 8;
+            const completed = completedLessons.size;
+            const percentage = (completed / total) * 100;
+            
+            document.getElementById('progress-fill').style.width = `${percentage}%`;
+            document.getElementById('progress-text').textContent = `${completed}/${total} lessons completed`;
+        }
+
+        // Add counter functions for challenge 1
+        window.increment = function() {
+            const display = document.getElementById('counter-display');
+            if (display) {
+                let count = parseInt(display.textContent);
+                display.textContent = count + 1;
+            }
+        };
+
+        window.decrement = function() {
+            const display = document.getElementById('counter-display');
+            if (display) {
+                let count = parseInt(display.textContent);
+                display.textContent = Math.max(0, count - 1);
+            }
+        };
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
