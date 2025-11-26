@@ -10,21 +10,13 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <div class="header-left">
                 <h1>Flutter Masterclass</h1>
-                <p>Cross-platform app development with live DartPad</p>
-            </div>
-            <div class="github-repo" onclick="toggleFileExplorer()">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v 3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-                <span class="github-repo-text">View on GitHub</span>
+                <p>Cross-platform app development with live simulator</p>
             </div>
         </div>
 
-        <!-- Main Content -->
         <div class="main-content">
             <!-- Sidebar -->
             <div class="sidebar scrollbar-hide">
@@ -53,15 +45,11 @@
             <!-- Editor Section -->
             <div class="editor-section">
                 <div class="editor-header">
-                    <div>Lesson Content & DartPad</div>
-                    <div class="editor-tabs">
-                        <button class="editor-tab active" onclick="switchEditorTab('content')">Content</button>
-                        <button class="editor-tab" onclick="switchEditorTab('github')">GitHub Files</button>
-                    </div>
+                    <div>Lesson Content & Live Simulator</div>
                 </div>
 
                 <div class="editor-content">
-                    <!-- Lesson Content Tab -->
+                    <!-- Lesson Content -->
                     <div id="content-tab" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
                         <div style="flex: 1; overflow-y: auto;" class="scrollbar-hide">
                             <!-- Lesson 0: Getting Started -->
@@ -69,21 +57,8 @@
                                 <h2>🚀 Getting Started with Flutter</h2>
                                 <p>Flutter is Google's open-source UI framework for building beautiful, natively compiled applications for mobile, web, and desktop from a single codebase.</p>
 
-                                <h3>Installation & Setup</h3>
-                                <p>Download the Flutter SDK from <a href="https://flutter.dev" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: none; font-weight: 600;">flutter.dev</a> and follow the official installation guide for your operating system.</p>
-
-                                <div class="code-block-snippet"><span class="code-comment"># Verify Flutter installation</span>
-flutter --version
-
-<span class="code-comment"># Create a new project</span>
-flutter create my_app
-cd my_app
-
-<span class="code-comment"># Run the app</span>
-flutter run</div>
-
-                                <h3>Your First App: main.dart</h3>
-                                <p>Every Flutter app starts with the <code style="background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; font-family: 'JetBrains Mono';">main()</code> function. Try this example in DartPad on the right:</p>
+                                <h3>Your First App</h3>
+                                <p>Every Flutter app starts with the main() function. Try this example in the simulator on the right:</p>
 
                                 <div class="code-block-snippet"><span class="code-keyword">import</span> <span class="code-string">'package:flutter/material.dart'</span>;
 
@@ -93,21 +68,6 @@ flutter run</div>
 
 <span class="code-keyword">class</span> <span class="code-class">MyApp</span> <span class="code-keyword">extends</span> <span class="code-class">StatelessWidget</span> {
   <span class="code-keyword">const</span> <span class="code-class">MyApp</span>();
-
-  @override
-  <span class="code-class">Widget</span> build(<span class="code-class">BuildContext</span> context) {
-    <span class="code-keyword">return</span> <span class="code-class">MaterialApp</span>(
-      title: <span class="code-string">'Flutter App'</span>,
-      theme: <span class="code-class">ThemeData</span>(
-        primarySwatch: <span class="code-class">Colors</span>.blue,
-      ),
-      home: <span class="code-keyword">const</span> <span class="code-class">HomePage</span>(),
-    );
-  }
-}
-
-<span class="code-keyword">class</span> <span class="code-class">HomePage</span> <span class="code-keyword">extends</span> <span class="code-class">StatelessWidget</span> {
-  <span class="code-keyword">const</span> <span class="code-class">HomePage</span>();
 
   @override
   <span class="code-class">Widget</span> build(<span class="code-class">BuildContext</span> context) {
@@ -123,24 +83,23 @@ flutter run</div>
 }</div>
 
                                 <div class="tip-box">
-                                    <strong>💡 Pro Tip:</strong> Use <code style="background: rgba(0,0,0,0.1); padding: 0.2rem 0.4rem; border-radius: 3px; font-family: 'JetBrains Mono';">flutter hot reload</code> to see changes instantly without restarting the app!
+                                    <strong>💡 Pro Tip:</strong> Click "Run" in the simulator panel to execute your code and see the results immediately!
                                 </div>
 
                                 <div class="code-challenge">
-                                    <div class="challenge-title">✏️ Challenge: Build Your First Widget</div>
+                                    <div class="challenge-title">✏️ Challenge 1: Build Your First Widget</div>
                                     <div class="challenge-description">
-                                        Create a StatelessWidget called <strong>GreetingCard</strong> that displays:
+                                        Create a greeting card that displays:
                                         <ul style="text-align: left; margin-top: 0.5rem;">
                                             <li>A title "Welcome to Flutter"</li>
                                             <li>A description text</li>
-                                            <li>An ElevatedButton with "Get Started"</li>
+                                            <li>A button with "Get Started"</li>
                                         </ul>
                                     </div>
                                     <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
-                                        <button class="editor-button success" onclick="loadChallenge(0)">▶ Load Challenge</button>
-                                        <button class="hint-button" onclick="showHint(0)">💡 Show Hint</button>
+                                        <button class="editor-button success" onclick="loadChallenge(0)">📝 Load Challenge</button>
+                                        <button class="hint-button" onclick="showHint(0)">💡 Hint</button>
                                     </div>
-                                    <div class="challenge-feedback" id="feedback-0"></div>
                                 </div>
                             </div>
 
@@ -150,163 +109,128 @@ flutter run</div>
                                 <p>Everything in Flutter is a widget. Widgets are the building blocks of Flutter apps, immutable objects that describe part of the user interface.</p>
 
                                 <h3>Stateless Widgets</h3>
-                                <p>Use <code style="background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; font-family: 'JetBrains Mono';">StatelessWidget</code> for widgets that don't change based on user interaction:</p>
+                                <p>Use StatelessWidget for widgets that don't change based on user interaction:</p>
 
                                 <div class="code-block-snippet"><span class="code-keyword">class</span> <span class="code-class">UserCard</span> <span class="code-keyword">extends</span> <span class="code-class">StatelessWidget</span> {
   <span class="code-keyword">final</span> <span class="code-class">String</span> name;
-  <span class="code-keyword">final</span> <span class="code-class">String</span> email;
 
-  <span class="code-keyword">const</span> <span class="code-class">UserCard</span>({
-    <span class="code-keyword">required</span> <span class="code-keyword">this</span>.name,
-    <span class="code-keyword">required</span> <span class="code-keyword">this</span>.email,
-  });
+  <span class="code-keyword">const</span> <span class="code-class">UserCard</span>({<span class="code-keyword">required</span> <span class="code-keyword">this</span>.name});
 
   @override
   <span class="code-class">Widget</span> build(<span class="code-class">BuildContext</span> context) {
     <span class="code-keyword">return</span> <span class="code-class">Card</span>(
-      child: <span class="code-class">Column</span>(
-        children: [
-          <span class="code-class">Text</span>(name, style: <span class="code-class">TextStyle</span>(fontSize: 18)),
-          <span class="code-class">Text</span>(email),
-        ],
+      child: <span class="code-class">Padding</span>(
+        padding: <span class="code-keyword">const</span> <span class="code-class">EdgeInsets</span>.all(16.0),
+        child: <span class="code-class">Text</span>(name),
       ),
     );
   }
 }</div>
 
                                 <h3>Stateful Widgets</h3>
-                                <p>Use <code style="background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; font-family: 'JetBrains Mono';">StatefulWidget</code> when your widget needs to manage mutable state:</p>
-
-                                <div class="code-block-snippet"><span class="code-keyword">class</span> <span class="code-class">Counter</span> <span class="code-keyword">extends</span> <span class="code-class">StatefulWidget</span> {
-  <span class="code-keyword">const</span> <span class="code-class">Counter</span>();
-
-  @override
-  <span class="code-class">State</span>&lt;<span class="code-class">Counter</span>&gt; createState() => <span class="code-class">_CounterState</span>();
-}
-
-<span class="code-keyword">class</span> <span class="code-class">_CounterState</span> <span class="code-keyword">extends</span> <span class="code-class">State</span>&lt;<span class="code-class">Counter</span>&gt; {
-  <span class="code-keyword">int</span> count = 0;
-
-  <span class="code-keyword">void</span> increment() {
-    setState(() {
-      count++;
-    });
-  }
-
-  @override
-  <span class="code-class">Widget</span> build(<span class="code-class">BuildContext</span> context) {
-    <span class="code-keyword">return</span> <span class="code-class">Column</span>(
-      children: [
-        <span class="code-class">Text</span>(<span class="code-string">'Count: \$count'</span>),
-        <span class="code-class">ElevatedButton</span>(
-          onPressed: increment,
-          child: <span class="code-keyword">const</span> <span class="code-class">Text</span>(<span class="code-string">'Increment'</span>),
-        ),
-      ],
-    );
-  }
-}</div>
-
-                                <h3>Common Layout Widgets</h3>
-                                <ul>
-                                    <li><strong>Scaffold</strong> - Material Design structure with app bar, body, and floating action button</li>
-                                    <li><strong>Column</strong> - Arranges children vertically</li>
-                                    <li><strong>Row</strong> - Arranges children horizontally</li>
-                                    <li><strong>Stack</strong> - Overlays widgets on top of each other</li>
-                                    <li><strong>ListView</strong> - Scrollable list of widgets</li>
-                                    <li><strong>Container</strong> - Box with padding, margin, and decoration</li>
-                                </ul>
-
-                                <div class="warning-box">
-                                    <strong>⚠️ Important:</strong> Always use <code style="background: rgba(0,0,0,0.1); padding: 0.2rem 0.4rem; border-radius: 3px; font-family: 'JetBrains Mono';">const</code> keywords with constructors to optimize performance.
-                                </div>
+                                <p>Use StatefulWidget when your widget needs to manage mutable state:</p>
 
                                 <div class="code-challenge">
-                                    <div class="challenge-title">✏️ Challenge: Stateful Counter</div>
+                                    <div class="challenge-title">✏️ Challenge 2: Create a Counter</div>
                                     <div class="challenge-description">
-                                        Create a <strong>StatefulWidget</strong> that:
+                                        Build a StatefulWidget with:
                                         <ul style="text-align: left; margin-top: 0.5rem;">
-                                            <li>Displays a counter value starting at 0</li>
-                                            <li>Has buttons to increment and decrement</li>
-                                            <li>Updates the display using setState()</li>
+                                            <li>A counter display starting at 0</li>
+                                            <li>Increment and decrement buttons</li>
+                                            <li>State management using setState()</li>
                                         </ul>
                                     </div>
                                     <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
-                                        <button class="editor-button success" onclick="loadChallenge(1)">▶ Load Challenge</button>
-                                        <button class="hint-button" onclick="showHint(1)">💡 Show Hint</button>
+                                        <button class="editor-button success" onclick="loadChallenge(1)">📝 Load Challenge</button>
+                                        <button class="hint-button" onclick="showHint(1)">💡 Hint</button>
                                     </div>
-                                    <div class="challenge-feedback" id="feedback-1"></div>
                                 </div>
                             </div>
 
-                            <!-- Additional lessons placeholder -->
+                            <!-- Lesson 2-7 -->
                             <div class="lesson-content" data-lesson="2">
                                 <h2>📦 Assets Management</h2>
-                                <p>Assets are resources bundled with your app like images, fonts, JSON data, and other files.</p>
-                                <p>Configure them in your pubspec.yaml file and access them in your code with Image.asset().</p>
+                                <p>Assets are resources bundled with your app like images, fonts, and data files. Configure them in pubspec.yaml and access them with Image.asset().</p>
                             </div>
 
                             <div class="lesson-content" data-lesson="3">
                                 <h2>🧭 Navigation System</h2>
-                                <p>Flutter provides a powerful navigation system using the Navigator widget for managing a stack of routes.</p>
+                                <p>Flutter provides Navigator widget for managing a stack of routes. Use Navigator.push() and Navigator.pop() to navigate between screens.</p>
                             </div>
 
                             <div class="lesson-content" data-lesson="4">
                                 <h2>🎨 Theme & Styling</h2>
-                                <p>Customize your app's appearance with themes and styling using ThemeData.</p>
+                                <p>Customize your app's appearance with ThemeData. Define colors, typography, and component styles globally.</p>
                             </div>
 
                             <div class="lesson-content" data-lesson="5">
                                 <h2>💾 Data Persistence</h2>
-                                <p>Save and retrieve data locally using SharedPreferences or databases.</p>
+                                <p>Save and retrieve data locally using SharedPreferences or databases like sqflite.</p>
                             </div>
 
                             <div class="lesson-content" data-lesson="6">
                                 <h2>📦 pubspec.yaml Configuration</h2>
-                                <p>The pubspec.yaml file is your project's manifest, defining dependencies, assets, and metadata.</p>
+                                <p>Your project's manifest defining dependencies, assets, and metadata.</p>
                             </div>
 
                             <div class="lesson-content" data-lesson="7">
                                 <h2>🐛 Debugging & Logging</h2>
-                                <p>Master debugging techniques to identify and fix issues in your Flutter apps.</p>
+                                <p>Master debugging with debugPrint() and developer.log() for identifying and fixing issues.</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- GitHub File Browser Tab -->
-                    <div id="github-tab" style="display: none; flex: 1; overflow: hidden;">
-                        <div class="github-file-browser">
-                            <div class="file-browser-header">📁 Project Structure</div>
-                            <div class="file-tree">
-                                <div class="file-tree-item folder">📁 my_app/</div>
-                                <div class="file-tree-item file" style="margin-left: 1rem;">lib/main.dart</div>
-                                <div class="file-tree-item file" style="margin-left: 1rem;">assets/images/</div>
-                                <div class="file-tree-item file" style="margin-left: 1rem;">pubspec.yaml</div>
-                                <div class="file-tree-item file" style="margin-left: 1rem;">android/</div>
-                                <div class="file-tree-item file" style="margin-left: 1rem;">ios/</div>
-                                <div class="file-tree-item file" style="margin-left: 1rem;">test/</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- DartPad Integration -->
+                    <!-- Code Editor & Simulator -->
                     <div style="flex: 1; display: flex; gap: 1rem; overflow: hidden; min-height: 0; padding: 1.5rem;">
-                        <div class="dartpad-container">
-                            <div class="dartpad-header">
-                                <span>🎯 DartPad Live Editor</span>
-                                <div class="dartpad-status">
-                                    <div class="status-indicator"></div>
-                                    <span>Ready</span>
+                        <div class="code-editor-wrapper">
+                            <div class="code-editor-title">
+                                <span>📝 Code Editor</span>
+                                <div class="code-editor-toolbar">
+                                    <button class="editor-button success" onclick="runCode()">▶ Run</button>
                                 </div>
                             </div>
-                            <div class="dartpad-iframe-container" id="dartpad-wrapper">
-                                <!-- DartPad iframe will be embedded here -->
+                            <div class="code-input-container">
+                                <textarea class="code-input" id="main-editor" placeholder="Your Dart code will appear here...">import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Hello Flutter'),
+      ),
+      body: const Center(
+        child: Text('Hello, World!'),
+      ),
+    );
+  }
+}</textarea>
                             </div>
-                            <div class="dartpad-controls">
-                                <button onclick="loadDartPadChallenge()">📝 Load Challenge</button>
-                                <button onclick="clearDartPad()">🗑️ Clear Code</button>
-                                <button onclick="resetDartPad()">🔄 Reset</button>
-                                <button onclick="openInDartPad()">🔗 Open in DartPad</button>
+                        </div>
+
+                        <div class="preview-panel">
+                            <div class="preview-header">
+                                <span>📱 Live Preview</span>
+                                <div class="preview-status">
+                                    <div class="status-indicator"></div>
+                                    <span id="preview-status">Ready</span>
+                                </div>
+                            </div>
+                            <div class="preview-viewport">
+                                <div class="device-frame">
+                                    <div class="device-notch"></div>
+                                    <div class="device-screen">
+                                        <div id="app-preview" class="flutter-app">
+                                            <!-- Rendered Flutter app goes here -->
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -318,9 +242,8 @@ flutter run</div>
     <script>
         let currentLesson = 0;
         let completedLessons = new Set();
-        let currentChallengeDartPadUrl = '';
+        let appState = {};
 
-        // Challenges with starter code
         const challenges = {
             0: {
                 title: "GreetingCard Widget",
@@ -335,10 +258,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Welcome')),
-        body: const Center(child: GreetingCard()),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Welcome'),
+      ),
+      body: const Center(
+        child: GreetingCard(),
       ),
     );
   }
@@ -351,17 +276,20 @@ class GreetingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
               'Welcome to Flutter',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
-            const Text('This is a greeting card widget'),
-            const SizedBox(height: 16),
+            const Text('This is your first Flutter widget!'),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {},
               child: const Text('Get Started'),
@@ -372,7 +300,8 @@ class GreetingCard extends StatelessWidget {
     );
   }
 }`,
-                hint: "Create a Card widget with a Column containing a title, description, and ElevatedButton."
+                hint: "Create a Card widget with a Column containing Text widgets and an ElevatedButton.",
+                component: 'GreetingCard'
             },
             1: {
                 title: "Counter Widget",
@@ -387,10 +316,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Counter')),
-        body: const Center(child: MyCounter()),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Counter App'),
+      ),
+      body: const Center(
+        child: MyCounter(),
       ),
     );
   }
@@ -423,26 +354,40 @@ class _MyCounterState extends State<MyCounter> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text('Counter', style: TextStyle(fontSize: 24)),
+        const Text(
+          'Counter',
+          style: TextStyle(fontSize: 24),
+        ),
         const SizedBox(height: 16),
         Text(
           count.toString(),
-          style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 48,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF667eea),
+          ),
         ),
         const SizedBox(height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(onPressed: decrement, child: const Text('-')),
+            ElevatedButton(
+              onPressed: decrement,
+              child: const Text('-'),
+            ),
             const SizedBox(width: 16),
-            ElevatedButton(onPressed: increment, child: const Text('+')),
+            ElevatedButton(
+              onPressed: increment,
+              child: const Text('+'),
+            ),
           ],
         ),
       ],
     );
   }
 }`,
-                hint: "Create a StatefulWidget with increment/decrement buttons that use setState() to update the counter."
+                hint: "Create a StatefulWidget with increment/decrement buttons that update state with setState().",
+                component: 'MyCounter'
             }
         };
 
@@ -455,7 +400,6 @@ class _MyCounterState extends State<MyCounter> {
             document.querySelectorAll('.lesson-content').forEach(el => {
                 el.classList.remove('active');
             });
-
             document.querySelectorAll('.lesson-item').forEach(el => {
                 el.classList.remove('active');
             });
@@ -467,133 +411,132 @@ class _MyCounterState extends State<MyCounter> {
             updateProgress();
         }
 
-        function switchEditorTab(tab) {
-            document.querySelectorAll('.editor-tab').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
-
-            if (tab === 'content') {
-                document.getElementById('content-tab').style.display = 'flex';
-                document.getElementById('github-tab').style.display = 'none';
-            } else {
-                document.getElementById('content-tab').style.display = 'none';
-                document.getElementById('github-tab').style.display = 'flex';
-            }
-        }
-
         function loadChallenge(id) {
             if (!challenges[id]) return;
 
-            const code = challenges[id].code;
-            embedDartPad(code);
-            
-            showFeedback(
-                document.getElementById(`feedback-${id}`),
-                'hint',
-                `✅ Challenge loaded! Edit the code on the right and click Run in DartPad to see your app.`
-            );
-        }
-
-        function embedDartPad(code) {
-            const wrapper = document.getElementById('dartpad-wrapper');
-            
-            // Clear existing iframe
-            wrapper.innerHTML = '';
-
-            // Create base64 encoded URL for DartPad
-            const encodedCode = btoa(code);
-            const dartpadUrl = `https://dartpad.dev/embed-flutter.html?id=${generateId()}&code=${encodedCode}`;
-            
-            currentChallengeDartPadUrl = dartpadUrl;
-
-            const iframe = document.createElement('iframe');
-            iframe.src = dartpadUrl;
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            iframe.style.border = 'none';
-            iframe.setAttribute('allow', 'camera; microphone; clipboard-read; clipboard-write');
-
-            wrapper.appendChild(iframe);
-        }
-
-        function generateId() {
-            return Math.random().toString(36).substring(2, 15);
-        }
-
-        function loadDartPadChallenge() {
-            if (challenges[currentLesson]) {
-                loadChallenge(currentLesson);
-            } else {
-                alert('No challenge available for this lesson.');
-            }
-        }
-
-        function clearDartPad() {
-            const wrapper = document.getElementById('dartpad-wrapper');
-            wrapper.innerHTML = '<p style="padding: 2rem; text-align: center; color: #999;">DartPad cleared. Load a challenge to continue.</p>';
-        }
-
-        function resetDartPad() {
-            loadDartPadChallenge();
-        }
-
-        function openInDartPad() {
-            if (currentChallengeDartPadUrl) {
-                // Extract code from URL and open DartPad directly
-                window.open('https://dartpad.dev/', '_blank');
-            }
+            const editor = document.getElementById('main-editor');
+            editor.value = challenges[id].code;
+            runCode();
         }
 
         function showHint(id) {
-            const feedback = document.getElementById(`feedback-${id}`);
             if (challenges[id]) {
-                showFeedback(feedback, 'hint', `💡 <strong>Hint:</strong> ${challenges[id].hint}`);
+                alert('💡 Hint: ' + challenges[id].hint);
             }
         }
 
-        function showFeedback(element, type, message) {
-            element.className = `challenge-feedback ${type}`;
-            element.innerHTML = message;
+        function runCode() {
+            const code = document.getElementById('main-editor').value;
+            const preview = document.getElementById('app-preview');
+            const status = document.getElementById('preview-status');
+
+            try {
+                // Clear previous state
+                appState = { count: 0 };
+
+                // Simulate Flutter app execution
+                if (code.includes('class MyApp') || code.includes('class Scaffold')) {
+                    renderFlutterApp(code, preview);
+                    status.textContent = 'Running';
+                } else {
+                    preview.innerHTML = '<div class="error-box">❌ Error: No valid Flutter app found\n\nMake sure your code contains:\n- void main() function\n- A widget class extending StatelessWidget or StatefulWidget</div>';
+                    status.textContent = 'Error';
+                }
+            } catch (error) {
+                preview.innerHTML = `<div class="error-box">❌ Execution Error:\n\n${error.message}</div>`;
+                status.textContent = 'Error';
+            }
+        }
+
+        function renderFlutterApp(code, container) {
+            // Determine which widget to render based on code
+            if (code.includes('GreetingCard')) {
+                renderGreetingCard(container);
+            } else if (code.includes('MyCounter')) {
+                renderCounter(container);
+            } else {
+                renderHelloWorld(container);
+            }
+        }
+
+        function renderHelloWorld(container) {
+            container.innerHTML = `
+                <div class="flutter-scaffold">
+                    <div class="flutter-appbar">Hello Flutter</div>
+                    <div class="flutter-body">
+                        <div class="flutter-center">
+                            <div class="flutter-text">Hello, World!</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGreetingCard(container) {
+            container.innerHTML = `
+                <div class="flutter-scaffold">
+                    <div class="flutter-appbar">Welcome</div>
+                    <div class="flutter-body">
+                        <div class="flutter-center">
+                            <div class="flutter-card">
+                                <div class="flutter-column">
+                                    <div style="font-weight: 600; font-size: 1.2rem; margin-bottom: 1rem; color: #667eea;">Welcome to Flutter</div>
+                                    <div class="flutter-text" style="margin-bottom: 1.5rem;">This is your first Flutter widget!</div>
+                                    <button class="flutter-button" onclick="alert('Get Started clicked!')">Get Started</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCounter(container) {
+            if (!appState.count) appState.count = 0;
+
+            container.innerHTML = `
+                <div class="flutter-scaffold">
+                    <div class="flutter-appbar">Counter App</div>
+                    <div class="flutter-body">
+                        <div class="flutter-center">
+                            <div class="flutter-column" style="align-items: center;">
+                                <div class="flutter-text" style="font-size: 1.3rem;">Counter</div>
+                                <div style="font-size: 2.5rem; font-weight: bold; color: #667eea; margin: 1rem 0;">${appState.count}</div>
+                                <div class="flutter-row">
+                                    <button class="flutter-button" onclick="decrementCounter()">−</button>
+                                    <button class="flutter-button" onclick="incrementCounter()">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function incrementCounter() {
+            appState.count++;
+            const container = document.getElementById('app-preview');
+            renderCounter(container);
+        }
+
+        function decrementCounter() {
+            if (appState.count > 0) appState.count--;
+            const container = document.getElementById('app-preview');
+            renderCounter(container);
         }
 
         function updateProgress() {
             const total = 8;
             const completed = completedLessons.size;
             const percentage = (completed / total) * 100;
-            
+
             document.getElementById('progress-fill').style.width = `${percentage}%`;
             document.getElementById('progress-text').textContent = `${completed}/${total} lessons completed`;
         }
 
-        // Load initial DartPad with hello world
-        function initializeDartPad() {
-            const helloWorld = `import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp();
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Hello Flutter')),
-        body: const Center(
-          child: Text('Hello, World!'),
-        ),
-      ),
-    );
-  }
-}`;
-
-            embedDartPad(helloWorld);
-        }
-
-        // Initialize on load
+        // Initialize
         window.addEventListener('load', () => {
-            initializeDartPad();
+            runCode();
             updateProgress();
         });
     </script>
