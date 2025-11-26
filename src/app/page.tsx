@@ -8,7 +8,7 @@ const EXTERNAL_ROUTES = [
   ['/excel', 'https://canvas.instructure.com/courses/13193221'],
 ];
 
-const PUBLIC_FOLDER_ROUTES = ['Flutter', 'resources', 'Cisco-Sim', 'Raid-Calc'];
+const PUBLIC_FOLDER_ROUTES = ['Flutter', 'resources', 'Cisco-Sim', 'Raid-Calc','flutter-guide'];
 
 const DEFAULT = '';
 
@@ -46,5 +46,5 @@ export default function Home() {
 
   useSimpleRedirect(userIsLoggedIn);
 
-  return <div>Redirecting...</div>;
+  return '<div>Redirecting...</div>';
 }
