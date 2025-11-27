@@ -32,6 +32,9 @@ pnpm install
 bun install
 ```
 
+
+Hello
+
 Then run the development server (using the package manager of your choice):
 
 ```bash
