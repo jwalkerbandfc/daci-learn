@@ -315,136 +315,15 @@ flutter run</div>
         </div>
     </div>
 
+
+    <script type="text/javascript" src="flutter_challenges.js"></script>
     <script>
         let currentLesson = 0;
         let completedLessons = new Set();
         let currentChallengeDartPadUrl = '';
 
         // Challenges with starter code
-        const challenges = {
-            0: {
-                title: "GreetingCard Widget",
-                code: `import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp();
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Welcome')),
-        body: const Center(child: GreetingCard()),
-      ),
-    );
-  }
-}
-
-class GreetingCard extends StatelessWidget {
-  const GreetingCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Welcome to Flutter',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            const Text('This is a greeting card widget'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Get Started'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}`,
-                hint: "Create a Card widget with a Column containing a title, description, and ElevatedButton."
-            },
-            1: {
-                title: "Counter Widget",
-                code: `import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp();
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Counter')),
-        body: const Center(child: MyCounter()),
-      ),
-    );
-  }
-}
-
-class MyCounter extends StatefulWidget {
-  const MyCounter();
-
-  @override
-  State<MyCounter> createState() => _MyCounterState();
-}
-
-class _MyCounterState extends State<MyCounter> {
-  int count = 0;
-
-  void increment() {
-    setState(() {
-      count++;
-    });
-  }
-
-  void decrement() {
-    setState(() {
-      if (count > 0) count--;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text('Counter', style: TextStyle(fontSize: 24)),
-        const SizedBox(height: 16),
-        Text(
-          count.toString(),
-          style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 32),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(onPressed: decrement, child: const Text('-')),
-            const SizedBox(width: 16),
-            ElevatedButton(onPressed: increment, child: const Text('+')),
-          ],
-        ),
-      ],
-    );
-  }
-}`,
-                hint: "Create a StatefulWidget with increment/decrement buttons that use setState() to update the counter."
-            }
-        };
+        
 
         // Initialize
         document.querySelectorAll('.lesson-item').forEach((item, index) => {
