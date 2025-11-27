@@ -46,5 +46,5 @@ export default function Home() {
 
   useSimpleRedirect(userIsLoggedIn);
 
-  return '<div>Redirecting...</div>';
+  return <div>Redirecting...</div>;
 }
