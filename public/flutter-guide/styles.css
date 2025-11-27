@@ -668,9 +668,9 @@ style>
         }
 
         @media (max-width: 1200px) {
-            .editor-content > div:last-child {
-                /*flex-direction: column;*/
-            }
+            /*.editor-content > div:last-child {
+                flex-direction: column;
+            }*/
 
             .code-editor-wrapper {
                 flex: 1;

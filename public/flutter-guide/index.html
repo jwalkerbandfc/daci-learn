@@ -321,8 +321,6 @@ flutter run</div>
         let currentLesson = 0;
         let completedLessons = new Set();
         let currentChallengeDartPadUrl = '';
-
-        // Challenges with starter code
         
 
         // Initialize
@@ -380,8 +378,13 @@ flutter run</div>
 
             // Create base64 encoded URL for DartPad
             const encodedCode = btoa(code);
-            const dartpadUrl = `https://dartpad.dev/embed-flutter.html?id=${generateId()}&code=${encodedCode}`;
+            //const dartpadUrl = `https://dartpad.dev/embed-flutter.html?id=${generateId()}&code=${encodedCode}`;
             
+
+
+            // Use the correct DartPad embed URL without gist ID
+            const dartpadUrl = `https://dartpad.dev/?run=true`;
+
             currentChallengeDartPadUrl = dartpadUrl;
 
             const iframe = document.createElement('iframe');
@@ -392,6 +395,49 @@ flutter run</div>
             iframe.setAttribute('allow', 'camera; microphone; clipboard-read; clipboard-write');
 
             wrapper.appendChild(iframe);
+            iframe.onload = () => {
+                injectCodeToDartPad(iframe, code);
+            };
+        }
+
+        function injectCodeToDartPad(iframe, code) {
+            try {
+                // Try multiple approaches to inject code
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                if (!iframeDoc) {
+                    console.warn('Cannot access iframe document. DartPad may need manual code paste.');
+                    return;
+                }
+
+                // Look for CodeMirror instance (DartPad uses CodeMirror)
+                if (iframe.contentWindow.window.editor) {
+                    iframe.contentWindow.window.editor.setValue(code);
+                    return;
+                }
+
+                // Try finding and updating contenteditable areas
+                const editableElements = iframeDoc.querySelectorAll('[contenteditable="true"], .CodeMirror, textarea');
+                if (editableElements.length > 0) {
+                    const editor = editableElements[0];
+                    if (editor.classList && editor.classList.contains('CodeMirror')) {
+                        // CodeMirror instance
+                        if (editor.CodeMirror) {
+                            editor.CodeMirror.setValue(code);
+                        }
+                    } else {
+                        // Direct text update
+                        editor.textContent = code;
+                        editor.innerText = code;
+                        editor.value = code;
+                        editor.dispatchEvent(new Event('input', { bubbles: true }));
+                        editor.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+            } catch (e) {
+                // Cross-origin security may prevent direct access
+                console.log('Could not directly inject code due to iframe restrictions. Code is ready in window.dartpadCode');
+            }
         }
 
         function generateId() {
