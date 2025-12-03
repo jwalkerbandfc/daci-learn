@@ -25,7 +25,7 @@ function useSimpleRedirect(isLoggedIn: boolean) {
 
     // Check if it's a public folder route
     if (PUBLIC_FOLDER_ROUTES.includes(firstSegment)) {
-      return; // Allow access to public folder routes
+      return; // Allow access to public folder routes here
     }
 
     // Check external routes
