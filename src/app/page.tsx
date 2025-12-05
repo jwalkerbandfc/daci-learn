@@ -23,7 +23,7 @@ const EXTERNAL_ROUTES = [
   
   {
     path: '/graham-task',
-    target: 'https://daci-learn.uk/admissions.xls',
+    target: 'https://daci-learn.uk/admissions.xlsx',
     label: 'Graham Admissions',
   },
   {
