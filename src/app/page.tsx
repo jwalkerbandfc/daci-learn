@@ -20,6 +20,12 @@ const EXTERNAL_ROUTES = [
     target: 'https://daci-learn.uk/excel-resources.zip', 
     label: 'Excel Course Resources' 
   },
+  
+  {
+    path: '/graham-task',
+    target: 'https://daci-learn.uk/admissions.xls',
+    label: 'Graham Admissions',
+  },
   {
     path: '/excel-ppt',
     target: 'https://docs.google.com/presentation/d/1vMkdcImQS8hVyl-gqOfKqOP9rZcS2H07/edit?usp=sharing&ouid=110904303590053907034&rtpof=true&sd=true',
