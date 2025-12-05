@@ -13,8 +13,13 @@ const EXTERNAL_ROUTES = [
   },
   { 
     path: '/excel', 
-    target: 'https://canvas.instructure.com/courses/13193221', 
+    target: 'https://canvas.instructure.com/enroll/JAT8DW', 
     label: 'Excel Course' 
+  },
+  {
+    path: '/excel-ppt',
+    target: 'https://docs.google.com/presentation/d/1vMkdcImQS8hVyl-gqOfKqOP9rZcS2H07/edit?usp=sharing&ouid=110904303590053907034&rtpof=true&sd=true',
+    label: 'Excel PowerPoint',
   },
   { 
     path: '/tasks', 
