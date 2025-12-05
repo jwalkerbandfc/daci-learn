@@ -25,6 +25,13 @@ const EXTERNAL_ROUTES = [
     target: 'https://docs.google.com/presentation/d/1vMkdcImQS8hVyl-gqOfKqOP9rZcS2H07/edit?usp=sharing&ouid=110904303590053907034&rtpof=true&sd=true',
     label: 'Excel PowerPoint',
   },
+  
+  { 
+    path: '/graham-tasks', 
+    target: 'https://daci-learn.uk/All%20Exercise%20briefs%201.docx', // Replace with real link
+    label: 'Graham Tasks' 
+  },
+  
   { 
     path: '/tasks', 
     target: 'https://docs.google.com/document/d/10AX7FPmtIk7TUupUW2HAXIpYQvK09WptgSu7OADrwS4/edit?tab=t.0', // Replace with real link
