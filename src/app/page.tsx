@@ -28,7 +28,7 @@ const EXTERNAL_ROUTES = [
   
   { 
     path: '/graham-tasks', 
-    target: 'https://daci-learn.uk/All%20Exercise%20briefs%201.docx', // Replace with real link
+    target: 'https://daci-learn.uk/graham.docx', // Replace with real link
     label: 'Graham Tasks' 
   },
   
