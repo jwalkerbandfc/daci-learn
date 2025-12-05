@@ -15,6 +15,10 @@ const EXTERNAL_ROUTES = [
     path: '/excel', 
     target: 'https://canvas.instructure.com/enroll/JAT8DW', 
     label: 'Excel Course' 
+  },{ 
+    path: '/excel-resources', 
+    target: 'https://daci-learn.uk/excel-resources.zip', 
+    label: 'Excel Course Resources' 
   },
   {
     path: '/excel-ppt',
