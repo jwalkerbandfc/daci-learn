@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector & Void: OS Infrastructure Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-active { border-bottom: 2px solid #ea580c; color: #ea580c; font-weight: 600; }
+        .tab-inactive { color: #64748b; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+    </style>
+    <!-- Chosen Palette: Warm Neutrals with Orange Accent. Background: Slate-50/100. Text: Slate-800. Accent: Orange-600. Rationale: Professional, high-contrast, consultant-style aesthetic suitable for an IT analysis report. -->
+
+    <!-- Application Structure Plan: The SPA is designed as a "Consultant's Digital Briefing" for the Vector & Void CTO. 
+         1. **Header/Nav**: Persistent navigation to key analysis phases (Briefing, Tech Comparison, Workflow Simulation, Risk Assessment).
+         2. **Briefing Room**: Sets the context (Mission Objective, Current State).
+         3. **Tech Architecture (Phase 1)**: Interactive side-by-side comparison of Mac vs. Windows core file systems using a radar chart to visualize abstract strengths (Search vs. Structure).
+         4. **Workflow Simulator (Phase 2 & 3)**: A task-based interactive section where users toggle between "Find a File" scenarios to see how each OS handles the "Hero Scenario" steps.
+         5. **Vulnerability Assessment (Phase 4)**: Expandable cards detailing the weaknesses/frustrations of each system for rebuttal preparation.
+         6. **Glossary & ROI**: Terminology reference and a bar chart projecting efficiency gains.
+         This structure transforms the linear assignment brief into an exploratory dashboard, allowing the "CTO" to compare specs and workflows dynamically. -->
+
+    <!-- Visualization & Content Choices:
+         1. **Radar Chart (Tech Architecture)**: 
+            - Goal: Compare abstract system attributes (Search Power, Navigability, Compatibility, Simplicity).
+            - Viz: Chart.js Radar Chart.
+            - Justification: Best for multi-variable comparison between two distinct entities (Team Apple vs. Team Windows).
+         2. **Interactive Comparison Cards (Tech Architecture)**:
+            - Goal: Present text-heavy research details (Hierarchy, Syntax, etc.) without clutter.
+            - Viz: HTML/Tailwind Grid with toggleable details.
+            - Justification: Allows user to focus on specific technical areas one at a time.
+         3. **Step-Through Workflow (Workflow Simulator)**:
+            - Goal: Demonstrate the "Hero Scenario".
+            - Interaction: Button clicks to advance through steps of a file retrieval task.
+            - Justification: Simulates the experience of using the OS rather than just reading about it.
+         4. **Bar Chart (ROI)**:
+            - Goal: visualize the potential impact mentioned in the "Bottom Line" phase.
+            - Viz: Chart.js Bar Chart.
+            - Justification: Standard business visualization for time/cost savings. 
+         5. **Confirmation**: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-slate-900 tracking-tight">Vector & Void <span class="text-orange-600">//</span> Intel</span>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center" id="desktop-nav">
+                    <!-- Nav items injected by JS -->
+                </div>
+                <!-- Mobile menu button placeholder (simplified for this demo) -->
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-btn" class="text-slate-600 hover:text-orange-600 focus:outline-none">
+                        ☰ Menu
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-200">
+            <div class="px-2 pt-2 pb-3 space-y-1" id="mobile-nav-items"></div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- View: Briefing Room -->
+        <section id="view-briefing" class="space-y-8 animate-fade-in">
+            <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-orange-500">
+                <h1 class="text-3xl font-bold text-slate-900 mb-4">Mission: Infrastructure Standardization</h1>
+                <p class="text-lg text-slate-600 mb-6">
+                    <strong>To:</strong> IT Consulting Teams<br>
+                    <strong>Subject:</strong> Immediate OS Migration Analysis
+                </p>
+                <p class="text-slate-700 leading-relaxed mb-4">
+                    Vector & Void is currently suffering from a fragmented technical environment. Obsolete hardware and disparate operating systems have led to critical data loss and inefficiency. The CTO has issued a directive: <strong>Standardize on a single platform.</strong>
+                </p>
+                <div class="bg-orange-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-orange-800 mb-2">Your Role</h3>
+                    <p class="text-orange-900 text-sm">
+                        Analyze the comparative advantages of <strong>macOS (Team Apple)</strong> versus <strong>Windows (Team Windows)</strong>. Focus on the underlying file system architecture, not just aesthetics.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-slate-800">Team Apple</h2>
+                        <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold">macOS</span>
+                    </div>
+                    <ul class="space-y-3 text-slate-600">
+                        <li class="flex items-start"><span class="mr-2">📂</span> <strong>Core System:</strong> APFS (Apple File System)</li>
+                        <li class="flex items-start"><span class="mr-2">🔍</span> <strong>Search:</strong> Spotlight Metadata Indexing</li>
+                        <li class="flex items-start"><span class="mr-2">🏷️</span> <strong>Org Tool:</strong> Finder Tags & Smart Folders</li>
+                        <li class="flex items-start"><span class="mr-2">🛣️</span> <strong>Path:</strong> Forward Slash (/)</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-slate-800">Team Windows</h2>
+                        <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold">Windows 11</span>
+                    </div>
+                    <ul class="space-y-3 text-slate-600">
+                        <li class="flex items-start"><span class="mr-2">🗄️</span> <strong>Core System:</strong> NTFS (New Technology File System)</li>
+                        <li class="flex items-start"><span class="mr-2">🔎</span> <strong>Search:</strong> Windows Search Indexing</li>
+                        <li class="flex items-start"><span class="mr-2">⭐</span> <strong>Org Tool:</strong> Quick Access & Libraries</li>
+                        <li class="flex items-start"><span class="mr-2">🛣️</span> <strong>Path:</strong> Backslash (\)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <button onclick="app.navigate('comparison')" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
+                    Begin Comparative Analysis &rarr;
+                </button>
+            </div>
+        </section>
+
+        <!-- View: Technical Comparison -->
+        <section id="view-comparison" class="hidden space-y-8 animate-fade-in">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-900">Phase 1: Deep Dive Research</h2>
+                <p class="text-slate-600 mt-2">
+                    A direct technical comparison of file architecture. Explore the fundamental differences in how data is structured, named, and retrieved.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Chart Section -->
+                <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="text-lg font-semibold mb-4 text-center">System Profile Score</h3>
+                    <div class="chart-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-4 text-center">
+                        *Scores based on typical creative agency workflow requirements (Search speed vs Network integration).
+                    </p>
+                </div>
+
+                <!-- Text Comparison Section -->
+                <div class="lg:col-span-2 space-y-4">
+                    <!-- Interactive Accordion for Research Areas -->
+                    <div id="research-accordion" class="space-y-4">
+                        <!-- Hierarchy -->
+                        <div class="border border-slate-200 rounded-lg bg-white overflow-hidden">
+                            <button onclick="app.toggleAccordion('hierarchy')" class="w-full flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 transition-colors text-left">
+                                <span class="font-bold text-slate-700">1. Hierarchy & Volume Management</span>
+                                <span id="icon-hierarchy" class="text-xl transform transition-transform duration-200">+</span>
+                            </button>
+                            <div id="content-hierarchy" class="hidden p-6 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-orange-600 mb-2">Windows (NTFS)</h4>
+                                    <p class="text-sm text-slate-600 mb-2">Uses <strong>Drive Letters</strong> (C:, D:, Z:).</p>
+                                    <p class="text-sm text-slate-500 italic">"Good for rigid network mapping, but can get confusing if letters change."</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-700 mb-2">macOS (APFS)</h4>
+                                    <p class="text-sm text-slate-600 mb-2">Uses <strong>Volume Names</strong> (Macintosh HD, Creative_Drive).</p>
+                                    <p class="text-sm text-slate-500 italic">"More human-readable, abstracts the physical hardware."</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Metadata -->
+                        <div class="border border-slate-200 rounded-lg bg-white overflow-hidden">
+                            <button onclick="app.toggleAccordion('metadata')" class="w-full flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 transition-colors text-left">
+                                <span class="font-bold text-slate-700">2. Metadata & Indexing</span>
+                                <span id="icon-metadata" class="text-xl transform transition-transform duration-200">+</span>
+                            </button>
+                            <div id="content-metadata" class="hidden p-6 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-orange-600 mb-2">Windows</h4>
+                                    <p class="text-sm text-slate-600 mb-2"><strong>Windows Search Indexer</strong>. Can read file properties/attributes.</p>
+                                    <p class="text-sm text-slate-500 italic">"Powerful but often requires manual configuration for non-standard locations."</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-700 mb-2">macOS</h4>
+                                    <p class="text-sm text-slate-600 mb-2"><strong>Spotlight</strong>. Deep system-wide indexing. Supports <strong>Tags</strong>.</p>
+                                    <p class="text-sm text-slate-500 italic">"Instant results. Tags allow files to 'live' in multiple projects without duplicating."</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Syntax -->
+                        <div class="border border-slate-200 rounded-lg bg-white overflow-hidden">
+                            <button onclick="app.toggleAccordion('syntax')" class="w-full flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 transition-colors text-left">
+                                <span class="font-bold text-slate-700">3. Syntax & Nomenclature</span>
+                                <span id="icon-syntax" class="text-xl transform transition-transform duration-200">+</span>
+                            </button>
+                            <div id="content-syntax" class="hidden p-6 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-orange-600 mb-2">Windows</h4>
+                                    <code class="block bg-slate-100 p-2 rounded text-xs mb-2 text-slate-800">C:\Users\Admin\Docs</code>
+                                    <p class="text-sm text-slate-600">Uses <strong>Backslashes (\)</strong>. Legacy from DOS.</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-700 mb-2">macOS</h4>
+                                    <code class="block bg-slate-100 p-2 rounded text-xs mb-2 text-slate-800">/Users/Admin/Docs</code>
+                                    <p class="text-sm text-slate-600">Uses <strong>Forward Slashes (/)</strong>. UNIX standard.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- View: Workflow Simulation -->
+        <section id="view-workflow" class="hidden space-y-8 animate-fade-in">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-900">Phase 2 & 3: The "Hero Scenario"</h2>
+                <p class="text-slate-600 mt-2">
+                    Experience the workflow differences. The scenario: <strong>"A client calls needing a contract from 2019 immediately."</strong>
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+                <div class="bg-slate-100 p-4 border-b border-slate-200 flex space-x-4">
+                    <button onclick="app.setScenarioMode('mac')" id="btn-scenario-mac" class="px-4 py-2 rounded-md font-semibold transition-all">Team Apple Approach</button>
+                    <button onclick="app.setScenarioMode('win')" id="btn-scenario-win" class="px-4 py-2 rounded-md font-semibold transition-all">Team Windows Approach</button>
+                </div>
+                
+                <div class="p-8">
+                    <div id="scenario-content" class="min-h-[200px]">
+                        <!-- Content injected by JS -->
+                    </div>
+                    
+                    <!-- Progress Stepper -->
+                    <div class="mt-8 relative">
+                        <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-slate-200">
+                            <div id="progress-bar" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-orange-500 transition-all duration-500 w-0"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-500 font-medium">
+                            <span>Step 1: Initiate</span>
+                            <span>Step 2: Locate</span>
+                            <span>Step 3: Preview</span>
+                            <span>Step 4: Action</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-end">
+                        <button onclick="app.nextStep()" id="btn-next-step" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-6 rounded shadow-md transition-colors">
+                            Next Step &rarr;
+                        </button>
+                        <button onclick="app.resetScenario()" id="btn-reset-step" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-6 rounded shadow-md transition-colors">
+                            Reset Simulation
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- View: Vulnerabilities -->
+        <section id="view-risks" class="hidden space-y-8 animate-fade-in">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-900">Phase 4: Counter-Intelligence</h2>
+                <p class="text-slate-600 mt-2">
+                    Analysis of potential friction points. Understanding these vulnerabilities is crucial for the final rebuttal.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Mac Risks -->
+                <div class="bg-white rounded-xl shadow-sm border-t-4 border-red-500 p-6">
+                    <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                        <span class="mr-2">🍎</span> Frustrations with macOS
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-red-50 rounded border border-red-100">
+                            <h4 class="font-bold text-red-800 text-sm">Merging Folders</h4>
+                            <p class="text-sm text-red-700 mt-1">Unlike Windows, dragging a folder with the same name into another location often <strong>replaces</strong> it rather than merging contents, risking data loss if not careful.</p>
+                        </div>
+                        <div class="p-3 bg-red-50 rounded border border-red-100">
+                            <h4 class="font-bold text-red-800 text-sm">Write Compatibility</h4>
+                            <p class="text-sm text-red-700 mt-1">macOS can read <strong>NTFS drives</strong> (standard Windows format) but cannot write to them without third-party software. This disrupts sharing external drives with clients.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Windows Risks -->
+                <div class="bg-white rounded-xl shadow-sm border-t-4 border-blue-500 p-6">
+                    <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                        <span class="mr-2">🪟</span> Frustrations with Windows
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-blue-50 rounded border border-blue-100">
+                            <h4 class="font-bold text-blue-800 text-sm">Path Length Limits</h4>
+                            <p class="text-sm text-blue-700 mt-1">Deeply nested folder structures often hit the <strong>260-character path limit</strong>, causing errors when opening or copying files.</p>
+                        </div>
+                        <div class="p-3 bg-blue-50 rounded border border-blue-100">
+                            <h4 class="font-bold text-blue-800 text-sm">Search Fragmentation</h4>
+                            <p class="text-sm text-blue-700 mt-1">Searching often separates results into web, local files, and settings inconsistently. Indexing can be resource-heavy and slow on older hardware.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROI Chart -->
+            <div class="mt-8 bg-white p-6 rounded-xl shadow-sm">
+                <h3 class="text-lg font-bold text-slate-900 mb-4">Phase 5: The Bottom Line (Projected ROI)</h3>
+                <p class="text-sm text-slate-500 mb-4">Estimated efficiency gains based on adopting features like "Quick Look" (Mac) or "Quick Access" (Windows).</p>
+                <div class="chart-container">
+                    <canvas id="roiChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">Vector & Void Agency // Infrastructure Assessment Tool</p>
+            <p class="text-xs mt-2 opacity-50">Confidential Internal Document</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // State Management
+        const app = {
+            currentView: 'briefing',
+            scenarioMode: 'mac', // 'mac' or 'win'
+            currentStep: 0,
+            
+            // Navigation Definitions
+            views: ['briefing', 'comparison', 'workflow', 'risks'],
+            
+            // Scenario Data
+            scenarios: {
+                mac: [
+                    { title: "Initiate Search", text: "Press <strong>Cmd + Space</strong> to open Spotlight instantly. No need to open a window.", icon: "⌨️" },
+                    { title: "Locate via Metadata", text: "Type 'Contract 2019'. Spotlight searches file names AND contents instantly.", icon: "🔍" },
+                    { title: "Quick Look", text: "Highlight result and press <strong>Spacebar</strong>. Preview the entire PDF without opening Adobe Acrobat.", icon: "👀" },
+                    { title: "Action", text: "Drag file directly from Spotlight results into an email. Done in 3 seconds.", icon: "⚡" }
+                ],
+                win: [
+                    { title: "Initiate Search", text: "Press <strong>Windows Key</strong> or click Start. Type directly into the menu.", icon: "🪟" },
+                    { title: "Locate via Filters", text: "Select 'Documents' filter to remove web results. Use 'Date Modified' filter in File Explorer for precision.", icon: "📂" },
+                    { title: "Preview Pane", text: "Open File Explorer. Enable 'Preview Pane' (Alt+P) to see contents on the right side.", icon: "🖼️" },
+                    { title: "Action", text: "Right-click file in Explorer -> Share, or drag to Outlook.", icon: "✅" }
+                ]
+            },
+
+            // Init Function
+            init: function() {
+                this.renderNav();
+                this.updateView();
+                this.initCharts();
+                this.setScenarioMode('mac');
+            },
+
+            // Navigation Logic
+            renderNav: function() {
+                const desktopNav = document.getElementById('desktop-nav');
+                const mobileNav = document.getElementById('mobile-nav-items');
+                
+                const links = [
+                    { id: 'briefing', label: 'Briefing Room' },
+                    { id: 'comparison', label: 'Tech Comparison' },
+                    { id: 'workflow', label: 'Workflow Simulator' },
+                    { id: 'risks', label: 'Risks & ROI' }
+                ];
+
+                desktopNav.innerHTML = links.map(link => 
+                    `<button onclick="app.navigate('${link.id}')" class="text-sm font-medium transition-colors duration-200 ${this.currentView === link.id ? 'text-orange-600 font-bold' : 'text-slate-600 hover:text-orange-600'}">${link.label}</button>`
+                ).join('');
+
+                mobileNav.innerHTML = links.map(link => 
+                    `<button onclick="app.navigate('${link.id}')" class="block px-3 py-2 rounded-md text-base font-medium w-full text-left ${this.currentView === link.id ? 'bg-orange-50 text-orange-700' : 'text-slate-700 hover:bg-slate-50'}">${link.label}</button>`
+                ).join('');
+            },
+
+            navigate: function(viewId) {
+                this.currentView = viewId;
+                this.renderNav();
+                this.updateView();
+                window.scrollTo(0,0);
+            },
+
+            updateView: function() {
+                this.views.forEach(v => {
+                    const el = document.getElementById(`view-${v}`);
+                    if (v === this.currentView) {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                });
+            },
+
+            // Accordion Logic
+            toggleAccordion: function(id) {
+                const content = document.getElementById(`content-${id}`);
+                const icon = document.getElementById(`icon-${id}`);
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    icon.innerText = '-';
+                    icon.classList.add('text-orange-600');
+                } else {
+                    content.classList.add('hidden');
+                    icon.innerText = '+';
+                    icon.classList.remove('text-orange-600');
+                }
+            },
+
+            // Scenario Logic
+            setScenarioMode: function(mode) {
+                this.scenarioMode = mode;
+                this.currentStep = 0;
+                
+                // Update Buttons
+                const btnMac = document.getElementById('btn-scenario-mac');
+                const btnWin = document.getElementById('btn-scenario-win');
+                
+                if(mode === 'mac') {
+                    btnMac.className = "px-4 py-2 rounded-md font-bold bg-slate-800 text-white shadow-md";
+                    btnWin.className = "px-4 py-2 rounded-md font-semibold bg-slate-200 text-slate-600 hover:bg-slate-300";
+                } else {
+                    btnWin.className = "px-4 py-2 rounded-md font-bold bg-blue-600 text-white shadow-md";
+                    btnMac.className = "px-4 py-2 rounded-md font-semibold bg-slate-200 text-slate-600 hover:bg-slate-300";
+                }
+
+                this.renderScenarioStep();
+            },
+
+            nextStep: function() {
+                if (this.currentStep < 3) {
+                    this.currentStep++;
+                    this.renderScenarioStep();
+                }
+            },
+
+            resetScenario: function() {
+                this.currentStep = 0;
+                this.renderScenarioStep();
+            },
+
+            renderScenarioStep: function() {
+                const data = this.scenarios[this.scenarioMode][this.currentStep];
+                const contentDiv = document.getElementById('scenario-content');
+                const progressBar = document.getElementById('progress-bar');
+                const btnNext = document.getElementById('btn-next-step');
+                const btnReset = document.getElementById('btn-reset-step');
+
+                // Color based on OS
+                const accentColor = this.scenarioMode === 'mac' ? 'text-slate-800' : 'text-blue-600';
+                
+                contentDiv.innerHTML = `
+                    <div class="animate-fade-in flex flex-col items-center text-center">
+                        <div class="text-6xl mb-4">${data.icon}</div>
+                        <h3 class="text-2xl font-bold ${accentColor} mb-2">${data.title}</h3>
+                        <p class="text-lg text-slate-600 max-w-lg">${data.text}</p>
+                    </div>
+                `;
+
+                // Update Progress
+                const percentage = ((this.currentStep + 1) / 4) * 100;
+                progressBar.style.width = `${percentage}%`;
+                
+                // Toggle Buttons
+                if (this.currentStep === 3) {
+                    btnNext.classList.add('hidden');
+                    btnReset.classList.remove('hidden');
+                } else {
+                    btnNext.classList.remove('hidden');
+                    btnReset.classList.add('hidden');
+                }
+            },
+
+            // Charts Logic
+            initCharts: function() {
+                // Radar Chart - Tech Comparison
+                const radarCtx = document.getElementById('radarChart').getContext('2d');
+                new Chart(radarCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Search Speed', 'Network Logic', 'Path Simplicity', 'Compatibility', 'Tagging'],
+                        datasets: [{
+                            label: 'Team Apple (macOS)',
+                            data: [9, 6, 9, 5, 9],
+                            fill: true,
+                            backgroundColor: 'rgba(51, 65, 85, 0.2)', // Slate
+                            borderColor: 'rgb(51, 65, 85)',
+                            pointBackgroundColor: 'rgb(51, 65, 85)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(51, 65, 85)'
+                        }, {
+                            label: 'Team Windows',
+                            data: [6, 9, 5, 9, 4],
+                            fill: true,
+                            backgroundColor: 'rgba(234, 88, 12, 0.2)', // Orange
+                            borderColor: 'rgb(234, 88, 12)',
+                            pointBackgroundColor: 'rgb(234, 88, 12)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(234, 88, 12)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        elements: { line: { borderWidth: 3 } },
+                        scales: {
+                            r: {
+                                angleLines: { display: true },
+                                suggestedMin: 0,
+                                suggestedMax: 10,
+                                ticks: { display: false } // Hide numbers for cleaner look
+                            }
+                        }
+                    }
+                });
+
+                // Bar Chart - ROI
+                const roiCtx = document.getElementById('roiChart').getContext('2d');
+                new Chart(roiCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Retrieving Files', 'Organizing Data', 'Transferring Data', 'System Maintenance'],
+                        datasets: [{
+                            label: 'Avg Minutes Per Task (Old Systems)',
+                            data: [15, 20, 10, 30],
+                            backgroundColor: '#cbd5e1'
+                        }, {
+                            label: 'Projected Minutes (Standardized)',
+                            data: [2, 5, 4, 10],
+                            backgroundColor: '#ea580c'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Minutes' }
+                            }
+                        }
+                    }
+                });
+            }
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+            
+            // Mobile menu toggle
+            document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.toggle('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
