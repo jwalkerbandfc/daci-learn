@@ -10,6 +10,10 @@ const EXTERNAL_ROUTES = [
     path: '/ai', 
     target: 'https://canvas.instructure.com/courses/13420265', 
     label: 'AI Course' 
+  },{ 
+    path: '/debate', 
+    target: 'https://daci-learn.uk/debate.html', 
+    label: 'Debate Task' 
   },
   { 
     path: '/excel', 
