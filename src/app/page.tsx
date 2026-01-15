@@ -16,6 +16,11 @@ const EXTERNAL_ROUTES = [
     label: 'Debate Task' 
   },
   { 
+    path: '/wokwi', 
+    target: 'https://wokwi.com/', 
+    label: 'Wokwi Resources' 
+  },
+  { 
     path: '/excel', 
     target: 'https://canvas.instructure.com/enroll/JAT8DW', 
     label: 'Excel Course' 
