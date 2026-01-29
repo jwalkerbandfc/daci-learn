@@ -21,6 +21,11 @@ const EXTERNAL_ROUTES = [
     label: 'Wokwi Resources' 
   },
   { 
+    path: '/trycatch', 
+    target: 'https://daci-learn.uk/flutter_trycatch.html', 
+    label: 'TryCatchTask' 
+  },
+  { 
     path: '/excel', 
     target: 'https://canvas.instructure.com/enroll/JAT8DW', 
     label: 'Excel Course' 
