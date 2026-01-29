@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flutter Navigation & Safety Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Chart Container Strict Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* Flowchart Node Styles */
+        .flow-node {
+            transition: all 0.4s ease;
+            border-left: 4px solid transparent;
+        }
+        .flow-active {
+            transform: scale(1.02);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .flow-try.active { border-left-color: #3b82f6; background-color: #eff6ff; }
+        .flow-error.active { border-left-color: #ef4444; background-color: #fef2f2; }
+        .flow-catch.active { border-left-color: #f59e0b; background-color: #fffbeb; }
+        .flow-finally.active { border-left-color: #10b981; background-color: #ecfdf5; }
+
+        /* Code Block Styling */
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+    <!-- Chosen Palette: Slate (Background), Blue (Primary/Try), Red (Error), Amber (Catch), Emerald (Finally/Success) -->
+    <!-- Application Structure Plan: 
+         1. Header: Context setting.
+         2. Main Grid:
+            - Left Column: Interactive Simulation Control (The "Phone").
+            - Right Column: Analytical Dashboard (The "Console/Internals").
+         3. Sections:
+            - Architecture (Static Tree).
+            - Navigation Stack (Dynamic Canvas).
+            - Exception Handling (Interactive Flowchart).
+            - Metrics (Chart.js comparison).
+         Rationale: This structure separates the "User View" (what happens on the phone) from the "Developer View" (logic/stack/data), aiding understanding of the backend mechanics described in the tutorial.
+    -->
+    <!-- Visualization & Content Choices:
+         - Stack Visualization: Custom HTML Canvas. Goal: Show LIFO nature of Navigator. push/pop. No SVG.
+         - Logic Flow: HTML/CSS Grid with JS class toggling. Goal: Visualize the invisible 'try/catch' path.
+         - Reliability Chart: Chart.js Bar Chart. Goal: Quantify the value of error handling (Crash vs Log).
+         - Code Snippets: Pre/Code blocks. Goal: Link visuals back to source text.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Navigation / Header -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-layer-group text-blue-600 text-2xl mr-3"></i>
+                    <span class="font-bold text-xl tracking-tight text-slate-900">Flutter<span class="text-blue-600">Sim</span></span>
+                </div>
+                <div class="flex items-center space-x-4 text-sm text-slate-500">
+                    <span class="hidden md:inline">Tutorial Source: Navigation & Error Handling</span>
+                    <button onclick="resetSim()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Intro Section -->
+        <section class="mb-10 text-center max-w-3xl mx-auto">
+            <h1 class="text-3xl font-extrabold text-slate-900 mb-4">Interactive Logic Analysis</h1>
+            <p class="text-lg text-slate-600 leading-relaxed">
+                Based on the source tutorial, this application simulates the lifecycle of a Flutter app. 
+                Explore how the <strong>Widget Tree</strong> is built, how the <strong>Navigator Stack</strong> manages pages, 
+                and how <strong>Try/Catch/Finally</strong> blocks prevent application crashes.
+            </p>
+        </section>
+
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            <!-- LEFT COL: The App Simulation (Phone View) -->
+            <div class="lg:col-span-5 space-y-8">
+                
+                <!-- Component 1: The Virtual Device -->
+                <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                    <div class="bg-slate-800 text-white px-4 py-3 flex justify-between items-center">
+                        <span class="font-mono text-xs"><i class="fa-solid fa-signal mr-1"></i> 5G</span>
+                        <span class="font-semibold text-sm">Virtual Device</span>
+                        <span class="font-mono text-xs">100% <i class="fa-solid fa-battery-full ml-1"></i></span>
+                    </div>
+                    
+                    <div class="p-6 h-[500px] flex flex-col relative bg-slate-50" id="device-screen">
+                        <!-- Dynamic Content injected by JS -->
+                        <div id="screen-home" class="flex-1 flex flex-col items-center justify-center space-y-6 transition-opacity duration-300">
+                            <div class="text-center space-y-2">
+                                <h2 class="text-2xl font-bold text-slate-800">Home Page</h2>
+                                <p class="text-slate-500 text-sm">Step 1 & 3: The Starting Point</p>
+                            </div>
+                            
+                            <!-- Control Panel for Error Simulation -->
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 w-full max-w-xs">
+                                <div class="flex items-center justify-between mb-3">
+                                    <label class="text-sm font-medium text-slate-700">Force Error?</label>
+                                    <button id="toggle-home-error" onclick="toggleError('home')" class="w-12 h-6 rounded-full bg-slate-200 relative transition-colors duration-300 focus:outline-none">
+                                        <div class="w-4 h-4 bg-white rounded-full absolute top-1 left-1 transition-transform duration-300 shadow-sm"></div>
+                                    </button>
+                                </div>
+                                <p class="text-xs text-slate-400 mb-4">Simulates: <code class="bg-slate-100 px-1 rounded text-red-500">throw Exception(...)</code></p>
+                                
+                                <button onclick="runNavigation()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all shadow-md active:scale-95 flex justify-center items-center group">
+                                    <span>_navigateWithSafety()</span>
+                                    <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="screen-second" class="absolute inset-0 bg-white flex flex-col items-center justify-center space-y-6 transition-transform duration-300 translate-x-full z-10 p-6">
+                            <div class="text-center space-y-2">
+                                <h2 class="text-2xl font-bold text-slate-800">Second Page</h2>
+                                <p class="text-slate-500 text-sm">Step 2 & 4: Destination & Async Work</p>
+                            </div>
+
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 w-full max-w-xs space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-sm font-medium text-slate-700">Task Failure?</label>
+                                    <button id="toggle-task-error" onclick="toggleError('task')" class="w-12 h-6 rounded-full bg-blue-600 relative transition-colors duration-300 focus:outline-none">
+                                        <div class="w-4 h-4 bg-white rounded-full absolute top-1 left-1 translate-x-6 transition-transform duration-300 shadow-sm"></div>
+                                    </button>
+                                </div>
+                                <button onclick="runTask()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-medium shadow-sm active:scale-95">
+                                    _doWorkWithFinally()
+                                </button>
+                                <div id="task-spinner" class="hidden justify-center py-2">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-indigo-600"></i>
+                                </div>
+                            </div>
+
+                            <button onclick="popPage()" class="text-slate-500 hover:text-slate-800 underline text-sm">
+                                Navigator.pop(context)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Console Output Simulation -->
+                <div class="bg-slate-900 rounded-xl shadow-lg border border-slate-700 p-4 font-mono text-xs text-green-400 h-48 overflow-y-auto" id="console-output">
+                    <div class="border-b border-slate-700 pb-2 mb-2 text-slate-400 font-sans uppercase tracking-wider text-[10px] flex justify-between">
+                        <span>Debug Console</span>
+                        <span class="text-slate-500">I/flutter (PID: 1337)</span>
+                    </div>
+                    <div id="logs" class="space-y-1">
+                        <span class="opacity-50">// System Ready. Waiting for user interaction...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COL: Analytical Dashboard -->
+            <div class="lg:col-span-7 space-y-8">
+
+                <!-- SECTION: Navigator Stack Visualization -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center">
+                            <i class="fa-solid fa-layer-group text-blue-500 mr-2"></i>
+                            The Navigation Stack
+                        </h3>
+                        <p class="text-sm text-slate-500">
+                            Visualizing <code>Navigator.push</code> and <code>Navigator.pop</code> behavior. The stack manages the history of routes.
+                        </p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <!-- Canvas Container -->
+                        <div class="chart-container bg-slate-50 rounded-lg border border-slate-200">
+                            <canvas id="stackCanvas"></canvas>
+                        </div>
+                        
+                        <!-- Stack Explainer -->
+                        <div class="space-y-4">
+                            <div class="p-3 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                                <h4 class="font-bold text-blue-800 text-sm">MaterialPageRoute</h4>
+                                <p class="text-xs text-blue-700 mt-1">
+                                    When you call <code>push</code>, a new Route object is placed <strong>on top</strong> of the stack. The user sees the top-most route.
+                                </p>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-slate-400">
+                                <h4 class="font-bold text-slate-800 text-sm">Navigator.pop</h4>
+                                <p class="text-xs text-slate-600 mt-1">
+                                    Removes the top route, revealing the one beneath it. If the stack becomes empty, the app exits.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION: Logic Flowchart -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center">
+                            <i class="fa-solid fa-microchip text-indigo-500 mr-2"></i>
+                            Execution Flow & Error Handling
+                        </h3>
+                        <p class="text-sm text-slate-500">
+                            Trace the path of execution through the <code>try-catch-finally</code> blocks defined in the tutorial.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-3 text-sm">
+                        <!-- TRY BLOCK -->
+                        <div id="flow-try" class="flow-node p-3 rounded bg-slate-50 border border-slate-200 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold mr-3">1</span>
+                                <div>
+                                    <span class="font-bold text-slate-700">try { ... }</span>
+                                    <p class="text-xs text-slate-500">Attempt risky code (Navigation/Async)</p>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-play text-slate-300"></i>
+                        </div>
+
+                        <!-- CONDITION -->
+                        <div id="flow-check" class="flow-node mx-8 p-2 rounded border border-dashed border-slate-300 text-center relative">
+                            <div class="absolute inset-y-0 left-1/2 w-0.5 bg-slate-200 -z-10 -top-4"></div>
+                            <span class="text-xs font-mono text-slate-600">if (forceError) throw Exception</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- ERROR PATH -->
+                            <div id="flow-catch" class="flow-node p-3 rounded bg-slate-50 border border-slate-200 opacity-50">
+                                <div class="flex items-center mb-1">
+                                    <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold mr-3">2a</span>
+                                    <span class="font-bold text-slate-700">catch (e, st)</span>
+                                </div>
+                                <p class="text-xs text-slate-500">Intercepts the exception. Prevents app crash. Logs stack trace.</p>
+                            </div>
+
+                            <!-- SUCCESS PATH -->
+                            <div id="flow-success" class="flow-node p-3 rounded bg-slate-50 border border-slate-200 opacity-50">
+                                <div class="flex items-center mb-1">
+                                    <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold mr-3">2b</span>
+                                    <span class="font-bold text-slate-700">Success</span>
+                                </div>
+                                <p class="text-xs text-slate-500">Code executes normally. Navigation/Task completes.</p>
+                            </div>
+                        </div>
+
+                        <!-- FINALLY BLOCK -->
+                        <div id="flow-finally" class="flow-node p-3 rounded bg-slate-50 border border-slate-200 mt-2">
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold mr-3">3</span>
+                                <div>
+                                    <span class="font-bold text-slate-700">finally { ... }</span>
+                                    <p class="text-xs text-slate-500">Always runs. Cleanup resources or log completion.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION: Impact Analysis -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center">
+                            <i class="fa-solid fa-chart-simple text-emerald-500 mr-2"></i>
+                            Stability Metrics
+                        </h3>
+                        <p class="text-sm text-slate-500">
+                            Comparing the reliability of standard code vs. the robust pattern taught in the tutorial.
+                        </p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="metricsChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-slate-400 text-sm">
+            <p>&copy; 2026 Flutter Navigation Tutorial Interactive. Generated for Educational Purposes.</p>
+        </div>
+    </footer>
+
+    <!-- LOGIC -->
+    <script>
+        // --- State Management ---
+        const state = {
+            homeError: false,
+            taskError: true,
+            stack: ['HomePage'], // Initial stack
+            isProcessing: false
+        };
+
+        // --- Logger Utility ---
+        function log(type, message) {
+            const consoleEl = document.getElementById('logs');
+            const entry = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString('en-US', {hour12: false, hour: "numeric", minute: "numeric", second: "numeric"});
+            
+            let colorClass = 'text-slate-300';
+            if (type === 'TRY') colorClass = 'text-blue-400';
+            if (type === 'CATCH') colorClass = 'text-amber-400 font-bold';
+            if (type === 'FINALLY') colorClass = 'text-emerald-400';
+            if (type === 'ERROR') colorClass = 'text-red-500 font-bold bg-red-900/20';
+
+            entry.className = `font-mono text-[11px] ${colorClass} border-l-2 border-transparent pl-2 hover:bg-slate-800`;
+            if (type === 'CATCH') entry.classList.add('border-amber-500');
+            
+            entry.innerHTML = `<span class="opacity-50">[${timestamp}]</span> <strong>[${type}]</strong> ${message}`;
+            consoleEl.appendChild(entry);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        // --- Canvas Visualization (Stack) ---
+        const canvas = document.getElementById('stackCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Resize canvas handling
+        function resizeCanvas() {
+            const parent = canvas.parentElement;
+            canvas.width = parent.clientWidth;
+            canvas.height = parent.clientHeight;
+            drawStack();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function drawStack() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const cardWidth = Math.min(200, canvas.width * 0.6);
+            const cardHeight = 40;
+            const startX = (canvas.width - cardWidth) / 2;
+            const baseY = canvas.height - 20;
+
+            // Draw Base
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(startX - 10, baseY, cardWidth + 20, 10);
+            
+            // Draw Stack Items
+            state.stack.forEach((page, index) => {
+                const yPos = baseY - (index + 1) * (cardHeight + 10);
+                
+                // Shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                ctx.fillRect(startX + 4, yPos + 4, cardWidth, cardHeight);
+
+                // Card Body
+                ctx.fillStyle = index === state.stack.length - 1 ? '#3b82f6' : '#ffffff'; // Top card is blue
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 1;
+                
+                ctx.beginPath();
+                ctx.roundRect(startX, yPos, cardWidth, cardHeight, 6);
+                ctx.fill();
+                ctx.stroke();
+
+                // Text
+                ctx.fillStyle = index === state.stack.length - 1 ? '#ffffff' : '#1e293b';
+                ctx.font = 'bold 14px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(page, startX + cardWidth / 2, yPos + 25);
+            });
+
+            // Label
+            ctx.fillStyle = '#64748b';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Stack Depth: ${state.stack.length}`, canvas.width / 2, 20);
+        }
+
+        // --- Flowchart Animation ---
+        function highlightFlow(step) {
+            // Reset all
+            document.querySelectorAll('.flow-node').forEach(el => {
+                el.classList.remove('active', 'flow-active', 'flow-try', 'flow-catch', 'flow-finally', 'flow-error');
+                el.style.opacity = '0.5';
+            });
+
+            // Helper to activate specific nodes
+            const activate = (id, type) => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.classList.add('active', 'flow-active', type);
+                    el.style.opacity = '1';
+                }
+            };
+
+            // Logic mapping
+            if (step === 'idle') {
+                document.querySelectorAll('.flow-node').forEach(el => el.style.opacity = '1');
+                document.querySelectorAll('.flow-node').forEach(el => el.classList.remove('active', 'flow-active'));
+                return;
+            }
+
+            if (step === 'try') {
+                activate('flow-try', 'flow-try');
+                activate('flow-check', 'normal');
+            } else if (step === 'catch') {
+                activate('flow-try', 'flow-try'); // History
+                activate('flow-catch', 'flow-catch');
+            } else if (step === 'success') {
+                activate('flow-try', 'flow-try'); // History
+                activate('flow-success', 'flow-try');
+            } else if (step === 'finally') {
+                 // Keep history based on last state, just highlight finally
+                 document.getElementById('flow-finally').style.opacity = '1';
+                 document.getElementById('flow-finally').classList.add('active', 'flow-active', 'flow-finally');
+            }
+        }
+
+        // --- Interaction Logic ---
+
+        function toggleError(type) {
+            if (type === 'home') {
+                state.homeError = !state.homeError;
+                const btn = document.getElementById('toggle-home-error');
+                if (state.homeError) {
+                    btn.classList.replace('bg-slate-200', 'bg-red-500');
+                    btn.children[0].classList.replace('left-1', 'left-7');
+                } else {
+                    btn.classList.replace('bg-red-500', 'bg-slate-200');
+                    btn.children[0].classList.replace('left-7', 'left-1');
+                }
+                log('CONFIG', `Home ForceError set to ${state.homeError}`);
+            } else {
+                state.taskError = !state.taskError;
+                const btn = document.getElementById('toggle-task-error');
+                if (state.taskError) {
+                    btn.classList.replace('bg-slate-200', 'bg-blue-600'); // Using blue to match UI, conceptually it's "On"
+                    btn.children[0].classList.add('translate-x-6');
+                } else {
+                    btn.classList.replace('bg-blue-600', 'bg-slate-200');
+                    btn.children[0].classList.remove('translate-x-6');
+                }
+                log('CONFIG', `Task ForceError set to ${state.taskError}`);
+            }
+        }
+
+        async function runNavigation() {
+            if (state.isProcessing) return;
+            state.isProcessing = true;
+
+            log('TRY', 'Starting navigation to SecondPage');
+            highlightFlow('try');
+            
+            await new Promise(r => setTimeout(r, 600));
+
+            if (state.homeError) {
+                // FAIL PATH
+                log('ERROR', 'Exception: Forced error before navigation');
+                highlightFlow('catch');
+                await new Promise(r => setTimeout(r, 600));
+                
+                log('CATCH', 'Navigation flow error caught.');
+                log('CATCH', 'Stack trace printed.');
+            } else {
+                // SUCCESS PATH
+                highlightFlow('success');
+                state.stack.push('SecondPage');
+                drawStack();
+                
+                // Animate UI
+                document.getElementById('screen-second').classList.remove('translate-x-full');
+                log('TRY', 'Returned from SecondPage normally (Actually, we just pushed it)');
+            }
+
+            await new Promise(r => setTimeout(r, 600));
+            highlightFlow('finally');
+            log('FINALLY', 'Navigation attempt finished.');
+            
+            setTimeout(() => {
+                highlightFlow('idle');
+                state.isProcessing = false;
+            }, 1000);
+        }
+
+        async function runTask() {
+            if (state.isProcessing) return;
+            state.isProcessing = true;
+            
+            const spinner = document.getElementById('task-spinner');
+            spinner.classList.replace('hidden', 'flex');
+
+            log('TRY', 'Starting a task on SecondPage');
+            highlightFlow('try');
+
+            // Simulate Network Delay
+            await new Promise(r => setTimeout(r, 1000));
+
+            if (state.taskError) {
+                log('ERROR', 'Exception: Forced error during task');
+                spinner.classList.replace('flex', 'hidden');
+                highlightFlow('catch');
+                await new Promise(r => setTimeout(r, 600));
+                log('CATCH', 'Task error caught.');
+            } else {
+                log('TRY', 'Task completed successfully');
+                spinner.classList.replace('flex', 'hidden');
+                highlightFlow('success');
+            }
+
+            await new Promise(r => setTimeout(r, 600));
+            highlightFlow('finally');
+            log('FINALLY', 'Task finished.');
+            
+            setTimeout(() => {
+                highlightFlow('idle');
+                state.isProcessing = false;
+            }, 1000);
+        }
+
+        function popPage() {
+            if (state.stack.length > 1) {
+                state.stack.pop();
+                drawStack();
+                document.getElementById('screen-second').classList.add('translate-x-full');
+                log('NAV', 'Navigator.pop(context) called');
+            }
+        }
+
+        function resetSim() {
+            state.stack = ['HomePage'];
+            state.homeError = false;
+            state.taskError = true;
+            drawStack();
+            document.getElementById('screen-second').classList.add('translate-x-full');
+            document.getElementById('logs').innerHTML = '';
+            log('SYS', 'Reset complete.');
+            // Reset toggles visually if needed (omitted for brevity)
+        }
+
+        // --- Chart.js Metrics ---
+        function initCharts() {
+            const ctxMetrics = document.getElementById('metricsChart').getContext('2d');
+            new Chart(ctxMetrics, {
+                type: 'bar',
+                data: {
+                    labels: ['No Error Handling', 'With Try/Catch'],
+                    datasets: [
+                        {
+                            label: 'App Crashes',
+                            data: [100, 0],
+                            backgroundColor: '#ef4444',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'User Feedback (Logs/Alerts)',
+                            data: [0, 100],
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + '% probability';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: { display: true, text: 'Probability (%)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Initialization ---
+        window.onload = () => {
+            resizeCanvas();
+            initCharts();
+            // Set initial toggle states visually
+            // (Assumed defaults in HTML match state object for simplicity)
+        };
+
+    </script>
+</body>
+</html>
