@@ -4,67 +4,36 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 
-// 1. Updated structure to support custom Labels
 const EXTERNAL_ROUTES = [
   { 
-    path: '/ai', 
-    target: 'https://canvas.instructure.com/courses/13420265', 
-    label: 'AI Course' 
-  },{ 
-    path: '/debate', 
-    target: 'https://daci-learn.uk/debate.html', 
-    label: 'Debate Task' 
-  },
-  { 
-    path: '/wokwi', 
-    target: 'https://wokwi.com/', 
-    label: 'Wokwi Resources' 
-  },
-  { 
-    path: '/trycatch', 
-    target: 'https://daci-learn.uk/flutter_trycatch.html', 
-    label: 'TryCatchTask' 
-  },
-  { 
-    path: '/excel', 
-    target: 'https://canvas.instructure.com/enroll/JAT8DW', 
-    label: 'Excel Course' 
-  },{ 
-    path: '/excel-resources', 
-    target: 'https://daci-learn.uk/excel-resources.zip', 
-    label: 'Excel Course Resources' 
-  },
-  
-  {
-    path: '/graham-task',
-    target: 'https://daci-learn.uk/admissions.xlsx',
-    label: 'Graham Admissions',
-  },
-  {
-    path: '/excel-ppt',
-    target: 'https://docs.google.com/presentation/d/1vMkdcImQS8hVyl-gqOfKqOP9rZcS2H07/edit?usp=sharing&ouid=110904303590053907034&rtpof=true&sd=true',
-    label: 'Excel PowerPoint',
-  },
-  
-  { 
-    path: '/graham-tasks', 
-    target: 'https://daci-learn.uk/graham.docx', // Replace with real link
-    label: 'Graham Tasks' 
-  },
-  
-  { 
-    path: '/tasks', 
-    target: 'https://docs.google.com/document/d/10AX7FPmtIk7TUupUW2HAXIpYQvK09WptgSu7OADrwS4/edit?tab=t.0', // Replace with real link
+    path: '/', 
+    target: 'https://docs.google.com/document/d/10AX7FPmtIk7TUupUW2HAXIpYQvK09WptgSu7OADrwS4/edit?tab=t.0',
     label: 'Tasks 041225 - Google Docs' 
   },
   { 
     path: '/automation', 
-    target: 'https://docs.google.com/document/d/1sTN42CeHMfgCqBK6aTj_3u21IPb2m1YIpO-WQUJ6tYY/edit?tab=t.0', // Replace with real link
+    target: 'https://docs.google.com/document/d/1sTN42CeHMfgCqBK6aTj_3u21IPb2m1YIpO-WQUJ6tYY/edit?tab=t.0',
     label: 'Excel Automation - Google Docs' 
   },
 ];
 
 const PUBLIC_FOLDER_ROUTES = ['Flutter', 'resources', 'Cisco-Sim', 'Raid-Calc', 'flutter-guide'];
+
+// Add your files from /public here
+const PUBLIC_FILE_RESOURCES = [
+  {
+    label: 'Guide PDF',
+    href: '/files/guide.pdf',
+  },
+  {
+    label: 'Checklist Document',
+    href: '/files/checklist.docx',
+  },
+  {
+    label: 'Data Spreadsheet',
+    href: '/files/data.xlsx',
+  },
+];
 
 function useSimpleRedirect(isLoggedIn: boolean) {
   const router = useRouter();
@@ -77,34 +46,30 @@ function useSimpleRedirect(isLoggedIn: boolean) {
     const pathSegments = path.split('/').filter(Boolean);
     const firstSegment = pathSegments[0];
 
-    // Check if it's a public folder route
     if (PUBLIC_FOLDER_ROUTES.includes(firstSegment)) {
       return; 
     }
 
-    // 2. Updated loop to handle the object structure
     for (const route of EXTERNAL_ROUTES) {
       if (path === route.path || path.startsWith(`${route.path}/`)) {
         window.location.replace(route.target);
         return;
       }
     }
-
   }, [isLoggedIn, pathname, router]);
 }
 
 export default function Home() {
-  const userIsLoggedIn = false; 
+  const userIsLoggedIn = false;
 
   useSimpleRedirect(userIsLoggedIn);
 
   return (
     <main style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif', maxWidth: '800px', margin: '0 auto' }}>
       <h1 className="text-3xl font-bold mb-6">Quick Links</h1>
-      
+
       <div style={{ display: 'grid', gap: '3rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
         
-        {/* External Routes Section */}
         <section>
           <h2 className="text-xl font-semibold mb-3" style={{ borderBottom: '2px solid #eee', paddingBottom: '0.5rem' }}>
             External Docs & Courses
@@ -129,7 +94,6 @@ export default function Home() {
           </ul>
         </section>
 
-        {/* Public Folder Section */}
         <section>
           <h2 className="text-xl font-semibold mb-3" style={{ borderBottom: '2px solid #eee', paddingBottom: '0.5rem' }}>
             Public Resources
@@ -144,6 +108,27 @@ export default function Home() {
                 >
                   Running: <span style={{ fontWeight: 600 }}>{route}</span>
                 </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-3" style={{ borderBottom: '2px solid #eee', paddingBottom: '0.5rem' }}>
+            Downloadable Resources
+          </h2>
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {PUBLIC_FILE_RESOURCES.map((file) => (
+              <li key={file.href} style={{ marginBottom: '0.75rem' }}>
+                <a
+                  href={file.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block p-2 hover:bg-gray-50 rounded transition-colors"
+                  style={{ textDecoration: 'none', color: '#7c3aed', border: '1px solid #eee', borderRadius: '8px' }}
+                >
+                  {file.label}
+                </a>
               </li>
             ))}
           </ul>
