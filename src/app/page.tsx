@@ -8,12 +8,6 @@ import Link from 'next/link';
 
 const EXTERNAL_ROUTES = [
   {
-    path: '/',
-    target: 'https://docs.google.com/document/d/10AX7FPmtIk7TUupUW2HAXIpYQvK09WptgSu7OADrwS4/edit?tab=t.0',
-    label: 'Tasks 041225',
-    meta: 'Google Docs',
-  },
-  {
     path: '/automation',
     target: 'https://docs.google.com/document/d/1sTN42CeHMfgCqBK6aTj_3u21IPb2m1YIpO-WQUJ6tYY/edit?tab=t.0',
     label: 'Excel Automation',
