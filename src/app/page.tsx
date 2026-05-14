@@ -13,6 +13,12 @@ const EXTERNAL_ROUTES = [
     label: 'Excel Automation',
     meta: 'Google Docs',
   },
+  {
+    path: '/gradecalc',
+    target: 'https://daci-learn.uk/PredictiveGradeCalculator.html',
+    label: 'Degree Grade Calculator',
+    meta: 'Grade Calculator',
+  },
 ];
 
 const PUBLIC_FOLDER_ROUTES = [
