@@ -587,6 +587,30 @@
     gap: 6px;
   }
 
+  .module-credits {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--border-mid);
+    outline: none;
+    font-family: var(--font);
+    min-width: 80px;
+    max-width: 240px;
+    padding: 2px 4px;
+    border-radius: 0;
+    cursor: text;
+    transition: border-color 0.15s;
+  }
+  .module-credits:hover { border-bottom-color: var(--border-strong); }
+  .module-credits:focus {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-strong);
+    box-shadow: 0 0 0 1.5px var(--border-strong);
+    border-radius: 4px;
+  }
+
 </style>
 </head>
 <body>
@@ -619,7 +643,7 @@
             <thead><tr><th>Original %</th><th>After penalty</th></tr></thead>
             <tbody id="refBodyPct"></tbody>
           </table>
-          <p style="font-size:11px;color:var(--text-3);margin-top:8px;line-height:1.5">50–69%: reduced by 10 percentage points.<br>Other marks use the table above.</p>
+          <p style="font-size:11px;color:var(--text-3);margin-top:8px;line-height:1.5">50-69%: reduced by 10 percentage points.<br>Other marks use the table above.</p>
         </div>
       </div>
     </div>
@@ -658,13 +682,14 @@ const LATE_PENALTY = {
 };
 
 const PASS_THRESHOLD = 9;
+const PROG_CREDIT_TARGET = 120;
 
 let modules = [
-  {id:1, name:'Module 1', assessments:[
+  {id:1, name:'Module 1', credits:20, assessments:[
     {id:1, name:'Assessment 1', grade:'C', pct:50, type:'letter', weighting:50, late:false},
     {id:2, name:'Assessment 2', grade:'C', pct:50, type:'letter', weighting:50, late:false}
   ]},
-  {id:2, name:'Module 2', assessments:[
+  {id:2, name:'Module 2', credits:20, assessments:[
     {id:1, name:'Assessment 1', grade:'C', pct:50, type:'letter', weighting:50, late:false},
     {id:2, name:'Assessment 2', grade:'C', pct:50, type:'letter', weighting:50, late:false}
   ]}
@@ -685,7 +710,7 @@ const PCT_LATE_BANDS = [
 ];
 
 function applyPctLatePenalty(pct) {
-  // 50–69%: reduce by 10 percentage points
+  // 50 - 69%: reduce by 10 percentage points
   if (pct >= 50 && pct <= 69) return pct - 10;
   // All other ranges use the banded table
   for (const b of PCT_LATE_BANDS) {
@@ -694,7 +719,7 @@ function applyPctLatePenalty(pct) {
   return 0;
 }
 
-// Map a 0–100 percentage to grade points on the 24-point scale
+// Map a 0 - 100 percentage to grade points on the 24-point scale
 function pctToPoints(pct) {
   if (pct >= 87) return 24;       // A+
   if (pct >= 80) return 21;       // A
@@ -768,7 +793,7 @@ function calcModule(mod) {
     }
   });
   if (totalW === 0) return { pct:0, grade:'—', raw:0, pass:null };
-  return { pct:totalW, grade:pointsToGrade(sum), raw:sum, pass: sum >= PASS_THRESHOLD };
+  return { pct:totalW, credits:mod.credits, grade:pointsToGrade(sum), raw:sum, pass: sum >= PASS_THRESHOLD };
 }
 
 function pointsToGrade(pts) {
@@ -799,6 +824,7 @@ function render() {
   document.getElementById('modulesContainer').innerHTML = modules.map(mod => {
     const t = calcModule(mod);
     const totalW = mod.assessments.reduce((s,a) => s + (a.weighting>0?a.weighting:0), 0);
+    const modCredits = mod.credits != null ? mod.credits : 0;
     const warnShow = totalW !== 0 && totalW !== 100;
     const passBadge = t.pass !== null
       ? `<span class="badge ${t.pass?'pass':'fail'}">${t.pass?'Pass':'Fail'}</span>` : '';
@@ -807,7 +833,11 @@ function render() {
     return `<div class="module-card">
       <div class="module-header">
         <input class="module-name" type="text" value="${esc(mod.name)}" onchange="renameModule(${mod.id},this.value)" aria-label="Module name"/>
-        <div class="module-meta">${scoreStr}</div>
+        <div class="module-meta">
+          <label for="module-credits-${mod.id}">Credits:</label>
+          <input class="module-credits" type="text" id="module-credits-${mod.id}" value="${modCredits}" onchange="updateModuleCredits(${mod.id},this.value)" aria-label="Module credits"/>
+          ${scoreStr}
+        </div>
       </div>
       <div class="col-headers"><span>Assessment</span><span>Weight %</span><span>Type</span><span>Grade</span><span>Late</span><span style="text-align:right">Contribution</span></div>
       <div class="assessments">${mod.assessments.map(a => renderRow(mod.id, a)).join('')}</div>
@@ -939,7 +969,8 @@ function renderClassification() {
 
   if (valid.length === 0) { el.innerHTML = ''; return; }
 
-  const avg = valid.reduce((s,r) => s+r.raw, 0) / valid.length;
+  const avg = valid.reduce((s,r) => s + (r.raw * r.credits), 0) / valid.reduce((s,r) => s + r.credits, 0);
+  //const avg = valid.reduce((s,r) => s+r.raw, 0) / valid.length;
   const current = getClassification(avg);
 
   let activeBadge = '';
@@ -956,13 +987,14 @@ function renderClassification() {
     return `<div class="band${isActive ? ` active-band ${c.bandCls}` : ''}">
       <div class="band-label">${c.short}</div>
       <div class="band-name">${c.label}</div>
-      <div class="band-range">${c.min.toFixed(1)} – ${c.max === 24.0 ? '24.0' : c.max.toFixed(2)}</div>
+      <div class="band-range">${c.min.toFixed(1)}  -  ${c.max === 24.0 ? '24.0' : c.max.toFixed(2)}</div>
     </div>`;
   }).join('');
 
   el.innerHTML = `
     <div class="classification-header">
       <h2>Degree classification</h2>
+      <h2>Programme Aggregate: ${avg.toFixed(2)}</h2>
       ${activeBadge}
     </div>
     <div class="classification-bands">${bands}</div>
@@ -982,14 +1014,14 @@ function buildRefTable() {
 
   // Percentage late penalty table
   const pctBands = [
-    { range:'87–100', after:'68' },
-    { range:'74–86',  after:'65' },
-    { range:'70–73',  after:'62' },
-    { range:'50–69',  after:'−10 pts' },
-    { range:'40–49',  after:'31' },
-    { range:'31–39',  after:'18' },
-    { range:'18–30',  after:'9'  },
-    { range:'0–17',   after:'0'  },
+    { range:'87 - 100', after:'68' },
+    { range:'74 - 86',  after:'65' },
+    { range:'70 - 73',  after:'62' },
+    { range:'50 - 69',  after:'- 10 pts' },
+    { range:'40 - 49',  after:'31' },
+    { range:'31 - 39',  after:'18' },
+    { range:'18 - 30',  after:'9'  },
+    { range:'0 - 17',   after:'0'  },
   ];
   document.getElementById('refBodyPct').innerHTML = pctBands.map(b => `<tr>
     <td>${b.range}</td>
@@ -1003,6 +1035,7 @@ function toggleRef() {
 
 function esc(s) { return String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
+
 function findMod(id) { return modules.find(m => m.id===id); }
 function findAss(mod, id) { return mod.assessments.find(a => a.id===id); }
 function updateType(mId,aId,v) {
@@ -1012,6 +1045,7 @@ function updateType(mId,aId,v) {
   if (v==='passfail') { a.late=false; if(a.passfail===undefined) a.passfail=true; }
   render();
 }
+
 function togglePassFail(mId,aId) { const m=findMod(mId); if(m){const a=findAss(m,aId); if(a)a.passfail=a.passfail===false?true:false;} render(); }
 function updatePct(mId,aId,v) { const m=findMod(mId); if(m){const a=findAss(m,aId); if(a)a.pct=Math.max(0,Math.min(100,parseInt(v)||0));} render(); }
 function updateGrade(mId,aId,v) { const m=findMod(mId); if(m){const a=findAss(m,aId); if(a)a.grade=v;} render(); }
@@ -1021,11 +1055,11 @@ function renameModule(id,v) { const m=findMod(id); if(m)m.name=v.trim()||m.name;
 function toggleLate(mId,aId) { const m=findMod(mId); if(m){const a=findAss(m,aId); if(a)a.late=!a.late;} render(); }
 function addAssessment(mId) { const m=findMod(mId); if(m) m.assessments.push({id:nextAssId++,name:`Assessment ${m.assessments.length+1}`,grade:'C',pct:50,type:'letter',weighting:0,late:false}); render(); }
 function removeAssessment(mId,aId) { const m=findMod(mId); if(m&&m.assessments.length>1) m.assessments=m.assessments.filter(a=>a.id!==aId); render(); }
+function updateModuleCredits(mId,v) { const m=findMod(mId); if(m)m.credits=parseInt(v)||0; renderResults(); }
 function addModule() {
   const id = nextModId++;
-  modules.push({id, name:`Module ${id}`, assessments:[
-    {id:nextAssId++, name:'Assessment 1', grade:'C', pct:50, type:'letter', weighting:50, late:false},
-    {id:nextAssId++, name:'Assessment 2', grade:'C', pct:50, type:'letter', weighting:50, late:false}
+  modules.push({id, name:`Module ${id}`, credits:20, assessments:[
+    {id:nextAssId++, name:'Assessment 1', grade:'C', pct:50, type:'letter', weighting:100, late:false},
   ]});
   render();
 }
@@ -1033,6 +1067,7 @@ function removeModule(id) { if(modules.length>1) modules=modules.filter(m=>m.id!
 
 buildRefTable();
 render();
+
 </script>
 <footer>
  <p><a href="mailto:jwalk@blackpool.ac.uk">Created by Jason Walker 2026.</a></p>
