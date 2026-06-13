@@ -27,6 +27,7 @@ const PUBLIC_FOLDER_ROUTES = [
   { slug: 'Cisco-Sim',     meta: 'Tool' },
   { slug: 'Raid-Calc',     meta: 'Calculator' },
   { slug: 'flutter-guide', meta: 'Guide' },
+  { slug: 'RPS', meta: 'RockPaperScissors' },
 ];
 
 const PUBLIC_FILE_RESOURCES = [
