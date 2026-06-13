@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Mastery: Build Rock, Paper, Scissors</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for crisp presentation -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-[#0b0f19] text-[#cbd5e1] h-full flex flex-col overflow-hidden">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-[#111827] border-b border-[#1f2937] px-6 py-4 flex justify-between items-center z-10 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="p-2 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-sm md:text-base font-bold text-slate-100 tracking-tight flex items-center gap-2">
+                    Python Arena <span class="text-xs bg-indigo-500/10 border border-indigo-400/30 text-indigo-300 font-semibold px-2 py-0.5 rounded-full">Interactive Guide</span>
+                </h1>
+                <p class="text-xs text-slate-400 hidden sm:block">A step-by-step coding walkthrough</p>
+            </div>
+        </div>
+        
+        <!-- Live Global Progress Bar -->
+        <div class="flex items-center gap-4">
+            <div class="hidden md:flex flex-col items-end">
+                <span id="progress-text" class="text-xs font-semibold text-indigo-300">0% Complete</span>
+                <div class="w-32 bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1 border border-slate-700">
+                    <div id="progress-bar" class="bg-indigo-500 h-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+            <button onclick="resetAllProgress()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-3.5 py-1.5 rounded-lg border border-slate-700 transition">
+                Reset
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container with Split Sidebar and Reader Workspace -->
+    <div class="flex flex-1 overflow-hidden flex-col md:flex-row">
+        
+        <!-- Left Panel: Cohesive Roadmap & Chapter Index -->
+        <aside class="w-full md:w-80 bg-[#0f172a] border-r border-[#1f2937] flex flex-col shrink-0 overflow-y-auto">
+            <div class="p-6">
+                <h2 class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-4">The Development Roadmap</h2>
+                <nav class="space-y-2" id="sidebar-nav">
+                    
+                    <!-- Chapter 0 -->
+                    <button onclick="switchChapter('setup')" id="nav-setup" class="w-full text-left p-3.5 rounded-xl border border-indigo-500 bg-indigo-500/5 text-slate-100 transition duration-150 flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-indigo-500 text-slate-900 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5" id="badge-setup">0</div>
+                        <div>
+                            <p class="text-xs text-indigo-400 font-bold uppercase tracking-wider">Preparation</p>
+                            <h3 class="text-sm font-semibold text-slate-100">Setting Up VS Code</h3>
+                        </div>
+                    </button>
+                    
+                    <!-- Chapter 1 -->
+                    <button onclick="switchChapter('chunk1')" id="nav-chunk1" class="w-full text-left p-3.5 rounded-xl border border-transparent hover:bg-slate-800/50 text-slate-400 transition duration-150 flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5" id="badge-chunk1">1</div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Step 1</p>
+                            <h3 class="text-sm font-semibold text-slate-300">Foundation (Print & Input)</h3>
+                        </div>
+                    </button>
+
+                    <!-- Chapter 2 -->
+                    <button onclick="switchChapter('chunk2')" id="nav-chunk2" class="w-full text-left p-3.5 rounded-xl border border-transparent hover:bg-slate-800/50 text-slate-400 transition duration-150 flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5" id="badge-chunk2">2</div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Step 2</p>
+                            <h3 class="text-sm font-semibold text-slate-300">Computer Choice</h3>
+                        </div>
+                    </button>
+
+                    <!-- Chapter 3 -->
+                    <button onclick="switchChapter('chunk3')" id="nav-chunk3" class="w-full text-left p-3.5 rounded-xl border border-transparent hover:bg-slate-800/50 text-slate-400 transition duration-150 flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5" id="badge-chunk3">3</div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Step 3</p>
+                            <h3 class="text-sm font-semibold text-slate-300">Evaluating Ties</h3>
+                        </div>
+                    </button>
+
+                    <!-- Chapter 4 -->
+                    <button onclick="switchChapter('chunk4')" id="nav-chunk4" class="w-full text-left p-3.5 rounded-xl border border-transparent hover:bg-slate-800/50 text-slate-400 transition duration-150 flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5" id="badge-chunk4">4</div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Step 4</p>
+                            <h3 class="text-sm font-semibold text-slate-300">Evaluating Wins</h3>
+                        </div>
+                    </button>
+
+                    <!-- Chapter 5 -->
+                    <button onclick="switchChapter('chunk5')" id="nav-chunk5" class="w-full text-left p-3.5 rounded-xl border border-transparent hover:bg-slate-800/50 text-slate-400 transition duration-150 flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5" id="badge-chunk5">5</div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Step 5</p>
+                            <h3 class="text-sm font-semibold text-slate-300">Fallback Losses</h3>
+                        </div>
+                    </button>
+
+                    <!-- Chapter 6 -->
+                    <button onclick="switchChapter('chunk6')" id="nav-chunk6" class="w-full text-left p-3.5 rounded-xl border border-transparent hover:bg-slate-800/50 text-slate-400 transition duration-150 flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5" id="badge-chunk6">6</div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Step 6</p>
+                            <h3 class="text-sm font-semibold text-slate-300">Smarter Win Logic</h3>
+                        </div>
+                    </button>
+
+                    <!-- Chapter 7 -->
+                    <button onclick="switchChapter('chunk7')" id="nav-chunk7" class="w-full text-left p-3.5 rounded-xl border border-transparent hover:bg-slate-800/50 text-slate-400 transition duration-150 flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5" id="badge-chunk7">7</div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Step 7</p>
+                            <h3 class="text-sm font-semibold text-slate-300">Loop the Game (while)</h3>
+                        </div>
+                    </button>
+
+                    <!-- Chapter 8 -->
+                    <button onclick="switchChapter('chunk8')" id="nav-chunk8" class="w-full text-left p-3.5 rounded-xl border border-transparent hover:bg-slate-800/50 text-slate-400 transition duration-150 flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5" id="badge-chunk8">8</div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Step 8</p>
+                            <h3 class="text-sm font-semibold text-slate-300">Build a GUI (Tkinter)</h3>
+                        </div>
+                    </button>
+
+                    <!-- Graduation -->
+                    <button onclick="switchChapter('graduation')" id="nav-graduation" class="w-full text-left p-3.5 rounded-xl border border-transparent hover:bg-slate-800/50 text-slate-400 transition duration-150 flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5" id="badge-graduation">👑</div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Playable Game</p>
+                            <h3 class="text-sm font-semibold text-slate-300">Completed Game File</h3>
+                        </div>
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Reading Frame -->
+        <main class="flex-1 overflow-y-auto bg-[#0b0f19] flex justify-center p-6 md:p-12 lg:p-16">
+            <div class="max-w-3xl w-full space-y-10">
+
+                <!-- CHAPTER 0: SETUP -->
+                <div id="pane-setup" class="space-y-8 animate-fade-in">
+                    <div class="space-y-3">
+                        <span class="text-xs font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/30 px-3 py-1 rounded-full uppercase tracking-wider">Preparation Step</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">Setting Up Your Workspace</h2>
+                        <p class="text-slate-400 leading-relaxed text-sm md:text-base">
+                            Before writing code, we need to set up your environment. Think of this like arranging the clean surface of a modern engineering workbench.
+                        </p>
+                    </div>
+
+                    <!-- Setup Grid Layout -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 relative group hover:border-slate-700 transition">
+                            <span class="text-3xl mb-4 block">💻</span>
+                            <h3 class="text-sm font-bold text-slate-100 mb-2">1. Install VS Code</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Go to <a href="https://code.visualstudio.com" target="_blank" class="text-indigo-400 hover:underline">code.visualstudio.com</a>. Install with all default parameters.
+                            </p>
+                        </div>
+                        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 relative group hover:border-slate-700 transition">
+                            <span class="text-3xl mb-4 block">🐍</span>
+                            <h3 class="text-sm font-bold text-slate-100 mb-2">2. Python Extension</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Open VS Code, select the Extensions tab on the left margin, search for <strong>Python</strong>, and install the Microsoft bundle.
+                            </p>
+                        </div>
+                        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 relative group hover:border-slate-700 transition">
+                            <span class="text-3xl mb-4 block">📄</span>
+                            <h3 class="text-sm font-bold text-slate-100 mb-2">3. Create file</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Press <code class="bg-slate-800 text-slate-200 px-1.5 py-0.5 rounded text-[10px]">Ctrl+N</code> / <code class="bg-slate-800 text-slate-200 px-1.5 py-0.5 rounded text-[10px]">Cmd+N</code>. Save it with the name <code class="text-indigo-400 font-semibold text-[11px]">main.py</code> on your Desktop.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Explicit VS Code Mechanics Explained -->
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="text-md font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">⚙️</span> Learn the VS Code Workflow Cycle
+                        </h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Once your <code class="text-indigo-300 font-semibold">main.py</code> file is open, you will follow a strict cycle to write and run each part of your code:
+                        </p>
+                        <ol class="text-xs text-slate-300 list-decimal list-inside space-y-2 pl-2">
+                            <li><strong>Write:</strong> Type code directly into the large editor panel of VS Code.</li>
+                            <li><strong>Look for the Dot:</strong> When you start typing, look at the top tab labeled <code class="text-indigo-300 font-semibold">main.py</code>. You'll see a small <strong class="text-pink-400 font-semibold">white circle icon</strong>. This means you have made changes but haven't saved yet!</li>
+                            <li><strong>Save:</strong> Press <code class="bg-slate-800 border border-slate-700 text-indigo-300 px-1.5 py-0.5 rounded font-mono font-bold">Ctrl + S</code> (Windows) or <code class="bg-slate-800 border border-slate-700 text-indigo-300 px-1.5 py-0.5 rounded font-mono font-bold">Cmd + S</code> (Mac). The circle icon will turn back into an 'X', confirming your file is saved.</li>
+                            <li><strong>Run:</strong> Click the small triangular <strong class="text-emerald-400 font-semibold">Play Button</strong> in the top-right corner of the VS Code window. This opens the computer terminal at the bottom to execute your latest saved instructions!</li>
+                        </ol>
+                    </div>
+
+                    <div class="border-t border-[#1f2937] pt-8 flex justify-end">
+                        <button onclick="markStepComplete('setup')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-indigo-600/15 transition flex items-center gap-2">
+                            <span>Workspace Setup Complete</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHUNK 1: THE PRINT TITLE -->
+                <div id="pane-chunk1" class="space-y-8 hidden animate-fade-in">
+                    <div class="space-y-3">
+                        <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full uppercase tracking-wider">Step 1</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">The Core Foundation</h2>
+                        <p class="text-slate-400 leading-relaxed text-sm md:text-base">
+                            We will build our game sequentially. We begin by displaying the game header, and then immediately prompt the user to input their move! 
+                        </p>
+                    </div>
+
+                    <!-- Step-by-Step Code Container -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="bg-slate-950 px-5 py-3 border-b border-slate-800/80 flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest code-font">📝 Type this into main.py:</span>
+                            <button onclick="copyToClipboard('code-c1')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <pre id="code-c1" class="code-font text-[#34d399] text-xs md:text-sm leading-relaxed">print("=== ROCK, PAPER, SCISSORS ===")
+
+# 1. Grab interactive user move first
+player_choice = input("Enter rock, paper, or scissors: ")
+
+print("\n--- Results ---")
+print("You chose: " + player_choice)
+print("----------------")</pre>
+                        </div>
+                    </div>
+
+                    <!-- Play-by-Play Guide Card -->
+                    <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">🎮</span> Play-by-Play Workflow: Let's Run Your Code!
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">1. Write</div>
+                                <p class="text-slate-400">Type or paste this block into your empty <code class="code-font">main.py</code> file in VS Code.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">2. Save</div>
+                                <p class="text-slate-400">Press <code class="font-mono">Ctrl+S</code> or <code class="font-mono">Cmd+S</code> to save. Watch the white tab dot disappear.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">3. Play & Input</div>
+                                <p class="text-slate-400">Click the triangular <strong class="text-emerald-400">Play button</strong>. Click inside the terminal panel at the bottom, type <code class="code-font font-bold">rock</code>, and press <code class="font-bold">Enter</code>.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">4. Verify</div>
+                                <p class="text-slate-400">You should see the game instantly display: <br><code class="text-slate-300 font-mono">You chose: rock</code>!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cohesive Bridge explaining what happens and why it is limited -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                            <span>🔍</span> Understanding What Just Happened
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            The <code class="text-indigo-400 code-font">input()</code> function pauses the computer and waits for you to type. Once you press Enter, Python saves whatever you typed directly into a variable box named <code class="text-indigo-400 code-font">player_choice</code>!
+                        </p>
+                        <div class="bg-[#1e1b4b]/30 border border-indigo-500/10 p-5 rounded-2xl">
+                            <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2">The Missing Piece</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Our player move is successfully captured! However, you are currently playing against a ghost. No opponent has chosen a move. Let's write the code to make the computer randomly pick a move next!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#1f2937] pt-8 flex justify-between items-center">
+                        <button onclick="switchChapter('setup')" class="text-slate-400 hover:text-slate-200 text-sm font-semibold flex items-center gap-2">
+                            ← Back to Setup
+                        </button>
+                        <button onclick="markStepComplete('chunk1')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-600/15 transition flex items-center gap-2">
+                            <span>Configure Computer Player</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHUNK 2: COMPUTER CHOICE -->
+                <div id="pane-chunk2" class="space-y-8 hidden animate-fade-in">
+                    <div class="space-y-3">
+                        <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full uppercase tracking-wider">Step 2</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">The Computer Moves</h2>
+                        <p class="text-slate-400 leading-relaxed text-sm md:text-base">
+                            Now, we want the computer to automatically select its weapon. We'll use a prebuilt Python package called <code class="text-indigo-400 font-semibold code-font">random</code> to choose a move from a list of options.
+                        </p>
+                    </div>
+
+                    <!-- Step-by-Step Code Container -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="bg-slate-950 px-5 py-3 border-b border-slate-800/80 flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest code-font">📝 Add these lines exactly where described:</span>
+                            <button onclick="copyToClipboard('code-c2')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 mb-1">1. Put this at the absolute top (line 1) of your file:</p>
+                                <pre class="code-font text-[#34d399] text-xs bg-slate-950 p-3 rounded overflow-x-auto">import random</pre>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 mb-1">2. Put this in the middle, right above <code class="code-font">print("\n--- Results ---")</code>:</p>
+                                <pre class="code-font text-[#34d399] text-xs bg-slate-950 p-3 rounded overflow-x-auto"># 2. Next, let the computer choose randomly
+game_options = ["rock", "paper", "scissors"]
+computer_choice = random.choice(game_options)</pre>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 mb-1">3. Put this inside the results display, right beneath <code class="code-font">print("You chose: " + player_choice)</code>:</p>
+                                <pre class="code-font text-[#34d399] text-xs bg-slate-950 p-3 rounded overflow-x-auto">print("Computer chose: " + computer_choice)</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- State of the file helper -->
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">🔎 Double-Check: What your main.py should look like now</h4>
+                        <pre class="code-font text-xs text-slate-300 leading-relaxed bg-[#0b0f19] p-4 rounded-xl overflow-x-auto">import random
+
+print("=== ROCK, PAPER, SCISSORS ===")
+
+# 1. Grab interactive user move first
+player_choice = input("Enter rock, paper, or scissors: ")
+
+# 2. Next, let the computer choose randomly
+game_options = ["rock", "paper", "scissors"]
+computer_choice = random.choice(game_options)
+
+print("\n--- Results ---")
+print("You chose: " + player_choice)
+print("Computer chose: " + computer_choice)
+print("----------------")</pre>
+                    </div>
+
+                    <!-- Play-by-Play Guide Card -->
+                    <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">🎮</span> Play-by-Play Workflow: Running Chunks 1 & 2
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">1. Save Your Changes</div>
+                                <p class="text-slate-400">Double-check that the white unsaved circle is gone on the tab menu using <code class="font-mono">Ctrl+S</code> or <code class="font-mono">Cmd+S</code>.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">2. Run & Submit Move</div>
+                                <p class="text-slate-400">Press Play. Focus the terminal, type <code class="code-font">paper</code>, and hit Enter.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">3. Observe Computer</div>
+                                <p class="text-slate-400">See the results! Python randomly pulled one of the items out of our options list and printed it as the opponent move.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cohesive Bridge -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                            <span>🔍</span> How the Computer Decides
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Square brackets <code class="text-indigo-300 font-mono">[...]</code> represent a <strong>List</strong> in Python. The command <code class="text-indigo-300 font-mono">random.choice()</code> acts like pulling a random weapon out of a hat containing your options!
+                        </p>
+                        <div class="bg-[#1e1b4b]/30 border border-indigo-500/10 p-5 rounded-2xl">
+                            <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2">The Next Missing Link</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Awesome, both players have made their choices! Now we need to compare these decisions to find the outcome. The easiest scenario is when both players choose the same thing—let's write the evaluation code for a tie!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#1f2937] pt-8 flex justify-between items-center">
+                        <button onclick="switchChapter('chunk1')" class="text-slate-400 hover:text-slate-200 text-sm font-semibold flex items-center gap-2">
+                            ← Back to Foundation
+                        </button>
+                        <button onclick="markStepComplete('chunk2')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-600/15 transition flex items-center gap-2">
+                            <span>Check for Tie Games</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHUNK 3: KEEPING SCORE -->
+                <div id="pane-chunk3" class="space-y-8 hidden animate-fade-in">
+                    <div class="space-y-3">
+                        <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full uppercase tracking-wider">Step 3</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">Checking for Ties</h2>
+                        <p class="text-slate-400 leading-relaxed text-sm md:text-base">
+                            We will use an <code class="text-[#34d399] font-mono">if</code> statement to evaluate whether the moves are equal. If both chose the same weapon, we will print that it's a draw.
+                        </p>
+                    </div>
+
+                    <!-- Step-by-Step Code Container -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="bg-slate-950 px-5 py-3 border-b border-slate-800/80 flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest code-font">📝 Append this code to the absolute bottom of main.py:</span>
+                            <button onclick="copyToClipboard('code-c3')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <pre id="code-c3" class="code-font text-[#34d399] text-xs md:text-sm leading-relaxed"># 3. Determine winner using conditional decisions
+# Draw/Tie logic checking:
+if player_choice == computer_choice:
+    print("It's a draw! Play again.")</pre>
+                        </div>
+                    </div>
+
+                    <!-- State of the file helper -->
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">🔎 Double-Check: What your main.py should look like now</h4>
+                        <pre class="code-font text-xs text-slate-300 leading-relaxed bg-[#0b0f19] p-4 rounded-xl overflow-x-auto">import random
+
+print("=== ROCK, PAPER, SCISSORS ===")
+
+# 1. Grab interactive user move first
+player_choice = input("Enter rock, paper, or scissors: ")
+
+# 2. Next, let the computer choose randomly
+game_options = ["rock", "paper", "scissors"]
+computer_choice = random.choice(game_options)
+
+print("\n--- Results ---")
+print("You chose: " + player_choice)
+print("Computer chose: " + computer_choice)
+print("----------------")
+
+# 3. Determine winner using conditional decisions
+# Draw/Tie logic checking:
+if player_choice == computer_choice:
+    print("It's a draw! Play again.")</pre>
+                    </div>
+
+                    <!-- Play-by-Play Guide Card -->
+                    <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">🎮</span> Play-by-Play Workflow: Testing the Draw Condition
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">1. Save File</div>
+                                <p class="text-slate-400">Always check your file status in VS Code. Save the updates using <code class="font-mono">Ctrl+S</code> or <code class="font-mono">Cmd+S</code>.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">2. Play Until Draw</div>
+                                <p class="text-slate-400">Click Play. Type a move, and press Enter. Run it a few times until both you and the computer pick the same weapon.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">3. Verify Draw Trigger</div>
+                                <p class="text-slate-400">When your moves are identical, verify that your new <code class="code-font">print("It's a draw!")</code> triggers successfully!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cohesive Bridge -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                            <span>🔍</span> Understanding Python Comparisons & Indentation
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            The double equals operator <code class="text-indigo-300 font-mono">==</code> checks if two values are identical. Also, note the indentation (the print block is pushed 4 spaces inside). Python uses this indentation to know that the print statement should <strong>only</strong> run if the tie condition is true.
+                        </p>
+                        <div class="bg-[#1e1b4b]/30 border border-indigo-500/10 p-5 rounded-2xl">
+                            <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2">The Next Missing Link</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Ties are working! But if you don't draw, the game ends silently because we have no logic for win and loss outcomes yet. Let's add the player's winning conditions next!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#1f2937] pt-8 flex justify-between items-center">
+                        <button onclick="switchChapter('chunk2')" class="text-slate-400 hover:text-slate-200 text-sm font-semibold flex items-center gap-2">
+                            ← Back to Computer Choice
+                        </button>
+                        <button onclick="markStepComplete('chunk3')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-600/15 transition flex items-center gap-2">
+                            <span>Program Player Wins</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHUNK 4: GRAB INPUTS -->
+                <div id="pane-chunk4" class="space-y-8 hidden animate-fade-in">
+                    <div class="space-y-3">
+                        <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full uppercase tracking-wider">Step 4</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">Programming Player Wins</h2>
+                        <p class="text-slate-400 leading-relaxed text-sm md:text-base">
+                            If it's not a tie, we need to check if you won. We will use `elif` (else if) blocks and combine them with the `and` operator to verify your winning moves.
+                        </p>
+                    </div>
+
+                    <!-- Step-by-Step Code Container -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="bg-slate-950 px-5 py-3 border-b border-slate-800/80 flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest code-font">📝 Append this code to the absolute bottom of main.py:</span>
+                            <button onclick="copyToClipboard('code-c4')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <pre id="code-c4" class="code-font text-[#34d399] text-xs md:text-sm leading-relaxed"># Win/Loss logic checking:
+elif player_choice == "rock" and computer_choice == "scissors":
+    print("You win! Rock smashes scissors.")
+
+elif player_choice == "paper" and computer_choice == "rock":
+    print("You win! Paper covers rock.")
+
+elif player_choice == "scissors" and computer_choice == "paper":
+    print("You win! Scissors cuts paper.")</pre>
+                        </div>
+                    </div>
+
+                    <!-- State of the file helper -->
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">🔎 Double-Check: What your main.py should look like now</h4>
+                        <pre class="code-font text-xs text-slate-300 leading-relaxed bg-[#0b0f19] p-4 rounded-xl overflow-x-auto">import random
+
+print("=== ROCK, PAPER, SCISSORS ===")
+
+# 1. Grab interactive user move first
+player_choice = input("Enter rock, paper, or scissors: ")
+
+# 2. Next, let the computer choose randomly
+game_options = ["rock", "paper", "scissors"]
+computer_choice = random.choice(game_options)
+
+print("\n--- Results ---")
+print("You chose: " + player_choice)
+print("Computer chose: " + computer_choice)
+print("----------------")
+
+# 3. Determine winner using conditional decisions
+# Draw/Tie logic checking:
+if player_choice == computer_choice:
+    print("It's a draw! Play again.")
+
+# Win/Loss logic checking:
+elif player_choice == "rock" and computer_choice == "scissors":
+    print("You win! Rock smashes scissors.")
+
+elif player_choice == "paper" and computer_choice == "rock":
+    print("You win! Paper covers rock.")
+
+elif player_choice == "scissors" and computer_choice == "paper":
+    print("You win! Scissors cuts paper.")</pre>
+                    </div>
+
+                    <!-- Play-by-Play Guide Card with interactive terminal details -->
+                    <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">🎮</span> Play-by-Play Workflow: testing winning logic
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">1. Append Code</div>
+                                <p class="text-slate-400">Append the code at the very end of your file. Keep the old code intact.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">2. Save changes</div>
+                                <p class="text-slate-400">Save the updates inside <code class="code-font">main.py</code> using <code class="font-mono">Ctrl+S</code> or <code class="font-mono">Cmd+S</code>.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">3. Play & Win</div>
+                                <p class="text-slate-400">Click Play. Type your move, and press Enter. Keep trying until you beat the computer's randomized pick.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">4. Verify Output</div>
+                                <p class="text-slate-400">Verify that the win condition successfully triggers your matching victory line!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cohesive Bridge -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                            <span>🔍</span> Understanding `elif` and `and`
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed font-sans">
+                            <code class="text-indigo-300 font-mono">elif</code> stands for "else if". If the first check was false, Python shifts down and checks the next one. The <code class="text-indigo-300 font-mono">and</code> operator requires <strong>both</strong> comparisons to be true at the same time to match!
+                        </p>
+                        <div class="bg-[#1e1b4b]/30 border border-indigo-500/10 p-5 rounded-2xl">
+                            <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2">The Final Missing Link</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Wins and draws are working flawlessly! But if you don't draw and don't win, the computer won. We need to add one final fallback command to handle any scenario where you lost. Let's write the fallback!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#1f2937] pt-8 flex justify-between items-center">
+                        <button onclick="switchChapter('chunk3')" class="text-slate-400 hover:text-slate-200 text-sm font-semibold flex items-center gap-2">
+                            ← Back to Tie Evaluation
+                        </button>
+                        <button onclick="markStepComplete('chunk4')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-600/15 transition flex items-center gap-2">
+                            <span>Handle Losses</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHUNK 5: DECISION LOGIC -->
+                <div id="pane-chunk5" class="space-y-8 hidden animate-fade-in">
+                    <div class="space-y-3">
+                        <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full uppercase tracking-wider">Step 5</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">The Fallback Loss Condition</h2>
+                        <p class="text-slate-400 leading-relaxed text-sm md:text-base">
+                            If the game is not a tie, and none of your winning moves are true, the only logical outcome left is that the computer won. We will capture this outcome with a fallback <code class="text-[#34d399] font-mono">else</code> block.
+                        </p>
+                    </div>
+
+                    <!-- Step-by-Step Code Container -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="bg-slate-950 px-5 py-3 border-b border-slate-800/80 flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest code-font">📝 Append this else block at the absolute bottom of main.py:</span>
+                            <button onclick="copyToClipboard('code-c5')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <pre id="code-c5" class="code-font text-[#34d399] text-xs md:text-sm leading-relaxed">else:
+    print("The computer wins! Better luck next time.")</pre>
+                        </div>
+                    </div>
+
+                    <!-- State of the file helper -->
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">🔎 Double-Check: What your main.py should look like now</h4>
+                        <pre class="code-font text-xs text-slate-300 leading-relaxed bg-[#0b0f19] p-4 rounded-xl overflow-x-auto">import random
+
+print("=== ROCK, PAPER, SCISSORS ===")
+
+# 1. Grab interactive user move first
+player_choice = input("Enter rock, paper, or scissors: ")
+
+# 2. Next, let the computer choose randomly
+game_options = ["rock", "paper", "scissors"]
+computer_choice = random.choice(game_options)
+
+print("\n--- Results ---")
+print("You chose: " + player_choice)
+print("Computer chose: " + computer_choice)
+print("----------------")
+
+# 3. Determine winner using conditional decisions
+# Draw/Tie logic checking:
+if player_choice == computer_choice:
+    print("It's a draw! Play again.")
+
+# Win/Loss logic checking:
+elif player_choice == "rock" and computer_choice == "scissors":
+    print("You win! Rock smashes scissors.")
+
+elif player_choice == "paper" and computer_choice == "rock":
+    print("You win! Paper covers rock.")
+
+elif player_choice == "scissors" and computer_choice == "paper":
+    print("You win! Scissors cuts paper.")
+
+else:
+    print("The computer wins! Better luck next time.")</pre>
+                    </div>
+
+                    <!-- Play-by-Play Guide Card with testing details -->
+                    <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">🎮</span> Play-by-Play Workflow: Testing Losses
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">1. Append & Finish</div>
+                                <p class="text-slate-400">Add the fallback `else` block at the absolute end. Make sure the alignment matches the rest.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">2. Save Changes</div>
+                                <p class="text-slate-400">Press <code class="font-mono">Ctrl+S</code> or <code class="font-mono">Cmd+S</code> to write the finalized updates to disk.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">3. Play & Lose</div>
+                                <p class="text-slate-400">Click Play. Input your move, and try to get beaten by the computer's randomized pick.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">4. Verify Fallback</div>
+                                <p class="text-slate-400">When the computer beats you, verify that the fallback loss message successfully prints!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cohesive Bridge -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                            <span>🔍</span> Why `else` has no parameters
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Notice that <code class="text-indigo-300 font-mono">else:</code> doesn't check any conditional rules—it simply has a colon at the end. That is because it is the ultimate "catch-all". If every other check above was false, Python runs this block as a default.
+                        </p>
+                        <div class="bg-[#1e1b4b]/30 border border-indigo-500/10 p-5 rounded-2xl">
+                            <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2">You Have a Working Game! 🎉</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Your game is fully playable right now. But look closely at your win logic—you had to write out a separate <code class="text-indigo-300 font-mono">elif</code> for every single winning combination. There's a much cleaner way that doesn't compare every case by hand. Let's level up!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#1f2937] pt-8 flex justify-between items-center">
+                        <button onclick="switchChapter('chunk4')" class="text-slate-400 hover:text-slate-200 text-sm font-semibold flex items-center gap-2">
+                            ← Back to Wins
+                        </button>
+                        <button onclick="markStepComplete('chunk5')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-600/15 transition flex items-center gap-2">
+                            <span>Learn Smarter Logic</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHUNK 6: SMARTER LOGIC -->
+                <div id="pane-chunk6" class="space-y-8 hidden animate-fade-in">
+                    <div class="space-y-3">
+                        <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full uppercase tracking-wider">Step 6</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">Smarter Win Logic</h2>
+                        <p class="text-slate-400 leading-relaxed text-sm md:text-base">
+                            Right now we write a separate <code class="text-[#34d399] font-mono">elif</code> for every win. That's three lines just for victories—and if we ever added "lizard" and "spock", it would explode into dozens! Let's teach Python the rules <strong>once</strong> using a <strong>dictionary</strong>.
+                        </p>
+                    </div>
+
+                    <!-- The Idea Card -->
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="text-md font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">💡</span> The Big Idea: "What beats what?"
+                        </h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Every move beats exactly one other move. Rock beats scissors, paper beats rock, scissors beats paper. A <strong>dictionary</strong> stores these pairs as <code class="text-indigo-300 font-mono">key: value</code> links. We can then ask one simple question: <em>"Does the player's move beat the computer's move?"</em> No need to list every combination by hand.
+                        </p>
+                    </div>
+
+                    <!-- Step-by-Step Code Container -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="bg-slate-950 px-5 py-3 border-b border-slate-800/80 flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest code-font">📝 Replace your whole if/elif/else block with this:</span>
+                            <button onclick="copyToClipboard('code-c6')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <pre id="code-c6" class="code-font text-[#34d399] text-xs md:text-sm leading-relaxed"># 3. Determine winner using a "beats" dictionary
+# Each move maps to the move it defeats:
+beats = {
+    "rock": "scissors",
+    "paper": "rock",
+    "scissors": "paper"
+}
+
+if player_choice == computer_choice:
+    print("It's a draw! Play again.")
+elif beats[player_choice] == computer_choice:
+    print("You win!")
+else:
+    print("The computer wins! Better luck next time.")</pre>
+                        </div>
+                    </div>
+
+                    <!-- State of the file helper -->
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">🔎 Double-Check: What your main.py should look like now</h4>
+                        <pre class="code-font text-xs text-slate-300 leading-relaxed bg-[#0b0f19] p-4 rounded-xl overflow-x-auto">import random
+
+print("=== ROCK, PAPER, SCISSORS ===")
+
+# 1. Grab interactive user move first
+player_choice = input("Enter rock, paper, or scissors: ")
+
+# 2. Next, let the computer choose randomly
+game_options = ["rock", "paper", "scissors"]
+computer_choice = random.choice(game_options)
+
+print("\n--- Results ---")
+print("You chose: " + player_choice)
+print("Computer chose: " + computer_choice)
+print("----------------")
+
+# 3. Determine winner using a "beats" dictionary
+beats = {
+    "rock": "scissors",
+    "paper": "rock",
+    "scissors": "paper"
+}
+
+if player_choice == computer_choice:
+    print("It's a draw! Play again.")
+elif beats[player_choice] == computer_choice:
+    print("You win!")
+else:
+    print("The computer wins! Better luck next time.")</pre>
+                    </div>
+
+                    <!-- Play-by-Play Guide Card -->
+                    <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">🎮</span> Play-by-Play Workflow: Test the Refactor
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">1. Delete the Old Block</div>
+                                <p class="text-slate-400">Remove all five of your old <code class="code-font">if/elif</code> lines and paste the new dictionary version in their place.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">2. Save &amp; Run</div>
+                                <p class="text-slate-400">Press <code class="font-mono">Ctrl+S</code> / <code class="font-mono">Cmd+S</code>, then click Play and try a few moves.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">3. Compare</div>
+                                <p class="text-slate-400">The game behaves exactly the same—but the logic is shorter, cleaner, and far easier to extend.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cohesive Bridge -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                            <span>🔍</span> Reading <code class="font-mono">beats[player_choice]</code>
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            <code class="text-indigo-300 font-mono">beats["rock"]</code> looks up "rock" in the dictionary and hands back its value: <code class="text-indigo-300 font-mono">"scissors"</code>. So <code class="text-indigo-300 font-mono">beats[player_choice] == computer_choice</code> is really asking <em>"is the computer holding exactly the move my choice defeats?"</em> One line replaces three.
+                        </p>
+                        <div class="bg-[#1e1b4b]/30 border border-indigo-500/10 p-5 rounded-2xl">
+                            <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2">The Next Missing Link</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                There's still one annoyance: the game plays <strong>once</strong> and quits. To play again you have to re-run the whole program! Next we'll wrap everything in a <code class="text-indigo-300 font-mono">while</code> loop so you can play round after round and keep score.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#1f2937] pt-8 flex justify-between items-center">
+                        <button onclick="switchChapter('chunk5')" class="text-slate-400 hover:text-slate-200 text-sm font-semibold flex items-center gap-2">
+                            ← Back to Losses
+                        </button>
+                        <button onclick="markStepComplete('chunk6')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-600/15 transition flex items-center gap-2">
+                            <span>Loop the Game</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHUNK 7: WHILE LOOP -->
+                <div id="pane-chunk7" class="space-y-8 hidden animate-fade-in">
+                    <div class="space-y-3">
+                        <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full uppercase tracking-wider">Step 7</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">Loop the Game with <code class="text-[#34d399]">while</code></h2>
+                        <p class="text-slate-400 leading-relaxed text-sm md:text-base">
+                            A <code class="text-[#34d399] font-mono">while</code> loop repeats a block of code <strong>as long as a condition stays true</strong>. We'll use it to let the player keep playing rounds until they type <code class="text-[#34d399] font-mono">quit</code>—while quietly tracking the score.
+                        </p>
+                    </div>
+
+                    <!-- The Idea Card -->
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="text-md font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">🔁</span> Three loop keywords you'll meet
+                        </h3>
+                        <ul class="text-xs text-slate-300 space-y-2 pl-1">
+                            <li><code class="text-indigo-300 font-mono">while True:</code> — repeat forever, until we deliberately stop.</li>
+                            <li><code class="text-indigo-300 font-mono">break</code> — jump out of the loop immediately (we use it for "quit").</li>
+                            <li><code class="text-indigo-300 font-mono">continue</code> — skip the rest of this round and start the next one (handy for invalid input).</li>
+                        </ul>
+                    </div>
+
+                    <!-- Step-by-Step Code Container -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="bg-slate-950 px-5 py-3 border-b border-slate-800/80 flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest code-font">📝 Replace main.py with this looping version:</span>
+                            <button onclick="copyToClipboard('code-c7')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <pre id="code-c7" class="code-font text-[#34d399] text-xs md:text-sm leading-relaxed">import random
+
+game_options = ["rock", "paper", "scissors"]
+beats = {"rock": "scissors", "paper": "rock", "scissors": "paper"}
+
+player_score = 0
+computer_score = 0
+
+print("=== ROCK, PAPER, SCISSORS ===")
+print("Type 'quit' at any time to stop.\n")
+
+# Keep playing rounds until the player chooses to quit
+while True:
+    player_choice = input("Enter rock, paper, or scissors: ")
+
+    if player_choice == "quit":
+        break
+
+    if player_choice not in game_options:
+        print("That's not a valid move. Try again!\n")
+        continue
+
+    computer_choice = random.choice(game_options)
+    print("Computer chose: " + computer_choice)
+
+    if player_choice == computer_choice:
+        print("It's a draw!")
+    elif beats[player_choice] == computer_choice:
+        player_score += 1
+        print("You win this round!")
+    else:
+        computer_score += 1
+        print("The computer wins this round!")
+
+    print(f"Score -> You: {player_score} | Computer: {computer_score}\n")
+
+print("\nThanks for playing!")
+print(f"Final score -> You: {player_score} | Computer: {computer_score}")</pre>
+                        </div>
+                    </div>
+
+                    <!-- Play-by-Play Guide Card -->
+                    <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">🎮</span> Play-by-Play Workflow: Play Multiple Rounds
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">1. Replace All</div>
+                                <p class="text-slate-400">This is a full rewrite of <code class="code-font">main.py</code>. Select everything and paste this in.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">2. Save &amp; Run</div>
+                                <p class="text-slate-400">Save, then click Play. The game now waits for your move in the terminal.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">3. Keep Going</div>
+                                <p class="text-slate-400">Play several rounds. Notice the score builds up after each one!</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">4. Quit Cleanly</div>
+                                <p class="text-slate-400">Type <code class="code-font font-bold">quit</code> and press Enter to see your final score.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cohesive Bridge -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                            <span>🔍</span> What the loop changed
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Everything that should repeat is now <strong>indented under</strong> <code class="text-indigo-300 font-mono">while True:</code>. The score variables live <strong>outside</strong> the loop so they survive between rounds, and <code class="text-indigo-300 font-mono">+= 1</code> adds one to a winner's tally. The <code class="text-indigo-300 font-mono">f"..."</code> string lets us drop variables straight into text using curly braces.
+                        </p>
+                        <div class="bg-[#1e1b4b]/30 border border-indigo-500/10 p-5 rounded-2xl">
+                            <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2">The Next Missing Link</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Typing moves into a black terminal works, but it isn't exactly <em>pretty</em>. For the finale, we'll give the game a real window with clickable buttons using Python's built-in <code class="text-indigo-300 font-mono">tkinter</code> toolkit.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#1f2937] pt-8 flex justify-between items-center">
+                        <button onclick="switchChapter('chunk6')" class="text-slate-400 hover:text-slate-200 text-sm font-semibold flex items-center gap-2">
+                            ← Back to Smarter Logic
+                        </button>
+                        <button onclick="markStepComplete('chunk7')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-600/15 transition flex items-center gap-2">
+                            <span>Build a GUI</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHUNK 8: TKINTER GUI -->
+                <div id="pane-chunk8" class="space-y-8 hidden animate-fade-in">
+                    <div class="space-y-3">
+                        <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full uppercase tracking-wider">Step 8</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">Build a GUI with Tkinter</h2>
+                        <p class="text-slate-400 leading-relaxed text-sm md:text-base">
+                            <code class="text-[#34d399] font-mono">tkinter</code> ships with Python—nothing to install. A GUI (Graphical User Interface) swaps typed commands for <strong>windows, labels, and clickable buttons</strong>. We'll learn the building blocks first, then assemble a fully clickable game.
+                        </p>
+                    </div>
+
+                    <!-- Concept Card -->
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3">
+                        <h3 class="text-md font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">🧱</span> The three pieces of every Tkinter app
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">The Window</div>
+                                <p class="text-slate-400"><code class="code-font">tk.Tk()</code> creates the main window that holds everything.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">Widgets</div>
+                                <p class="text-slate-400"><code class="code-font">Label</code> shows text, <code class="code-font">Button</code> is clickable. <code class="code-font">.pack()</code> places them.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">The Loop</div>
+                                <p class="text-slate-400"><code class="code-font">window.mainloop()</code> keeps the window open and listening for clicks.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Example A: First window -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="bg-slate-950 px-5 py-3 border-b border-slate-800/80 flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest code-font">🪟 Example 1 — Your first window</span>
+                            <button onclick="copyToClipboard('code-c8a')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <pre id="code-c8a" class="code-font text-[#34d399] text-xs md:text-sm leading-relaxed">import tkinter as tk
+
+window = tk.Tk()
+window.title("My First Window")
+window.geometry("300x200")   # width x height in pixels
+
+window.mainloop()</pre>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed -mt-4 pl-1">
+                        Run this and a small empty window appears. Close it to end the program. That's a complete GUI app in six lines!
+                    </p>
+
+                    <!-- Example B: Label + Button -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="bg-slate-950 px-5 py-3 border-b border-slate-800/80 flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest code-font">🔘 Example 2 — A label and a button that does something</span>
+                            <button onclick="copyToClipboard('code-c8b')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <pre id="code-c8b" class="code-font text-[#34d399] text-xs md:text-sm leading-relaxed">import tkinter as tk
+
+# A function that runs when the button is clicked
+def say_hello():
+    label.config(text="Hello! You clicked the button.")
+
+window = tk.Tk()
+window.title("Buttons and Labels")
+window.geometry("320x160")
+
+label = tk.Label(window, text="Click the button below")
+label.pack(pady=20)
+
+button = tk.Button(window, text="Click Me", command=say_hello)
+button.pack()
+
+window.mainloop()</pre>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed -mt-4 pl-1">
+                        Notice <code class="code-font text-indigo-300">command=say_hello</code> has <strong>no brackets</strong>. We hand Tkinter the function itself, and Tkinter calls it later, each time the button is clicked. <code class="code-font text-indigo-300">label.config(...)</code> updates the label's text on the fly.
+                    </p>
+
+                    <!-- Example C: Full GUI game -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="bg-slate-950 px-5 py-3 border-b border-slate-800/80 flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-indigo-300 uppercase tracking-widest code-font">🎮 Example 3 — Rock Paper Scissors as a clickable GUI</span>
+                            <button onclick="copyToClipboard('code-c8c')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <pre id="code-c8c" class="code-font text-[#34d399] text-xs md:text-sm leading-relaxed">import tkinter as tk
+import random
+
+options = ["rock", "paper", "scissors"]
+beats = {"rock": "scissors", "paper": "rock", "scissors": "paper"}
+
+# This runs whenever the player clicks one of the three buttons
+def play(player_choice):
+    computer_choice = random.choice(options)
+
+    if player_choice == computer_choice:
+        result = "It's a draw!"
+    elif beats[player_choice] == computer_choice:
+        result = "You win!"
+    else:
+        result = "Computer wins!"
+
+    result_label.config(
+        text=f"You chose: {player_choice}\n"
+             f"Computer chose: {computer_choice}\n\n{result}"
+    )
+
+window = tk.Tk()
+window.title("Rock Paper Scissors")
+window.geometry("340x260")
+
+title = tk.Label(window, text="Rock, Paper, Scissors", font=("Arial", 16, "bold"))
+title.pack(pady=10)
+
+# A frame to hold the three buttons side by side
+button_frame = tk.Frame(window)
+button_frame.pack(pady=10)
+
+rock_btn = tk.Button(button_frame, text="Rock", width=8,
+                     command=lambda: play("rock"))
+paper_btn = tk.Button(button_frame, text="Paper", width=8,
+                      command=lambda: play("paper"))
+scissors_btn = tk.Button(button_frame, text="Scissors", width=8,
+                         command=lambda: play("scissors"))
+
+rock_btn.pack(side="left", padx=4)
+paper_btn.pack(side="left", padx=4)
+scissors_btn.pack(side="left", padx=4)
+
+result_label = tk.Label(window, text="Make your move!", font=("Arial", 12))
+result_label.pack(pady=20)
+
+window.mainloop()</pre>
+                        </div>
+                    </div>
+
+                    <!-- Play-by-Play Guide Card -->
+                    <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">🎮</span> Play-by-Play Workflow: Run the GUI
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">1. New File</div>
+                                <p class="text-slate-400">Save Example 3 as <code class="code-font">game_gui.py</code> so it sits alongside your terminal version.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">2. Run It</div>
+                                <p class="text-slate-400">Click Play. A real window pops up—no terminal typing needed this time.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">3. Click to Play</div>
+                                <p class="text-slate-400">Press a button. The label updates instantly with both moves and the result.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cohesive Bridge -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                            <span>🔍</span> Why <code class="font-mono">lambda</code> here?
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            A button's <code class="text-indigo-300 font-mono">command</code> wants a function with no brackets, but we need to pass <em>which</em> move was picked. <code class="text-indigo-300 font-mono">lambda: play("rock")</code> creates a tiny throwaway function that calls <code class="text-indigo-300 font-mono">play("rock")</code> for us when clicked. Same game logic as before—the dictionary does all the deciding—just wired to buttons instead of <code class="text-indigo-300 font-mono">input()</code>.
+                        </p>
+                        <div class="bg-[#1e1b4b]/30 border border-indigo-500/10 p-5 rounded-2xl">
+                            <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2">Try It Yourself 🚀</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Add a score <code class="text-indigo-300 font-mono">Label</code> that counts wins, give the buttons emoji (✊ ✋ ✌️), or add a "Reset" button. The GUI is yours to extend!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#1f2937] pt-8 flex justify-between items-center">
+                        <button onclick="switchChapter('chunk7')" class="text-slate-400 hover:text-slate-200 text-sm font-semibold flex items-center gap-2">
+                            ← Back to Loops
+                        </button>
+                        <button onclick="markStepComplete('chunk8')" class="bg-[#f5c2e7] hover:bg-[#f5d0f0] text-slate-900 font-bold py-3 px-6 rounded-xl shadow-lg shadow-pink-500/10 transition flex items-center gap-2">
+                            <span>Finish &amp; Review</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- GRADUATION SCREEN -->
+                <div id="pane-graduation" class="space-y-8 hidden animate-fade-in">
+                    <div class="text-center py-4 space-y-3">
+                        <span class="text-5xl block animate-bounce">🏆</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">Your Completed Game</h2>
+                        <p class="text-slate-400 max-w-xl mx-auto text-sm md:text-base leading-relaxed">
+                            Congratulations! You went from an empty file to a polished Rock, Paper, Scissors game—then made it smarter, loopable, and graphical. Here are your two finished versions.
+                        </p>
+                    </div>
+
+                    <!-- Skills Recap -->
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3">
+                        <h3 class="text-md font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">🎓</span> What you learned
+                        </h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-slate-300"><code class="code-font text-emerald-400">print</code> &amp; <code class="code-font text-emerald-400">input</code></div>
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-slate-300">The <code class="code-font text-emerald-400">random</code> module</div>
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-slate-300"><code class="code-font text-emerald-400">if / elif / else</code></div>
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-slate-300">Dictionaries</div>
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-slate-300"><code class="code-font text-emerald-400">while</code> loops</div>
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-slate-300">Tkinter GUIs</div>
+                        </div>
+                    </div>
+
+                    <!-- Final Version 1: Looping terminal game -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="bg-slate-950 px-5 py-3 border-b border-slate-800/80 flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-indigo-300 uppercase tracking-widest code-font">🖥️ Version 1 — Looping terminal game (main.py)</span>
+                            <button onclick="copyToClipboard('code-cg')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <pre id="code-cg" class="code-font text-[#34d399] text-xs md:text-sm leading-relaxed">import random
+
+game_options = ["rock", "paper", "scissors"]
+beats = {"rock": "scissors", "paper": "rock", "scissors": "paper"}
+
+player_score = 0
+computer_score = 0
+
+print("=== ROCK, PAPER, SCISSORS ===")
+print("Type 'quit' at any time to stop.\n")
+
+while True:
+    player_choice = input("Enter rock, paper, or scissors: ")
+
+    if player_choice == "quit":
+        break
+
+    if player_choice not in game_options:
+        print("That's not a valid move. Try again!\n")
+        continue
+
+    computer_choice = random.choice(game_options)
+    print("Computer chose: " + computer_choice)
+
+    if player_choice == computer_choice:
+        print("It's a draw!")
+    elif beats[player_choice] == computer_choice:
+        player_score += 1
+        print("You win this round!")
+    else:
+        computer_score += 1
+        print("The computer wins this round!")
+
+    print(f"Score -> You: {player_score} | Computer: {computer_score}\n")
+
+print("\nThanks for playing!")
+print(f"Final score -> You: {player_score} | Computer: {computer_score}")</pre>
+                        </div>
+                    </div>
+
+                    <!-- Final Version 2: GUI game -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="bg-slate-950 px-5 py-3 border-b border-slate-800/80 flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-indigo-300 uppercase tracking-widest code-font">🪟 Version 2 — Clickable GUI game (game_gui.py)</span>
+                            <button onclick="copyToClipboard('code-cg2')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <pre id="code-cg2" class="code-font text-[#34d399] text-xs md:text-sm leading-relaxed">import tkinter as tk
+import random
+
+options = ["rock", "paper", "scissors"]
+beats = {"rock": "scissors", "paper": "rock", "scissors": "paper"}
+
+def play(player_choice):
+    computer_choice = random.choice(options)
+
+    if player_choice == computer_choice:
+        result = "It's a draw!"
+    elif beats[player_choice] == computer_choice:
+        result = "You win!"
+    else:
+        result = "Computer wins!"
+
+    result_label.config(
+        text=f"You chose: {player_choice}\n"
+             f"Computer chose: {computer_choice}\n\n{result}"
+    )
+
+window = tk.Tk()
+window.title("Rock Paper Scissors")
+window.geometry("340x260")
+
+title = tk.Label(window, text="Rock, Paper, Scissors", font=("Arial", 16, "bold"))
+title.pack(pady=10)
+
+button_frame = tk.Frame(window)
+button_frame.pack(pady=10)
+
+rock_btn = tk.Button(button_frame, text="Rock", width=8,
+                     command=lambda: play("rock"))
+paper_btn = tk.Button(button_frame, text="Paper", width=8,
+                      command=lambda: play("paper"))
+scissors_btn = tk.Button(button_frame, text="Scissors", width=8,
+                         command=lambda: play("scissors"))
+
+rock_btn.pack(side="left", padx=4)
+paper_btn.pack(side="left", padx=4)
+scissors_btn.pack(side="left", padx=4)
+
+result_label = tk.Label(window, text="Make your move!", font=("Arial", 12))
+result_label.pack(pady=20)
+
+window.mainloop()</pre>
+                        </div>
+                    </div>
+
+                    <!-- Final Play-by-Play Guide Card -->
+                    <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">🎉</span> Share Your Game!
+                        </h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Now that your game is working, you can open your terminal and run it whenever you want. You can even show your friends and family how you took an empty text file and turned it into a fully functional game!
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-[#1f2937]">
+                        <button onclick="switchChapter('setup')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-3.5 px-6 rounded-xl font-bold transition text-sm">
+                            ↩️ Review Steps
+                        </button>
+                        <button onclick="resetAllProgress()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-3.5 px-6 rounded-xl font-bold transition text-sm">
+                            🔄 Restart Pathway
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Alert Banner for Copy Actions -->
+    <div id="copy-toast" class="fixed bottom-6 right-6 bg-[#10b981] text-[#052e16] px-5 py-3 rounded-xl border border-[#059669]/30 text-xs font-bold tracking-wide shadow-2xl opacity-0 transform translate-y-3 pointer-events-none transition duration-200 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span>Code copied to your clipboard! Ready to type into VS Code.</span>
+    </div>
+
+    <!-- Main Controller Logic Scripts -->
+    <script>
+        // Progress State tracking
+        let chapterProgress = {
+            setup: false,
+            chunk1: false,
+            chunk2: false,
+            chunk3: false,
+            chunk4: false,
+            chunk5: false,
+            chunk6: false,
+            chunk7: false,
+            chunk8: false,
+            graduation: false
+        };
+
+        const stepsList = ['setup', 'chunk1', 'chunk2', 'chunk3', 'chunk4', 'chunk5', 'chunk6', 'chunk7', 'chunk8', 'graduation'];
+
+        function switchChapter(chapterKey) {
+            // Hide all cards
+            stepsList.forEach(step => {
+                const pane = document.getElementById(`pane-${step}`);
+                if (pane) pane.classList.add('hidden');
+                
+                // Reset styling classes on sidebar navigation buttons
+                const btn = document.getElementById(`nav-${step}`);
+                if (btn) {
+                    btn.className = "w-full text-left p-3.5 rounded-xl border border-transparent hover:bg-slate-800/50 text-slate-400 transition duration-150 flex items-start gap-3";
+                }
+            });
+
+            // Make designated target tab visible
+            const activePane = document.getElementById(`pane-${chapterKey}`);
+            if (activePane) activePane.classList.remove('hidden');
+
+            // Style active sidebar menu selector button
+            const activeBtn = document.getElementById(`nav-${chapterKey}`);
+            if (activeBtn) {
+                activeBtn.className = "w-full text-left p-3.5 rounded-xl border border-indigo-500 bg-indigo-500/5 text-slate-100 transition duration-150 flex items-start gap-3";
+            }
+
+            // The graduation screen is a trophy/review page, not a task with its own
+            // "complete" button. Reaching it finishes the pathway, so mark it done here
+            // (this is what lets the progress meter reach 100%).
+            if (chapterKey === 'graduation' && !chapterProgress.graduation) {
+                chapterProgress.graduation = true;
+                const gradBadge = document.getElementById('badge-graduation');
+                if (gradBadge) {
+                    gradBadge.innerHTML = "👑";
+                    gradBadge.className = "w-6 h-6 rounded-full bg-emerald-500 text-emerald-950 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5";
+                }
+                calculateGlobalProgress();
+            }
+
+            // Auto-scroll layout container to start of instruction panel
+            document.querySelector('main').scrollTop = 0;
+        }
+
+        function markStepComplete(chapterKey) {
+            chapterProgress[chapterKey] = true;
+            
+            // Render beautiful badge checklist elements on corresponding target items
+            const badge = document.getElementById(`badge-${chapterKey}`);
+            if (badge) {
+                badge.innerHTML = "✓";
+                badge.className = "w-6 h-6 rounded-full bg-emerald-500 text-emerald-950 flex items-center justify-center font-extrabold text-xs shrink-0 mt-0.5";
+            }
+
+            calculateGlobalProgress();
+
+            // Auto-advance sequentially inside pathway index loop
+            const index = stepsList.indexOf(chapterKey);
+            if (index !== -1 && index < stepsList.length - 1) {
+                switchChapter(stepsList[index + 1]);
+            }
+        }
+
+        function calculateGlobalProgress() {
+            const completedCount = Object.values(chapterProgress).filter(Boolean).length;
+            const percentage = Math.round((completedCount / stepsList.length) * 100);
+            
+            // Update UI elements values
+            document.getElementById('progress-text').innerText = `${percentage}% Complete`;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+        }
+
+        // Action clipboard commands cleanly using fallback pattern rules
+        function copyToClipboard(elementId) {
+            const range = document.createRange();
+            range.selectNode(document.getElementById(elementId));
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            try {
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                
+                // Display simple toast confirm widget
+                const toast = document.getElementById('copy-toast');
+                toast.classList.remove('opacity-0', 'translate-y-3');
+                toast.classList.add('opacity-100', 'translate-y-0');
+                
+                setTimeout(() => {
+                    toast.classList.remove('opacity-100', 'translate-y-0');
+                    toast.classList.add('opacity-0', 'translate-y-3');
+                }, 3000);
+            } catch (err) {
+                console.error('Failed to copy', err);
+            }
+        }
+
+        function resetAllProgress() {
+            stepsList.forEach(step => {
+                chapterProgress[step] = false;
+                const badge = document.getElementById(`badge-${step}`);
+                if (badge) {
+                    if (step === 'setup') {
+                        badge.innerHTML = "0";
+                    } else if (step === 'graduation') {
+                        badge.innerHTML = "👑";
+                    } else {
+                        badge.innerHTML = step.replace('chunk', '');
+                    }
+                    badge.className = "w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5";
+                }
+            });
+
+            calculateGlobalProgress();
+            switchChapter('setup');
+        }
+    </script>
+</body>
+</html>
