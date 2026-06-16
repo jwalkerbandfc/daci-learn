@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lottery Syndicate Manager</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #app {
+      height: 100%;
+      width: 100%;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    .draw-card {
+      transition: all 0.2s ease;
+    }
+    .draw-card:hover {
+      transform: translateY(-2px);
+    }
+    .interest-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+ </head>
+ <body>
+  <div id="app" class="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"><!-- Main View -->
+   <div id="mainView" class="w-full h-full overflow-auto">
+    <header class="bg-slate-800 border-b border-slate-700 p-6 sticky top-0 z-10">
+     <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div>
+       <h1 id="appTitle" class="text-3xl font-bold text-white mb-1">Lottery Syndicate Manager</h1>
+       <p class="text-slate-400">Track interest and manage draws</p>
+      </div><button id="adminToggle" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="settings" style="width: 20px; height: 20px;"></i> Admin </button>
+     </div>
+    </header>
+    <main class="max-w-7xl mx-auto p-6"><!-- Month/Year Navigation -->
+     <div class="flex justify-between items-center mb-8"><button id="prevMonth" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="chevron-left" style="width: 20px; height: 20px;"></i> Previous </button>
+      <h2 id="monthYear" class="text-2xl font-bold text-white"></h2><button id="nextMonth" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> Next <i data-lucide="chevron-right" style="width: 20px; height: 20px;"></i> </button>
+     </div><!-- Day Headers -->
+     <div class="grid grid-cols-7 gap-2 mb-4">
+      <div class="text-center text-slate-400 font-semibold">
+       Mon
+      </div>
+      <div class="text-center text-slate-400 font-semibold">
+       Tue
+      </div>
+      <div class="text-center text-slate-400 font-semibold">
+       Wed
+      </div>
+      <div class="text-center text-slate-400 font-semibold">
+       Thu
+      </div>
+      <div class="text-center text-slate-400 font-semibold">
+       Fri
+      </div>
+      <div class="text-center text-slate-400 font-semibold">
+       Sat
+      </div>
+      <div class="text-center text-slate-400 font-semibold">
+       Sun
+      </div>
+     </div><!-- Calendar Grid -->
+     <div id="calendarGrid" class="calendar-grid"></div>
+    </main>
+   </div><!-- Admin Modal -->
+   <div id="adminModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-slate-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto border border-slate-700">
+     <div class="p-6 border-b border-slate-700 flex justify-between items-center sticky top-0 bg-slate-800">
+      <h2 class="text-2xl font-bold text-white">Admin Panel</h2><button id="adminClose" class="text-slate-400 hover:text-white"> <i data-lucide="x" style="width: 24px; height: 24px;"></i> </button>
+     </div>
+     <div class="p-6 space-y-6"><!-- Password Section -->
+      <div id="passwordSection"><label class="block text-slate-300 font-semibold mb-2">Enter Admin Password</label> <input id="adminPassword" type="password" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" placeholder="Enter password"> <button id="adminUnlock" class="mt-3 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">Unlock Admin</button>
+       <p id="adminError" class="text-red-400 text-sm mt-2 hidden"></p>
+      </div><!-- Admin Content (Hidden until unlocked) -->
+      <div id="adminContent" class="hidden space-y-6"><!-- Add Draw Section -->
+       <div>
+        <h3 class="text-xl font-bold text-white mb-4">Add a New Draw</h3>
+        <div class="p-4 bg-slate-700 rounded-lg border border-slate-600 mb-6">
+         <div class="space-y-3"><select id="drawTypeSelect" class="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:border-blue-500"> <option value="euromillions">EuroMillions (Friday)</option> <option value="lotto">Lotto (Saturday)</option> </select> <input id="drawDateInput" type="date" class="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:border-blue-500">
+          <p id="dateValidation" class="text-xs text-slate-400"></p><button id="addDrawBtn" class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors">Add Draw</button>
+         </div>
+        </div><!-- Manage Draws Section -->
+        <h3 class="text-xl font-bold text-white mb-4">Manage Draws</h3>
+        <div id="adminDrawsList" class="space-y-4"></div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    let config = {
+      app_title: 'Lottery Syndicate Manager',
+      lotto_label: '£2 Lotto',
+      euromillions_label: '£2.50 EuroMillions'
+    };
+
+    const defaultConfig = { ...config };
+    let currentDate = new Date();
+    let allDraws = [];
+    let adminUnlocked = false;
+    const ADMIN_PASSWORD = 'LotSyndicat32026';
+
+    // Initialize Element SDK
+    window.elementSdk.init({
+      defaultConfig,
+      onConfigChange: async (newConfig) => {
+        config = newConfig;
+        document.getElementById('appTitle').textContent = config.app_title || defaultConfig.app_title;
+        renderCalendar();
+      },
+      mapToCapabilities: () => ({
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      }),
+      mapToEditPanelValues: () => new Map([
+        ['app_title', config.app_title || defaultConfig.app_title],
+        ['lotto_label', config.lotto_label || defaultConfig.lotto_label],
+        ['euromillions_label', config.euromillions_label || defaultConfig.euromillions_label]
+      ])
+    });
+
+    // Initialize Data SDK
+    const dataHandler = {
+      onDataChanged(data) {
+        allDraws = data || [];
+        renderCalendar();
+        if (adminUnlocked) {
+          renderAdminDrawsList();
+        }
+      }
+    };
+
+    async function initData() {
+      const result = await window.dataSdk.init(dataHandler);
+      if (!result.isOk) {
+        console.error('Failed to initialize data SDK');
+      }
+      generateDrawSchedule();
+    }
+
+    // No automatic draw generation - all draws added manually
+
+    // Render calendar
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      
+      document.getElementById('monthYear').textContent = 
+        currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+      const firstDay = new Date(year, month, 1);
+      const startDate = new Date(firstDay);
+      startDate.setDate(startDate.getDate() - firstDay.getDay() + 1);
+
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+
+      for (let i = 0; i < 42; i++) {
+        const date = new Date(startDate);
+        date.setDate(date.getDate() + i);
+
+        const dayCell = document.createElement('div');
+        
+        if (date.getMonth() !== month) {
+          dayCell.className = 'bg-slate-900 rounded-lg p-4 text-slate-600';
+          dayCell.innerHTML = `<div class="text-sm font-semibold">${date.getDate()}</div>`;
+        } else {
+          const dateStr = date.toISOString().split('T')[0];
+          const drawOnDay = allDraws.find(d => d.draw_date === dateStr);
+
+          dayCell.className = 'bg-slate-700 rounded-lg p-4 min-h-[140px] flex flex-col';
+          
+          let content = `<div class="text-sm font-semibold text-white mb-2">${date.getDate()}</div>`;
+
+          if (drawOnDay) {
+            const label = drawOnDay.draw_type === 'euromillions' 
+              ? config.euromillions_label || defaultConfig.euromillions_label
+              : config.lotto_label || defaultConfig.lotto_label;
+            
+            const participants = JSON.parse(drawOnDay.participants || '[]');
+            const isCompleted = drawOnDay.status === 'completed';
+            const bgColor = drawOnDay.draw_type === 'euromillions' ? 'bg-purple-600' : 'bg-blue-600';
+            const completedColor = isCompleted ? 'bg-green-600' : '';
+
+            content += `
+              <div class="flex-1 flex flex-col">
+                <div class="text-xs font-semibold text-slate-200 mb-1">${label}</div>
+                <div class="flex gap-1 mb-1 flex-wrap">
+                  <span class="interest-badge ${completedColor || bgColor} text-white">
+                    ${participants.length} interested
+                  </span>
+                </div>
+                <button class="mt-auto text-xs px-2 py-1 bg-slate-600 hover:bg-slate-500 text-white rounded transition-colors draw-interest-btn" data-draw-id="${drawOnDay.draw_id}">
+                  Register Interest
+                </button>
+              </div>
+            `;
+          }
+
+          dayCell.innerHTML = content;
+        }
+
+        grid.appendChild(dayCell);
+      }
+
+      document.querySelectorAll('.draw-interest-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const drawId = e.currentTarget.dataset.drawId;
+          showInterestModal(drawId);
+        });
+      });
+
+      lucide.createIcons();
+    }
+
+    function showInterestModal(drawId) {
+      const draw = allDraws.find(d => d.draw_id === drawId);
+      if (!draw) return;
+
+      const participants = JSON.parse(draw.participants || '[]');
+      const isCompleted = draw.status === 'completed';
+
+      if (isCompleted) {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4';
+        modal.innerHTML = `
+          <div class="bg-slate-800 rounded-lg max-w-md w-full border border-slate-700 p-6">
+            <p class="text-slate-300 mb-4">This draw has already been completed.</p>
+            <button class="w-full px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition-colors" onclick="this.closest('.fixed').remove()">Close</button>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        return;
+      }
+
+      const label = draw.draw_type === 'euromillions' 
+        ? config.euromillions_label || defaultConfig.euromillions_label
+        : config.lotto_label || defaultConfig.lotto_label;
+
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4';
+      modal.innerHTML = `
+        <div class="bg-slate-800 rounded-lg max-w-md w-full border border-slate-700 p-6 max-h-[90vh] overflow-auto">
+          <h3 class="text-xl font-bold text-white mb-1">Register Interest</h3>
+          <p class="text-sm text-slate-400 mb-4">${label}</p>
+          
+          <div class="mb-4">
+            <label class="block text-slate-300 font-semibold mb-2">Your name:</label>
+            <input id="participantName" type="text" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" placeholder="Enter your name">
+          </div>
+
+          <div class="mb-6">
+            <label class="block text-slate-300 font-semibold mb-2">Number of tickets:</label>
+            <select id="ticketCount" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500">
+              <option value="1">1 ticket</option>
+              <option value="2">2 tickets</option>
+            </select>
+          </div>
+
+          <div class="mb-6 p-4 bg-slate-700 rounded-lg border border-slate-600">
+            <p class="text-xs text-slate-400 font-semibold mb-2">PAYMENT INSTRUCTIONS:</p>
+            <ul class="text-xs text-slate-300 space-y-2">
+              <li>• Contact <span class="font-semibold">Jason Walker</span> on Teams</li>
+              <li>• Or send Friends & Family payment to PayPal: <span class="font-semibold">@JasonWalker481</span></li>
+              <li>• Or email: <span class="font-semibold">Jason Walker</span></li>
+            </ul>
+          </div>
+
+          <div class="flex gap-3">
+            <button class="flex-1 px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition-colors" onclick="this.closest('.fixed').remove()">Cancel</button>
+            <button class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors register-interest-confirm" data-draw-id="${drawId}">Confirm</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+
+      modal.querySelector('.register-interest-confirm').addEventListener('click', async (e) => {
+        const name = modal.querySelector('#participantName').value.trim();
+        const tickets = modal.querySelector('#ticketCount').value;
+        
+        if (!name) {
+          const errorMsg = document.createElement('p');
+          errorMsg.className = 'text-red-400 text-sm mt-2';
+          errorMsg.textContent = 'Please enter your name';
+          modal.querySelector('.register-interest-confirm').parentElement.appendChild(errorMsg);
+          return;
+        }
+
+        const entry = `${name} (${tickets}T)`;
+        if (!participants.includes(entry)) {
+          participants.push(entry);
+        }
+
+        const updatedDraw = { ...draw, participants: JSON.stringify(participants) };
+        const result = await window.dataSdk.update(updatedDraw);
+        
+        if (result.isOk) {
+          modal.remove();
+        }
+      });
+    }
+
+    // Admin Panel
+    document.getElementById('adminToggle').addEventListener('click', () => {
+      document.getElementById('adminModal').classList.remove('hidden');
+      document.getElementById('adminPassword').focus();
+    });
+
+    document.getElementById('adminClose').addEventListener('click', () => {
+      document.getElementById('adminModal').classList.add('hidden');
+      adminUnlocked = false;
+      document.getElementById('adminContent').classList.add('hidden');
+      document.getElementById('passwordSection').classList.remove('hidden');
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('adminError').classList.add('hidden');
+    });
+
+    document.getElementById('adminUnlock').addEventListener('click', () => {
+      const password = document.getElementById('adminPassword').value;
+      const errorDiv = document.getElementById('adminError');
+
+      if (password === ADMIN_PASSWORD) {
+        adminUnlocked = true;
+        document.getElementById('adminContent').classList.remove('hidden');
+        document.getElementById('passwordSection').classList.add('hidden');
+        errorDiv.classList.add('hidden');
+        renderAdminDrawsList();
+        setupAddDrawListener();
+      } else {
+        errorDiv.textContent = 'Incorrect password';
+        errorDiv.classList.remove('hidden');
+      }
+    });
+
+    function renderAdminDrawsList() {
+      const container = document.getElementById('adminDrawsList');
+      container.innerHTML = '';
+
+      const now = new Date();
+      const recentDraws = allDraws
+        .filter(d => {
+          const drawDate = new Date(d.draw_date);
+          const daysAgo = Math.floor((now - drawDate) / (1000 * 60 * 60 * 24));
+          return daysAgo >= -7 && daysAgo <= 30;
+        })
+        .sort((a, b) => new Date(b.draw_date) - new Date(a.draw_date));
+
+      recentDraws.forEach(draw => {
+        const drawDate = new Date(draw.draw_date);
+        const dayOfWeek = drawDate.getDay();
+        
+        // Skip misaligned draws
+        if ((draw.draw_type === 'euromillions' && dayOfWeek !== 5) || 
+            (draw.draw_type === 'lotto' && dayOfWeek !== 6)) {
+          return;
+        }
+        
+        const label = draw.draw_type === 'euromillions' 
+          ? config.euromillions_label || defaultConfig.euromillions_label
+          : config.lotto_label || defaultConfig.lotto_label;
+        
+        const dateStr = drawDate.toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+        const participants = JSON.parse(draw.participants || '[]');
+        const maxNumbers = draw.draw_type === 'euromillions' ? 5 : 6;
+
+        let numberInputs = '';
+        for (let i = 1; i <= maxNumbers; i++) {
+          const drawnArray = draw.drawn_numbers ? draw.drawn_numbers.split(',').map(n => n.trim()) : [];
+          const currentValue = drawnArray[i - 1] || '';
+          const min = 1;
+          const max = draw.draw_type === 'euromillions' ? 50 : 59;
+          
+          numberInputs += `
+            <div class="flex gap-2">
+              <select class="flex-1 px-2 py-2 bg-slate-600 border border-slate-500 rounded text-white text-sm focus:outline-none focus:border-blue-500 number-dropdown" data-draw-id="${draw.draw_id}" data-index="${i - 1}">
+                <option value="">Select</option>
+                ${Array.from({length: max - min + 1}, (_, i) => min + i).map(n => `<option value="${n}" ${currentValue === String(n) ? 'selected' : ''}>${n}</option>`).join('')}
+              </select>
+              <input type="number" class="w-16 px-2 py-2 bg-slate-600 border border-slate-500 rounded text-white text-sm focus:outline-none focus:border-blue-500 number-input" data-draw-id="${draw.draw_id}" data-index="${i - 1}" min="${min}" max="${max}" value="${currentValue}" placeholder="Type">
+            </div>
+          `;
+        }
+
+        container.innerHTML += `
+          <div class="bg-slate-700 rounded-lg p-4 border border-slate-600">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <h4 class="font-bold text-white">${label}</h4>
+                <p class="text-sm text-slate-400">${dateStr}</p>
+              </div>
+              <div class="flex gap-2">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold ${draw.status === 'completed' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}">
+                  ${draw.status === 'completed' ? 'Completed' : 'Upcoming'}
+                </span>
+                <button class="px-3 py-1 rounded-full text-xs font-semibold bg-red-600 hover:bg-red-700 text-white transition-colors delete-draw-btn" data-draw-id="${draw.draw_id}">
+                  Delete
+                </button>
+              </div>
+            </div>
+
+            <div class="mb-4 p-3 bg-slate-600 rounded">
+              <p class="text-xs text-slate-400 font-semibold mb-2">Registered Interest (${participants.length}):</p>
+              <div class="flex flex-wrap gap-2">
+                ${participants.length > 0 
+                  ? participants.map(p => `<span class="px-2 py-1 bg-blue-600 text-white text-xs rounded">${p}</span>`).join('')
+                  : '<p class="text-xs text-slate-400">No registrations yet</p>'
+                }
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs text-slate-400 font-semibold mb-2">${draw.draw_type === 'euromillions' ? 'Main Numbers (1-50)' : 'Winning Numbers (1-59)'}</label>
+                <div class="grid grid-cols-2 gap-2">
+                  ${numberInputs}
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-400 font-semibold mb-1">Results/Notes</label>
+                <textarea class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded text-white text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500 results-input" rows="2" data-draw-id="${draw.draw_id}" placeholder="Winners, matched numbers, etc.">${draw.results || ''}</textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-400 font-semibold mb-2">Withdrawals (before 5pm on draw day):</label>
+                <input type="text" class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded text-white text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500 withdrawal-input" data-draw-id="${draw.draw_id}" placeholder="Names (comma separated)" value="${draw.withdrawals || ''}">
+                <p class="text-xs text-slate-500 mt-1">📌 Must be confirmed via Teams before 5pm. Changes after are final.</p>
+              </div>
+
+              <button class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-semibold text-sm transition-colors save-draw-btn" data-draw-id="${draw.draw_id}">
+                Mark as Completed & Save
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      // Number input sync
+      document.querySelectorAll('.number-dropdown').forEach(select => {
+        select.addEventListener('change', (e) => {
+          const index = e.currentTarget.dataset.index;
+          const drawId = e.currentTarget.dataset.drawId;
+          const input = document.querySelector(`.number-input[data-draw-id="${drawId}"][data-index="${index}"]`);
+          if (input) input.value = e.currentTarget.value;
+        });
+      });
+
+      document.querySelectorAll('.number-input').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const index = e.currentTarget.dataset.index;
+          const drawId = e.currentTarget.dataset.drawId;
+          const select = document.querySelector(`.number-dropdown[data-draw-id="${drawId}"][data-index="${index}"]`);
+          if (select) select.value = e.currentTarget.value;
+        });
+      });
+
+      // Save listeners
+      document.querySelectorAll('.save-draw-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const drawId = e.currentTarget.dataset.drawId;
+          const draw = allDraws.find(d => d.draw_id === drawId);
+          
+          const numbers = [];
+          const maxNumbers = draw.draw_type === 'euromillions' ? 5 : 6;
+          for (let i = 0; i < maxNumbers; i++) {
+            const input = document.querySelector(`.number-input[data-draw-id="${drawId}"][data-index="${i}"]`);
+            if (input && input.value) {
+              numbers.push(input.value);
+            }
+          }
+          
+          const drawnNumbers = numbers.join(', ');
+          const results = document.querySelector(`.results-input[data-draw-id="${drawId}"]`).value;
+          const withdrawals = document.querySelector(`.withdrawal-input[data-draw-id="${drawId}"]`).value;
+
+          const updatedDraw = {
+            ...draw,
+            drawn_numbers: drawnNumbers,
+            results: results,
+            withdrawals: withdrawals,
+            status: 'completed'
+          };
+
+          const result = await window.dataSdk.update(updatedDraw);
+          if (result.isOk) {
+            renderAdminDrawsList();
+          }
+        });
+      });
+
+      // Delete listeners
+      document.querySelectorAll('.delete-draw-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const drawId = e.currentTarget.dataset.drawId;
+          const draw = allDraws.find(d => d.draw_id === drawId);
+          
+          const confirmModal = document.createElement('div');
+          confirmModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+          confirmModal.innerHTML = `
+            <div class="bg-slate-800 rounded-lg max-w-sm w-full border border-slate-700 p-6">
+              <h3 class="text-xl font-bold text-white mb-2">Delete Draw?</h3>
+              <p class="text-slate-300 mb-6">This cannot be undone. Are you sure?</p>
+              <div class="flex gap-3">
+                <button class="flex-1 px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition-colors" onclick="this.closest('.fixed').remove()">Cancel</button>
+                <button class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors confirm-delete-btn" data-draw-id="${drawId}">Delete</button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(confirmModal);
+
+          confirmModal.querySelector('.confirm-delete-btn').addEventListener('click', async () => {
+            const result = await window.dataSdk.delete(draw);
+            if (result.isOk) {
+              confirmModal.remove();
+              renderAdminDrawsList();
+            }
+          });
+        });
+      });
+
+      lucide.createIcons();
+    }
+
+    function setupAddDrawListener() {
+      const drawTypeSelect = document.getElementById('drawTypeSelect');
+      const drawDateInput = document.getElementById('drawDateInput');
+      const addDrawBtn = document.getElementById('addDrawBtn');
+      const dateValidation = document.getElementById('dateValidation');
+
+      drawDateInput.addEventListener('change', () => {
+        if (!drawDateInput.value) {
+          dateValidation.textContent = '';
+          return;
+        }
+
+        const selectedDate = new Date(drawDateInput.value);
+        const dayOfWeek = selectedDate.getDay();
+        const drawType = drawTypeSelect.value;
+        const isCorrectDay = (drawType === 'euromillions' && dayOfWeek === 5) || (drawType === 'lotto' && dayOfWeek === 6);
+
+        if (!isCorrectDay) {
+          const expectedDay = drawType === 'euromillions' ? 'Friday' : 'Saturday';
+          dateValidation.textContent = `⚠️ ${drawType} must be on a ${expectedDay}`;
+          dateValidation.style.color = '#f87171';
+        } else {
+          dateValidation.textContent = '✓ Date is valid';
+          dateValidation.style.color = '#86efac';
+        }
+      });
+
+      drawTypeSelect.addEventListener('change', () => {
+        if (drawDateInput.value) {
+          drawDateInput.dispatchEvent(new Event('change'));
+        }
+      });
+
+      addDrawBtn.addEventListener('click', async () => {
+        if (!drawDateInput.value) {
+          dateValidation.textContent = 'Please select a date';
+          dateValidation.style.color = '#f87171';
+          return;
+        }
+
+        const selectedDate = new Date(drawDateInput.value);
+        const dayOfWeek = selectedDate.getDay();
+        const drawType = drawTypeSelect.value;
+        const isCorrectDay = (drawType === 'euromillions' && dayOfWeek === 5) || (drawType === 'lotto' && dayOfWeek === 6);
+
+        if (!isCorrectDay) {
+          dateValidation.textContent = `${drawType} can only be on ${drawType === 'euromillions' ? 'Friday' : 'Saturday'}`;
+          dateValidation.style.color = '#f87171';
+          return;
+        }
+
+        const dateStr = selectedDate.toISOString().split('T')[0];
+        if (allDraws.some(d => d.draw_date === dateStr && d.draw_type === drawType)) {
+          dateValidation.textContent = 'This draw already exists';
+          dateValidation.style.color = '#f87171';
+          return;
+        }
+
+        const newDraw = {
+          draw_id: `${drawType}-${dateStr}`,
+          draw_type: drawType,
+          draw_date: dateStr,
+          price: drawType === 'euromillions' ? 2.50 : 2,
+          participants: JSON.stringify([]),
+          drawn_numbers: '',
+          results: '',
+          status: 'upcoming',
+          withdrawals: ''
+        };
+
+        const result = await window.dataSdk.create(newDraw);
+        if (result.isOk) {
+          drawDateInput.value = '';
+          dateValidation.textContent = '✓ Draw added!';
+          dateValidation.style.color = '#86efac';
+          renderAdminDrawsList();
+        }
+      });
+    }
+
+    // Month navigation
+    document.getElementById('prevMonth').addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar();
+    });
+
+    document.getElementById('nextMonth').addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar();
+    });
+
+    // Initialize
+    initData();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0c2a314056c4140',t:'MTc4MTUzNzY0Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
