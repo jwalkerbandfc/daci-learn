@@ -38,9 +38,9 @@
       font-weight: 600;
     }
   </style>
-  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
   <style>body { box-sizing: border-box; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
  </head>
  <body>
   <div id="app" class="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -51,12 +51,14 @@
        <h1 id="appTitle" class="text-3xl font-bold text-white mb-1">Lottery Syndicate Manager</h1>
        <p class="text-slate-400">Track interest and manage draws</p>
       </div>
-      <div class="flex gap-2"><button id="helpToggle" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="help-circle" style="width: 20px; height: 20px;"></i> Help </button> <button id="adminToggle" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="settings" style="width: 20px; height: 20px;"></i> Admin </button>
+      <div class="flex gap-2">
+       <button id="helpToggle" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="help-circle" style="width: 20px; height: 20px;"></i> Help </button> <button id="adminToggle" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="settings" style="width: 20px; height: 20px;"></i> Admin </button>
       </div>
      </div>
     </header>
     <main class="max-w-7xl mx-auto p-6">
-     <div class="flex justify-between items-center mb-8"><button id="prevMonth" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="chevron-left" style="width: 20px; height: 20px;"></i> Previous </button>
+     <div class="flex justify-between items-center mb-8">
+      <button id="prevMonth" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="chevron-left" style="width: 20px; height: 20px;"></i> Previous </button>
       <h2 id="monthYear" class="text-2xl font-bold text-white"></h2><button id="nextMonth" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> Next <i data-lucide="chevron-right" style="width: 20px; height: 20px;"></i> </button>
      </div>
      <div class="grid grid-cols-7 gap-2 mb-4">
@@ -119,13 +121,15 @@
       <h2 class="text-2xl font-bold text-white">Admin Panel</h2><button id="adminClose" class="text-slate-400 hover:text-white"> <i data-lucide="x" style="width: 24px; height: 24px;"></i> </button>
      </div>
      <div class="p-6 space-y-6">
-      <div id="passwordSection"><label class="block text-slate-300 font-semibold mb-2">Enter Admin Password</label> <input id="adminPassword" type="password" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" placeholder="Enter password"> <button id="adminUnlock" class="mt-3 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">Unlock Admin</button>
+      <div id="passwordSection">
+       <label class="block text-slate-300 font-semibold mb-2">Enter Admin Password</label> <input id="adminPassword" type="password" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" placeholder="Enter password"> <button id="adminUnlock" class="mt-3 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">Unlock Admin</button>
        <p id="adminError" class="text-red-400 text-sm mt-2 hidden"></p>
       </div>
       <div id="adminContent" class="hidden space-y-6">
        <div>
         <h3 class="text-xl font-bold text-white mb-4">Add a New Draw</h3>
-        <div class="p-4 bg-slate-700 rounded-lg border border-slate-600 mb-6 space-y-3"><select id="drawTypeSelect" class="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:border-blue-500"> <option value="euromillions">EuroMillions (Friday)</option> <option value="lotto">Lotto (Saturday)</option> </select> <input id="drawDateInput" type="date" class="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:border-blue-500">
+        <div class="p-4 bg-slate-700 rounded-lg border border-slate-600 mb-6 space-y-3">
+         <select id="drawTypeSelect" class="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:border-blue-500"> <option value="euromillions">EuroMillions (Friday)</option> <option value="lotto">Lotto (Saturday)</option> </select> <input id="drawDateInput" type="date" class="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:border-blue-500">
          <p id="dateValidation" class="text-xs text-slate-400"></p><button id="addDrawBtn" class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors">Add Draw</button>
         </div>
         <h3 class="text-xl font-bold text-white mb-4">Manage Draws</h3>
@@ -148,27 +152,6 @@
     let allDraws = [];
     let adminUnlocked = false;
     const ADMIN_PASSWORD = 'LotSyndicat32026';
-
-    // Initialize Element SDK
-    window.elementSdk.init({
-      defaultConfig,
-      onConfigChange: async (newConfig) => {
-        config = newConfig;
-        document.getElementById('appTitle').textContent = config.app_title || defaultConfig.app_title;
-        renderCalendar();
-      },
-      mapToCapabilities: () => ({
-        recolorables: [],
-        borderables: [],
-        fontEditable: undefined,
-        fontSizeable: undefined
-      }),
-      mapToEditPanelValues: () => new Map([
-        ['app_title', config.app_title || defaultConfig.app_title],
-        ['lotto_label', config.lotto_label || defaultConfig.lotto_label],
-        ['euromillions_label', config.euromillions_label || defaultConfig.euromillions_label]
-      ])
-    });
 
     // Load from draws.json or localStorage
     async function loadDraws() {
@@ -628,5 +611,5 @@
     // Initialize
     loadDraws();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0cab961648d857a',t:'MTc4MTYyMjQ0Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0cac2cce04e857a',t:'MTc4MTYyMjgzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
