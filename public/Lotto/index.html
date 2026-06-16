@@ -51,14 +51,12 @@
        <h1 id="appTitle" class="text-3xl font-bold text-white mb-1">Lottery Syndicate Manager</h1>
        <p class="text-slate-400">Track interest and manage draws</p>
       </div>
-      <div class="flex gap-2">
-       <button id="helpToggle" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="help-circle" style="width: 20px; height: 20px;"></i> Help </button> <button id="adminToggle" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="settings" style="width: 20px; height: 20px;"></i> Admin </button>
+      <div class="flex gap-2"><button id="helpToggle" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="help-circle" style="width: 20px; height: 20px;"></i> Help </button> <button id="adminToggle" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="settings" style="width: 20px; height: 20px;"></i> Admin </button>
       </div>
      </div>
     </header>
     <main class="max-w-7xl mx-auto p-6">
-     <div class="flex justify-between items-center mb-8">
-      <button id="prevMonth" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="chevron-left" style="width: 20px; height: 20px;"></i> Previous </button>
+     <div class="flex justify-between items-center mb-8"><button id="prevMonth" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> <i data-lucide="chevron-left" style="width: 20px; height: 20px;"></i> Previous </button>
       <h2 id="monthYear" class="text-2xl font-bold text-white"></h2><button id="nextMonth" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"> Next <i data-lucide="chevron-right" style="width: 20px; height: 20px;"></i> </button>
      </div>
      <div class="grid grid-cols-7 gap-2 mb-4">
@@ -121,15 +119,13 @@
       <h2 class="text-2xl font-bold text-white">Admin Panel</h2><button id="adminClose" class="text-slate-400 hover:text-white"> <i data-lucide="x" style="width: 24px; height: 24px;"></i> </button>
      </div>
      <div class="p-6 space-y-6">
-      <div id="passwordSection">
-       <label class="block text-slate-300 font-semibold mb-2">Enter Admin Password</label> <input id="adminPassword" type="password" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" placeholder="Enter password"> <button id="adminUnlock" class="mt-3 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">Unlock Admin</button>
+      <div id="passwordSection"><label class="block text-slate-300 font-semibold mb-2">Enter Admin Password</label> <input id="adminPassword" type="password" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" placeholder="Enter password"> <button id="adminUnlock" class="mt-3 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">Unlock Admin</button>
        <p id="adminError" class="text-red-400 text-sm mt-2 hidden"></p>
       </div>
       <div id="adminContent" class="hidden space-y-6">
        <div>
         <h3 class="text-xl font-bold text-white mb-4">Add a New Draw</h3>
-        <div class="p-4 bg-slate-700 rounded-lg border border-slate-600 mb-6 space-y-3">
-         <select id="drawTypeSelect" class="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:border-blue-500"> <option value="euromillions">EuroMillions (Friday)</option> <option value="lotto">Lotto (Saturday)</option> </select> <input id="drawDateInput" type="date" class="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:border-blue-500">
+        <div class="p-4 bg-slate-700 rounded-lg border border-slate-600 mb-6 space-y-3"><select id="drawTypeSelect" class="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:border-blue-500"> <option value="euromillions">EuroMillions (Friday)</option> <option value="lotto">Lotto (Saturday)</option> </select> <input id="drawDateInput" type="date" class="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:border-blue-500">
          <p id="dateValidation" class="text-xs text-slate-400"></p><button id="addDrawBtn" class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors">Add Draw</button>
         </div>
         <h3 class="text-xl font-bold text-white mb-4">Manage Draws</h3>
@@ -151,10 +147,22 @@
     let currentDate = new Date();
     let allDraws = [];
     let adminUnlocked = false;
-    const ADMIN_PASSWORD = 'LotSyndicat32026';
+    let ADMIN_PASSWORD = 'LotSyndicat32026';
 
     // Load from draws.json or localStorage
     async function loadDraws() {
+      try {
+        const response = await fetch('./config.json');
+        if (response.ok) {
+          const configData = await response.json();
+          if (configData.admin_password) {
+            ADMIN_PASSWORD = configData.admin_password;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading config.json:', error);
+      }
+
       try {
         const response = await fetch('./draws.json');
         if (response.ok) {
@@ -163,6 +171,7 @@
       } catch (error) {
         console.error('Error loading draws.json:', error);
       }
+      
       const localDraws = localStorage.getItem('lottery_draws');
       if (localDraws) {
         try {
@@ -383,11 +392,6 @@
 
       const now = new Date();
       const recentDraws = allDraws
-        .filter(d => {
-          const drawDate = new Date(d.draw_date);
-          const daysAgo = Math.floor((now - drawDate) / (1000 * 60 * 60 * 24));
-          return daysAgo >= -7 && daysAgo <= 30;
-        })
         .sort((a, b) => new Date(b.draw_date) - new Date(a.draw_date));
 
       recentDraws.forEach(draw => {
@@ -611,5 +615,5 @@
     // Initialize
     loadDraws();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0cac2cce04e857a',t:'MTc4MTYyMjgzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0cb3e53b4a8d315',t:'MTc4MTYyNzg5MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
