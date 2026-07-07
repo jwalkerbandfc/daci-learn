@@ -20,8 +20,8 @@
 
 // EDIT THESE THREE VALUES to point at your public GitHub repo.
 const GITHUB = {
-    owner: 'YOUR_GITHUB_USERNAME',
-    repo: 'flutter-masterclass',
+    owner: 'jwalkerbandfc',
+    repo: 'https://github.com/jwalkerbandfc/daci-learn/tree/dfd38334c3944202d81b3abe0da1c10ed99d7278/public/flutter-masterclass',
     branch: 'main',
 };
 
