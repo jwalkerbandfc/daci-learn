@@ -1,0 +1,506 @@
+/* ==========================================================================
+   Flutter Masterclass — styles
+   Design language: Poppins UI + JetBrains Mono code, Dart-blue palette,
+   sequenced "flight path" sidebar with lock / check states.
+   ========================================================================== */
+
+:root {
+    --primary: #0175c2;        /* Dart blue */
+    --primary-dark: #02569b;   /* Flutter navy */
+    --accent: #13b9fd;         /* Flutter sky */
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --bg: #f1f5f9;
+    --surface: #ffffff;
+    --sidebar-bg: #0b1c2c;
+    --sidebar-item: #9fb3c8;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border: #e2e8f0;
+    --code-bg: #0b1c2c;
+    --code-text: #dbeafe;
+    --radius: 12px;
+    --shadow: 0 4px 16px rgba(2, 86, 155, 0.10);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body { height: 100%; }
+
+body {
+    font-family: 'Poppins', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+}
+
+.container { display: flex; flex-direction: column; height: 100vh; }
+
+/* --- Header ------------------------------------------------------------ */
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(120deg, var(--primary-dark), var(--primary) 60%, var(--accent));
+    color: #fff;
+}
+
+.header h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: 0.2px; }
+.header p  { font-size: 0.85rem; opacity: 0.9; }
+
+.github-repo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+.github-repo:hover { background: rgba(255, 255, 255, 0.25); }
+.github-repo svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* --- Layout ------------------------------------------------------------- */
+
+.main-content { display: flex; flex: 1; min-height: 0; }
+
+/* --- Sidebar: the sequenced flight path --------------------------------- */
+
+.sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-item);
+    padding: 1.25rem 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #e2e8f0;
+    margin-bottom: 1rem;
+}
+
+.progress-section { margin-bottom: 1.25rem; }
+.progress-label { font-size: 0.75rem; font-weight: 600; color: #e2e8f0; margin-bottom: 0.4rem; }
+.progress-bar {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+}
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), var(--primary));
+    transition: width 0.4s ease;
+}
+.progress-text { font-size: 0.72rem; margin-top: 0.35rem; }
+
+.lesson-list { list-style: none; flex: 1; }
+
+.lesson-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.6rem 0.6rem 0.4rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
+}
+.lesson-item:hover:not(.locked) { background: rgba(255, 255, 255, 0.07); color: #fff; }
+.lesson-item.active { background: rgba(19, 185, 253, 0.16); color: #fff; font-weight: 600; }
+
+/* step marker + connector line = the sequence made visible */
+.step-marker {
+    position: relative;
+    z-index: 1;
+    width: 24px; height: 24px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 2px solid var(--sidebar-item);
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--sidebar-bg);
+}
+.lesson-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: calc(0.4rem + 11px);
+    top: calc(50% + 12px);
+    bottom: -50%;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.14);
+}
+.lesson-item.completed .step-marker {
+    border-color: var(--success);
+    background: var(--success);
+    color: #fff;
+}
+.lesson-item.active .step-marker { border-color: var(--accent); color: var(--accent); }
+.lesson-item.completed.active .step-marker { color: #fff; }
+.lesson-item.locked { color: #55708a; cursor: not-allowed; }
+.lesson-item.locked .step-marker { border-color: #3a5068; color: #55708a; }
+
+.reset-progress {
+    margin-top: 1rem;
+    padding: 0.45rem;
+    border: 1px dashed rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    background: none;
+    color: var(--sidebar-item);
+    font-family: inherit;
+    font-size: 0.72rem;
+    cursor: pointer;
+}
+.reset-progress:hover { color: #fff; border-color: #fff; }
+
+/* --- Editor section ------------------------------------------------------ */
+
+.editor-section { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+.editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.editor-tabs { display: flex; gap: 0.4rem; }
+.editor-tab {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.editor-tab.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.editor-content {
+    flex: 1;
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 1.25rem 1.25rem;
+    min-height: 0;
+}
+
+.content-pane {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+/* --- Loading / error states ---------------------------------------------- */
+
+.loading-state, .error-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+.error-state { align-items: stretch; text-align: left; justify-content: flex-start; overflow-y: auto; }
+.error-state h2 { color: var(--danger); font-size: 1.1rem; }
+.setup-help {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    font-size: 0.85rem;
+}
+.setup-help ol { margin: 0.5rem 0 0 1.2rem; display: grid; gap: 0.5rem; }
+.setup-help code {
+    background: #e2e8f0;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+}
+
+.spinner {
+    width: 36px; height: 36px;
+    border: 4px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+    .spinner { animation-duration: 2.5s; }
+    .progress-fill { transition: none; }
+}
+
+/* --- Lesson pane (rendered markdown) -------------------------------------- */
+
+.lesson-pane { flex: 1; overflow-y: auto; padding: 1.5rem 1.75rem; }
+
+.lesson-pane h1 { font-size: 1.4rem; margin-bottom: 0.75rem; color: var(--primary-dark); }
+.lesson-pane h2 { font-size: 1.1rem; margin: 1.5rem 0 0.6rem; color: var(--primary-dark); }
+.lesson-pane h3 { font-size: 0.98rem; margin: 1.25rem 0 0.5rem; }
+.lesson-pane p, .lesson-pane li { font-size: 0.9rem; line-height: 1.65; color: var(--text-secondary); }
+.lesson-pane p { margin-bottom: 0.8rem; }
+.lesson-pane ul, .lesson-pane ol { margin: 0 0 0.9rem 1.4rem; }
+.lesson-pane li { margin-bottom: 0.3rem; }
+.lesson-pane strong { color: var(--text-primary); }
+.lesson-pane a { color: var(--primary); font-weight: 600; text-decoration: none; }
+.lesson-pane a:hover { text-decoration: underline; }
+
+.lesson-pane code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    background: #eef2f7;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+}
+
+.lesson-pane pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 10px;
+    padding: 1rem 1.15rem;
+    overflow-x: auto;
+    margin: 0.4rem 0 1rem;
+}
+.lesson-pane pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: 0.8rem;
+    line-height: 1.6;
+}
+
+/* Tip / warning boxes generated from > 💡 / > ⚠️ blockquotes */
+.tip-box, .warning-box {
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+.tip-box { background: #ecfeff; border: 1px solid #67e8f9; color: #155e75; }
+.warning-box { background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; }
+.tip-box p, .warning-box p { margin: 0; color: inherit; }
+.tip-box code, .warning-box code { background: rgba(0,0,0,0.08); }
+
+/* Challenge card */
+.code-challenge {
+    margin: 1.5rem 0 0.5rem;
+    border: 2px dashed var(--primary);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    background: linear-gradient(180deg, #f0f9ff, #ffffff);
+}
+.challenge-title { font-weight: 700; color: var(--primary-dark); margin-bottom: 0.5rem; }
+.challenge-description { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
+.challenge-buttons { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+
+.challenge-feedback {
+    display: none;
+    margin-top: 0.9rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    line-height: 1.55;
+}
+.challenge-feedback.show { display: block; }
+.challenge-feedback.hint { background: #ecfeff; border: 1px solid #67e8f9; color: #155e75; }
+
+/* --- Buttons -------------------------------------------------------------- */
+
+.editor-button, .hint-button {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: none;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.15s, transform 0.05s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.editor-button { background: var(--primary); color: #fff; }
+.editor-button.success { background: var(--success); }
+.editor-button.small { padding: 0.35rem 0.7rem; font-size: 0.75rem; }
+.editor-button.link { background: #334155; }
+.hint-button { background: #fff; color: var(--warning); border: 1px solid var(--warning); }
+.editor-button:hover, .hint-button:hover { filter: brightness(1.08); }
+.editor-button:active, .hint-button:active { transform: translateY(1px); }
+.editor-button:focus-visible, .hint-button:focus-visible,
+.editor-tab:focus-visible, .lesson-item:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* --- Dart source pane ------------------------------------------------------ */
+
+.source-pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.source-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    background: #f8fafc;
+}
+.source-toolbar > div { display: flex; gap: 0.4rem; }
+.source-path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.source-pane pre {
+    flex: 1;
+    overflow: auto;
+    margin: 0;
+    background: var(--code-bg);
+    padding: 1.1rem 1.25rem;
+}
+.source-pane code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--code-text);
+    white-space: pre;
+}
+
+/* Dart syntax tints */
+.tok-kw { color: #f472b6; }
+.tok-cls { color: #7dd3fc; }
+.tok-str { color: #bef264; }
+.tok-com { color: #64748b; font-style: italic; }
+.tok-num { color: #fbbf24; }
+
+/* --- DartPad panel ---------------------------------------------------------- */
+
+.dartpad-container {
+    flex: 1.15;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.dartpad-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 1rem;
+    background: var(--primary-dark);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.dartpad-status { display: flex; align-items: center; gap: 0.45rem; font-size: 0.75rem; font-weight: 500; }
+.status-indicator {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 6px #4ade80;
+}
+.status-indicator.loading { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; }
+
+.dartpad-iframe-container { flex: 1; min-height: 0; background: #1e1e1e; }
+.dartpad-iframe-container iframe { width: 100%; height: 100%; border: none; }
+
+.dartpad-controls {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.7rem 1rem;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+.dartpad-controls button {
+    padding: 0.45rem 0.85rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.dartpad-controls button:hover { background: #f1f5f9; }
+.dartpad-controls button.success {
+    margin-left: auto;
+    background: var(--success);
+    border-color: var(--success);
+    color: #fff;
+}
+.dartpad-controls button.success:disabled { opacity: 0.55; cursor: not-allowed; }
+.dartpad-controls button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* --- Scrollbars & responsive ------------------------------------------------- */
+
+.scrollbar-hide { scrollbar-width: thin; scrollbar-color: rgba(100,116,139,0.5) transparent; }
+.scrollbar-hide::-webkit-scrollbar { width: 8px; }
+.scrollbar-hide::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.4); border-radius: 999px; }
+
+@media (max-width: 1100px) {
+    .editor-content { flex-direction: column; overflow-y: auto; }
+    .content-pane, .dartpad-container { flex: none; }
+    .content-pane { min-height: 320px; }
+    .dartpad-container { min-height: 520px; }
+}
+
+@media (max-width: 760px) {
+    .main-content { flex-direction: column; }
+    .sidebar { width: 100%; max-height: 240px; }
+    .lesson-item:not(:last-child)::after { display: none; }
+}

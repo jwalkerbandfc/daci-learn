@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flutter Masterclass — Live from GitHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <!-- Markdown rendering + sanitising -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1 id="course-title">Flutter Masterclass</h1>
+                <p id="course-subtitle">Cross-platform app development with live DartPad</p>
+            </div>
+            <a class="github-repo" id="repo-link" href="#" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                <span id="repo-label">View on GitHub</span>
+            </a>
+        </header>
+
+        <!-- Main -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <nav class="sidebar scrollbar-hide" aria-label="Lessons">
+                <div class="sidebar-title">📚 Lessons</div>
+                <div class="progress-section">
+                    <div class="progress-label">Progress</div>
+                    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+                    <div class="progress-text" id="progress-text">Loading…</div>
+                </div>
+                <ol class="lesson-list" id="lesson-list"><!-- built from manifest.json --></ol>
+                <button class="reset-progress" id="reset-progress" title="Clear saved progress">↺ Reset progress</button>
+            </nav>
+
+            <!-- Content + DartPad -->
+            <main class="editor-section">
+                <div class="editor-header">
+                    <div id="lesson-heading">Loading course…</div>
+                    <div class="editor-tabs">
+                        <button class="editor-tab active" data-tab="content" id="tab-content">Lesson</button>
+                        <button class="editor-tab" data-tab="source" id="tab-source">main.dart</button>
+                    </div>
+                </div>
+
+                <div class="editor-content">
+                    <!-- Left: lesson / source panes -->
+                    <div class="content-pane">
+                        <div id="loading-state" class="loading-state">
+                            <div class="spinner"></div>
+                            <p>Fetching course content from GitHub…</p>
+                        </div>
+
+                        <div id="error-state" class="error-state" hidden>
+                            <h2>⚠️ Couldn't reach the GitHub repo</h2>
+                            <p id="error-detail"></p>
+                            <div class="setup-help">
+                                <h3>Setup checklist</h3>
+                                <ol>
+                                    <li>Push this project to a <strong>public</strong> GitHub repository.</li>
+                                    <li>Open <code>app.js</code> and set <code>GITHUB.owner</code>, <code>GITHUB.repo</code> and <code>GITHUB.branch</code>.</li>
+                                    <li>Or test without editing anything using URL parameters:<br>
+                                        <code>index.html?owner=YOU&amp;repo=flutter-masterclass&amp;branch=main</code></li>
+                                </ol>
+                            </div>
+                            <button class="editor-button" id="retry-fetch">↻ Retry</button>
+                        </div>
+
+                        <article id="lesson-pane" class="lesson-pane scrollbar-hide" hidden></article>
+
+                        <div id="source-pane" class="source-pane scrollbar-hide" hidden>
+                            <div class="source-toolbar">
+                                <span class="source-path" id="source-path">examples/…</span>
+                                <div>
+                                    <button class="editor-button small" id="copy-source">📋 Copy</button>
+                                    <a class="editor-button small link" id="raw-link" href="#" target="_blank" rel="noopener noreferrer">↗ Raw on GitHub</a>
+                                </div>
+                            </div>
+                            <pre><code id="source-code"></code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Right: DartPad -->
+                    <div class="dartpad-container">
+                        <div class="dartpad-header">
+                            <span>🎯 DartPad — live from GitHub</span>
+                            <div class="dartpad-status">
+                                <div class="status-indicator" id="status-dot"></div>
+                                <span id="status-text">Ready</span>
+                            </div>
+                        </div>
+                        <div class="dartpad-iframe-container" id="dartpad-wrapper"></div>
+                        <div class="dartpad-controls">
+                            <button id="btn-reload-pad">🔄 Reload example</button>
+                            <button id="btn-open-pad">🔗 Open in DartPad</button>
+                            <button id="btn-complete" class="success">✅ Mark complete &amp; unlock next</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

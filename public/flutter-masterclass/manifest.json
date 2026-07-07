@@ -1,0 +1,103 @@
+{
+  "course": "Flutter Masterclass",
+  "subtitle": "Cross-platform app development with live DartPad",
+  "project": "Campus Coffee — a college coffee-shop app you build lesson by lesson",
+  "lessons": [
+    {
+      "id": "getting-started",
+      "title": "Getting Started",
+      "emoji": "🚀",
+      "content": "lessons/01-getting-started.md",
+      "example": "examples/01_getting_started.dart",
+      "challenge": {
+        "title": "Build Your First Widget",
+        "description": "Edit the loaded code so the app shows a <strong>GreetingCard</strong>: a title \"Welcome to Campus Coffee\", a short description underneath, and an ElevatedButton labelled \"Get Started\".",
+        "hint": "Create a StatelessWidget called GreetingCard. Return a Column with two Text widgets and an ElevatedButton. Wrap it in Center so it sits in the middle of the screen."
+      }
+    },
+    {
+      "id": "widgets-ui",
+      "title": "Widgets & UI",
+      "emoji": "🧩",
+      "content": "lessons/02-widgets.md",
+      "example": "examples/02_widgets.dart",
+      "challenge": {
+        "title": "Product Card",
+        "description": "The loaded code shows a plain menu item. Upgrade it into a <strong>Card</strong> with the drink name in bold, a one-line description, the price in green, and an \"Add\" button in a Row.",
+        "hint": "Wrap everything in Card > Padding > Column. Use crossAxisAlignment: CrossAxisAlignment.start, SizedBox for spacing, and a Row with mainAxisAlignment: MainAxisAlignment.spaceBetween for the price and button."
+      }
+    },
+    {
+      "id": "layouts",
+      "title": "Layouts & Lists",
+      "emoji": "📐",
+      "content": "lessons/03-layouts.md",
+      "example": "examples/03_layouts.dart",
+      "challenge": {
+        "title": "Menu Grid",
+        "description": "Convert the ListView menu in the loaded code into a two-column <strong>GridView.builder</strong>, each cell showing an icon above the drink name inside a Card.",
+        "hint": "Use GridView.builder with SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2). Each itemBuilder returns a Card containing a Column with an Icon and a Text."
+      }
+    },
+    {
+      "id": "state",
+      "title": "Stateful Widgets",
+      "emoji": "🔄",
+      "content": "lessons/04-state.md",
+      "example": "examples/04_state.dart",
+      "challenge": {
+        "title": "Basket Counter",
+        "description": "The loaded app shows a basket count that never changes. Make it a <strong>StatefulWidget</strong> with + and − buttons that update the count via setState(), never dropping below zero.",
+        "hint": "Convert OrderBasket to a StatefulWidget. Store `int count = 0;` in the State class, call setState(() => count++) in the button handlers, and guard the decrement with `if (count > 0)`."
+      }
+    },
+    {
+      "id": "navigation",
+      "title": "Navigation",
+      "emoji": "🧭",
+      "content": "lessons/05-navigation.md",
+      "example": "examples/05_navigation.dart",
+      "challenge": {
+        "title": "Drink Details Screen",
+        "description": "Tapping a menu item currently does nothing. Use <strong>Navigator.push</strong> to open a DetailScreen showing the tapped drink's name and price, with the AppBar back button returning to the menu.",
+        "hint": "In the ListTile onTap, call Navigator.push(context, MaterialPageRoute(builder: (_) => DetailScreen(drink: drinks[index]))). Pass the drink through the DetailScreen constructor."
+      }
+    },
+    {
+      "id": "theming",
+      "title": "Theme & Styling",
+      "emoji": "🎨",
+      "content": "lessons/06-theming.md",
+      "example": "examples/06_theming.dart",
+      "challenge": {
+        "title": "Brand the App",
+        "description": "Give Campus Coffee a brand: set a <strong>ColorScheme.fromSeed</strong> theme with a coffee-brown seed colour, style the AppBar from the theme, and add a dark theme the user can toggle.",
+        "hint": "In MaterialApp set theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown)) and darkTheme with brightness: Brightness.dark. Hold a ThemeMode in state and flip it with an IconButton."
+      }
+    },
+    {
+      "id": "async-data",
+      "title": "Async & Data",
+      "emoji": "📡",
+      "content": "lessons/07-async-data.md",
+      "example": "examples/07_async_data.dart",
+      "challenge": {
+        "title": "Loading the Menu",
+        "description": "The menu currently appears instantly. Simulate a network call: load it with a <strong>Future</strong> that takes 2 seconds, show a CircularProgressIndicator while waiting, and render the list when it arrives using FutureBuilder.",
+        "hint": "Write `Future<List<String>> fetchMenu() async { await Future.delayed(const Duration(seconds: 2)); return [...]; }` then wrap the body in FutureBuilder and branch on snapshot.connectionState and snapshot.hasData."
+      }
+    },
+    {
+      "id": "debugging",
+      "title": "Debugging & Logging",
+      "emoji": "🐛",
+      "content": "lessons/08-debugging.md",
+      "example": "examples/08_debugging.dart",
+      "challenge": {
+        "title": "Fix the Broken Till",
+        "description": "The loaded app has <strong>three deliberate bugs</strong>: the total miscalculates, one button does nothing, and the console shows an assertion in debug mode. Use debugPrint and the error messages to find and fix all three.",
+        "hint": "Bug 1: look at the operator in _addToTotal. Bug 2: check which callback the second button is wired to (and whether it's null). Bug 3: read the assert message — the VAT rate constant breaks the assertion."
+      }
+    }
+  ]
+}
