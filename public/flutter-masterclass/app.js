@@ -76,11 +76,23 @@ function saveProgress() {
 /* ------------------------------ 4. Fetching ------------------------------ */
 
 async function fetchFromRepo(path, asJson = false) {
-    const response = await fetch(RAW_BASE() + path, { cache: 'no-cache' });
-    if (!response.ok) {
-        throw new Error(`GET ${path} → HTTP ${response.status}`);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12000);
+    try {
+        const response = await fetch(RAW_BASE() + path, {
+            cache: 'no-cache',
+            signal: controller.signal,
+        });
+        if (!response.ok) throw new Error(`GET ${path} → HTTP ${response.status}`);
+        return asJson ? response.json() : response.text();
+    } catch (err) {
+        if (err.name === 'AbortError') {
+            throw new Error(`GET ${path} timed out after 12s — network may be blocking raw.githubusercontent.com`);
+        }
+        throw err;
+    } finally {
+        clearTimeout(timer);
     }
-    return asJson ? response.json() : response.text();
 }
 
 /* ------------------------------ 5. Boot ---------------------------------- */
