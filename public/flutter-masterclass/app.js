@@ -39,7 +39,6 @@ const GITHUB = {
 const REPO_PATH = () => GITHUB.path ? GITHUB.path.replace(/^\/+|\/+$/g, '') + '/' : '';
 const RAW_BASE  = () => `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${REPO_PATH()}`;
 const BLOB_BASE = () => `https://github.com/${GITHUB.owner}/${GITHUB.repo}/blob/${GITHUB.branch}/${REPO_PATH()}`;
-//const REPO_URL = () =>  `https://github.com/${GITHUB.owner}/${GITHUB.repo}/tree/${GITHUB.branch}/${REPO_PATH()}`;
 
 const dartPadUrl = (dartPath) =>
     `https://dartpad.dev/?gh_owner=${encodeURIComponent(GITHUB.owner)}` +
@@ -117,7 +116,6 @@ async function boot() {
 
     $('course-title').textContent = manifest.course || 'Flutter Masterclass';
     $('course-subtitle').textContent = manifest.subtitle || '';
-    /*$('repo-link').href = REPO_URL();*/
     $('repo-label').textContent = `${GITHUB.owner}/${GITHUB.repo}`;
 
     loadProgress();
