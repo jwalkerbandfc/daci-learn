@@ -21,32 +21,33 @@
 // EDIT THESE THREE VALUES to point at your public GitHub repo.
 const GITHUB = {
     owner: 'jwalkerbandfc',
-    repo: 'https://github.com/jwalkerbandfc/daci-learn/tree/dfd38334c3944202d81b3abe0da1c10ed99d7278/public/flutter-masterclass',
+    repo: 'daci-learn',
     branch: 'main',
+    path: 'public/flutter-masterclass', // subfolder inside the repo ('' if at root)
 };
 
 // For quick testing you can override without editing this file:
 //   index.html?owner=you&repo=flutter-masterclass&branch=main
 (function applyUrlOverrides() {
     const params = new URLSearchParams(window.location.search);
-    for (const key of ['owner', 'repo', 'branch']) {
+    for (const key of ['owner', 'repo', 'branch', 'path']) {
         const v = params.get(key);
         if (v) GITHUB[key] = v;
     }
 })();
 
-const RAW_BASE  = () => `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/`;
-const BLOB_BASE = () => `https://github.com/${GITHUB.owner}/${GITHUB.repo}/blob/${GITHUB.branch}/`;
-const REPO_URL  = () => `https://github.com/${GITHUB.owner}/${GITHUB.repo}`;
+const REPO_PATH = () => GITHUB.path ? GITHUB.path.replace(/^\/+|\/+$/g, '') + '/' : '';
+const RAW_BASE  = () => `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${REPO_PATH()}`;
+const BLOB_BASE = () => `https://github.com/${GITHUB.owner}/${GITHUB.repo}/blob/${GITHUB.branch}/${REPO_PATH()}`;
 
 const dartPadUrl = (dartPath) =>
     `https://dartpad.dev/?gh_owner=${encodeURIComponent(GITHUB.owner)}` +
     `&gh_repo=${encodeURIComponent(GITHUB.repo)}` +
-    `&gh_path=${encodeURIComponent(dartPath)}` +
+    `&gh_path=${encodeURIComponent(REPO_PATH() + dartPath)}` +
     `&gh_ref=${encodeURIComponent(GITHUB.branch)}` +
     `&theme=dark&run=true`;
 
-const STORAGE_KEY = () => `flutter-masterclass:${GITHUB.owner}/${GITHUB.repo}:progress`;
+const STORAGE_KEY = () => `flutter-masterclass:${GITHUB.owner}/${GITHUB.repo}/${REPO_PATH()}:progress`;
 
 /* ------------------------------ 2. State --------------------------------- */
 
