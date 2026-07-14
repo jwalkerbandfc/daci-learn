@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Wyre Council · Digital Skills</title>
+<style>
+  :root{
+    --navy:#2955A8; --navy-deep:#1B3A75; --ink:#16233B;
+    --bg:#F6F8FC; --card:#FFFFFF; --line:#DDE5F2;
+    --amber:#F2A93B; --green:#2E9E6B; --muted:#5B6B85;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0; padding:0}
+  body{
+    font-family:"Aptos","Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-serif;
+    background:var(--bg); color:var(--ink); min-height:100dvh;
+    display:flex; flex-direction:column;
+  }
+  header{
+    background:var(--navy); color:#fff; padding:14px 18px calc(14px);
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  header .brand{font-weight:700; font-size:15px; letter-spacing:.2px}
+  header .brand span{opacity:.75; font-weight:400}
+  .dots{display:flex; gap:6px}
+  .dots i{width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.3); transition:background .3s, transform .3s}
+  .dots i.on{background:var(--amber); transform:scale(1.25)}
+  main{flex:1; padding:22px 18px 40px; max-width:560px; width:100%; margin:0 auto}
+  .eyebrow{color:var(--navy); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.12em; margin:0 0 8px}
+  h1{font-size:24px; line-height:1.25; margin:0 0 6px; font-weight:800}
+  p.sub{color:var(--muted); font-size:15px; line-height:1.5; margin:0 0 20px}
+  .opt{
+    display:block; width:100%; text-align:left; background:var(--card);
+    border:2px solid var(--line); border-radius:14px; padding:16px;
+    font:inherit; font-size:16px; font-weight:600; color:var(--ink);
+    margin-bottom:10px; cursor:pointer; transition:border-color .15s, background .15s, transform .06s;
+  }
+  .opt:active{transform:scale(.985)}
+  .opt.sel{border-color:var(--navy); background:#EDF2FB}
+  .opt .tick{float:right; color:var(--navy); font-weight:800; opacity:0; transition:opacity .15s}
+  .opt.sel .tick{opacity:1}
+  .btn{
+    display:block; width:100%; border:0; border-radius:14px; padding:16px;
+    background:var(--navy); color:#fff; font:inherit; font-size:16px; font-weight:700;
+    cursor:pointer; margin-top:6px; transition:background .15s, transform .06s;
+  }
+  .btn:active{transform:scale(.985)}
+  .btn:disabled{background:#B9C6DE; cursor:default}
+  .btn.ghost{background:transparent; color:var(--navy); border:2px solid var(--line)}
+  textarea, input[type=text]{
+    width:100%; font:inherit; font-size:16px; padding:14px; border-radius:14px;
+    border:2px solid var(--line); background:var(--card); color:var(--ink); resize:none;
+  }
+  textarea:focus, input:focus{outline:none; border-color:var(--navy)}
+  .thanks{
+    background:#EAF6F0; border:2px solid #BFE5D2; color:#1D6B47;
+    border-radius:14px; padding:16px; font-weight:600; font-size:15px; margin-top:14px;
+  }
+  .waiting{
+    text-align:center; padding:48px 10px 0;
+  }
+  .pulse{
+    width:64px; height:64px; margin:0 auto 22px; border-radius:50%;
+    background:var(--navy); position:relative;
+    display:flex; align-items:center; justify-content:center; color:#fff; font-size:26px; font-weight:800;
+  }
+  .pulse::after{
+    content:""; position:absolute; inset:-8px; border-radius:50%;
+    border:3px solid var(--navy); opacity:.35; animation:ring 1.8s ease-out infinite;
+  }
+  @keyframes ring{from{transform:scale(.8); opacity:.5} to{transform:scale(1.35); opacity:0}}
+  @media (prefers-reduced-motion: reduce){ .pulse::after{animation:none} }
+  .charcount{font-size:12px; color:var(--muted); text-align:right; margin:6px 2px 10px}
+  .quiz-note{font-size:14px; color:var(--muted); margin-top:14px; line-height:1.5}
+  .correct{border-color:var(--green)!important; background:#EAF6F0!important}
+  .interest{margin-top:26px; padding-top:22px; border-top:2px dashed var(--line)}
+  .interest h2{font-size:17px; margin:0 0 4px}
+  .interest p{font-size:14px; color:var(--muted); margin:0 0 12px; line-height:1.45}
+  .field{margin-bottom:10px}
+  label{display:block; font-size:13px; font-weight:700; color:var(--muted); margin:0 0 5px}
+  footer{padding:14px 18px 22px; text-align:center; font-size:12px; color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">B&amp;FC <span>× Wyre Council</span></div>
+  <div class="dots" id="dots"></div>
+</header>
+<main id="main"></main>
+<footer>Blackpool and The Fylde College · Commercial Digital Training</footer>
+
+<script>
+const TOTAL_STEPS = 7;
+
+// One answer per device — id persists across refreshes.
+const cid = (() => {
+  let v = localStorage.getItem("wyre_cid");
+  if (!v) { v = crypto.randomUUID(); localStorage.setItem("wyre_cid", v); }
+  return v;
+})();
+
+const answered = new Set(JSON.parse(localStorage.getItem("wyre_answered") || "[]"));
+const markAnswered = (qid) => {
+  answered.add(qid);
+  localStorage.setItem("wyre_answered", JSON.stringify([...answered]));
+};
+
+const STEPS = {
+  0: { render: renderHold },
+  1: { qid: "q1", render: () => renderSingle({
+        qid: "q1",
+        eyebrow: "Question 1 of 5",
+        title: "Honestly — how much of your day goes on repetitive tasks?",
+        sub: "Reading and writing routine emails, copying information between systems, formatting reports, hunting for documents…",
+        options: ["Under 30 minutes", "30–60 minutes", "1–2 hours", "More than 2 hours"],
+      })},
+  2: { qid: "q2", render: () => renderMulti({
+        qid: "q2",
+        eyebrow: "Question 2 of 5",
+        title: "Which of these eats your week?",
+        sub: "Pick as many as apply.",
+        options: [
+          "Finding the right version of a document",
+          "An inbox that never empties",
+          "Re-typing the same info into forms or spreadsheets",
+          "Building reports and summaries by hand",
+          "Chasing approvals and sign-offs",
+        ],
+      })},
+  3: { qid: "q3", render: renderText },
+  4: { qid: "q4", render: () => renderQuiz({
+        qid: "q4",
+        eyebrow: "Question 4 of 5",
+        title: "Which of these could Wyre automate today, with tools already in your Microsoft licence?",
+        options: [
+          "Routing a request form to the right team",
+          "Sending approval reminders automatically",
+          "Turning a spreadsheet into a live dashboard",
+          "All of the above",
+        ],
+        correct: 3,
+      })},
+  5: { qid: "q5", render: () => renderSingle({
+        qid: "q5",
+        eyebrow: "Question 5 of 5",
+        title: "Which would help your team most?",
+        sub: "There are three practical workshop strands — AI runs through all of them.",
+        options: [
+          "Core Digital Confidence — everyday Outlook, Teams & files",
+          "Automation — kill the manual processes",
+          "Data & Dashboards — Excel and Power BI",
+          "All of it, please",
+        ],
+        withInterest: true,
+      })},
+  6: { render: renderEnd },
+};
+
+let currentStep = -1;
+let currentReveal = false;
+
+// ---------- Renderers ----------
+const main = document.getElementById("main");
+
+function renderHold() {
+  main.innerHTML = `
+    <div class="waiting">
+      <div class="pulse">✓</div>
+      <h1>You're in.</h1>
+      <p class="sub">Keep this page open — it follows the presentation.<br>The first question appears here when we start.</p>
+    </div>`;
+}
+
+function renderSingle({ qid, eyebrow, title, sub, options, withInterest }) {
+  const done = answered.has(qid);
+  main.innerHTML = `
+    <p class="eyebrow">${eyebrow}</p>
+    <h1>${title}</h1>
+    ${sub ? `<p class="sub">${sub}</p>` : ""}
+    <div id="opts"></div>
+    <div id="msg"></div>
+    ${withInterest ? interestBlock() : ""}`;
+  const box = document.getElementById("opts");
+  options.forEach((label, i) => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.innerHTML = `${label}<span class="tick">✓</span>`;
+    b.onclick = async () => {
+      [...box.children].forEach((c) => c.classList.remove("sel"));
+      b.classList.add("sel");
+      await send(qid, i);
+      markAnswered(qid);
+      document.getElementById("msg").innerHTML =
+        `<div class="thanks">Thanks — watch the screen. Tap another option to change your answer.</div>`;
+    };
+    box.appendChild(b);
+  });
+  if (done) document.getElementById("msg").innerHTML =
+    `<div class="thanks">Answer received — you can still change it by tapping another option.</div>`;
+  if (withInterest) wireInterest();
+}
+
+function renderMulti({ qid, eyebrow, title, sub, options }) {
+  const picked = new Set();
+  main.innerHTML = `
+    <p class="eyebrow">${eyebrow}</p>
+    <h1>${title}</h1>
+    <p class="sub">${sub}</p>
+    <div id="opts"></div>
+    <button class="btn" id="submit" disabled>Send my picks</button>
+    <div id="msg"></div>`;
+  const box = document.getElementById("opts");
+  const submit = document.getElementById("submit");
+  options.forEach((label, i) => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.innerHTML = `${label}<span class="tick">✓</span>`;
+    b.onclick = () => {
+      b.classList.toggle("sel");
+      picked.has(i) ? picked.delete(i) : picked.add(i);
+      submit.disabled = picked.size === 0;
+    };
+    box.appendChild(b);
+  });
+  submit.onclick = async () => {
+    submit.disabled = true;
+    await send(qid, [...picked].sort((a, b) => a - b));
+    markAnswered(qid);
+    document.getElementById("msg").innerHTML =
+      `<div class="thanks">Got it — watch the screen. Change your picks and resend any time.</div>`;
+    submit.disabled = false;
+    submit.textContent = "Update my picks";
+  };
+}
+
+function renderText() {
+  const qid = "q3";
+  main.innerHTML = `
+    <p class="eyebrow">Question 3 of 5</p>
+    <h1>Finish this sentence:</h1>
+    <p class="sub">"I'd love to never again have to manually…"</p>
+    <textarea id="txt" rows="3" maxlength="140" placeholder="…copy figures from emails into a spreadsheet every Monday"></textarea>
+    <div class="charcount"><span id="cc">0</span>/140</div>
+    <button class="btn" id="submit" disabled>Send it to the screen</button>
+    <div id="msg"></div>`;
+  const txt = document.getElementById("txt");
+  const submit = document.getElementById("submit");
+  txt.addEventListener("input", () => {
+    document.getElementById("cc").textContent = txt.value.length;
+    submit.disabled = txt.value.trim().length < 3;
+  });
+  submit.onclick = async () => {
+    submit.disabled = true;
+    await send(qid, txt.value.trim());
+    markAnswered(qid);
+    document.getElementById("msg").innerHTML =
+      `<div class="thanks">Sent — it'll appear on the big screen. Edit and resend to replace it.</div>`;
+    submit.disabled = false;
+    submit.textContent = "Update mine";
+  };
+}
+
+function renderQuiz({ qid, eyebrow, title, options, correct }) {
+  main.innerHTML = `
+    <p class="eyebrow">${eyebrow}</p>
+    <h1>${title}</h1>
+    <div id="opts"></div>
+    <div id="msg"></div>
+    <p class="quiz-note" id="note"></p>`;
+  const box = document.getElementById("opts");
+  const letters = ["A", "B", "C", "D"];
+  options.forEach((label, i) => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.dataset.i = i;
+    b.innerHTML = `<strong>${letters[i]}.</strong> ${label}<span class="tick">✓</span>`;
+    b.onclick = async () => {
+      if (currentReveal) return;
+      [...box.children].forEach((c) => c.classList.remove("sel"));
+      b.classList.add("sel");
+      await send(qid, i);
+      markAnswered(qid);
+      document.getElementById("msg").innerHTML =
+        `<div class="thanks">Locked in — the answer's coming up on screen.</div>`;
+    };
+    box.appendChild(b);
+  });
+  if (currentReveal) applyReveal(correct);
+}
+
+function applyReveal(correct = 3) {
+  const box = document.getElementById("opts");
+  if (!box) return;
+  const right = box.querySelector(`[data-i="${correct}"]`);
+  if (right) right.classList.add("correct");
+  const note = document.getElementById("note");
+  if (note) note.textContent =
+    "Yes — all of it. Forms, Power Automate and Power BI are already in the council's Microsoft licence. The workshops show your teams how to actually use them.";
+}
+
+function interestBlock() {
+  if (localStorage.getItem("wyre_interest")) {
+    return `<div class="interest"><div class="thanks">Interest registered — we'll be in touch about the first cohort. 👍</div></div>`;
+  }
+  return `
+    <div class="interest">
+      <h2>Want first-cohort details?</h2>
+      <p>No signup, no spam — just a note to the B&amp;FC team so we know who to brief when dates are set.</p>
+      <div class="field"><label for="iname">Your name</label><input type="text" id="iname" maxlength="60" autocomplete="name"></div>
+      <div class="field"><label for="iarea">Team / service area</label><input type="text" id="iarea" maxlength="80" placeholder="e.g. Revenues &amp; Benefits"></div>
+      <button class="btn ghost" id="ibtn">Register my interest</button>
+      <div id="imsg"></div>
+    </div>`;
+}
+
+function wireInterest() {
+  const btn = document.getElementById("ibtn");
+  if (!btn) return;
+  btn.onclick = async () => {
+    const name = document.getElementById("iname").value.trim();
+    const area = document.getElementById("iarea").value.trim();
+    if (!name) { document.getElementById("iname").focus(); return; }
+    btn.disabled = true;
+    const r = await fetch("/api/interest", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clientId: cid, name, area }),
+    }).catch(() => null);
+    if (r && r.ok) {
+      localStorage.setItem("wyre_interest", "1");
+      document.getElementById("imsg").innerHTML =
+        `<div class="thanks">Interest registered — thanks, ${name.split(" ")[0]}.</div>`;
+      btn.style.display = "none";
+    } else {
+      btn.disabled = false;
+      document.getElementById("imsg").innerHTML =
+        `<div class="thanks" style="background:#FDF0EC;border-color:#F2C4B4;color:#8C3B22">Couldn't send that — give it another tap.</div>`;
+    }
+  };
+}
+
+function renderEnd() {
+  main.innerHTML = `
+    <p class="eyebrow">That's a wrap</p>
+    <h1>Thanks for taking part.</h1>
+    <p class="sub">Three practical workshop strands, built around real council use cases, with AI woven through every one:</p>
+    <div class="opt" style="cursor:default"><strong>Core Digital Confidence</strong><br><span style="font-weight:400;color:var(--muted);font-size:14px">Outlook, Teams, SharePoint &amp; OneDrive — 2-hour blocks, delivered onsite</span></div>
+    <div class="opt" style="cursor:default"><strong>Digital Automation &amp; Transformation</strong><br><span style="font-weight:400;color:var(--muted);font-size:14px">Forms, Power Automate &amp; Power Apps — half-day sessions</span></div>
+    <div class="opt" style="cursor:default"><strong>Data &amp; Dashboards</strong><br><span style="font-weight:400;color:var(--muted);font-size:14px">Excel &amp; Power BI with council-style reporting — half-day sessions</span></div>
+    ${interestBlock()}
+    <p class="sub" style="margin-top:22px">Contact: <strong>Lee Holroyd</strong>, Curriculum Leader, Digital &amp; Creative Innovation — Lee.Holroyd@blackpool.ac.uk</p>`;
+  wireInterest();
+}
+
+// ---------- Plumbing ----------
+async function send(qid, value) {
+  await fetch("/api/respond", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ qid, clientId: cid, value }),
+  }).catch(() => {});
+}
+
+function drawDots(step) {
+  const d = document.getElementById("dots");
+  d.innerHTML = "";
+  for (let i = 0; i < TOTAL_STEPS; i++) {
+    const dot = document.createElement("i");
+    if (i === step) dot.className = "on";
+    d.appendChild(dot);
+  }
+}
+
+async function tick() {
+  try {
+    const r = await fetch("/api/state");
+    const s = await r.json();
+    if (s.step !== currentStep) {
+      currentStep = s.step;
+      currentReveal = !!s.reveal;
+      drawDots(currentStep);
+      (STEPS[currentStep] || STEPS[0]).render();
+      window.scrollTo({ top: 0 });
+    } else if (!!s.reveal !== currentReveal) {
+      currentReveal = !!s.reveal;
+      if (currentStep === 4 && currentReveal) applyReveal(3);
+    }
+  } catch (e) { /* transient network blip — try again next tick */ }
+}
+
+tick();
+setInterval(tick, 2000);
+</script>
+</body>
+</html>

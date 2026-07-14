@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presenter · Wyre Digital Skills</title>
+<style>
+  :root{
+    --navy:#2955A8; --stage:#0F1F3D; --stage2:#16294F;
+    --ink:#F4F7FD; --muted:#93A5C6; --line:#2A3F6B;
+    --amber:#F2A93B; --green:#3FC98A; --bar:#4F7FD9;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    font-family:"Aptos","Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-serif;
+    background:var(--stage); color:var(--ink);
+    display:flex; flex-direction:column; height:100dvh; overflow:hidden;
+  }
+  /* ---- Stage ---- */
+  #stage{flex:1; display:flex; flex-direction:column; justify-content:center; padding:4vh 6vw; overflow:hidden}
+  .eyebrow{color:var(--amber); font-weight:700; font-size:clamp(14px,1.6vw,22px); text-transform:uppercase; letter-spacing:.14em; margin:0 0 1.2vh}
+  h1{font-size:clamp(28px,4.2vw,64px); line-height:1.12; margin:0 0 1.5vh; font-weight:800}
+  .sub{color:var(--muted); font-size:clamp(15px,1.7vw,24px); margin:0 0 3.5vh; max-width:60ch}
+  .count-pill{
+    position:absolute; top:3vh; right:3vw; background:var(--stage2); border:1px solid var(--line);
+    border-radius:999px; padding:.6em 1.2em; font-size:clamp(13px,1.3vw,18px); color:var(--muted);
+  }
+  .count-pill b{color:var(--ink)}
+  /* Bars */
+  .bars{display:flex; flex-direction:column; gap:2vh; max-width:1100px}
+  .barrow{display:grid; grid-template-columns:minmax(180px,34%) 1fr 90px; gap:1.6vw; align-items:center}
+  .barlabel{font-size:clamp(15px,1.8vw,26px); font-weight:600}
+  .bartrack{background:var(--stage2); border-radius:12px; height:clamp(28px,4.5vh,52px); overflow:hidden}
+  .barfill{height:100%; width:0%; background:var(--bar); border-radius:12px; transition:width .7s cubic-bezier(.2,.8,.2,1)}
+  .barrow.correct .barfill{background:var(--green)}
+  .barrow.correct .barlabel{color:var(--green)}
+  .barnum{font-size:clamp(16px,2vw,28px); font-weight:800; text-align:right; font-variant-numeric:tabular-nums}
+  /* Big counter */
+  .bignum{
+    font-size:clamp(64px,11vw,180px); font-weight:800; color:var(--amber);
+    line-height:1; font-variant-numeric:tabular-nums; letter-spacing:-.02em; margin:1vh 0;
+  }
+  .bigcap{font-size:clamp(18px,2.4vw,34px); font-weight:700}
+  .bigsub{color:var(--muted); font-size:clamp(15px,1.8vw,26px); margin-top:1.2vh}
+  .bigsub b{color:var(--ink)}
+  /* Text feed */
+  .feed{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:1.4vw; align-content:start; overflow:hidden; max-height:58vh}
+  .card{
+    background:var(--stage2); border:1px solid var(--line); border-radius:16px;
+    padding:1.2em 1.3em; font-size:clamp(15px,1.6vw,23px); line-height:1.4;
+    animation:pop .4s ease;
+  }
+  .card::before{content:"“"; color:var(--amber); font-weight:800; margin-right:.15em}
+  .card::after{content:"”"; color:var(--amber); font-weight:800; margin-left:.15em}
+  @keyframes pop{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+  @media (prefers-reduced-motion: reduce){ .card{animation:none} .barfill{transition:none} }
+  /* Hold screen */
+  .qrbox{display:flex; gap:5vw; align-items:center; flex-wrap:wrap}
+  .qrbox img{width:clamp(200px,26vh,340px); border-radius:20px; background:#fff; padding:14px}
+  .sell{color:var(--amber); font-weight:700; font-size:clamp(15px,1.7vw,24px); margin-top:3vh}
+  /* Interest list */
+  table{border-collapse:collapse; font-size:clamp(15px,1.6vw,22px); max-width:900px; width:100%}
+  td,th{padding:.5em .9em; border-bottom:1px solid var(--line); text-align:left}
+  th{color:var(--muted); font-weight:700}
+  /* ---- Control bar ---- */
+  #controls{
+    background:#0A1730; border-top:1px solid var(--line); padding:12px 16px;
+    display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+  }
+  #controls button{
+    font:inherit; font-size:13px; font-weight:700; color:var(--ink);
+    background:var(--stage2); border:1px solid var(--line); border-radius:10px;
+    padding:9px 13px; cursor:pointer; transition:background .15s;
+  }
+  #controls button:hover{background:#20355F}
+  #controls button.active{background:var(--navy); border-color:var(--navy)}
+  #controls button.danger{color:#F2937B}
+  #controls .spacer{flex:1}
+  #controls .hint{color:var(--muted); font-size:12px}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div class="count-pill" id="pill" hidden><b id="pillN">0</b> responses</div>
+<div id="controls">
+  <button data-step="0">Hold</button>
+  <button data-step="1">1 · Time poll</button>
+  <button data-step="2">2 · Pain points</button>
+  <button data-step="3">3 · Live feed</button>
+  <button data-step="4">4 · Quiz</button>
+  <button data-step="5">5 · Courses</button>
+  <button data-step="6">End</button>
+  <button id="revealBtn" hidden>Reveal answer</button>
+  <button id="interestBtn">Interest list</button>
+  <span class="spacer"></span>
+  <span class="hint" id="hint"></span>
+  <button class="danger" id="resetBtn">Reset session</button>
+</div>
+
+<script>
+const PIN = new URLSearchParams(location.search).get("pin") || prompt("Presenter PIN:") || "";
+const attendeeURL = location.origin + "/";
+const MIDPOINTS = [0.25, 0.75, 1.5, 2.5];   // hours/day per option in q1
+const WORKING_DAYS = 220, HOURS_PER_WEEK = 37;
+
+const Q = {
+  q1: { title: "How much of your day goes on repetitive tasks?",
+        options: ["Under 30 minutes", "30–60 minutes", "1–2 hours", "More than 2 hours"] },
+  q2: { title: "Which of these eats your week?",
+        options: ["Finding the right document version", "An inbox that never empties",
+                  "Re-typing the same info into forms", "Building reports by hand",
+                  "Chasing approvals and sign-offs"],
+        sells: ["Core Digital Confidence", "Core Digital Confidence",
+                "Automation & Transformation", "Data & Dashboards / AI",
+                "Automation & Transformation"] },
+  q4: { title: "Which could Wyre automate today, with tools already in your licence?",
+        options: ["A · Routing a request form to the right team", "B · Sending approval reminders automatically",
+                  "C · Turning a spreadsheet into a live dashboard", "D · All of the above"],
+        correct: 3 },
+  q5: { title: "Which would help your team most?",
+        options: ["Core Digital Confidence", "Automation", "Data & Dashboards", "All of it"] },
+};
+
+let currentStep = -1, currentReveal = false, pollTimer = null;
+const maxCounts = {};   // monotonic display guard (KV list is eventually consistent)
+const stage = document.getElementById("stage");
+const pill = document.getElementById("pill");
+
+// ---------- Stage renderers ----------
+function renderHold() {
+  const qr = "https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=" + encodeURIComponent(attendeeURL);
+  stage.innerHTML = `
+    <p class="eyebrow">Wyre Council × Blackpool and The Fylde College</p>
+    <h1>Get your phone out.<br>Yes, really.</h1>
+    <div class="qrbox">
+      <img src="${qr}" alt="QR code to join">
+      <div>
+        <p class="sub" style="margin-bottom:1vh">Scan the code — no app, no signup, nothing to download.</p>
+        <p class="sub" style="font-size:clamp(18px,2.2vw,30px); color:var(--ink); font-weight:700">${attendeeURL.replace(/^https?:\/\//, "")}</p>
+        <p class="sell">Your phone will follow the session automatically.</p>
+      </div>
+    </div>`;
+}
+
+function renderBars(qid, opts) {
+  stage.innerHTML = `
+    <p class="eyebrow">Live results</p>
+    <h1>${Q[qid].title}</h1>
+    ${opts.sub ? `<p class="sub">${opts.sub}</p>` : ""}
+    <div class="bars" id="bars">
+      ${Q[qid].options.map((o, i) => `
+        <div class="barrow" data-i="${i}">
+          <div class="barlabel">${o}</div>
+          <div class="bartrack"><div class="barfill" id="bf${i}"></div></div>
+          <div class="barnum" id="bn${i}">0</div>
+        </div>`).join("")}
+    </div>
+    ${opts.extra || ""}`;
+}
+
+function renderBig() {
+  stage.innerHTML = `
+    <p class="eyebrow">Live · based on this room's answers</p>
+    <h1>${Q.q1.title}</h1>
+    <div class="bars" id="bars" style="max-width:800px">
+      ${Q.q1.options.map((o, i) => `
+        <div class="barrow" data-i="${i}">
+          <div class="barlabel">${o}</div>
+          <div class="bartrack"><div class="barfill" id="bf${i}"></div></div>
+          <div class="barnum" id="bn${i}">0</div>
+        </div>`).join("")}
+    </div>
+    <div class="bignum" id="big">0</div>
+    <div class="bigcap">hours a year — in this room alone</div>
+    <div class="bigsub">That's <b id="weeks">0</b> working weeks of repetitive tasks, before any AI, automation or better tooling.</div>`;
+}
+
+function renderFeed() {
+  stage.innerHTML = `
+    <p class="eyebrow">Live from your phones</p>
+    <h1>"I'd love to never again have to manually…"</h1>
+    <div class="feed" id="feed"><p class="sub">Waiting for the first one…</p></div>`;
+}
+
+function renderEndStage() {
+  stage.innerHTML = `
+    <p class="eyebrow">Next steps</p>
+    <h1>Three strands. Real council use cases.<br>AI woven through all of it.</h1>
+    <p class="sub"><b style="color:var(--ink)">Core Digital Confidence</b> — 2-hour onsite blocks · <b style="color:var(--ink)">Automation &amp; Transformation</b> — half days · <b style="color:var(--ink)">Data &amp; Dashboards</b> — half days</p>
+    <p class="sub">First cohort indicative for <b style="color:var(--amber)">August</b>. Register interest on your phone now — name and team, that's it.</p>
+    <p class="sub">Lee Holroyd · Curriculum Leader, Digital &amp; Creative Innovation · Lee.Holroyd@blackpool.ac.uk</p>`;
+}
+
+async function renderInterest() {
+  const r = await fetch(`/api/interest?pin=${encodeURIComponent(PIN)}`);
+  const d = await r.json();
+  stage.innerHTML = `
+    <p class="eyebrow">Registered interest · ${d.count || 0} so far</p>
+    <h1>Who wants first-cohort details?</h1>
+    ${d.people && d.people.length
+      ? `<table><tr><th>Name</th><th>Team / service area</th></tr>
+         ${d.people.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(p.area || "—")}</td></tr>`).join("")}</table>`
+      : `<p class="sub">Nothing yet — nudge them towards the form on their phones.</p>`}`;
+}
+
+const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+// ---------- Data polling ----------
+function startPolling(qid, apply) {
+  stopPolling();
+  const run = async () => {
+    try {
+      const r = await fetch(`/api/results?qid=${qid}`);
+      const d = await r.json();
+      apply(d);
+      pill.hidden = false;
+      document.getElementById("pillN").textContent = d.count;
+    } catch (e) { /* retry next tick */ }
+  };
+  run();
+  pollTimer = setInterval(run, 2500);
+}
+function stopPolling() { if (pollTimer) clearInterval(pollTimer); pollTimer = null; pill.hidden = true; }
+
+function applyCounts(qid, nOptions, values, multi = false) {
+  const counts = new Array(nOptions).fill(0);
+  for (const v of values) {
+    if (multi && Array.isArray(v)) v.forEach(i => { if (counts[i] !== undefined) counts[i]++; });
+    else if (!multi && counts[v] !== undefined) counts[v]++;
+  }
+  // KV list is eventually consistent — never let displayed bars shrink mid-session.
+  const key = qid;
+  maxCounts[key] = maxCounts[key] || new Array(nOptions).fill(0);
+  for (let i = 0; i < nOptions; i++) maxCounts[key][i] = Math.max(maxCounts[key][i], counts[i]);
+  const shown = maxCounts[key];
+  const top = Math.max(1, ...shown);
+  shown.forEach((c, i) => {
+    const bf = document.getElementById(`bf${i}`), bn = document.getElementById(`bn${i}`);
+    if (bf) bf.style.width = (c / top) * 100 + "%";
+    if (bn) bn.textContent = c;
+  });
+  return shown;
+}
+
+// Animated counter
+let bigShown = 0;
+function tweenBig(target) {
+  const el = document.getElementById("big");
+  if (!el) return;
+  const start = bigShown, dist = target - start, t0 = performance.now();
+  const dur = 900;
+  const frame = (t) => {
+    const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+    bigShown = Math.round(start + dist * e);
+    el.textContent = bigShown.toLocaleString("en-GB");
+    if (p < 1) requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+}
+
+// ---------- Step wiring ----------
+function showStep(step) {
+  stopPolling();
+  document.querySelectorAll("#controls [data-step]").forEach(b =>
+    b.classList.toggle("active", +b.dataset.step === step));
+  document.getElementById("revealBtn").hidden = step !== 4;
+  bigShown = 0;
+
+  if (step === 0) renderHold();
+
+  if (step === 1) {
+    renderBig();
+    startPolling("q1", (d) => {
+      const counts = applyCounts("q1", 4, d.values);
+      const hoursPerDay = counts.reduce((s, c, i) => s + c * MIDPOINTS[i], 0);
+      const perYear = Math.round(hoursPerDay * WORKING_DAYS);
+      tweenBig(perYear);
+      const w = document.getElementById("weeks");
+      if (w) w.textContent = Math.round(perYear / HOURS_PER_WEEK).toLocaleString("en-GB");
+    });
+  }
+
+  if (step === 2) {
+    renderBars("q2", { sub: "Every one of these maps onto a workshop strand — watch the labels." });
+    // Add the course each pain maps to, under each label
+    Q.q2.options.forEach((_, i) => {
+      const row = document.querySelector(`#bars .barrow[data-i="${i}"] .barlabel`);
+      if (row) row.innerHTML += `<div style="font-size:.6em;color:var(--amber);font-weight:700;margin-top:.2em">→ ${Q.q2.sells[i]}</div>`;
+    });
+    startPolling("q2", (d) => applyCounts("q2", 5, d.values, true));
+  }
+
+  if (step === 3) {
+    renderFeed();
+    startPolling("q3", (d) => {
+      const feed = document.getElementById("feed");
+      if (!feed) return;
+      const texts = d.values.filter(v => typeof v === "string" && v.trim());
+      if (!texts.length) return;
+      const existing = new Set([...feed.querySelectorAll(".card")].map(c => c.dataset.t));
+      if (feed.querySelector(".sub")) feed.innerHTML = "";
+      for (const t of texts) {
+        if (existing.has(t)) continue;
+        const c = document.createElement("div");
+        c.className = "card"; c.dataset.t = t; c.textContent = t;
+        feed.prepend(c);
+      }
+      while (feed.children.length > 12) feed.lastChild.remove();
+    });
+  }
+
+  if (step === 4) {
+    renderBars("q4", { sub: currentReveal ? "" : "Lock your answer in on your phone…" });
+    if (currentReveal) markCorrect();
+    startPolling("q4", (d) => applyCounts("q4", 4, d.values));
+  }
+
+  if (step === 5) {
+    renderBars("q5", { sub: "And there's an interest form on your phone — name and team, nothing else." });
+    startPolling("q5", (d) => applyCounts("q5", 4, d.values));
+  }
+
+  if (step === 6) renderEndStage();
+}
+
+function markCorrect() {
+  const row = document.querySelector(`#bars .barrow[data-i="${Q.q4.correct}"]`);
+  if (row) row.classList.add("correct");
+  const sub = document.querySelector(".sub");
+  if (sub) sub.textContent = "All of the above — with tools the council already pays for.";
+}
+
+// ---------- Controls ----------
+async function setState(step, reveal = false) {
+  const r = await fetch("/api/state", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pin: PIN, step, reveal }),
+  });
+  if (r.status === 403) { document.getElementById("hint").textContent = "Wrong PIN — reload with ?pin=…"; return false; }
+  return true;
+}
+
+document.querySelectorAll("#controls [data-step]").forEach(b => {
+  b.onclick = async () => {
+    const step = +b.dataset.step;
+    currentReveal = false;
+    if (await setState(step, false)) { currentStep = step; showStep(step); }
+  };
+});
+
+document.getElementById("revealBtn").onclick = async () => {
+  currentReveal = true;
+  if (await setState(4, true)) markCorrect();
+};
+
+document.getElementById("interestBtn").onclick = () => { stopPolling(); renderInterest(); };
+
+document.getElementById("resetBtn").onclick = async () => {
+  if (!confirm("Wipe all answers and return everyone to the hold screen?")) return;
+  const wipeInterest = confirm("Also wipe the registered-interest list?\nOK = yes, Cancel = keep it.");
+  await fetch("/api/reset", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pin: PIN, wipeInterest }),
+  });
+  Object.keys(maxCounts).forEach(k => delete maxCounts[k]);
+  currentStep = 0; currentReveal = false; showStep(0);
+};
+
+// ---------- Boot: pick up wherever the room already is ----------
+(async () => {
+  try {
+    const s = await (await fetch("/api/state")).json();
+    currentStep = s.step; currentReveal = !!s.reveal;
+    showStep(currentStep);
+  } catch (e) { showStep(0); }
+})();
+</script>
+</body>
+</html>
