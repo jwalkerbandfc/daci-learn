@@ -29,6 +29,7 @@ const PUBLIC_FOLDER_ROUTES = [
   { slug: 'flutter-guide', meta: 'Guide' },
   { slug: 'RPS', meta: 'RockPaperScissors' },
   { slug: 'data', meta: 'data' },
+  { slug: 'cpp', meta: 'cpp' },
 ];
 
 const PUBLIC_FILE_RESOURCES = [
