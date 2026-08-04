@@ -28,6 +28,7 @@ const PUBLIC_FOLDER_ROUTES = [
   { slug: 'Raid-Calc',     meta: 'Calculator' },
   { slug: 'flutter-guide', meta: 'Guide' },
   { slug: 'RPS', meta: 'RockPaperScissors' },
+  { slug: 'data', meta: 'data' },
 ];
 
 const PUBLIC_FILE_RESOURCES = [
