@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blackpool and The Fylde College - Software Engineering & Digital Skills</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aptos:wght@400;500;600;700&display=swap">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Aptos', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #2c2c2a;
+      background: #f9f9f7;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #2955A8 0%, #1e3f7f 100%);
+      color: white;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      opacity: 0.95;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    section {
+      background: white;
+      border-radius: 12px;
+      padding: 2.5rem;
+      margin: 2rem 0;
+      border: 0.5px solid #e5e5e0;
+    }
+
+    section h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: #2955A8;
+    }
+
+    section p {
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 1rem;
+      line-height: 1.8;
+    }
+
+    .game-container {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+      border: 0.5px solid #e5e5e0;
+    }
+
+    .game-container h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #2955A8;
+    }
+
+    .game-container > p {
+      font-size: 0.95rem;
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+
+    #gameContainer {
+      margin-top: 1.5rem;
+    }
+
+    .progress-bar-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-label {
+      font-size: 0.9rem;
+      color: #888;
+      min-width: 80px;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 4px;
+      background: #e5e5e0;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #2955A8;
+      transition: width 0.3s ease;
+    }
+
+    .game-card {
+      background: #f5f5f2;
+      border: 0.5px solid #d5d5d0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .clues-label {
+      font-size: 0.85rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 1rem;
+    }
+
+    .clues-display {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .clue-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.75rem;
+      background: white;
+      border-radius: 8px;
+      border: 0.5px solid #e5e5e0;
+    }
+
+    .clue-check {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #4a9d6f;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .clue-text {
+      font-size: 0.95rem;
+      color: #2c2c2a;
+      font-weight: 500;
+    }
+
+    .guess-section {
+      border-top: 0.5px solid #d5d5d0;
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+
+    .guess-label {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .guess-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    select {
+      flex: 1;
+      padding: 0.75rem;
+      border: 0.5px solid #d5d5d0;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      background: white;
+      color: #2c2c2a;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #2955A8;
+      box-shadow: 0 0 0 2px rgba(41, 85, 168, 0.1);
+    }
+
+    button {
+      background: #2955A8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #1e3f7f;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .feedback {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      min-height: 1.5rem;
+    }
+
+    .feedback.correct {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .feedback.incorrect {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .feedback.hint {
+      background: #f3e5f5;
+      color: #6a1b9a;
+    }
+
+    .hint-text {
+      font-size: 0.9rem;
+      color: #888;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .summary-screen {
+      background: white;
+      border-radius: 12px;
+      padding: 3rem 2rem;
+      text-align: center;
+      border: 0.5px solid #e5e5e0;
+      display: none;
+    }
+
+    .summary-screen h3 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: #2955A8;
+    }
+
+    .summary-box {
+      background: #f5f5f2;
+      border: 0.5px solid #d5d5d0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .summary-box p:first-child {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #2955A8;
+      margin-bottom: 0.75rem;
+    }
+
+    .summary-box p:last-child {
+      font-size: 0.95rem;
+      color: #666;
+      margin: 0;
+    }
+
+    .summary-message {
+      max-width: 500px;
+      margin: 1.5rem auto;
+      text-align: left;
+    }
+
+    .summary-message p {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+
+    .summary-message strong {
+      color: #2955A8;
+    }
+
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .course-card {
+      background: #f5f5f2;
+      border: 0.5px solid #d5d5d0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .course-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2955A8;
+      margin-bottom: 0.75rem;
+    }
+
+    .course-card p {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .features-list {
+      list-style: none;
+      margin-top: 1.5rem;
+    }
+
+    .features-list li {
+      padding: 0.75rem 0;
+      padding-left: 1.75rem;
+      position: relative;
+      color: #555;
+    }
+
+    .features-list li:before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #2955A8;
+      font-weight: bold;
+    }
+
+    .cta-button {
+      background: #2955A8;
+      color: white;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-block;
+      margin-top: 1.5rem;
+    }
+
+    .cta-button:hover {
+      background: #1e3f7f;
+    }
+
+    footer {
+      background: #2955A8;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      margin-top: 3rem;
+    }
+
+    footer p {
+      margin: 0.5rem 0;
+      opacity: 0.9;
+    }
+
+    .highlight {
+      background: #fffbeb;
+      padding: 1.5rem;
+      border-left: 4px solid #2955A8;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Blackpool and The Fylde College</h1>
+    <p>Software Engineering, Digital Skills, and Career-Ready Training</p>
+  </header>
+
+  <div class="container">
+    <section>
+      <h2>Welcome to B&FC</h2>
+      <p>
+        We're committed to equipping students with the practical skills and knowledge needed to thrive in today's digital world. From software engineering fundamentals to advanced commercial training, our programmes are designed in partnership with industry leaders.
+      </p>
+      <p>
+        Whether you're starting your coding journey or deepening your expertise, we offer flexible, hands-on learning that connects classroom theory to real-world applications.
+      </p>
+    </section>
+
+    <div class="game-container">
+      <h2>Try Our Interactive Demo</h2>
+      <p>
+        This game demonstrates a key principle in data and information literacy: how isolated facts become meaningful insights when combined strategically. It's the foundation of everything we teach in software engineering and digital skills.
+      </p>
+
+      <div id="gameContainer">
+        <div class="progress-bar-container">
+          <span class="progress-label">Game <span id="gameNumber">1</span> of 7</span>
+          <div class="progress-bar">
+            <div id="progressBar" class="progress-fill" style="width: 14.28%;"></div>
+          </div>
+        </div>
+
+        <div class="game-card">
+          <div class="clues-label">Clues revealed</div>
+          <div id="cluesDisplay" class="clues-display"></div>
+
+          <div class="guess-section">
+            <label class="guess-label">Your guess</label>
+            <div class="guess-controls">
+              <select id="gameSelect">
+                <option value="">Select a game...</option>
+              </select>
+              <button onclick="checkGuess()">Guess</button>
+            </div>
+          </div>
+
+          <div id="feedback" class="feedback"></div>
+        </div>
+
+        <div id="hintText" class="hint-text"></div>
+      </div>
+
+      <div id="summaryScreen" class="summary-screen">
+        <h3>You completed all 7 games!</h3>
+        
+        <div class="summary-box">
+          <p>Did you need all 5 clues?</p>
+          <p>No. You combined multiple pieces of data to form information.</p>
+        </div>
+
+        <div class="summary-message">
+          <p><strong>Each clue by itself was data.</strong> "Dust II", "AWP", "Creeper" — isolated facts without context.</p>
+          <p><strong>Together they became meaningful information.</strong> Data organized and combined reveals understanding. That's what transforms raw facts into knowledge.</p>
+        </div>
+
+        <button class="cta-button" onclick="location.reload()">Play again</button>
+      </div>
+    </div>
+<!--
+    <section>
+      <h2>Our Programmes</h2>
+      
+      <div class="courses-grid">
+        <div class="course-card">
+          <h3>Software Engineering</h3>
+          <p>Learn to code with Python, JavaScript, and modern frameworks. Build real applications from day one.</p>
+        </div>
+        <div class="course-card">
+          <h3>Digital Skills Training</h3>
+          <p>Master Microsoft 365, cloud computing, and business automation. Gain commercial credentials.</p>
+        </div>
+        <div class="course-card">
+          <h3>Interactive Learning Tools</h3>
+          <p>Explore database design, network fundamentals, and web development through hands-on projects.</p>
+        </div>
+      </div>
+
+      <div class="highlight">
+        <strong style="color: #2955A8;">Commercial Training Available:</strong> We partner with leading organisations to deliver customised Microsoft 365 training, power automation, and SharePoint integration courses. Contact us to discuss your team's upskilling needs.
+      </div>
+    </section>
+
+    <section>
+      <h2>Why Choose B&FC?</h2>
+      <ul class="features-list">
+        <li>Industry-aligned curriculum developed with employers</li>
+        <li>Hands-on projects that build real-world portfolios</li>
+        <li>Experienced instructors with commercial expertise</li>
+        <li>Modern facilities and cloud-based development environments</li>
+        <li>Flexible study options: full-time, part-time, and evening courses</li>
+        <li>Clear pathways to degree-level study and employment</li>
+        <li>Support for apprenticeships and work-based learning</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Get Started Today</h2>
+      <p>
+        Ready to launch your career in technology? Whether you're exploring coding for the first time or upskilling for your next role, we have a programme for you.
+      </p>
+      <p style="margin-bottom: 0;">
+        <strong>Next steps:</strong> Visit our website, request a prospectus, or book a campus visit to see our facilities and meet our team.
+      </p>
+      <button class="cta-button">Explore Courses</button>
+    </section>
+  </div>
+  -->
+
+  <footer>
+    <p><strong>Blackpool and The Fylde College</strong></p>
+    <p>Preparing students for success in the digital economy</p>
+    <p style="margin-top: 1.5rem; opacity: 0.7; font-size: 0.9rem;">
+      Blackpool FY2 0AA | www.blackpool.ac.uk
+    </p>
+  </footer>
+
+  <script>
+    const games = [
+      { title: "Counter-Strike", clues: ["FPS", "Counter Terrorist", "Dust II", "AWP", "Terrorists"] },
+      { title: "Fortnite", clues: ["Battle Royale", "Tilted Towers", "Battle Bus", "V-Bucks", "Epic Games"] },
+      { title: "Minecraft", clues: ["Creeper", "Crafting Table", "Nether", "Diamond Pickaxe", "Steve"] },
+      { title: "Super Mario", clues: ["Mushroom Kingdom", "Bowser", "Luigi", "Princess Peach", "Goomba"] },
+      { title: "Halo", clues: ["Master Chief", "Covenant", "Energy Sword", "Warthog", "UNSC"] },
+      { title: "GTA V", clues: ["Los Santos", "Trevor", "Franklin", "Michael", "Heists"] },
+      { title: "The Legend of Zelda", clues: ["Hyrule", "Link", "Master Sword", "Triforce", "Ganon"] },
+      { title: "Elden Ring", clues: ["Boss Rush", "Crafting Pot", "Erdtree", "Tarnished", "Malenia"] },
+      { title: "Dark Souls", clues: ["Bonfires", "Estus Flask", "Praise the Sun", "Parry", "You Died"] },
+      { title: "Call of Duty", clues: ["Modern Warfare", "Multiplayer", "Killstreaks", "Campaign", "Zombies"] },
+      { title: "League of Legends", clues: ["MOBA", "Summoner's Rift", "Champion", "Gold Farming", "Baron Nashor"] },
+      { title: "Dota 2", clues: ["RTS Elements", "Radiant vs Dire", "Roshan", "Courier", "Ancient"] },
+      { title: "Valorant", clues: ["Tactical Shooter", "Agents", "Economy System", "Spike", "Valorant"] },
+      { title: "Apex Legends", clues: ["Battle Royale", "Legends", "Ping System", "Respawn Beacons", "Kings Canyon"] },
+      { title: "PUBG", clues: ["Battle Royale", "Looting", "Blue Zone", "Airdrop", "Parachute"] },
+      { title: "Final Fantasy VII", clues: ["Midgar", "Materia", "Aerith", "Sephiroth", "Cloud"] },
+      { title: "The Witcher 3", clues: ["Geralt of Rivia", "Witcher Signs", "Monster Hunting", "Novigrad", "Wild Hunt"] },
+      { title: "Red Dead Redemption 2", clues: ["Van der Linde Gang", "Arthur Morgan", "Wild West", "Bounty Hunting", "Honor System"] },
+      { title: "Tetris", clues: ["Falling Blocks", "Line Clearing", "Rotation", "Retro Game", "Soviet"] },
+      { title: "Doom", clues: ["Demons", "Hell", "Shotgun", "Mars Base", "FPS Classic"] },
+      { title: "Half-Life", clues: ["Gordon Freeman", "Crowbar", "Alien Invasion", "Black Mesa", "Headcrab"] },
+      { title: "Portal", clues: ["Portal Gun", "Test Chambers", "GLaDOS", "Companion Cube", "Puzzle"] },
+      { title: "The Last of Us", clues: ["Post-Apocalyptic", "Joel and Ellie", "Infected", "Cordyceps", "Survivor"] },
+      { title: "Overwatch", clues: ["Team-Based Shooter", "Heroes", "Ultimates", "Payload", "Blizzard"] },
+      { title: "Pac-Man", clues: ["Maze", "Pellets", "Ghosts", "Yellow Circle", "Arcade Classic"] }
+    ];
+
+    let allGamesList = games.map(g => g.title).sort();
+    let currentGameIndex = 0;
+    let currentClueLevel = 0;
+
+    function init() {
+      populateDropdown();
+      showGame();
+    }
+
+    function populateDropdown() {
+      const select = document.getElementById('gameSelect');
+      allGamesList.forEach(game => {
+        const option = document.createElement('option');
+        option.value = game;
+        option.textContent = game;
+        select.appendChild(option);
+      });
+    }
+
+    function showGame() {
+      const game = games[currentGameIndex];
+      const totalClues = Math.min(currentClueLevel + 1, 5);
+      
+      document.getElementById('gameNumber').textContent = currentGameIndex + 1;
+      document.getElementById('progressBar').style.width = ((currentGameIndex + 1) / games.length * 100) + '%';
+      
+      const cluesDisplay = document.getElementById('cluesDisplay');
+      cluesDisplay.innerHTML = '';
+      
+      for (let i = 0; i < totalClues; i++) {
+        const clueDiv = document.createElement('div');
+        clueDiv.className = 'clue-item';
+        clueDiv.innerHTML = `
+          <div class="clue-check">✓</div>
+          <span class="clue-text">${game.clues[i]}</span>
+        `;
+        cluesDisplay.appendChild(clueDiv);
+      }
+      
+      const hintText = document.getElementById('hintText');
+      if (currentClueLevel < 4) {
+        hintText.textContent = `Guess now, or reveal clue ${currentClueLevel + 2}`;
+      } else {
+        hintText.textContent = 'This is the last clue';
+      }
+      
+      document.getElementById('feedback').innerHTML = '';
+      document.getElementById('gameSelect').value = '';
+    }
+
+    function checkGuess() {
+      const select = document.getElementById('gameSelect');
+      const guess = select.value;
+      const game = games[currentGameIndex];
+      const feedback = document.getElementById('feedback');
+      
+      if (!guess) {
+        feedback.innerHTML = 'Select a game first';
+        feedback.className = 'feedback hint';
+        return;
+      }
+      
+      if (guess === game.title) {
+        feedback.innerHTML = `✓ Correct! That's ${game.title}`;
+        feedback.className = 'feedback correct';
+        setTimeout(() => nextGame(), 800);
+      } else {
+        if (currentClueLevel < 4) {
+          currentClueLevel++;
+          showGame();
+          feedback.innerHTML = 'Not quite. Here\'s another clue:';
+          feedback.className = 'feedback hint';
+        } else {
+          feedback.innerHTML = `The answer was: ${game.title}`;
+          feedback.className = 'feedback incorrect';
+          setTimeout(() => nextGame(), 1200);
+        }
+      }
+    }
+
+    function nextGame() {
+      currentGameIndex++;
+      currentClueLevel = 0;
+      
+      if (currentGameIndex >= games.length) {
+        document.getElementById('gameContainer').style.display = 'none';
+        document.getElementById('summaryScreen').style.display = 'block';
+      } else {
+        showGame();
+      }
+    }
+
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') checkGuess();
+    });
+
+    init();
+  </script>
+</body>
+</html>
