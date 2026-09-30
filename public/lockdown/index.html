@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lockdown at Byte Burger HQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Atkinson+Hyperlegible:wght@400;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ketchup:#B3261E; --ketchup-deep:#8A1C16; --mustard:#F2B705; --paper:#FFFFFF;
+  --ink:#241C18; --muted:#6B5E57; --line:#E4DAD2; --pickle:#2F7D32; --wrong:#B3261E;
+  --tint:#FFF4D6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ketchup:#5E1511; --ketchup-deep:#3E0E0B; --paper:#221C19; --ink:#F4ECE6;
+    --muted:#B8A99F; --line:#3D332E; --pickle:#6CC070; --wrong:#FF8A80; --tint:#3A2F12;
+  }
+}
+:root[data-theme="dark"]{
+  --ketchup:#5E1511; --ketchup-deep:#3E0E0B; --paper:#221C19; --ink:#F4ECE6;
+  --muted:#B8A99F; --line:#3D332E; --pickle:#6CC070; --wrong:#FF8A80; --tint:#3A2F12;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--ketchup);color:var(--ink);
+  font-family:"Atkinson Hyperlegible",Verdana,Arial,sans-serif;font-size:1.0625rem;line-height:1.55}
+.wrap{max-width:760px;margin:0 auto;padding:1.5rem 1rem 3rem}
+header h1{font-family:"Bungee",Impact,"Arial Black",sans-serif;color:var(--mustard);
+  font-size:clamp(2rem,8vw,3.4rem);line-height:1.02;margin:.5rem 0 .75rem;letter-spacing:.01em}
+header p{color:#FFF1E6;max-width:60ch;margin:0 0 1rem}
+.bar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:1rem 0}
+.clock{font-family:"Courier Prime","Courier New",monospace;font-size:1.6rem;font-weight:700;
+  background:var(--ketchup-deep);color:var(--mustard);padding:.2rem .8rem;border-radius:6px}
+button{font:inherit;cursor:pointer;border-radius:6px;border:2px solid transparent}
+.btn{background:var(--mustard);color:#241C18;font-weight:700;padding:.5rem 1rem}
+.btn.ghost{background:transparent;color:#FFF1E6;border-color:#FFF1E6}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--mustard);outline-offset:2px}
+.locks{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0 1.5rem;padding:0;list-style:none}
+.locks button{width:3rem;height:3rem;background:var(--ketchup-deep);color:#FFF1E6;font-weight:700;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;font-size:.8rem}
+.locks button span{font-size:1.2rem}
+.locks button.done{background:var(--mustard);color:#241C18}
+.locks button.current{border-color:var(--mustard)}
+.locks button:disabled{opacity:.45;cursor:not-allowed}
+
+/* receipt panel */
+.receipt{background:var(--paper);padding:1.5rem 1.25rem 2rem;position:relative;
+  filter:drop-shadow(0 6px 0 var(--ketchup-deep))}
+.receipt::after{content:"";position:absolute;left:0;right:0;bottom:-12px;height:12px;
+  background:linear-gradient(-45deg,transparent 8px,var(--paper) 0) 0 0/16px 12px repeat-x,
+             linear-gradient(45deg,transparent 8px,var(--paper) 0) 0 0/16px 12px repeat-x}
+.tag{font-family:"Courier Prime","Courier New",monospace;color:var(--muted);font-size:.95rem;margin:0}
+.receipt h2{font-family:"Bungee",Impact,sans-serif;font-size:1.6rem;line-height:1.15;margin:.25rem 0 .75rem}
+.receipt h3{font-size:1.1rem;margin:1.25rem 0 .4rem}
+.story{border-left:4px solid var(--mustard);background:var(--tint);padding:.6rem .8rem;margin:0 0 1rem}
+.tablebox{overflow-x:auto;margin:.5rem 0 1rem;border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{padding:.4rem .6rem;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:var(--tint)}
+caption{text-align:left;font-weight:700;padding:.4rem .6rem}
+ol.defs li{margin:.35rem 0}
+.bank{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0 1rem;padding:0;list-style:none}
+.bank li{border:1px dashed var(--muted);padding:.15rem .6rem;border-radius:4px}
+code,pre{font-family:"Courier Prime","Courier New",monospace}
+pre{background:var(--tint);padding:.75rem;overflow-x:auto;font-size:.9rem;white-space:pre}
+.answer{border-top:2px dashed var(--line);margin-top:1.5rem;padding-top:1rem}
+.answer label{font-weight:700;display:block;margin-bottom:.35rem}
+.answer .row{display:flex;gap:.5rem;flex-wrap:wrap}
+.answer input{font-family:"Courier Prime","Courier New",monospace;font-size:1.3rem;letter-spacing:.15em;
+  text-transform:uppercase;padding:.4rem .6rem;border:2px solid var(--ink);border-radius:6px;
+  background:var(--paper);color:var(--ink);width:12rem;max-width:100%}
+.answer .btn{background:var(--ink);color:var(--paper)}
+.fmt{color:var(--muted);font-size:.9rem;margin:.35rem 0 0}
+.msg{min-height:1.6em;font-weight:700;margin:.5rem 0 0}
+.msg.ok{color:var(--pickle)} .msg.no{color:var(--wrong)}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+.hints{margin-top:1rem}
+.hints button{background:transparent;color:var(--ink);border:2px solid var(--ink);padding:.35rem .8rem}
+.hints ol{padding-left:1.2rem}
+.escaped{text-align:center}
+.escaped p{max-width:50ch;margin:0 auto 1rem}
+footer{color:#FFF1E6;font-size:.9rem;margin-top:2.5rem}
+footer button{background:none;border:none;color:#FFF1E6;text-decoration:underline;padding:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Lockdown at Byte Burger HQ</h1>
+    <p>A hacker has scrambled the Byte Burger database and locked every door. Fix the data, crack each lock, and find out who did it before time runs out.</p>
+    <div class="bar">
+      <span class="clock" id="clock" aria-live="off">00:00</span>
+      <button class="btn" id="startBtn">Start timer</button>
+      <span id="penalty" style="color:#FFF1E6"></span>
+    </div>
+  </header>
+
+  <nav aria-label="Locks"><ul class="locks" id="lockList"></ul></nav>
+  <main id="stage" class="receipt" tabindex="-1"></main>
+
+  <footer>
+    <p>Teacher tools: <button id="jump2">Start at session 2</button> &nbsp; <button id="jump3">Start at session 3</button> &nbsp; <button id="resetBtn">Reset this device</button></p>
+  </footer>
+</div>
+
+<script>
+const LOCKS = [
+{ session:1, title:"The Word Lock", story:"The staff room door has a word lock. The password is hidden in the database words everyone should know.",
+  body:`<h3>Your task</h3>
+<p>Match each description to a word from the bank. Write down the <strong>first letter</strong> of each word, in order. Those letters are the code.</p>
+<ul class="bank"><li>Foreign key</li><li>Record</li><li>Index</li><li>Entity</li><li>SQL</li><li>Query</li><li>Table</li></ul>
+<ol class="defs">
+<li>A field in one table that links to the primary key in another table.</li>
+<li>One complete row in a table, such as all the details about one customer.</li>
+<li>A tool that helps the database find records faster, like the list at the back of a book.</li>
+<li>A thing we store data about, such as Customer or Burger.</li>
+<li>The language we type to ask a database questions.</li>
+</ol>`,
+  fmt:"5 letters", a:"RlJJRVM=",
+  hints:["Two words in the bank are not used.","Number 1 starts with F. Number 4 is the word for a “thing”, like Customer."]},
+
+{ session:1, title:"Data Type Detective", story:"The menu table is broken. The hacker gave some fields the wrong data type.",
+  body:`<div class="tablebox"><table><caption>Menu table design</caption>
+<tr><th>Row</th><th>Field name</th><th>Data type</th><th>Example</th></tr>
+<tr><td>1</td><td>ItemID</td><td>AutoNumber</td><td>14</td></tr>
+<tr><td>2</td><td>ItemName</td><td>Integer</td><td>Classic Burger</td></tr>
+<tr><td>3</td><td>Price</td><td>Text</td><td>£5.49</td></tr>
+<tr><td>4</td><td>Vegetarian</td><td>Yes/No</td><td>Yes</td></tr>
+<tr><td>5</td><td>Calories</td><td>Integer</td><td>650</td></tr>
+<tr><td>6</td><td>DateAdded</td><td>Text</td><td>12/03/2026</td></tr>
+<tr><td>7</td><td>SupplierPhone</td><td>Integer</td><td>07700 900123</td></tr>
+<tr><td>8</td><td>Description</td><td>Text</td><td>Beef patty with cheese</td></tr>
+</table></div>
+<h3>Your task</h3>
+<p>Find every row with the wrong data type. The code is the row numbers, smallest first, with no spaces.</p>`,
+  fmt:"Numbers only, for example 158", a:"MjM2Nw==",
+  hints:["There are 4 mistakes.","Phone numbers start with 0. What happens to that 0 if you store it as a number?"]},
+
+{ session:1, title:"The Key Hunt", story:"The vault needs a primary key for each table. Pick the field that can never repeat.",
+  body:`<div class="tablebox"><table><caption>Orders</caption>
+<tr><th>CustomerName</th><th>OrderDate</th><th>OrderID</th><th>Total</th></tr>
+<tr><td>Jay Patel</td><td>01/09/2026</td><td>1001</td><td>£9.50</td></tr>
+<tr><td>Mia Lee</td><td>01/09/2026</td><td>1002</td><td>£7.00</td></tr>
+<tr><td>Jay Patel</td><td>02/09/2026</td><td>1003</td><td>£9.50</td></tr></table></div>
+<div class="tablebox"><table><caption>Products</caption>
+<tr><th>Price</th><th>Name</th><th>ProductCode</th><th>Category</th></tr>
+<tr><td>£2.00</td><td>Fries</td><td>P01</td><td>Side</td></tr>
+<tr><td>£2.00</td><td>Onion Rings</td><td>P02</td><td>Side</td></tr>
+<tr><td>£5.49</td><td>Fries</td><td>P03</td><td>Large side</td></tr></table></div>
+<div class="tablebox"><table><caption>Staff</caption>
+<tr><th>FirstName</th><th>EmployeeNo</th><th>Role</th><th>Shift</th></tr>
+<tr><td>Sam</td><td>E01</td><td>Cook</td><td>Late</td></tr>
+<tr><td>Sam</td><td>E02</td><td>Cashier</td><td>Late</td></tr>
+<tr><td>Ava</td><td>E03</td><td>Cook</td><td>Early</td></tr></table></div>
+<div class="tablebox"><table><caption>Delivery vans</caption>
+<tr><th>VanColour</th><th>NumberPlate</th><th>Mileage</th><th>Driver</th></tr>
+<tr><td>Red</td><td>BB24 URG</td><td>12000</td><td>Sam</td></tr>
+<tr><td>Red</td><td>BB25 FRY</td><td>8000</td><td>Ava</td></tr>
+<tr><td>White</td><td>BB23 BUN</td><td>12000</td><td>Sam</td></tr></table></div>
+<h3>Your task</h3>
+<p>Choose the best primary key for each table, in the order shown. The code is the first letter of each key.</p>`,
+  fmt:"4 letters", a:"T1BFTg==",
+  hints:["Look for values that are the same in two rows. Those fields can’t be keys.","The code spells a word you want to do to a door."]},
+
+{ session:2, title:"The Messy Receipt (1NF)", story:"The hacker dumped all orders into one messy sheet. It is in unnormalised form (UNF).",
+  body:`<div class="tablebox"><table><caption>Orders (UNF)</caption>
+<tr><th>OrderID</th><th>OrderDate</th><th>CustomerID</th><th>CustomerName</th><th>CustomerPhone</th><th>Items (price, quantity)</th></tr>
+<tr><td>1001</td><td>01/09</td><td>C1</td><td>Jay Patel</td><td>07700 900111</td><td>Classic Burger (£5, 2), Fries (£2, 1), Cola (£1, 2)</td></tr>
+<tr><td>1002</td><td>01/09</td><td>C2</td><td>Mia Lee</td><td>07700 900222</td><td>Veggie Burger (£5, 1), Shake (£3, 1)</td></tr>
+<tr><td>1003</td><td>02/09</td><td>C1</td><td>Jay Patel</td><td>07700 900111</td><td>Classic Burger (£5, 1), Fries (£2, 1), Onion Rings (£2, 1), Cola (£1, 1)</td></tr>
+</table></div>
+<h3>Your task</h3>
+<p>Put the table into first normal form (1NF). Each cell must hold one value only, so each item needs its own row. Split “Items” into three fields: Item, ItemPrice and Quantity.</p>
+<p>The code is the <strong>number of rows</strong>, then the <strong>number of columns</strong> in your 1NF table. Don’t count the heading row.</p>`,
+  fmt:"Rows then columns, for example 126", a:"OTg=",
+  hints:["Count the items in each order: 3 + 2 + 4.","Columns: the 5 fields at the start, plus Item, ItemPrice and Quantity."]},
+
+{ session:2, title:"The Split Key (2NF)", story:"Your 1NF table uses two fields together as its key: OrderID + Item. Some fields only care about half of that key.",
+  body:`<p>1NF table fields: <code>OrderID</code> (key), <code>Item</code> (key), OrderDate, CustomerID, CustomerName, CustomerPhone, ItemPrice, Quantity</p>
+<h3>Your task</h3>
+<p>For each non-key field, ask: does it depend on <strong>OrderID only</strong>, <strong>Item only</strong>, or <strong>both</strong>?</p>
+<p>Move each group into its own table, with the key it depends on. This is second normal form (2NF).</p>
+<p>The code is the <strong>number of tables</strong>, then the <strong>total number of fields</strong> across all tables. Count a key field every time it appears.</p>`,
+  fmt:"Tables then fields, for example 412", a:"MzEw",
+  hints:["The price of Fries is the same in every order, so ItemPrice depends on Item only.","You need 3 tables. Quantity depends on both keys, so it stays in a table with OrderID and Item."]},
+
+{ session:2, title:"The Sneaky Field (3NF)", story:"One of your 2NF tables still has a secret link hiding inside it.",
+  body:`<div class="tablebox"><table><caption>Orders (2NF)</caption>
+<tr><th>OrderID (key)</th><th>OrderDate</th><th>CustomerID</th><th>CustomerName</th><th>CustomerPhone</th></tr>
+<tr><td>1001</td><td>01/09</td><td>C1</td><td>Jay Patel</td><td>07700 900111</td></tr>
+<tr><td>1002</td><td>01/09</td><td>C2</td><td>Mia Lee</td><td>07700 900222</td></tr>
+<tr><td>1003</td><td>02/09</td><td>C1</td><td>Jay Patel</td><td>07700 900111</td></tr>
+</table></div>
+<h3>Your task</h3>
+<p>Some fields depend on a field that is <strong>not</strong> the key. Find them and move them into a new table. This is third normal form (3NF).</p>
+<p>Your full database now has your new tables plus the Items and OrderLines tables from the last lock. The code is the <strong>number of tables</strong>, then the <strong>total number of fields</strong>.</p>`,
+  fmt:"Tables then fields", a:"NDEx",
+  hints:["If you know CustomerID is C1, you already know the name and phone. They depend on CustomerID, not OrderID.","Keep CustomerID in Orders as a foreign key. You should have 4 tables."]},
+
+{ session:2, title:"The Relationship Web", story:"The final door in the vault is wired to the relationships between tables.",
+  body:`<h3>Your task</h3>
+<p>Decide the relationship type for each pair. Use A for one-to-one, B for one-to-many, C for many-to-many. The code is the four letters in order.</p>
+<ol class="defs">
+<li>Customers and Orders (one customer can place lots of orders).</li>
+<li>Orders and Items, <em>before</em> we added OrderLines.</li>
+<li>Staff and Lockers (every staff member has exactly one locker).</li>
+<li>Items and OrderLines.</li>
+</ol>`,
+  fmt:"4 letters, A, B or C", a:"QkNBQg==",
+  hints:["Can one order contain lots of items? Can one item be in lots of orders? If both are yes, it is many-to-many.","OrderLines was made to fix a many-to-many problem."]},
+
+{ session:3, title:"Unmask the Hacker", story:"You’ve fixed the database. Now use it. The login log shows who changed the prices overnight.",
+  body:`<div class="tablebox"><table><caption>Staff</caption>
+<tr><th>EmpNo</th><th>Name</th><th>Role</th></tr>
+<tr><td>E01</td><td>Amira Khan</td><td>Manager</td></tr>
+<tr><td>E02</td><td>Tom Reed</td><td>Cook</td></tr>
+<tr><td>E03</td><td>Lily Chen</td><td>Cashier</td></tr>
+<tr><td>E04</td><td>Dev Shah</td><td>Cook</td></tr>
+<tr><td>E05</td><td>Grace Obi</td><td>Cleaner</td></tr></table></div>
+<div class="tablebox"><table><caption>LoginLog</caption>
+<tr><th>EmpNo</th><th>LoginTime</th><th>Action</th></tr>
+<tr><td>E01</td><td>23:40</td><td>Update Prices</td></tr>
+<tr><td>E02</td><td>01:15</td><td>View Menu</td></tr>
+<tr><td>E01</td><td>02:05</td><td>Update Prices</td></tr>
+<tr><td>E03</td><td>02:30</td><td>Update Prices</td></tr>
+<tr><td>E05</td><td>03:20</td><td>Log Out</td></tr>
+<tr><td>E04</td><td>18:00</td><td>Update Prices</td></tr></table></div>
+<h3>Clues</h3>
+<ol class="defs">
+<li>The hacker logged in between 00:00 and 04:00.</li>
+<li>The hacker updated the prices.</li>
+<li>Managers are allowed to change prices, so the hacker is not a manager.</li>
+</ol>
+<h3>Your task</h3>
+<p>Build this query in your database, or work it out by hand:</p>
+<pre>SELECT Staff.Name
+FROM Staff JOIN LoginLog
+  ON Staff.EmpNo = LoginLog.EmpNo
+WHERE LoginTime BETWEEN '00:00' AND '04:00'
+  AND Action = 'Update Prices'
+  AND Role &lt;&gt; 'Manager';</pre>
+<p>The code is the hacker’s <strong>surname</strong>.</p>`,
+  fmt:"Surname", a:"Q0hFTg==",
+  hints:["Cross out anyone who logged in before 00:00 or after 04:00.","&lt;&gt; means “not equal to”. Cross out the manager."]}
+];
+
+const PENALTY = 120; // seconds per hint
+const KEY = "byteburger-escape-v1";
+let state = { solved:[], hints:{}, elapsed:0, running:false, startedAt:null, view:0 };
+
+function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s) state = Object.assign(state, s); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+const norm = s => s.toUpperCase().replace(/[^A-Z0-9]/g,"");
+const enc = s => btoa(s);
+
+function unlockedUpTo(){ let i=0; while(i<LOCKS.length && state.solved.includes(i)) i++; return i; }
+function totalHints(){ return Object.values(state.hints).reduce((a,b)=>a+b,0); }
+function seconds(){ let t = state.elapsed; if(state.running && state.startedAt) t += (Date.now()-state.startedAt)/1000; return Math.floor(t) + totalHints()*PENALTY; }
+
+function tick(){
+  const t = seconds(), m = Math.floor(t/60), s = t%60;
+  document.getElementById("clock").textContent = String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  const h = totalHints();
+  document.getElementById("penalty").textContent = h ? `Includes ${h} hint${h>1?"s":""} (+${h*2} min)` : "";
+}
+setInterval(tick, 1000);
+
+function toggleTimer(){
+  if(state.running){ state.elapsed += (Date.now()-state.startedAt)/1000; state.running=false; state.startedAt=null; }
+  else { state.running=true; state.startedAt=Date.now(); }
+  document.getElementById("startBtn").textContent = state.running ? "Pause timer" : "Start timer";
+  save(); tick();
+}
+
+function renderLocks(){
+  const list = document.getElementById("lockList"); list.innerHTML="";
+  const max = unlockedUpTo();
+  LOCKS.forEach((L,i)=>{
+    const li = document.createElement("li"), b = document.createElement("button");
+    const done = state.solved.includes(i);
+    b.innerHTML = `<span>${done?"🔓":"🔒"}</span>${i===LOCKS.length-1?"Exit":i+1}`;
+    b.setAttribute("aria-label", `Lock ${i+1}: ${L.title}${done?", solved":""}`);
+    if(done) b.classList.add("done");
+    if(i===state.view) b.classList.add("current");
+    b.disabled = i>max;
+    b.onclick = ()=>{ state.view=i; save(); render(); };
+    li.appendChild(b); list.appendChild(li);
+  });
+}
+
+function renderLock(i){
+  const L = LOCKS[i], done = state.solved.includes(i), used = state.hints[i]||0;
+  const stage = document.getElementById("stage");
+  stage.innerHTML = `
+    <p class="tag">Session ${L.session} &nbsp; Lock ${i+1} of ${LOCKS.length}</p>
+    <h2>${L.title}</h2>
+    <p class="story">${L.story}</p>
+    ${L.body}
+    <div class="answer">
+      <label for="code">Enter the code</label>
+      <div class="row">
+        <input id="code" autocomplete="off" autocapitalize="characters" spellcheck="false" ${done?"disabled":""}>
+        <button class="btn" id="try" ${done?"disabled":""}>Try the lock</button>
+      </div>
+      <p class="fmt">Format: ${L.fmt}</p>
+      <p class="msg ${done?"ok":""}" id="msg" aria-live="polite">${done?"Unlocked. Well done!":""}</p>
+      ${done && i<LOCKS.length-1 ? `<button class="btn" id="next">Go to lock ${i+2}</button>`:""}
+    </div>
+    <div class="hints">
+      ${used? `<ol>${L.hints.slice(0,used).map(h=>`<li>${h}</li>`).join("")}</ol>`:""}
+      ${!done && used<L.hints.length ? `<button id="hint">Use a hint (+2 minutes)</button>`:""}
+    </div>`;
+  const input = document.getElementById("code");
+  const tryBtn = document.getElementById("try");
+  if(tryBtn){
+    const attempt = ()=>{
+      const msg = document.getElementById("msg");
+      if(enc(norm(input.value)) === L.a){
+        if(!state.solved.includes(i)) state.solved.push(i);
+        save(); render();
+      } else {
+        msg.className="msg no"; msg.textContent = input.value.trim() ? "That code doesn’t open the lock. Check your working and try again." : "Type a code first.";
+        input.classList.remove("shake"); void input.offsetWidth; input.classList.add("shake");
+      }
+    };
+    tryBtn.onclick = attempt;
+    input.addEventListener("keydown", e=>{ if(e.key==="Enter") attempt(); });
+  }
+  const hint = document.getElementById("hint");
+  if(hint) hint.onclick = ()=>{ state.hints[i]=(state.hints[i]||0)+1; save(); render(); tick(); };
+  const next = document.getElementById("next");
+  if(next) next.onclick = ()=>{ state.view=i+1; save(); render(); document.getElementById("stage").focus(); };
+}
+
+function renderEscaped(){
+  const t = seconds(), m = Math.floor(t/60);
+  document.getElementById("stage").innerHTML = `
+    <div class="escaped">
+      <p class="tag">All locks open</p>
+      <h2>You escaped!</h2>
+      <p>The hacker was <strong>Lily Chen</strong>, a cashier who changed the prices at 02:30. Your fixed database caught her.</p>
+      <p>Your team time: <strong>${m} minutes</strong> (including ${totalHints()} hint${totalHints()===1?"":"s"}).</p>
+      <button class="btn" id="review">Look back at the locks</button>
+    </div>`;
+  if(state.running) toggleTimer();
+  document.getElementById("review").onclick = ()=>{ state.view=0; save(); render(); };
+}
+
+function render(){
+  renderLocks();
+  if(state.solved.length===LOCKS.length && state.view===LOCKS.length-1 && state.showEnd!==false){ renderLock(state.view); 
+    const extra=document.createElement("div"); extra.style.marginTop="1rem";
+    extra.innerHTML=`<button class="btn" id="finish">See the ending</button>`;
+    document.getElementById("stage").appendChild(extra);
+    document.getElementById("finish").onclick=renderEscaped;
+    return; }
+  renderLock(Math.min(state.view, unlockedUpTo()));
+}
+
+function jumpTo(n){
+  if(!confirm(`Unlock every lock before session ${n}?`)) return;
+  LOCKS.forEach((L,i)=>{ if(L.session<n && !state.solved.includes(i)) state.solved.push(i); });
+  state.view = LOCKS.findIndex(L=>L.session===n); save(); render();
+}
+
+document.getElementById("startBtn").onclick = toggleTimer;
+document.getElementById("jump2").onclick = ()=>jumpTo(2);
+document.getElementById("jump3").onclick = ()=>jumpTo(3);
+document.getElementById("resetBtn").onclick = ()=>{
+  if(!confirm("Clear all progress and the timer on this device?")) return;
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  state = { solved:[], hints:{}, elapsed:0, running:false, startedAt:null, view:0 }; render(); tick();
+  document.getElementById("startBtn").textContent="Start timer";
+};
+
+load();
+document.getElementById("startBtn").textContent = state.running ? "Pause timer" : "Start timer";
+render(); tick();
+</script>
+</body>
+</html>
