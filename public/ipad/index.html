@@ -1,0 +1,783 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>iPad Office Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: iPad Settings-style split view. Grouped list on the left, detail pane on the right; stacks with a back button on phones. */
+:root {
+  --bg: #f2f2f7;
+  --card: #ffffff;
+  --fg: #1c1c1e;
+  --muted: #6c6c70;
+  --sep: #d8d8de;
+  --accent: #007aff;
+  --fill: #e9e9ee;
+  --tip-bg: #eaf3ff;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --t-outlook: #0a6cd6;
+  --t-word: #2c55b0;
+  --t-print: #7c7c84;
+  --t-copilot: #7b4fd6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000; --card: #1c1c1e; --fg: #f2f2f7; --muted: #98989f;
+    --sep: #38383a; --accent: #0a84ff; --fill: #2c2c2e; --tip-bg: #0f2540;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #000000; --card: #1c1c1e; --fg: #f2f2f7; --muted: #98989f;
+  --sep: #38383a; --accent: #0a84ff; --fill: #2c2c2e; --tip-bg: #0f2540;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font); font-size: 16px; line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+
+.app {
+  display: grid;
+  grid-template-columns: 330px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  background: var(--bg);
+  border-right: 1px solid var(--sep);
+  padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: 16px;
+  position: sticky; top: env(safe-area-inset-top, 0px);
+  height: 100vh; overflow-y: auto;
+}
+.sidebar h1 {
+  font-family: var(--font-display);
+  font-size: 34px; font-weight: 700; letter-spacing: -0.02em;
+  margin: 18px 4px 12px; text-wrap: balance;
+}
+.search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--fill); border-radius: 10px;
+  padding: 8px 10px; margin-bottom: 22px; color: var(--muted);
+}
+.search input {
+  border: 0; background: transparent; outline: none; flex: 1; min-width: 0;
+  font: inherit; color: var(--fg);
+}
+.search input::placeholder { color: var(--muted); }
+.search:focus-within { box-shadow: 0 0 0 2px var(--accent); }
+
+.group-head {
+  font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--muted); margin: 0 16px 6px; font-weight: 400;
+}
+.list {
+  list-style: none; margin: 0 0 24px; padding: 0;
+  background: var(--card); border-radius: 12px; overflow: hidden;
+}
+.row {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; text-align: left; background: none; border: 0;
+  padding: 10px 14px 10px 12px; min-height: 48px; cursor: pointer;
+}
+.list li + li { position: relative; }
+.list li + li::before {
+  content: ""; position: absolute; top: 0; left: 56px; right: 0;
+  border-top: 1px solid var(--sep); z-index: 1;
+}
+.row:hover { background: var(--fill); }
+.row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.row[aria-current="page"] { background: var(--accent); color: #fff; }
+.row[aria-current="page"] .chev { color: #fff; }
+.row .label { flex: 1; min-width: 0; }
+.chev { color: var(--muted); flex: none; }
+
+.tile {
+  width: 30px; height: 30px; border-radius: 7px; flex: none;
+  display: grid; place-items: center; color: #fff;
+}
+.tile svg { width: 18px; height: 18px; }
+.t-outlook { background: var(--t-outlook); }
+.t-word { background: var(--t-word); }
+.t-print { background: var(--t-print); }
+.t-copilot { background: linear-gradient(135deg, #7b4fd6, #1aa3b8); }
+.t-home { background: #34a853; }
+.t-basics { background: #ff9500; }
+
+/* Gesture demos */
+.demo { padding: 16px; display: grid; gap: 14px; }
+.demo-row { display: grid; grid-template-columns: 120px minmax(0,1fr); gap: 12px; align-items: center; }
+.demo-row .g { font-weight: 600; font-size: 14px; }
+.demo-row p { margin: 0; line-height: 1.7; }
+.sel { background: color-mix(in srgb, var(--accent) 28%, transparent); border-radius: 2px; padding: 1px 0; }
+.caret { display: inline-block; width: 2px; height: 1.15em; background: var(--accent); vertical-align: text-bottom; margin: 0 1px; }
+.practice {
+  width: 100%; min-height: 150px; resize: vertical;
+  border: 1px solid var(--sep); border-radius: 10px; padding: 12px;
+  font: inherit; font-size: 17px; line-height: 1.6;
+  background: var(--card); color: var(--fg);
+}
+.practice:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.zoom-demo { display: flex; justify-content: center; align-items: center; gap: 28px; padding: 22px 16px; flex-wrap: wrap; }
+.zoom-demo figure { margin: 0; text-align: center; font-size: 14px; color: var(--muted); display: grid; gap: 6px; justify-items: center; }
+.zoom-demo svg { color: var(--fg); }
+.wcard.wide { grid-column: 1 / -1; }
+
+.empty { color: var(--muted); padding: 8px 16px; display: none; }
+
+/* Detail */
+.detail { min-width: 0; }
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2;
+  display: none; align-items: center; gap: 4px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--sep);
+  padding-block: 10px;
+  padding-left: max(8px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.back {
+  display: flex; align-items: center; gap: 2px;
+  background: none; border: 0; color: var(--accent); cursor: pointer;
+  padding: 4px 8px; font-size: 17px;
+}
+.inner {
+  max-width: 720px; margin: 0 auto;
+  padding-block: 44px 64px;
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+}
+.page { display: none; }
+.page.on { display: block; }
+.crumb {
+  font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted); margin: 0 0 6px; font-weight: 600;
+}
+.page h2.title {
+  font-family: var(--font-display);
+  font-size: 34px; line-height: 1.12; font-weight: 700; letter-spacing: -0.02em;
+  margin: 0 0 10px; text-wrap: balance;
+}
+.lede { color: var(--muted); font-size: 18px; margin: 0 0 30px; max-width: 60ch; }
+
+.label-sm {
+  font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--muted); margin: 0 16px 6px; font-weight: 400;
+}
+.card {
+  background: var(--card); border-radius: 12px; margin: 0 0 26px; overflow: hidden;
+}
+.steps { list-style: none; margin: 0 0 26px; padding: 0; background: var(--card); border-radius: 12px; overflow: hidden; }
+.steps li {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 14px 16px; position: relative;
+}
+.steps li + li::before {
+  content: ""; position: absolute; top: 0; left: 54px; right: 0;
+  border-top: 1px solid var(--sep);
+}
+.num {
+  flex: none; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 14px; font-weight: 600;
+  display: grid; place-items: center; margin-top: 1px;
+  font-variant-numeric: tabular-nums;
+}
+.steps li > div { min-width: 0; }
+
+.defs { margin: 0; }
+.defs > div { padding: 13px 16px; display: grid; grid-template-columns: 70px minmax(0,1fr); gap: 12px; position: relative; }
+.defs > div + div::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: 1px solid var(--sep); }
+.defs dt { font-weight: 600; }
+.defs dd { margin: 0; color: var(--fg); }
+
+.key {
+  display: inline-block; padding: 1px 8px; border-radius: 6px;
+  background: var(--fill); border: 1px solid var(--sep);
+  font-size: 14px; font-weight: 600; white-space: nowrap;
+}
+.tip {
+  background: var(--tip-bg); border-radius: 12px; padding: 14px 16px;
+  margin: 0 0 26px; display: flex; gap: 12px; align-items: flex-start;
+}
+.tip svg { flex: none; color: var(--accent); margin-top: 2px; }
+.tip p { margin: 0; }
+.note { color: var(--muted); font-size: 14px; margin: -16px 16px 26px; }
+
+/* Mockups of the real screen parts */
+.mock {
+  background: var(--card); border-radius: 12px; margin: 0 0 26px; overflow: hidden;
+  border: 1px solid var(--sep);
+}
+.mock-cap { font-size: 12px; color: var(--muted); padding: 8px 14px; border-bottom: 1px solid var(--sep); background: var(--fill); }
+.field { display: flex; align-items: center; gap: 10px; padding: 11px 14px; position: relative; }
+.field + .field::before { content: ""; position: absolute; top: 0; left: 14px; right: 0; border-top: 1px solid var(--sep); }
+.field .k { color: var(--muted); width: 36px; flex: none; }
+.chip { background: var(--fill); border-radius: 999px; padding: 2px 10px; font-size: 14px; }
+.field .hl { margin-left: auto; color: var(--accent); }
+.ribbon { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 14px; align-items: center; }
+.rb {
+  border: 1px solid var(--sep); border-radius: 6px; padding: 4px 10px; font-size: 14px;
+  background: var(--card); display: inline-flex; align-items: center; gap: 6px;
+}
+.rb.font { min-width: 110px; justify-content: space-between; }
+.rb.on { outline: 2px solid var(--accent); outline-offset: 1px; }
+.fc { display: inline-flex; flex-direction: column; align-items: center; line-height: 1; font-weight: 700; }
+.fc i { display: block; width: 14px; height: 3px; background: #e0242b; margin-top: 2px; }
+.tabs { display: flex; gap: 18px; padding: 8px 14px 0; font-size: 14px; color: var(--muted); border-bottom: 1px solid var(--sep); }
+.tabs span { padding-bottom: 8px; }
+.tabs .cur { color: var(--fg); font-weight: 600; border-bottom: 2px solid var(--accent); }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 14px; }
+.pill { border-radius: 999px; padding: 4px 12px; font-size: 14px; background: var(--fill); }
+.pill.on { background: var(--accent); color: #fff; }
+
+.prompt {
+  background: var(--card); border-radius: 12px; padding: 14px 16px; margin: 0;
+  position: relative;
+}
+.prompts { display: grid; gap: 10px; margin: 0 0 26px; }
+.prompt p { margin: 0; }
+.prompt small { display: block; color: var(--muted); margin-top: 4px; font-size: 13px; }
+
+.next {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  width: 100%; background: var(--card); border: 0; border-radius: 12px;
+  padding: 14px 16px; cursor: pointer; text-align: left; margin-top: 8px;
+}
+.next:hover { background: var(--fill); }
+.next:focus-visible { outline: 2px solid var(--accent); }
+.next span { color: var(--muted); font-size: 13px; display: block; }
+.next strong { color: var(--accent); font-weight: 600; }
+
+.footnote { color: var(--muted); font-size: 13px; margin: 36px 0 0; text-align: center; }
+
+.welcome-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin: 0 0 26px; }
+.wcard {
+  background: var(--card); border: 0; border-radius: 14px; padding: 16px;
+  text-align: left; cursor: pointer; display: grid; gap: 10px;
+}
+.wcard:hover { background: var(--fill); }
+.wcard:focus-visible { outline: 2px solid var(--accent); }
+.wcard strong { font-size: 17px; }
+.wcard span { color: var(--muted); font-size: 14px; }
+
+@media (max-width: 760px) {
+  .app { grid-template-columns: minmax(0,1fr); }
+  .sidebar {
+    position: static; height: auto; border-right: 0;
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .app.show-detail .sidebar { display: none; }
+  .app:not(.show-detail) .detail { display: none; }
+  .topbar { display: flex; }
+  .inner { padding-block: 22px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .page h2.title { font-size: 30px; }
+  .welcome-grid { grid-template-columns: minmax(0,1fr); }
+  .defs > div { grid-template-columns: minmax(0,1fr); gap: 2px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .page.on { animation: in .22s ease-out; }
+  @keyframes in { from { opacity: .4; transform: translateX(8px); } to { opacity: 1; transform: none; } }
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-mail" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 6h18v12H3z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="m3 7 9 6 9-6"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 21V4m0 0h11l-2 4 2 4H5"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 5h16l-6 7v6l-4 2v-8z"/></symbol>
+    <symbol id="i-size" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 19 8 6l5 13M4.8 15h6.4M15 19l3-8 3 8M15.8 17h4.4"/></symbol>
+    <symbol id="i-colour" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-font" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 5h12M12 5v14M9 19h6"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M7 9V3h10v6M7 17H4V9h16v8h-3M7 14h10v7H7z"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l2.2 6.3L20.5 10.5l-6.3 2.2L12 19l-2.2-6.3L3.5 10.5l6.3-2.2zM19 15l1 2.6 2.5 1-2.5 1L19 22l-1-2.4-2.5-1 2.5-1z"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 5h16v11H9l-5 4z"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></symbol>
+    <symbol id="i-pinch" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 4l6 6M4 4v5M4 4h5M20 20l-6-6M20 20v-5M20 20h-5"/></symbol>
+    <symbol id="i-cursor" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9 4h6M9 20h6M12 4v16"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="m15 5-7 7 7 7"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m16 16 4 4"/></symbol>
+  </defs>
+</svg>
+
+<div class="app" id="app">
+  <nav class="sidebar" aria-label="Guide topics">
+    <h1>Guide</h1>
+    <label class="search">
+      <svg width="18" height="18"><use href="#i-search"/></svg>
+      <input id="q" type="search" placeholder="Search topics" autocomplete="off">
+    </label>
+
+    <ul class="list" data-group>
+      <li><button class="row" data-go="welcome"><span class="tile t-home"><svg><use href="#i-home"/></svg></span><span class="label">Start here</span><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button></li>
+    </ul>
+
+    <p class="group-head" data-head>iPad basics</p>
+    <ul class="list" data-group>
+      <li><button class="row" data-go="pinch-zoom"><span class="tile t-basics"><svg><use href="#i-pinch"/></svg></span><span class="label">Pinch to zoom</span><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button></li>
+      <li><button class="row" data-go="select-text"><span class="tile t-basics"><svg><use href="#i-cursor"/></svg></span><span class="label">Move through and select words</span><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button></li>
+    </ul>
+
+    <p class="group-head" data-head>Outlook</p>
+    <ul class="list" data-group>
+      <li><button class="row" data-go="to-cc-bcc"><span class="tile t-outlook"><svg><use href="#i-mail"/></svg></span><span class="label">To, Cc and Bcc</span><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button></li>
+      <li><button class="row" data-go="flag"><span class="tile t-outlook"><svg><use href="#i-flag"/></svg></span><span class="label">Flag an email</span><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button></li>
+      <li><button class="row" data-go="filter"><span class="tile t-outlook"><svg><use href="#i-filter"/></svg></span><span class="label">Filter your inbox</span><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button></li>
+    </ul>
+
+    <p class="group-head" data-head>Word</p>
+    <ul class="list" data-group>
+      <li><button class="row" data-go="text-size"><span class="tile t-word"><svg><use href="#i-size"/></svg></span><span class="label">Change text size</span><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button></li>
+      <li><button class="row" data-go="text-colour"><span class="tile t-word"><svg><use href="#i-colour"/></svg></span><span class="label">Add colour to text</span><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button></li>
+      <li><button class="row" data-go="fonts"><span class="tile t-word"><svg><use href="#i-font"/></svg></span><span class="label">Change the font</span><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button></li>
+    </ul>
+
+    <p class="group-head" data-head>Printing</p>
+    <ul class="list" data-group>
+      <li><button class="row" data-go="print-email"><span class="tile t-print"><svg><use href="#i-print"/></svg></span><span class="label">Print an email</span><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button></li>
+      <li><button class="row" data-go="print-doc"><span class="tile t-print"><svg><use href="#i-doc"/></svg></span><span class="label">Print a Word document</span><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button></li>
+    </ul>
+
+    <p class="group-head" data-head>Copilot</p>
+    <ul class="list" data-group>
+      <li><button class="row" data-go="copilot-start"><span class="tile t-copilot"><svg><use href="#i-spark"/></svg></span><span class="label">Get started with Copilot</span><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button></li>
+      <li><button class="row" data-go="copilot-ask"><span class="tile t-copilot"><svg><use href="#i-chat"/></svg></span><span class="label">Ask good questions</span><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button></li>
+    </ul>
+    <p class="empty" id="empty">No topics match your search.</p>
+  </nav>
+
+  <main class="detail">
+    <div class="topbar">
+      <button class="back" id="back"><svg width="20" height="20"><use href="#i-back"/></svg>Guide</button>
+    </div>
+    <div class="inner">
+
+      <!-- WELCOME -->
+      <section class="page" id="welcome" data-label="Start here">
+        <p class="crumb">iPad guide</p>
+        <h2 class="title">Outlook, Word and Copilot on iPad</h2>
+        <p class="lede">Short, step-by-step help for everyday jobs. Pick a topic from the list, then follow the numbered steps in order.</p>
+
+        <div class="welcome-grid">
+          <button class="wcard wide" data-go="pinch-zoom"><span class="tile t-basics"><svg><use href="#i-pinch"/></svg></span><strong>iPad basics</strong><span>Zoom in, move the cursor and select words. Start here if you’re new to iPad.</span></button>
+          <button class="wcard" data-go="to-cc-bcc"><span class="tile t-outlook"><svg><use href="#i-mail"/></svg></span><strong>Outlook</strong><span>To, Cc, Bcc, flags and filters</span></button>
+          <button class="wcard" data-go="text-size"><span class="tile t-word"><svg><use href="#i-size"/></svg></span><strong>Word</strong><span>Text size, colour and fonts</span></button>
+          <button class="wcard" data-go="print-email"><span class="tile t-print"><svg><use href="#i-print"/></svg></span><strong>Printing</strong><span>Print from Outlook and Word</span></button>
+          <button class="wcard" data-go="copilot-start"><span class="tile t-copilot"><svg><use href="#i-spark"/></svg></span><strong>Copilot</strong><span>Ask for help with writing and ideas</span></button>
+        </div>
+
+        <p class="label-sm">Before you begin</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Check your iPad is connected to Wi-Fi.</div></li>
+          <li><span class="num">2</span><div>Install Outlook, Word and the Microsoft 365 Copilot app from the App Store if they are not already on your iPad.</div></li>
+          <li><span class="num">3</span><div>Sign in to each app with your work email address and password.</div></li>
+        </ol>
+        <p class="note">Buttons can look slightly different depending on your app version. If you cannot find something, look for the three dots <span class="key">…</span> at the top of the screen. Most extra options live there.</p>
+      </section>
+
+      <!-- BASICS: PINCH -->
+      <section class="page" id="pinch-zoom" data-label="Pinch to zoom">
+        <p class="crumb">iPad basics</p>
+        <h2 class="title">Pinch to zoom</h2>
+        <p class="lede">Make text and pictures bigger so they’re easier to read. This works in Word, Outlook, photos and web pages.</p>
+
+        <div class="mock" aria-hidden="true">
+          <div class="mock-cap">Two fingers on the screen</div>
+          <div class="zoom-demo">
+            <figure>
+              <svg width="72" height="72" viewBox="0 0 72 72"><circle cx="24" cy="48" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="48" cy="24" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M17 55 6 66M55 17l11-11M6 66h8M6 66v-8M66 6h-8M66 6v8" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/></svg>
+              <figcaption>Spread apart to zoom in</figcaption>
+            </figure>
+            <figure>
+              <svg width="72" height="72" viewBox="0 0 72 72"><circle cx="14" cy="58" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="58" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M22 50l8-8M50 22l-8 8M30 42h-7M30 42v7M42 30h7M42 30v-7" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/></svg>
+              <figcaption>Pinch together to zoom out</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <p class="label-sm">Steps</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Put two fingers on the screen, close together. Your thumb and first finger work well.</div></li>
+          <li><span class="num">2</span><div>Slowly spread them apart to <strong>zoom in</strong>. Everything gets bigger.</div></li>
+          <li><span class="num">3</span><div>While zoomed in, drag with one finger to move around the page.</div></li>
+          <li><span class="num">4</span><div>Pinch your fingers back together to <strong>zoom out</strong>.</div></li>
+        </ol>
+
+        <div class="tip"><svg width="20" height="20"><use href="#i-bulb"/></svg><p>Zooming only changes how big things look on your screen. It doesn’t change the text size in your document or how it prints. To make the text itself bigger, see <button class="key" data-go="text-size" style="cursor:pointer">Change text size</button>.</p></div>
+        <button class="next" data-go="select-text"><div><span>Next</span><strong>Move through and select words</strong></div><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button>
+      </section>
+
+      <!-- BASICS: SELECT -->
+      <section class="page" id="select-text" data-label="Move through and select words">
+        <p class="crumb">iPad basics</p>
+        <h2 class="title">Move through and select words</h2>
+        <p class="lede">Before you can change, copy or colour text, you need to put the cursor in the right place or select the words. These taps do it quickly.</p>
+
+        <p class="label-sm">Taps at a glance</p>
+        <div class="mock">
+          <div class="mock-cap">What each tap does</div>
+          <div class="demo">
+            <div class="demo-row"><span class="g">Touch and hold</span><p>The meeting is on Fri<span class="caret"></span>day at 2pm. Please bring your notes.</p></div>
+            <div class="demo-row"><span class="g">Double-tap</span><p>The meeting is on <span class="sel">Friday</span> at 2pm. Please bring your notes.</p></div>
+            <div class="demo-row"><span class="g">Triple-tap</span><p><span class="sel">The meeting is on Friday at 2pm.</span> Please bring your notes.</p></div>
+          </div>
+        </div>
+
+        <p class="label-sm">Press and hold to move the cursor</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Touch and hold your finger on the text. A blue line (the cursor) appears under your finger.</div></li>
+          <li><span class="num">2</span><div>Keep your finger on the screen and slide it left, right, up or down. The cursor follows your finger.</div></li>
+          <li><span class="num">3</span><div>Lift your finger when the cursor is where you want it. You can now type or delete from that spot.</div></li>
+        </ol>
+
+        <p class="label-sm">Using the keyboard as a trackpad</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>When the on-screen keyboard is showing, touch and hold the <span class="key">space bar</span>.</div></li>
+          <li><span class="num">2</span><div>The letters go blank. Without lifting your finger, slide it around to move the cursor through the words.</div></li>
+          <li><span class="num">3</span><div>Lift your finger to place the cursor.</div></li>
+        </ol>
+
+        <p class="label-sm">Select words</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div><strong>Double-tap</strong> a word to highlight just that word.</div></li>
+          <li><span class="num">2</span><div><strong>Triple-tap</strong> a word to select the whole sentence it’s in.</div></li>
+          <li><span class="num">3</span><div>To select more or less, drag the blue handles at each end of the highlight.</div></li>
+          <li><span class="num">4</span><div>A menu appears above your selection with options like <span class="key">Copy</span>, <span class="key">Cut</span> and <span class="key">Paste</span>. Tap anywhere else to cancel the selection.</div></li>
+        </ol>
+        <p class="note">In some apps, triple-tap selects the whole paragraph instead of one sentence. If that happens, drag the handles to shorten it.</p>
+
+        <p class="label-sm">Practise here</p>
+        <div class="card" style="padding:14px 16px">
+          <label for="practice" class="note" style="display:block;margin:0 0 8px">Tap in the box and try each move.</label>
+          <textarea id="practice" class="practice">The meeting is on Friday at 2pm. Please bring your notes and a copy of the new rota. If you can’t make it, reply to this email by Thursday.</textarea>
+        </div>
+
+        <button class="next" data-go="to-cc-bcc"><div><span>Next</span><strong>Outlook: To, Cc and Bcc</strong></div><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button>
+      </section>
+
+      <!-- OUTLOOK: TO CC BCC -->
+      <section class="page" id="to-cc-bcc" data-label="To, Cc and Bcc">
+        <p class="crumb">Outlook</p>
+        <h2 class="title">To, Cc and Bcc</h2>
+        <p class="lede">These three lines decide who gets your email and who can see who else got it.</p>
+
+        <p class="label-sm">What each line means</p>
+        <dl class="card defs">
+          <div><dt>To</dt><dd>The main people. Use this for anyone who needs to read the email or do something.</dd></div>
+          <div><dt>Cc</dt><dd>“Carbon copy”. People who should know about it but don’t need to reply. Everyone can see who was copied in.</dd></div>
+          <div><dt>Bcc</dt><dd>“Blind carbon copy”. A hidden copy. Nobody else can see these names. Useful when emailing a large group so you don’t share everyone’s address.</dd></div>
+        </dl>
+
+        <div class="mock" aria-hidden="true">
+          <div class="mock-cap">What the new email screen looks like</div>
+          <div class="field"><span class="k">To:</span><span class="chip">Sam Lee</span><span class="hl">⌄</span></div>
+          <div class="field"><span class="k">Cc:</span><span class="chip">Priya Shah</span></div>
+          <div class="field"><span class="k">Bcc:</span></div>
+          <div class="field"><span class="k" style="width:auto">Subject: Team meeting moved to 2pm</span></div>
+        </div>
+
+        <p class="label-sm">Steps</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Open Outlook and tap <span class="key">New Email</span> (the pencil icon).</div></li>
+          <li><span class="num">2</span><div>Tap the <strong>To</strong> line and start typing a name. Tap the right person when they appear in the list.</div></li>
+          <li><span class="num">3</span><div>To show the Cc and Bcc lines, tap the small arrow at the end of the To line.</div></li>
+          <li><span class="num">4</span><div>Tap <strong>Cc</strong> or <strong>Bcc</strong> and add names in the same way.</div></li>
+          <li><span class="num">5</span><div>Add a subject, write your message, then tap <span class="key">Send</span> (the paper plane).</div></li>
+        </ol>
+
+        <div class="tip"><svg width="20" height="20"><use href="#i-bulb"/></svg><p>Added the wrong person? Tap their name, then tap the delete key on the keyboard to remove them.</p></div>
+        <button class="next" data-go="flag"><div><span>Next</span><strong>Flag an email</strong></div><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button>
+      </section>
+
+      <!-- OUTLOOK: FLAG -->
+      <section class="page" id="flag" data-label="Flag an email">
+        <p class="crumb">Outlook</p>
+        <h2 class="title">Flag an email</h2>
+        <p class="lede">A flag marks an email so you remember to come back to it. Flagged emails show a small flag in your inbox.</p>
+
+        <p class="label-sm">From inside the email</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Tap the email to open it.</div></li>
+          <li><span class="num">2</span><div>Tap the three dots <span class="key">…</span> at the top of the email.</div></li>
+          <li><span class="num">3</span><div>Tap <span class="key">Flag</span>. To remove it later, follow the same steps and tap <span class="key">Unflag</span>.</div></li>
+        </ol>
+
+        <p class="label-sm">Faster: swipe in the inbox</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>In your inbox, swipe left or right across an email.</div></li>
+          <li><span class="num">2</span><div>Tap <span class="key">Flag</span> if it appears.</div></li>
+          <li><span class="num">3</span><div>If Flag doesn’t appear, set it up: tap your profile picture (top left), tap the gear icon, then <strong>Mail</strong> › <strong>Swipe Options</strong>, and choose <strong>Flag</strong>.</div></li>
+        </ol>
+
+        <div class="tip"><svg width="20" height="20"><use href="#i-bulb"/></svg><p>To see only your flagged emails, use the Flagged filter. The next page shows how.</p></div>
+        <button class="next" data-go="filter"><div><span>Next</span><strong>Filter your inbox</strong></div><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button>
+      </section>
+
+      <!-- OUTLOOK: FILTER -->
+      <section class="page" id="filter" data-label="Filter your inbox">
+        <p class="crumb">Outlook</p>
+        <h2 class="title">Filter your inbox</h2>
+        <p class="lede">A filter hides everything except the emails you want to see, such as unread or flagged ones.</p>
+
+        <div class="mock" aria-hidden="true">
+          <div class="mock-cap">Filter options at the top of your inbox</div>
+          <div class="tabs"><span class="cur">Focused</span><span>Other</span></div>
+          <div class="filters"><span class="pill">All</span><span class="pill">Unread</span><span class="pill on">Flagged</span><span class="pill">Attachments</span><span class="pill">Mentions me</span></div>
+        </div>
+
+        <p class="label-sm">Steps</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Go to your <strong>Inbox</strong>.</div></li>
+          <li><span class="num">2</span><div>Tap the <span class="key">Filter</span> button (a funnel shape) at the top of the email list.</div></li>
+          <li><span class="num">3</span><div>Choose what you want to see: <strong>Unread</strong>, <strong>Flagged</strong>, <strong>Attachments</strong> or <strong>Mentions me</strong>.</div></li>
+          <li><span class="num">4</span><div>To see all your emails again, tap <span class="key">Filter</span> and choose <strong>All</strong>.</div></li>
+        </ol>
+
+        <p class="label-sm">Focused and Other</p>
+        <div class="card defs">
+          <div><dt>Focused</dt><dd>Emails Outlook thinks are important to you.</dd></div>
+          <div><dt>Other</dt><dd>Newsletters, adverts and automatic emails. Check here if an email seems to be missing.</dd></div>
+        </div>
+        <button class="next" data-go="text-size"><div><span>Next</span><strong>Word: change text size</strong></div><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button>
+      </section>
+
+      <!-- WORD: SIZE -->
+      <section class="page" id="text-size" data-label="Change text size">
+        <p class="crumb">Word</p>
+        <h2 class="title">Change text size</h2>
+        <p class="lede">Make words bigger for headings or smaller to fit more on a page. Text size is measured in points; 11 or 12 is normal for body text.</p>
+
+        <div class="mock" aria-hidden="true">
+          <div class="mock-cap">The Home tab in Word</div>
+          <div class="tabs"><span class="cur">Home</span><span>Insert</span><span>Draw</span><span>Layout</span></div>
+          <div class="ribbon"><span class="rb font">Aptos <span>⌄</span></span><span class="rb on">11 ⌄</span><span class="rb"><b>B</b></span><span class="rb"><i>I</i></span><span class="rb"><u>U</u></span><span class="rb"><span class="fc">A<i></i></span> ⌄</span></div>
+        </div>
+
+        <p class="label-sm">Steps</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Select the text. Double-tap a word, or triple-tap for a whole sentence, then drag the blue handles to cover all the text you want. <button class="key" data-go="select-text" style="cursor:pointer">How to select</button></div></li>
+          <li><span class="num">2</span><div>Make sure the <strong>Home</strong> tab is open at the top of the screen.</div></li>
+          <li><span class="num">3</span><div>Tap the size box (the number, such as <span class="key">11</span>).</div></li>
+          <li><span class="num">4</span><div>Tap a new size from the list. The text changes straight away.</div></li>
+        </ol>
+
+        <div class="tip"><svg width="20" height="20"><use href="#i-bulb"/></svg><p>For headings, try the <strong>Styles</strong> button on the Home tab and pick <strong>Heading 1</strong>. All your headings will then match.</p></div>
+        <button class="next" data-go="text-colour"><div><span>Next</span><strong>Add colour to text</strong></div><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button>
+      </section>
+
+      <!-- WORD: COLOUR -->
+      <section class="page" id="text-colour" data-label="Add colour to text">
+        <p class="crumb">Word</p>
+        <h2 class="title">Add colour to text</h2>
+        <p class="lede">Colour can make key words stand out. You can change the colour of the letters or add a highlight behind them.</p>
+
+        <p class="label-sm">Change the letter colour</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Select the text you want to colour.</div></li>
+          <li><span class="num">2</span><div>On the <strong>Home</strong> tab, find the <strong>Font Colour</strong> button. It looks like the letter <span class="key"><span class="fc">A<i></i></span></span> with a coloured line under it.</div></li>
+          <li><span class="num">3</span><div>Tap the small arrow next to it and pick a colour.</div></li>
+          <li><span class="num">4</span><div>To go back to plain black text, choose <strong>Automatic</strong>.</div></li>
+        </ol>
+
+        <p class="label-sm">Add a highlight</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Select the text.</div></li>
+          <li><span class="num">2</span><div>Tap the arrow next to the <strong>Highlight</strong> button (a highlighter pen) and choose a colour.</div></li>
+          <li><span class="num">3</span><div>To remove it, choose <strong>No Colour</strong>.</div></li>
+        </ol>
+
+        <div class="tip"><svg width="20" height="20"><use href="#i-bulb"/></svg><p>Stick to one or two colours. Dark text on a light background is the easiest for everyone to read.</p></div>
+        <button class="next" data-go="fonts"><div><span>Next</span><strong>Change the font</strong></div><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button>
+      </section>
+
+      <!-- WORD: FONTS -->
+      <section class="page" id="fonts" data-label="Change the font">
+        <p class="crumb">Word</p>
+        <h2 class="title">Change the font</h2>
+        <p class="lede">The font is the style of the letters. Word usually starts with Aptos or Calibri.</p>
+
+        <p class="label-sm">Steps</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Select the text you want to change.</div></li>
+          <li><span class="num">2</span><div>On the <strong>Home</strong> tab, tap the font name box (for example <span class="key">Aptos</span>).</div></li>
+          <li><span class="num">3</span><div>Scroll through the list and tap a font. Each name is shown in its own style so you can preview it.</div></li>
+          <li><span class="num">4</span><div>If a font has a cloud icon next to it, tap it once to download it first.</div></li>
+        </ol>
+
+        <p class="label-sm">Bold, italic and underline</p>
+        <div class="card defs">
+          <div><dt><span class="key"><b>B</b></span></dt><dd><b>Bold</b> makes letters thicker.</dd></div>
+          <div><dt><span class="key"><i>I</i></span></dt><dd><i>Italic</i> slants the letters.</dd></div>
+          <div><dt><span class="key"><u>U</u></span></dt><dd><u>Underline</u> draws a line under the text.</dd></div>
+        </div>
+
+        <div class="tip"><svg width="20" height="20"><use href="#i-bulb"/></svg><p>Use one font for the whole document. Change the size or make it bold for headings instead of mixing lots of fonts.</p></div>
+        <button class="next" data-go="print-email"><div><span>Next</span><strong>Print an email</strong></div><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button>
+      </section>
+
+      <!-- PRINT: EMAIL -->
+      <section class="page" id="print-email" data-label="Print an email">
+        <p class="crumb">Printing · Outlook</p>
+        <h2 class="title">Print an email</h2>
+        <p class="lede">Your iPad prints using AirPrint. The printer must support AirPrint and be on the same Wi-Fi network as your iPad.</p>
+
+        <p class="label-sm">Steps</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Open the email you want to print.</div></li>
+          <li><span class="num">2</span><div>Tap the three dots <span class="key">…</span> at the top of the email.</div></li>
+          <li><span class="num">3</span><div>Tap <span class="key">Print</span>.</div></li>
+          <li><span class="num">4</span><div>Tap <strong>Printer</strong> and choose your printer from the list.</div></li>
+          <li><span class="num">5</span><div>Set the number of copies. Tap <strong>Options</strong> to choose double-sided or black and white, if your printer offers them.</div></li>
+          <li><span class="num">6</span><div>Tap <span class="key">Print</span> at the top right.</div></li>
+        </ol>
+
+        <div class="tip"><svg width="20" height="20"><use href="#i-bulb"/></svg><p>Need to print an attachment instead? Tap the attachment to open it, tap the share icon or <span class="key">…</span>, then tap <strong>Print</strong>.</p></div>
+        <button class="next" data-go="print-doc"><div><span>Next</span><strong>Print a Word document</strong></div><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button>
+      </section>
+
+      <!-- PRINT: DOC -->
+      <section class="page" id="print-doc" data-label="Print a Word document">
+        <p class="crumb">Printing · Word</p>
+        <h2 class="title">Print a Word document</h2>
+        <p class="lede">The same AirPrint rules apply: a compatible printer on the same Wi-Fi as your iPad.</p>
+
+        <p class="label-sm">Steps</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Open the document in Word.</div></li>
+          <li><span class="num">2</span><div>Tap the <strong>File</strong> button (a page icon at the top left), or the three dots <span class="key">…</span>.</div></li>
+          <li><span class="num">3</span><div>Tap <span class="key">Print</span>. If Word asks, choose <strong>AirPrint</strong>.</div></li>
+          <li><span class="num">4</span><div>Choose your printer, the number of copies and which pages to print.</div></li>
+          <li><span class="num">5</span><div>Tap <span class="key">Print</span>.</div></li>
+        </ol>
+
+        <p class="label-sm">Printer not showing?</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Check the iPad and printer are on the same Wi-Fi network.</div></li>
+          <li><span class="num">2</span><div>Turn the printer off and on again, then wait a minute.</div></li>
+          <li><span class="num">3</span><div>Still stuck? Ask your IT team. Some work printers need extra setup.</div></li>
+        </ol>
+        <button class="next" data-go="copilot-start"><div><span>Next</span><strong>Get started with Copilot</strong></div><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button>
+      </section>
+
+      <!-- COPILOT: START -->
+      <section class="page" id="copilot-start" data-label="Get started with Copilot">
+        <p class="crumb">Copilot</p>
+        <h2 class="title">Get started with Copilot</h2>
+        <p class="lede">Copilot is an AI assistant from Microsoft. You type or say a question, and it writes an answer. It can draft emails, summarise long text and suggest ideas.</p>
+
+        <p class="label-sm">Steps</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div>Open the <strong>Microsoft 365 Copilot</strong> app. If it’s not on your iPad, search for it in the App Store and install it.</div></li>
+          <li><span class="num">2</span><div>Sign in with your work email address.</div></li>
+          <li><span class="num">3</span><div>Tap <strong>Copilot</strong> or <strong>Chat</strong> to open the chat screen.</div></li>
+          <li><span class="num">4</span><div>Type your question in the box at the bottom, or tap the microphone to speak.</div></li>
+          <li><span class="num">5</span><div>Tap the send arrow and read the answer. You can reply to ask for changes, such as “make it shorter”.</div></li>
+        </ol>
+
+        <p class="label-sm">Useful buttons</p>
+        <div class="card defs">
+          <div><dt><span class="key">+</span></dt><dd>Add a file, such as a Word document, so Copilot can read it and answer questions about it.</dd></div>
+          <div><dt><span class="key">Copy</span></dt><dd>Copy the answer so you can paste it into an email or document.</dd></div>
+          <div><dt><span class="key">Work / Web</span></dt><dd>If you see this switch, <strong>Work</strong> lets Copilot use your work emails and files. <strong>Web</strong> uses public websites.</dd></div>
+        </div>
+
+        <div class="tip"><svg width="20" height="20"><use href="#i-bulb"/></svg><p>Copilot can get things wrong. Always read and check what it writes before you send or share it.</p></div>
+        <button class="next" data-go="copilot-ask"><div><span>Next</span><strong>Ask good questions</strong></div><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button>
+      </section>
+
+      <!-- COPILOT: ASK -->
+      <section class="page" id="copilot-ask" data-label="Ask good questions">
+        <p class="crumb">Copilot</p>
+        <h2 class="title">Ask good questions</h2>
+        <p class="lede">The clearer your request, the better the answer. Say what you want, who it’s for, and how long it should be.</p>
+
+        <p class="label-sm">A simple formula</p>
+        <ol class="steps">
+          <li><span class="num">1</span><div><strong>Goal:</strong> what do you want? “Write an email…”</div></li>
+          <li><span class="num">2</span><div><strong>Context:</strong> why, and who is it for? “…to my team about the new rota…”</div></li>
+          <li><span class="num">3</span><div><strong>Style:</strong> how should it sound and how long? “…friendly, under 100 words.”</div></li>
+        </ol>
+
+        <p class="label-sm">Try these</p>
+        <div class="prompts">
+          <div class="prompt"><p>“Write a short, friendly email to the team saying Friday’s meeting is moving to 2pm.”</p><small>Drafting an email</small></div>
+          <div class="prompt"><p>“Summarise this document in five bullet points for my manager.”</p><small>Add the file with + first</small></div>
+          <div class="prompt"><p>“Rewrite this paragraph so it’s easier to read.”</p><small>Paste your text after the request</small></div>
+          <div class="prompt"><p>“Give me three subject lines for an email about the staff training day.”</p><small>Getting ideas</small></div>
+        </div>
+
+        <div class="tip"><svg width="20" height="20"><use href="#i-bulb"/></svg><p>Never type passwords, bank details or private information about other people into Copilot unless your organisation says it’s allowed.</p></div>
+        <button class="next" data-go="welcome"><div><span>Finished</span><strong>Back to the start</strong></div><svg class="chev" width="14" height="14"><use href="#i-chev"/></svg></button>
+      </section>
+
+      <p class="footnote">Written October 2026. Screens may differ slightly between app versions.</p>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  var app = document.getElementById('app');
+  var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
+  var rows = Array.prototype.slice.call(document.querySelectorAll('.row'));
+  var narrow = window.matchMedia('(max-width: 760px)');
+
+  function show(id, openDetail) {
+    var target = document.getElementById(id) || document.getElementById('welcome');
+    pages.forEach(function (p) { p.classList.toggle('on', p === target); });
+    rows.forEach(function (r) {
+      if (r.getAttribute('data-go') === target.id) r.setAttribute('aria-current', 'page');
+      else r.removeAttribute('aria-current');
+    });
+    if (openDetail) app.classList.add('show-detail');
+    try { history.replaceState(null, '', '#' + target.id); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-go]');
+    if (el) show(el.getAttribute('data-go'), true);
+  });
+  document.getElementById('back').addEventListener('click', function () {
+    app.classList.remove('show-detail');
+    window.scrollTo(0, 0);
+  });
+
+  // Search filter
+  var q = document.getElementById('q');
+  q.addEventListener('input', function () {
+    var term = q.value.trim().toLowerCase();
+    var any = false;
+    document.querySelectorAll('[data-group]').forEach(function (ul) {
+      var visible = 0;
+      ul.querySelectorAll('li').forEach(function (li) {
+        var id = li.querySelector('.row').getAttribute('data-go');
+        var text = (li.textContent + ' ' + (document.getElementById(id) || {}).textContent).toLowerCase();
+        var hit = !term || text.indexOf(term) !== -1;
+        li.hidden = !hit;
+        if (hit) visible++;
+      });
+      ul.hidden = visible === 0;
+      var head = ul.previousElementSibling;
+      if (head && head.hasAttribute('data-head')) head.hidden = visible === 0;
+      if (visible) any = true;
+    });
+    document.getElementById('empty').style.display = any ? 'none' : 'block';
+  });
+
+  var start = (location.hash || '').replace('#', '');
+  show(start || 'welcome', !!start && narrow.matches);
+  if (!start) app.classList.remove('show-detail');
+})();
+</script>
+
+</body></html>
