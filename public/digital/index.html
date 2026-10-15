@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Digital Confidence Workshop</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: Windows 11 Settings-style app. Title bar, navigation pane on the left, settings-card content on the right; nav stacks with a back button on phones. */
+:root {
+  --bg: #f3f3f3;
+  --pane: #f3f3f3;
+  --card: #fbfbfb;
+  --card-hover: #f6f6f6;
+  --stroke: #e5e5e5;
+  --fg: #1b1b1b;
+  --muted: #5d5d5d;
+  --accent: #0067c0;
+  --accent-fg: #ffffff;
+  --subtle: rgba(0,0,0,0.045);
+  --subtle-2: rgba(0,0,0,0.08);
+  --info-bg: #e8f1fb;
+  --ok: #0f7b0f;
+  --ok-bg: #dff6dd;
+  --warn-bg: #fff4ce;
+  --hl: #fff100;
+  --font: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: Consolas, "Cascadia Mono", ui-monospace, Menlo, monospace;
+  --docx: #185abd;
+  --xlsx: #107c41;
+  --pptx: #c43e1c;
+  --onedrive: #0364b8;
+  --teams: #5b5fc7;
+  --sharepoint: #038387;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #202020; --pane: #202020; --card: #2b2b2b; --card-hover: #323232;
+    --stroke: #1d1d1d; --fg: #ffffff; --muted: #c5c5c5;
+    --accent: #4cc2ff; --accent-fg: #000000;
+    --subtle: rgba(255,255,255,0.06); --subtle-2: rgba(255,255,255,0.1);
+    --info-bg: #1f3347; --ok: #6ccb5f; --ok-bg: #213a1f; --warn-bg: #433519; --hl: #6b6200;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #202020; --pane: #202020; --card: #2b2b2b; --card-hover: #323232;
+  --stroke: #1d1d1d; --fg: #ffffff; --muted: #c5c5c5;
+  --accent: #4cc2ff; --accent-fg: #000000;
+  --subtle: rgba(255,255,255,0.06); --subtle-2: rgba(255,255,255,0.1);
+  --info-bg: #1f3347; --ok: #6ccb5f; --ok-bg: #213a1f; --warn-bg: #433519; --hl: #6b6200;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font); font-size: 15px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+button, input { font: inherit; color: inherit; }
+a { color: var(--accent); }
+[hidden] { display: none !important; }
+
+/* Title bar */
+.titlebar {
+  height: 44px; display: flex; align-items: center; gap: 12px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: 0;
+  font-size: 13px; user-select: none;
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+}
+.titlebar .appicon { width: 16px; height: 16px; flex: none; }
+.titlebar .name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.titlebar .name span { color: var(--muted); }
+.caption { display: flex; align-self: stretch; }
+.caption span { width: 46px; display: grid; place-items: center; color: var(--fg); }
+.caption svg { width: 10px; height: 10px; }
+
+.app {
+  display: grid; grid-template-columns: 300px minmax(0, 1fr);
+  min-height: calc(100vh - 44px);
+}
+
+/* Navigation pane */
+.nav {
+  background: var(--pane);
+  padding-block: 4px 32px;
+  padding-left: max(8px, env(safe-area-inset-left, 0px));
+  padding-right: 8px;
+  position: sticky; top: calc(44px + env(safe-area-inset-top, 0px));
+  height: calc(100vh - 44px); overflow-y: auto;
+}
+.profile { display: flex; gap: 12px; align-items: center; padding: 10px 12px 16px; }
+.avatar {
+  width: 52px; height: 52px; border-radius: 50%; flex: none;
+  background: linear-gradient(135deg, var(--onedrive), var(--teams) 55%, var(--sharepoint));
+  display: grid; place-items: center; color: #fff;
+}
+.avatar svg { width: 26px; height: 26px; }
+.profile strong { display: block; font-size: 15px; font-weight: 600; }
+.profile small { color: var(--muted); font-size: 12px; }
+
+.search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--card); border: 1px solid var(--stroke);
+  border-bottom: 1px solid var(--muted);
+  border-radius: 4px; padding: 5px 10px; margin: 0 4px 14px;
+}
+.search:focus-within { border-bottom: 2px solid var(--accent); padding-bottom: 4px; }
+.search input { border: 0; outline: none; background: transparent; flex: 1; min-width: 0; font-size: 14px; }
+.search input::placeholder { color: var(--muted); }
+.search svg { width: 14px; height: 14px; color: var(--muted); flex: none; }
+
+.nav-head { font-size: 12px; font-weight: 600; color: var(--muted); margin: 12px 12px 4px; }
+.nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.item {
+  position: relative; display: flex; align-items: center; gap: 14px;
+  width: 100%; background: none; border: 0; border-radius: 4px;
+  padding: 8px 12px; min-height: 38px; text-align: left; cursor: pointer; font-size: 14px;
+}
+.item:hover { background: var(--subtle); }
+.item:focus-visible { outline: 2px solid var(--fg); outline-offset: -2px; }
+.item[aria-current="page"] { background: var(--subtle-2); }
+.item[aria-current="page"]::before {
+  content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 16px; border-radius: 2px; background: var(--accent);
+}
+.item svg { width: 16px; height: 16px; flex: none; }
+.item .lbl { flex: 1; min-width: 0; }
+.item .done { width: 16px; height: 16px; color: var(--ok); visibility: hidden; }
+.item.is-done .done { visibility: visible; }
+.empty { color: var(--muted); padding: 8px 12px; font-size: 14px; }
+
+/* Content */
+.content { min-width: 0; }
+.backbar {
+  display: none; align-items: center; gap: 4px;
+  padding-block: 6px;
+  padding-left: max(8px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  position: sticky; top: calc(44px + env(safe-area-inset-top, 0px)); z-index: 4; background: var(--bg);
+}
+.back { display: flex; align-items: center; gap: 8px; background: none; border: 0; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+.back:hover { background: var(--subtle); }
+.back svg { width: 14px; height: 14px; }
+.inner {
+  max-width: 1000px;
+  padding-block: 18px 64px;
+  padding-left: max(36px, env(safe-area-inset-left, 0px));
+  padding-right: max(36px, env(safe-area-inset-right, 0px));
+}
+.page { display: none; }
+.page.on { display: block; }
+.crumb {
+  font-family: var(--font-display); font-size: 28px; font-weight: 600; line-height: 1.25;
+  margin: 0 0 6px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; text-wrap: balance;
+}
+.crumb .parent { color: var(--muted); font-weight: 400; }
+.crumb .sep { color: var(--muted); font-size: 18px; }
+.lede { color: var(--muted); margin: 0 0 24px; max-width: 70ch; }
+
+.sub { font-size: 14px; font-weight: 600; margin: 26px 0 8px; }
+.cards { display: grid; gap: 4px; margin: 0 0 6px; }
+.card {
+  background: var(--card); border: 1px solid var(--stroke); border-radius: 6px;
+  padding: 14px 18px; display: flex; gap: 16px; align-items: flex-start;
+}
+.card > div { min-width: 0; flex: 1; }
+.card p { margin: 0; }
+.card .meta { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.step-n {
+  width: 28px; height: 28px; flex: none; border-radius: 50%;
+  border: 1px solid var(--stroke); background: var(--subtle);
+  display: grid; place-items: center; font-weight: 600; font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.ico { width: 20px; height: 20px; flex: none; margin-top: 2px; }
+
+kbd {
+  font-family: var(--font); font-size: 12px; font-weight: 600;
+  border: 1px solid var(--stroke); border-bottom-width: 2px; background: var(--card);
+  border-radius: 4px; padding: 0 6px; white-space: nowrap;
+}
+.ui { font-weight: 600; }
+.btnlike {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid var(--stroke); background: var(--card); border-radius: 4px;
+  padding: 0 8px; font-size: 13px; font-weight: 600; white-space: nowrap;
+}
+
+.infobar {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--info-bg); border: 1px solid var(--stroke); border-radius: 6px;
+  padding: 12px 16px; margin: 0 0 24px;
+}
+.infobar.warn { background: var(--warn-bg); }
+.infobar.ok { background: var(--ok-bg); }
+.infobar svg { width: 18px; height: 18px; flex: none; margin-top: 2px; color: var(--accent); }
+.infobar.ok svg { color: var(--ok); }
+.infobar p { margin: 0; }
+
+/* Accent buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  background: var(--card); border: 1px solid var(--stroke); border-radius: 4px;
+  padding: 6px 14px; font-size: 14px; text-decoration: none; color: var(--fg);
+}
+.btn:hover { background: var(--card-hover); }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: transparent; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.btn svg { width: 14px; height: 14px; }
+
+/* File rows */
+.file { align-items: center; }
+.fileicon { width: 28px; height: 32px; flex: none; }
+.file .fname { font-weight: 600; overflow-wrap: anywhere; }
+.file .actions { display: flex; gap: 6px; flex: none; }
+
+/* Three things */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin: 0 0 8px; }
+.tcard { background: var(--card); border: 1px solid var(--stroke); border-radius: 6px; padding: 18px; display: grid; gap: 8px; align-content: start; }
+.tcard .tag { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.tcard h3 { margin: 0; font-family: var(--font-display); font-size: 20px; font-weight: 600; }
+.tcard p { margin: 0; color: var(--muted); }
+.tcard .bar { height: 4px; border-radius: 2px; }
+
+.flow { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr); gap: 8px; align-items: stretch; margin: 0 0 8px; }
+.flow .arrow { display: grid; place-items: center; color: var(--muted); }
+.flow .arrow svg { width: 18px; height: 18px; }
+.fstep { background: var(--card); border: 1px solid var(--stroke); border-radius: 6px; padding: 14px; font-size: 14px; }
+.fstep strong { display: block; }
+.fstep span { color: var(--muted); }
+.pill { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; background: var(--subtle-2); margin: 4px 0; }
+
+/* Mock windows */
+.win { background: var(--card); border: 1px solid var(--stroke); border-radius: 8px; overflow: hidden; margin: 0 0 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+.win-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: 12px; border-bottom: 1px solid var(--stroke); background: var(--bg); }
+.win-bar .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.win-bar .caps { display: flex; gap: 14px; color: var(--muted); }
+.addr { display: flex; gap: 6px; align-items: center; padding: 8px 12px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--stroke); overflow-x: auto; white-space: nowrap; }
+.addr b { color: var(--fg); font-weight: 400; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 7px 12px; border-bottom: 1px solid var(--stroke); white-space: nowrap; }
+th { font-weight: 600; color: var(--muted); font-size: 12px; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.sel td { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+td.edit { outline: 2px solid var(--accent); outline-offset: -2px; font-weight: 600; }
+td.edit-b { outline: 2px solid #c239b3; outline-offset: -2px; font-weight: 600; }
+.who { font-size: 11px; font-weight: 700; padding: 0 5px; border-radius: 3px; color: #fff; margin-left: 6px; }
+.who.a { background: var(--accent); color: var(--accent-fg); }
+.who.b { background: #c239b3; }
+
+/* Mine / Ours chooser */
+.choose { display: inline-flex; border: 1px solid var(--stroke); border-radius: 4px; overflow: hidden; flex: none; }
+.choose label { cursor: pointer; }
+.choose input { position: absolute; opacity: 0; pointer-events: none; }
+.choose span { display: block; padding: 4px 14px; font-size: 13px; background: var(--card); }
+.choose label + label span { border-left: 1px solid var(--stroke); }
+.choose input:checked + span { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+.choose input:focus-visible + span { outline: 2px solid var(--fg); outline-offset: -2px; }
+
+details.answers { background: var(--card); border: 1px solid var(--stroke); border-radius: 6px; margin: 16px 0 0; }
+details.answers summary { cursor: pointer; padding: 12px 18px; font-weight: 600; list-style: none; display: flex; align-items: center; gap: 10px; }
+details.answers summary::-webkit-details-marker { display: none; }
+details.answers summary svg { width: 12px; height: 12px; transition: transform .15s; }
+details.answers[open] summary svg { transform: rotate(90deg); }
+details.answers .ans { padding: 0 18px 14px; display: grid; gap: 10px; }
+.ans p { margin: 0; }
+.ans .tagm, .ans .tago, .ans .tags { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; color: #fff; margin-right: 6px; }
+.tagm { background: var(--onedrive); } .tago { background: var(--teams); } .tags { background: var(--sharepoint); }
+
+/* Checklists */
+.check { cursor: pointer; align-items: center; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); flex: none; margin: 0; }
+.check.is-on .fname { text-decoration: line-through; color: var(--muted); }
+
+/* Person columns */
+.duo { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+.duo h3 { font-size: 14px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+.duo .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+.copyrow { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.copyrow code { font-family: var(--mono); background: var(--subtle-2); padding: 2px 8px; border-radius: 4px; font-size: 14px; }
+
+.pager { display: flex; justify-content: space-between; gap: 8px; margin-top: 32px; flex-wrap: wrap; }
+.pager .btn { min-width: 0; }
+
+.foot { color: var(--muted); font-size: 12px; margin-top: 40px; }
+
+.complete { margin-top: 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.complete .state { color: var(--ok); font-weight: 600; font-size: 14px; }
+
+@media (max-width: 860px) {
+  .trio { grid-template-columns: minmax(0,1fr); }
+  .flow { grid-template-columns: minmax(0,1fr); }
+  .flow .arrow svg { transform: rotate(90deg); }
+}
+@media (max-width: 760px) {
+  .app { grid-template-columns: minmax(0,1fr); }
+  .nav { position: static; height: auto; padding-right: max(8px, env(safe-area-inset-right, 0px)); }
+  .app.show-page .nav { display: none; }
+  .app:not(.show-page) .content { display: none; }
+  .backbar { display: flex; }
+  .inner { padding-block: 8px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .crumb { font-size: 24px; }
+  .duo { grid-template-columns: minmax(0,1fr); }
+  .caption { display: none; }
+  .titlebar { padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .file { flex-wrap: wrap; }
+  .file .actions { width: 100%; padding-left: 44px; }
+  .card.mine-row { flex-wrap: wrap; }
+  .card.mine-row > div { flex-basis: calc(100% - 44px); }
+  .card.mine-row .choose { margin-left: 44px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .page.on { animation: up .2s cubic-bezier(.1,.9,.2,1); }
+  @keyframes up { from { opacity: 0.3; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" d="M2.5 7 8 2.5 13.5 7v6.5h-4v-4h-3v4h-4z"/></symbol>
+    <symbol id="i-files" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" d="M4 1.5h5l3 3v8H4zM9 1.5v3h3M2 4v10.5h8"/></symbol>
+    <symbol id="i-three" viewBox="0 0 16 16"><circle cx="4" cy="8" r="2.3" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="8" r="2.3" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="3.5" r="2.3" fill="none" stroke="currentColor" stroke-width="1.2"/></symbol>
+    <symbol id="i-sort" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" d="M2 4h5M2 8h5M2 12h5M10.5 3v10M10.5 13l-2-2M10.5 13l2-2"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" d="M4.5 13a3 3 0 0 1-.4-6 4 4 0 0 1 7.6-1.2A3.6 3.6 0 0 1 12 13z"/></symbol>
+    <symbol id="i-share" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M9 2.5h4.5V7M13.5 2.5 7 9M11 9.5v4H2.5V5h4"/></symbol>
+    <symbol id="i-history" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M2.5 8a5.5 5.5 0 1 0 1.6-3.9M2.5 2v2.5H5M8 5v3l2 1.5"/></symbol>
+    <symbol id="i-team" viewBox="0 0 16 16"><circle cx="6" cy="5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="11.5" cy="5.5" r="1.7" fill="none" stroke="currentColor" stroke-width="1.2"/><path fill="none" stroke="currentColor" stroke-width="1.2" d="M2 13c0-2.5 1.8-4 4-4s4 1.5 4 4M10.5 9.2c1.9 0 3.5 1.2 3.5 3.3"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.2" d="M2 2.5h12v11H2zM2 6h12M2 9.5h12M6 2.5v11M10 2.5v11"/></symbol>
+    <symbol id="i-tool" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" d="M10.5 1.8a3.5 3.5 0 0 0-3.3 4.7L2 11.7 4.3 14l5.2-5.2a3.5 3.5 0 0 0 4.7-3.3l-2 2-2-.5-.5-2z"/></symbol>
+    <symbol id="i-help" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.2"/><path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.5.2-.8.6-.8 1.1v.4"/><circle cx="8" cy="11.4" r=".8" fill="currentColor"/></symbol>
+    <symbol id="i-check" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="m3 8.5 3 3 7-7"/></symbol>
+    <symbol id="i-info" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="currentColor"/><path stroke="#fff" stroke-width="1.5" stroke-linecap="round" d="M8 7.2v4"/><circle cx="8" cy="4.8" r=".9" fill="#fff"/></symbol>
+    <symbol id="i-okc" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="currentColor"/><path fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="m5 8.2 2 2 4-4"/></symbol>
+    <symbol id="i-search" viewBox="0 0 16 16"><circle cx="6.8" cy="6.8" r="4.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="m10.2 10.2 3.8 3.8"/></symbol>
+    <symbol id="i-back" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" d="M14 8H2.5M7 3.5 2.5 8 7 12.5"/></symbol>
+    <symbol id="i-next" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" d="M2 8h11.5M9 3.5 13.5 8 9 12.5"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="m6 3 5 5-5 5"/></symbol>
+    <symbol id="i-down" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M8 2v9M4 7.5 8 11.5l4-4M2.5 14h11"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" d="M5.5 5.5h8v8h-8zM3 10.5h-.5v-8h8V3"/></symbol>
+    <symbol id="i-file" viewBox="0 0 28 32"><path d="M2 1h16l8 8v22H2z" fill="currentColor"/><path d="M18 1v8h8" fill="rgba(255,255,255,0.35)"/></symbol>
+  </defs>
+</svg>
+
+<header class="titlebar">
+  <svg class="appicon" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6.5" height="6.5" fill="#0364b8"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#5b5fc7"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#038387"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#107c41"/></svg>
+  <div class="name">Digital Confidence Workshop <span>· Wyre Council</span></div>
+  <div class="caption" aria-hidden="true">
+    <span><svg viewBox="0 0 10 10"><path d="M0 5h10" stroke="currentColor"/></svg></span>
+    <span><svg viewBox="0 0 10 10"><rect x=".5" y=".5" width="9" height="9" fill="none" stroke="currentColor"/></svg></span>
+    <span><svg viewBox="0 0 10 10"><path d="m0 0 10 10M10 0 0 10" stroke="currentColor"/></svg></span>
+  </div>
+</header>
+
+<div class="app" id="app">
+  <nav class="nav" aria-label="Workshop sections">
+    <div class="profile">
+      <div class="avatar" aria-hidden="true"><svg><use href="#i-cloud"/></svg></div>
+      <div><strong>OneDrive, Teams &amp; SharePoint</strong><small>Practice workbook</small></div>
+    </div>
+    <label class="search">
+      <input id="q" type="search" placeholder="Find a section" autocomplete="off" aria-label="Find a section">
+      <svg><use href="#i-search"/></svg>
+    </label>
+
+    <div data-group>
+      <p class="nav-head">Getting started</p>
+      <ul>
+        <li><button class="item" data-go="start"><svg><use href="#i-home"/></svg><span class="lbl">Start here</span></button></li>
+        <li><button class="item" data-go="familiar"><svg><use href="#i-files"/></svg><span class="lbl">Look familiar?</span></button></li>
+        <li><button class="item" data-go="three"><svg><use href="#i-three"/></svg><span class="lbl">Mine, Ours, Behind the Team</span></button></li>
+      </ul>
+    </div>
+
+    <div data-group>
+      <p class="nav-head">Activities</p>
+      <ul>
+        <li><button class="item" data-go="a1"><svg><use href="#i-sort"/></svg><span class="lbl">1. Mine or Ours?</span><svg class="done"><use href="#i-check"/></svg></button></li>
+        <li><button class="item" data-go="a2"><svg><use href="#i-cloud"/></svg><span class="lbl">2. Upload to OneDrive</span><svg class="done"><use href="#i-check"/></svg></button></li>
+        <li><button class="item" data-go="a3"><svg><use href="#i-share"/></svg><span class="lbl">3. Share, don’t send</span><svg class="done"><use href="#i-check"/></svg></button></li>
+        <li><button class="item" data-go="a4"><svg><use href="#i-history"/></svg><span class="lbl">4. Fix a mistake</span><svg class="done"><use href="#i-check"/></svg></button></li>
+        <li><button class="item" data-go="a5"><svg><use href="#i-team"/></svg><span class="lbl">5. Teams and SharePoint</span><svg class="done"><use href="#i-check"/></svg></button></li>
+        <li><button class="item" data-go="a6"><svg><use href="#i-grid"/></svg><span class="lbl">6. Edit together</span><svg class="done"><use href="#i-check"/></svg></button></li>
+      </ul>
+    </div>
+
+    <div data-group>
+      <p class="nav-head">After the activities</p>
+      <ul>
+        <li><button class="item" data-go="workshop"><svg><use href="#i-tool"/></svg><span class="lbl">Workshop time</span></button></li>
+        <li><button class="item" data-go="help"><svg><use href="#i-help"/></svg><span class="lbl">Further help</span></button></li>
+      </ul>
+    </div>
+    <p class="empty" id="empty" hidden>No sections match.</p>
+  </nav>
+
+  <main class="content">
+    <div class="backbar"><button class="back" id="back"><svg><use href="#i-back"/></svg>All sections</button></div>
+    <div class="inner">
+
+<!-- START -->
+<section class="page" id="start" data-title="Start here">
+  <h1 class="crumb">Start here</h1>
+  <p class="lede">A step-by-step workbook for the Digital Confidence Workshop. You’ll practise saving, sharing and finding files with OneDrive, Teams and SharePoint on a Windows PC.</p>
+
+  <div class="infobar warn"><svg><use href="#i-info"/></svg><p><strong>Only use the practice files for now.</strong> You can move onto your real work in the workshop time at the end.</p></div>
+
+  <p class="sub">During the activities you will</p>
+  <div class="cards">
+    <div class="card"><svg class="ico"><use href="#i-cloud"/></svg><div><p>Organise files in OneDrive</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-share"/></svg><div><p>Share a file with someone else</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-grid"/></svg><div><p>Work together on the same document</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-history"/></svg><div><p>Recover an earlier version</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-team"/></svg><div><p>Explore how Teams and SharePoint connect</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-search"/></svg><div><p>Practise finding your files again</p></div></div>
+  </div>
+
+  <p class="sub">Practice files</p>
+  <p class="lede" style="margin-bottom:12px">Download all six to your PC. They save to your <span class="ui">Downloads</span> folder. You’ll upload them to OneDrive in Activity 2.</p>
+  <div class="cards">
+    <div class="card file"><svg class="fileicon" style="color:var(--pptx)"><use href="#i-file"/></svg><div><p class="fname">My_Draft_Presentation.pptx</p><p class="meta">PowerPoint · A draft slide deck about file storage</p></div><div class="actions"><a class="btn" href="My_Draft_Presentation.pptx" download><svg><use href="#i-down"/></svg>Download</a></div></div>
+    <div class="card file"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Personal_Working_Notes.docx</p><p class="meta">Word · Alex’s informal planning notes</p></div><div class="actions"><a class="btn" href="Personal_Working_Notes.docx" download><svg><use href="#i-down"/></svg>Download</a></div></div>
+    <div class="card file"><svg class="fileicon" style="color:var(--xlsx)"><use href="#i-file"/></svg><div><p class="fname">Department_Budget.xlsx</p><p class="meta">Excel · Budget for 2026/27 with four owners</p></div><div class="actions"><a class="btn" href="Department_Budget.xlsx" download><svg><use href="#i-down"/></svg>Download</a></div></div>
+    <div class="card file"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Meeting_Minutes.docx</p><p class="meta">Word · Department Operations Meeting, 9 September</p></div><div class="actions"><a class="btn" href="Meeting_Minutes.docx" download><svg><use href="#i-down"/></svg>Download</a></div></div>
+    <div class="card file"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Staff_Procedure.docx</p><p class="meta">Word · How to book a meeting room</p></div><div class="actions"><a class="btn" href="Staff_Procedure.docx" download><svg><use href="#i-down"/></svg>Download</a></div></div>
+    <div class="card file"><svg class="fileicon" style="color:var(--xlsx)"><use href="#i-file"/></svg><div><p class="fname">Project_Plan.xlsx</p><p class="meta">Excel · File storage transition tasks</p></div><div class="actions"><a class="btn" href="Project_Plan.xlsx" download><svg><use href="#i-down"/></svg>Download</a></div></div>
+  </div>
+  <p class="meta" style="color:var(--muted);font-size:13px;margin:10px 0 0">Workshop slides: <a href="Digital_Confidence_OneDrive_Teams_Sharepoint.pptx" download>Digital_Confidence_OneDrive_Teams_Sharepoint.pptx</a></p>
+
+  <div class="pager"><span></span><button class="btn primary" data-go="familiar">Next: Look familiar?<svg><use href="#i-next"/></svg></button></div>
+</section>
+
+<!-- FAMILIAR -->
+<section class="page" id="familiar" data-title="Look familiar?">
+  <h1 class="crumb">Look familiar?</h1>
+  <p class="lede">This is what a shared network drive often ends up looking like. Have a look and think about what’s wrong.</p>
+
+  <div class="win" aria-label="Example File Explorer window">
+    <div class="win-bar"><span class="t">Budget – File Explorer</span><span class="caps" aria-hidden="true">—&nbsp;&nbsp;☐&nbsp;&nbsp;✕</span></div>
+    <div class="addr">Network › <b>S:</b> › Shared › Projects › 2026 › <b>Budget</b></div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Name</th><th>Date modified</th><th>Type</th><th class="num">Size</th></tr></thead>
+        <tbody>
+          <tr><td>Budget.xlsx</td><td>4/2/2026 9:14 AM</td><td>Microsoft Excel Worksheet</td><td class="num">28 KB</td></tr>
+          <tr><td>Budget FINAL.xlsx</td><td>4/2/2026 10:02 AM</td><td>Microsoft Excel Worksheet</td><td class="num">31 KB</td></tr>
+          <tr><td>Budget FINAL v2.xlsx</td><td>4/21/2026 2:37 PM</td><td>Microsoft Excel Worksheet</td><td class="num">32 KB</td></tr>
+          <tr><td>Budget FINAL UPDATED.xlsx</td><td>4/21/2026 8:15 AM</td><td>Microsoft Excel Worksheet</td><td class="num">33 KB</td></tr>
+          <tr><td>Budget FINAL Chris Changes.xlsx</td><td>4/24/2026 11:46 AM</td><td>Microsoft Excel Worksheet</td><td class="num">34 KB</td></tr>
+          <tr class="sel"><td>Budget FINAL USE THIS ONE.xlsx</td><td>4/24/2026 9:55 AM</td><td>Microsoft Excel Worksheet</td><td class="num">29 KB</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="sub">Questions to think about</p>
+  <div class="cards">
+    <div class="card"><svg class="ico"><use href="#i-help"/></svg><div><p>Which is the right file?</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-help"/></svg><div><p>Who has the file open?</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-help"/></svg><div><p>Why do I have another copy of this file in my emails?</p></div></div>
+  </div>
+  <div class="infobar" style="margin-top:20px"><svg><use href="#i-info"/></svg><p>With OneDrive, Teams and SharePoint there is <strong>one file</strong>. People share a link to it and work on it together, and older versions are saved automatically. No more “FINAL v2”.</p></div>
+
+  <div class="pager"><button class="btn" data-go="start"><svg><use href="#i-back"/></svg>Start here</button><button class="btn primary" data-go="three">Next: Mine, Ours, Behind the Team<svg><use href="#i-next"/></svg></button></div>
+</section>
+
+<!-- THREE -->
+<section class="page" id="three" data-title="Mine, Ours, Behind the Team">
+  <h1 class="crumb">Three things. One simple idea.</h1>
+  <p class="lede">Each of the three apps has its own job. Knowing which is which tells you where a file should live.</p>
+
+  <div class="trio">
+    <div class="tcard"><div class="bar" style="background:var(--onedrive)"></div><span class="tag" style="color:var(--onedrive)">Mine</span><h3>OneDrive</h3><p>My files and work I’m developing.</p></div>
+    <div class="tcard"><div class="bar" style="background:var(--teams)"></div><span class="tag" style="color:var(--teams)">Ours</span><h3>Microsoft Teams</h3><p>Where a team communicates and works together.</p></div>
+    <div class="tcard"><div class="bar" style="background:var(--sharepoint)"></div><span class="tag" style="color:var(--sharepoint)">Behind the Team</span><h3>SharePoint</h3><p>Stores and manages the shared files you work with through Teams. Can also be used directly for wider organisational content.</p></div>
+  </div>
+  <div class="infobar"><svg><use href="#i-info"/></svg><p>Teams and SharePoint are closely connected. Files you work with in a standard Teams channel are stored in SharePoint.</p></div>
+
+  <p class="sub">From draft to everyone</p>
+  <p class="lede" style="margin-bottom:12px">An example of one HR policy moving from a personal draft to the whole organisation.</p>
+  <div class="flow">
+    <div class="fstep"><span class="pill">Teams · Ours</span><strong>HR Team</strong><span>The HR team works on the draft policy together in their Teams space.</span></div>
+    <div class="arrow" aria-hidden="true"><svg><use href="#i-next"/></svg></div>
+    <div class="fstep"><span class="pill">Stored behind Teams</span><strong>HR Team SharePoint site</strong><span>The draft saves automatically to the team’s SharePoint site.</span></div>
+    <div class="arrow" aria-hidden="true"><svg><use href="#i-next"/></svg></div>
+    <div class="fstep"><span class="pill">Published for everyone</span><strong>Staff intranet / HR policies</strong><span>The final policy is published so everyone sees the latest version.</span></div>
+  </div>
+  <div class="card" style="margin-top:8px"><svg class="ico" style="color:var(--onedrive)"><use href="#i-cloud"/></svg><div><p><strong>OneDrive</strong> is for your own draft, before it becomes team-owned.</p></div></div>
+
+  <div class="pager"><button class="btn" data-go="familiar"><svg><use href="#i-back"/></svg>Look familiar?</button><button class="btn primary" data-go="a1">Next: Activity 1<svg><use href="#i-next"/></svg></button></div>
+</section>
+
+<!-- A1 -->
+<section class="page" id="a1" data-title="Mine or Ours?">
+  <h1 class="crumb"><span class="parent">Activities</span><span class="sep">›</span>1. Mine or Ours?</h1>
+  <p class="lede">Look through the practice files. For each one, decide if it’s <strong>Mine</strong> (belongs in OneDrive) or <strong>Ours</strong> (belongs in a Team).</p>
+  <div class="infobar warn"><svg><use href="#i-info"/></svg><p><strong>Don’t move anything yet.</strong> Discuss your choices with the person next to you.</p></div>
+
+  <div class="cards" id="mineours">
+    <div class="card file mine-row"><svg class="fileicon" style="color:var(--pptx)"><use href="#i-file"/></svg><div><p class="fname">My_Draft_Presentation.pptx</p></div><div class="choose" role="radiogroup" aria-label="My_Draft_Presentation.pptx"><label><input type="radio" name="mo-pres" id="mo-pres-m" value="mine"><span>Mine</span></label><label><input type="radio" name="mo-pres" id="mo-pres-o" value="ours"><span>Ours</span></label></div></div>
+    <div class="card file mine-row"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Personal_Working_Notes.docx</p></div><div class="choose" role="radiogroup" aria-label="Personal_Working_Notes.docx"><label><input type="radio" name="mo-notes" id="mo-notes-m" value="mine"><span>Mine</span></label><label><input type="radio" name="mo-notes" id="mo-notes-o" value="ours"><span>Ours</span></label></div></div>
+    <div class="card file mine-row"><svg class="fileicon" style="color:var(--xlsx)"><use href="#i-file"/></svg><div><p class="fname">Department_Budget.xlsx</p></div><div class="choose" role="radiogroup" aria-label="Department_Budget.xlsx"><label><input type="radio" name="mo-budget" id="mo-budget-m" value="mine"><span>Mine</span></label><label><input type="radio" name="mo-budget" id="mo-budget-o" value="ours"><span>Ours</span></label></div></div>
+    <div class="card file mine-row"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Meeting_Minutes.docx</p></div><div class="choose" role="radiogroup" aria-label="Meeting_Minutes.docx"><label><input type="radio" name="mo-mins" id="mo-mins-m" value="mine"><span>Mine</span></label><label><input type="radio" name="mo-mins" id="mo-mins-o" value="ours"><span>Ours</span></label></div></div>
+    <div class="card file mine-row"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Staff_Procedure.docx</p></div><div class="choose" role="radiogroup" aria-label="Staff_Procedure.docx"><label><input type="radio" name="mo-proc" id="mo-proc-m" value="mine"><span>Mine</span></label><label><input type="radio" name="mo-proc" id="mo-proc-o" value="ours"><span>Ours</span></label></div></div>
+    <div class="card file mine-row"><svg class="fileicon" style="color:var(--xlsx)"><use href="#i-file"/></svg><div><p class="fname">Project_Plan.xlsx</p></div><div class="choose" role="radiogroup" aria-label="Project_Plan.xlsx"><label><input type="radio" name="mo-plan" id="mo-plan-m" value="mine"><span>Mine</span></label><label><input type="radio" name="mo-plan" id="mo-plan-o" value="ours"><span>Ours</span></label></div></div>
+  </div>
+
+  <details class="answers">
+    <summary><svg><use href="#i-chev"/></svg>Show suggested answers</summary>
+    <div class="ans">
+      <p><span class="tagm">Mine</span><strong>Personal_Working_Notes.docx</strong>: it’s a working draft for planning before anything is shared.</p>
+      <p><span class="tagm">Mine</span><strong>My_Draft_Presentation.pptx</strong>: it’s marked as draft content for discussion.</p>
+      <p><span class="tago">Ours</span><strong>Meeting_Minutes.docx</strong>: it’s owned by the Department Operations Team, and the minutes say they should move into the department Team.</p>
+      <p><span class="tago">Ours</span><strong>Department_Budget.xlsx</strong>: four people own different budget lines.</p>
+      <p><span class="tago">Ours</span><strong>Project_Plan.xlsx</strong>: tasks are shared between several owners.</p>
+      <p><span class="tags">Ours + wider</span><strong>Staff_Procedure.docx</strong>: a published staff reference. It should go somewhere everyone can find the current version, such as a SharePoint site or intranet.</p>
+    </div>
+  </details>
+
+  <div class="complete"><button class="btn" data-done="a1"><svg><use href="#i-check"/></svg>Mark as done</button><span class="state" data-state="a1"></span></div>
+  <div class="pager"><button class="btn" data-go="three"><svg><use href="#i-back"/></svg>Mine, Ours, Behind the Team</button><button class="btn primary" data-go="a2">Next: Activity 2<svg><use href="#i-next"/></svg></button></div>
+</section>
+
+<!-- A2 -->
+<section class="page" id="a2" data-title="Upload to OneDrive">
+  <h1 class="crumb"><span class="parent">Activities</span><span class="sep">›</span>2. Upload to OneDrive</h1>
+  <p class="lede">Make a folder in your OneDrive and put all six practice files in it.</p>
+
+  <p class="sub">What to do</p>
+  <div class="cards">
+    <div class="card"><span class="step-n">1</span><div><p>Open OneDrive. In your web browser go to <a href="https://www.office.com" target="_blank" rel="noopener">office.com</a>, sign in with your work account, then choose <span class="ui">OneDrive</span> from the app list.</p></div></div>
+    <div class="card"><span class="step-n">2</span><div><p>Select <span class="btnlike">+ Add new</span> then <span class="ui">Folder</span>, and call it:</p><div class="copyrow"><code id="foldername">Microsoft 365 Practice</code><button class="btn" id="copyfolder"><svg><use href="#i-copy"/></svg><span>Copy</span></button></div></div></div>
+    <div class="card"><span class="step-n">3</span><div><p>Open the new folder by clicking its name.</p></div></div>
+    <div class="card"><span class="step-n">4</span><div><p>Select <span class="btnlike">+ Add new</span> then <span class="ui">Files upload</span>. Go to your <span class="ui">Downloads</span> folder, select all six practice files, and choose <span class="ui">Open</span>.</p><p class="meta">Tip: hold <kbd>Ctrl</kbd> and click to pick several files at once. You can also drag the files from File Explorer straight into the browser window.</p></div></div>
+  </div>
+
+  <p class="sub">Check: you should end up with these six files</p>
+  <div class="cards" id="uploadlist">
+    <label class="card file check"><input type="checkbox" id="up-1"><svg class="fileicon" style="color:var(--pptx)"><use href="#i-file"/></svg><div><p class="fname">My_Draft_Presentation.pptx</p></div></label>
+    <label class="card file check"><input type="checkbox" id="up-2"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Personal_Working_Notes.docx</p></div></label>
+    <label class="card file check"><input type="checkbox" id="up-3"><svg class="fileicon" style="color:var(--xlsx)"><use href="#i-file"/></svg><div><p class="fname">Department_Budget.xlsx</p></div></label>
+    <label class="card file check"><input type="checkbox" id="up-4"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Meeting_Minutes.docx</p></div></label>
+    <label class="card file check"><input type="checkbox" id="up-5"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Staff_Procedure.docx</p></div></label>
+    <label class="card file check"><input type="checkbox" id="up-6"><svg class="fileicon" style="color:var(--xlsx)"><use href="#i-file"/></svg><div><p class="fname">Project_Plan.xlsx</p></div></label>
+  </div>
+  <div class="infobar" style="margin-top:16px"><svg><use href="#i-info"/></svg><p>Can you see all six files inside <strong>Microsoft 365 Practice</strong>? Tick each one off as you find it.</p></div>
+
+  <div class="complete"><button class="btn" data-done="a2"><svg><use href="#i-check"/></svg>Mark as done</button><span class="state" data-state="a2"></span></div>
+  <div class="pager"><button class="btn" data-go="a1"><svg><use href="#i-back"/></svg>Activity 1</button><button class="btn primary" data-go="a3">Next: Activity 3<svg><use href="#i-next"/></svg></button></div>
+</section>
+
+<!-- A3 -->
+<section class="page" id="a3" data-title="Share, don’t send">
+  <h1 class="crumb"><span class="parent">Activities</span><span class="sep">›</span>3. Share, don’t send</h1>
+  <p class="lede">Instead of emailing a copy, share a link to the one file. Work with the person next to you: one of you is Person A, the other is Person B.</p>
+
+  <div class="duo">
+    <div>
+      <h3><span class="dot" style="background:var(--accent)"></span>Person A</h3>
+      <div class="cards">
+        <div class="card"><span class="step-n">1</span><div><p>In OneDrive, open <span class="ui">Microsoft 365 Practice</span> and find <strong>Personal_Working_Notes.docx</strong>.</p></div></div>
+        <div class="card"><span class="step-n">2</span><div><p>Hover over the file and select the share icon, or right-click it and choose <span class="btnlike"><svg width="12" height="12"><use href="#i-share"/></svg>Share</span>.</p></div></div>
+        <div class="card"><span class="step-n">3</span><div><p>Type your partner’s name and pick them from the list.</p></div></div>
+        <div class="card"><span class="step-n">4</span><div><p>Check the permission says <span class="ui">Can edit</span>. If not, select the pencil icon and change it. Then select <span class="ui">Send</span>.</p></div></div>
+      </div>
+    </div>
+    <div>
+      <h3><span class="dot" style="background:#c239b3"></span>Person B</h3>
+      <div class="cards">
+        <div class="card"><span class="step-n">1</span><div><p>Open the shared file. Use the link in the email you receive, or go to OneDrive and select <span class="ui">Shared</span> on the left.</p></div></div>
+        <div class="card"><span class="step-n">2</span><div><p>Add your name.</p></div></div>
+        <div class="card"><span class="step-n">3</span><div><p>Add one sentence underneath.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="infobar" style="margin-top:20px"><svg><use href="#i-info"/></svg><p><strong>Check:</strong> can you both see the changes? You’re both working on the same file. There’s no second copy sitting in anyone’s inbox.</p></div>
+
+  <div class="complete"><button class="btn" data-done="a3"><svg><use href="#i-check"/></svg>Mark as done</button><span class="state" data-state="a3"></span></div>
+  <div class="pager"><button class="btn" data-go="a2"><svg><use href="#i-back"/></svg>Activity 2</button><button class="btn primary" data-go="a4">Next: Activity 4<svg><use href="#i-next"/></svg></button></div>
+</section>
+
+<!-- A4 -->
+<section class="page" id="a4" data-title="Fix a mistake">
+  <h1 class="crumb"><span class="parent">Activities</span><span class="sep">›</span>4. Fix a mistake</h1>
+  <p class="lede">Break it, then recover it. OneDrive keeps earlier versions of your files, so a mistake is easy to undo.</p>
+
+  <p class="sub">Steps</p>
+  <div class="cards">
+    <div class="card"><span class="step-n">1</span><div><p>Open <strong>Personal_Working_Notes.docx</strong>.</p></div></div>
+    <div class="card"><span class="step-n">2</span><div><p>Delete a section, for example everything under <em>Current thoughts</em>.</p></div></div>
+    <div class="card"><span class="step-n">3</span><div><p>Let the change save. Wait a few seconds until the top of the window says <span class="ui">Saved</span>.</p></div></div>
+    <div class="card"><span class="step-n">4</span><div><p>Go back to OneDrive.</p></div></div>
+    <div class="card"><span class="step-n">5</span><div><p>Right-click the file (or select the three dots <span class="btnlike">…</span>) and choose <span class="btnlike"><svg width="12" height="12"><use href="#i-history"/></svg>Version history</span>.</p></div></div>
+    <div class="card"><span class="step-n">6</span><div><p>Find an earlier version from before you deleted the section.</p></div></div>
+    <div class="card"><span class="step-n">7</span><div><p>Select the three dots next to it and choose <span class="ui">Restore</span>.</p></div></div>
+  </div>
+
+  <div class="infobar" style="margin-top:20px"><svg><use href="#i-info"/></svg><p><strong>Check:</strong> has the original content returned? Open the file again to see.</p></div>
+  <p class="meta" style="color:var(--muted);font-size:13px">You can also do this inside Word: <span class="ui">File</span> › <span class="ui">Info</span> › <span class="ui">Version History</span>. If you notice straight away, <kbd>Ctrl</kbd> + <kbd>Z</kbd> undoes your last change.</p>
+
+  <div class="complete"><button class="btn" data-done="a4"><svg><use href="#i-check"/></svg>Mark as done</button><span class="state" data-state="a4"></span></div>
+  <div class="pager"><button class="btn" data-go="a3"><svg><use href="#i-back"/></svg>Activity 3</button><button class="btn primary" data-go="a5">Next: Activity 5<svg><use href="#i-next"/></svg></button></div>
+</section>
+
+<!-- A5 -->
+<section class="page" id="a5" data-title="Teams and SharePoint">
+  <h1 class="crumb"><span class="parent">Activities</span><span class="sep">›</span>5. Teams and SharePoint</h1>
+  <p class="lede">See for yourself that a Teams channel’s files and its SharePoint site are the same files in two places.</p>
+  <div class="infobar warn"><svg><use href="#i-info"/></svg><p>Use a Team you already belong to.</p></div>
+
+  <p class="sub">Steps</p>
+  <div class="cards">
+    <div class="card"><span class="step-n">1</span><div><p>Open Microsoft Teams.</p></div></div>
+    <div class="card"><span class="step-n">2</span><div><p>Select <span class="ui">Teams</span> on the left, then open a Team and a standard channel (for example <em>General</em>).</p></div></div>
+    <div class="card"><span class="step-n">3</span><div><p>Open the channel’s <span class="btnlike">Shared</span> tab at the top. In some versions this is called <span class="btnlike">Files</span>.</p></div></div>
+    <div class="card"><span class="step-n">4</span><div><p>Look at the files and pick one to remember.</p></div></div>
+    <div class="card"><span class="step-n">5</span><div><p>Open the same location in SharePoint. Select <span class="btnlike">…</span> or <span class="ui">Open in SharePoint</span> at the top of the file list.</p></div></div>
+    <div class="card"><span class="step-n">6</span><div><p>Find the same file again in the SharePoint window.</p></div></div>
+  </div>
+  <div class="infobar ok" style="margin-top:20px"><svg><use href="#i-okc"/></svg><p>Same file, two views. Teams is where you talk and work. SharePoint is where the file actually lives.</p></div>
+
+  <div class="complete"><button class="btn" data-done="a5"><svg><use href="#i-check"/></svg>Mark as done</button><span class="state" data-state="a5"></span></div>
+  <div class="pager"><button class="btn" data-go="a4"><svg><use href="#i-back"/></svg>Activity 4</button><button class="btn primary" data-go="a6">Next: Activity 6<svg><use href="#i-next"/></svg></button></div>
+</section>
+
+<!-- A6 -->
+<section class="page" id="a6" data-title="Edit together">
+  <h1 class="crumb"><span class="parent">Activities</span><span class="sep">›</span>6. Edit together</h1>
+  <p class="lede">Work with the person next to you. One of you opens <strong>Department_Budget.xlsx</strong> and shares it with the other, giving them edit rights (the same way as Activity 3). Then you both edit it at the same time.</p>
+
+  <div class="win" aria-label="Department budget with the cells to change">
+    <div class="win-bar"><span class="t">Department_Budget.xlsx · Saved</span><span class="caps" aria-hidden="true">—&nbsp;&nbsp;☐&nbsp;&nbsp;✕</span></div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Category</th><th>Owner</th><th class="num">Q2 Budget</th><th class="num">Q2 Actual</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Staff training<span class="who a">A</span></td><td>Sarah Jones</td><td class="num">£4,600</td><td class="num edit">£1,250</td><td class="edit">Two courses booked; further invoices expected</td></tr>
+          <tr><td>Software licences</td><td>Daniel Reed</td><td class="num">£8,500</td><td class="num">£0</td><td>Renewals due in October</td></tr>
+          <tr><td>Room bookings</td><td>Priya Shah</td><td class="num">£1,900</td><td class="num">£0</td><td>External bookings reduced</td></tr>
+          <tr><td>Marketing materials</td><td>Alex Morgan</td><td class="num">£2,000</td><td class="num">£0</td><td>Extra print run approved</td></tr>
+          <tr><td>Equipment refresh<span class="who b">B</span></td><td>Daniel Reed</td><td class="num">£7,000</td><td class="num edit-b">£2,400</td><td class="edit-b">Three shared laptops ordered</td></tr>
+          <tr><td>Contingency</td><td>Priya Shah</td><td class="num">£3,000</td><td class="num">£0</td><td>Use only with approval</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="duo">
+    <div>
+      <h3><span class="dot" style="background:var(--accent)"></span>Person A</h3>
+      <div class="cards">
+        <div class="card"><span class="step-n">1</span><div><p>Find the <strong>Staff training</strong> row.</p></div></div>
+        <div class="card"><span class="step-n">2</span><div><p>Change <span class="ui">Q2 Actual</span> to <strong>£1,250</strong>.</p></div></div>
+        <div class="card"><span class="step-n">3</span><div><p>Change <span class="ui">Notes</span> to <strong>Two courses booked; further invoices expected</strong>.</p></div></div>
+      </div>
+    </div>
+    <div>
+      <h3><span class="dot" style="background:#c239b3"></span>Person B</h3>
+      <div class="cards">
+        <div class="card"><span class="step-n">1</span><div><p>Find the <strong>Equipment refresh</strong> row.</p></div></div>
+        <div class="card"><span class="step-n">2</span><div><p>Change <span class="ui">Q2 Actual</span> to <strong>£2,400</strong>.</p></div></div>
+        <div class="card"><span class="step-n">3</span><div><p>Change <span class="ui">Notes</span> to <strong>Three shared laptops ordered</strong>.</p></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="infobar" style="margin-top:20px"><svg><use href="#i-info"/></svg><p>Watch for a coloured box showing which cell your partner is in. Their changes appear on your screen within a few seconds, and Excel saves on its own.</p></div>
+
+  <div class="complete"><button class="btn" data-done="a6"><svg><use href="#i-check"/></svg>Mark as done</button><span class="state" data-state="a6"></span></div>
+  <div class="pager"><button class="btn" data-go="a5"><svg><use href="#i-back"/></svg>Activity 5</button><button class="btn primary" data-go="workshop">Next: Workshop time<svg><use href="#i-next"/></svg></button></div>
+</section>
+
+<!-- WORKSHOP -->
+<section class="page" id="workshop" data-title="Workshop time">
+  <h1 class="crumb">Workshop time</h1>
+  <p class="lede">Use this time for something useful to you. Choose a real file or folder you work with and start applying what we’ve covered.</p>
+
+  <p class="sub">You could</p>
+  <div class="cards">
+    <div class="card"><svg class="ico"><use href="#i-cloud"/></svg><div><p>Move files into OneDrive</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-files"/></svg><div><p>Organise or tidy existing folders</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-sort"/></svg><div><p>Decide whether files are Mine or Ours</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-share"/></svg><div><p>Share a file with a colleague</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-tool"/></svg><div><p>Change view or edit permissions</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-team"/></svg><div><p>Explore files in an existing Team, and open them in SharePoint</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-history"/></svg><div><p>Work out where an old network-drive folder should move</p></div></div>
+    <div class="card"><svg class="ico"><use href="#i-help"/></svg><div><p>Ask about a Microsoft 365 file problem you regularly run into</p></div></div>
+  </div>
+
+  <div class="infobar" style="margin-top:20px"><svg><use href="#i-info"/></svg><p><strong>Ask questions!</strong> The trainer will be walking round during this time. If you’re unsure where a file should live, how to share it, or how Teams and SharePoint fit together, ask while you’re working on it. The aim is to leave with fewer unknowns, not just to finish the activity.</p></div>
+
+  <div class="pager"><button class="btn" data-go="a6"><svg><use href="#i-back"/></svg>Activity 6</button><button class="btn primary" data-go="help">Next: Further help<svg><use href="#i-next"/></svg></button></div>
+</section>
+
+<!-- HELP -->
+<section class="page" id="help" data-title="Further help">
+  <h1 class="crumb">Further help</h1>
+  <p class="lede">Microsoft’s OneDrive help site covers everything in this session, including uploading, organising, sharing and recovering files. Come back to it whenever you need a quick reminder.</p>
+
+  <div class="cards">
+    <a class="card" href="https://support.microsoft.com/onedrive" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><svg class="ico" style="color:var(--onedrive)"><use href="#i-cloud"/></svg><div><p><strong>OneDrive help &amp; learning</strong></p><p class="meta">support.microsoft.com/onedrive</p></div><svg class="ico" style="color:var(--muted)"><use href="#i-share"/></svg></a>
+    <a class="card" href="https://support.microsoft.com/teams" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><svg class="ico" style="color:var(--teams)"><use href="#i-team"/></svg><div><p><strong>Microsoft Teams help &amp; learning</strong></p><p class="meta">support.microsoft.com/teams</p></div><svg class="ico" style="color:var(--muted)"><use href="#i-share"/></svg></a>
+    <a class="card" href="https://support.microsoft.com/sharepoint" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><svg class="ico" style="color:var(--sharepoint)"><use href="#i-files"/></svg><div><p><strong>SharePoint help &amp; learning</strong></p><p class="meta">support.microsoft.com/sharepoint</p></div><svg class="ico" style="color:var(--muted)"><use href="#i-share"/></svg></a>
+  </div>
+
+  <div class="infobar ok" style="margin-top:24px"><svg><use href="#i-okc"/></svg><p><strong>Thank you for taking part.</strong> Hopefully you’re leaving with a clearer idea of how OneDrive, Teams and SharePoint fit together.</p></div>
+
+  <div class="pager"><button class="btn" data-go="workshop"><svg><use href="#i-back"/></svg>Workshop time</button><button class="btn" data-go="start">Back to the start<svg><use href="#i-home"/></svg></button></div>
+</section>
+
+      <p class="foot">Digital Confidence Workshop · Wyre Council · B&amp;FC Group for Business. Menus can look slightly different depending on your version of Microsoft 365.</p>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  var KEY = 'dcw-progress-v1';
+  var store = {};
+  try { store = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { store = {}; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+
+  var app = document.getElementById('app');
+  var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
+  var items = Array.prototype.slice.call(document.querySelectorAll('.item'));
+  var narrow = window.matchMedia('(max-width: 760px)');
+
+  function show(id, open) {
+    var t = document.getElementById(id);
+    if (!t || !t.classList.contains('page')) t = document.getElementById('start');
+    pages.forEach(function (p) { p.classList.toggle('on', p === t); });
+    items.forEach(function (b) {
+      if (b.getAttribute('data-go') === t.id) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
+    if (open) app.classList.add('show-page');
+    document.title = (t.id === 'start' ? '' : t.getAttribute('data-title') + ' – ') + 'Digital Confidence Workshop';
+    try { history.replaceState(null, '', '#' + t.id); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-go]');
+    if (el) { e.preventDefault(); show(el.getAttribute('data-go'), true); }
+  });
+  document.getElementById('back').addEventListener('click', function () {
+    app.classList.remove('show-page'); window.scrollTo(0, 0);
+  });
+
+  // Done markers
+  function paintDone() {
+    var done = store.done || {};
+    document.querySelectorAll('[data-done]').forEach(function (b) {
+      var id = b.getAttribute('data-done'), on = !!done[id];
+      b.querySelector('svg').nextSibling.textContent = on ? 'Mark as not done' : 'Mark as done';
+      var s = document.querySelector('[data-state="' + id + '"]');
+      if (s) s.textContent = on ? 'Activity complete' : '';
+    });
+    items.forEach(function (b) { b.classList.toggle('is-done', !!done[b.getAttribute('data-go')]); });
+  }
+  document.querySelectorAll('[data-done]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      store.done = store.done || {};
+      var id = b.getAttribute('data-done');
+      store.done[id] = !store.done[id];
+      save(); paintDone();
+    });
+  });
+
+  // Remember Mine/Ours and upload ticks
+  store.inputs = store.inputs || {};
+  document.querySelectorAll('#mineours input, #uploadlist input').forEach(function (inp) {
+    if (store.inputs[inp.id]) inp.checked = true;
+    var paint = function () { var c = inp.closest('.check'); if (c) c.classList.toggle('is-on', inp.checked); };
+    paint();
+    inp.addEventListener('change', function () {
+      if (inp.type === 'radio') {
+        document.querySelectorAll('input[name="' + inp.name + '"]').forEach(function (r) { store.inputs[r.id] = r.checked; });
+      } else { store.inputs[inp.id] = inp.checked; }
+      paint(); save();
+    });
+  });
+
+  // Copy folder name
+  var cb = document.getElementById('copyfolder');
+  cb.addEventListener('click', function () {
+    var text = document.getElementById('foldername').textContent;
+    var label = cb.querySelector('span');
+    function done(msg) { label.textContent = msg; setTimeout(function () { label.textContent = 'Copy'; }, 1800); }
+    function fallback() {
+      var r = document.createRange(); r.selectNodeContents(document.getElementById('foldername'));
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      done('Press Ctrl+C');
+    }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done('Copied'); }, fallback);
+      } else fallback();
+    } catch (e) { fallback(); }
+  });
+
+  // Section search
+  var q = document.getElementById('q');
+  q.addEventListener('input', function () {
+    var term = q.value.trim().toLowerCase(), any = false;
+    document.querySelectorAll('[data-group]').forEach(function (g) {
+      var n = 0;
+      g.querySelectorAll('li').forEach(function (li) {
+        var id = li.querySelector('.item').getAttribute('data-go');
+        var page = document.getElementById(id);
+        var hit = !term || (li.textContent + ' ' + (page ? page.textContent : '')).toLowerCase().indexOf(term) !== -1;
+        li.hidden = !hit; if (hit) n++;
+      });
+      g.hidden = n === 0; if (n) any = true;
+    });
+    document.getElementById('empty').hidden = any;
+  });
+
+  paintDone();
+  var start = (location.hash || '').slice(1);
+  show(start || 'start', !!start && narrow.matches);
+  if (!start) app.classList.remove('show-page');
+  setTimeout(function () { window.scrollTo(0, 0); }, 0);
+})();
+</script>
+</body>
+</html>
