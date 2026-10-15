@@ -31,6 +31,7 @@ const PUBLIC_FOLDER_ROUTES = [
   { slug: 'data', meta: 'data' },
   { slug: 'cpp', meta: 'cpp' },
   { slug: 'lockdown', meta: 'lockdown' },
+  { slug: 'digital', meta: 'digital' },
   { slug: 'ipad', meta: 'ipad' },
 ];
 
