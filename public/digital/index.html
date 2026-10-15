@@ -428,14 +428,14 @@ details.answers .ans { padding: 0 18px 14px; display: grid; gap: 10px; }
   <p class="sub">Practice files</p>
   <p class="lede" style="margin-bottom:12px">Download all six to your PC. They save to your <span class="ui">Downloads</span> folder. You’ll upload them to OneDrive in Activity 2.</p>
   <div class="cards">
-    <div class="card file"><svg class="fileicon" style="color:var(--pptx)"><use href="#i-file"/></svg><div><p class="fname">My_Draft_Presentation.pptx</p><p class="meta">PowerPoint · A draft slide deck about file storage</p></div><div class="actions"><a class="btn" href="My_Draft_Presentation.pptx" download><svg><use href="#i-down"/></svg>Download</a></div></div>
-    <div class="card file"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Personal_Working_Notes.docx</p><p class="meta">Word · Alex’s informal planning notes</p></div><div class="actions"><a class="btn" href="Personal_Working_Notes.docx" download><svg><use href="#i-down"/></svg>Download</a></div></div>
-    <div class="card file"><svg class="fileicon" style="color:var(--xlsx)"><use href="#i-file"/></svg><div><p class="fname">Department_Budget.xlsx</p><p class="meta">Excel · Budget for 2026/27 with four owners</p></div><div class="actions"><a class="btn" href="Department_Budget.xlsx" download><svg><use href="#i-down"/></svg>Download</a></div></div>
-    <div class="card file"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Meeting_Minutes.docx</p><p class="meta">Word · Department Operations Meeting, 9 September</p></div><div class="actions"><a class="btn" href="Meeting_Minutes.docx" download><svg><use href="#i-down"/></svg>Download</a></div></div>
-    <div class="card file"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Staff_Procedure.docx</p><p class="meta">Word · How to book a meeting room</p></div><div class="actions"><a class="btn" href="Staff_Procedure.docx" download><svg><use href="#i-down"/></svg>Download</a></div></div>
-    <div class="card file"><svg class="fileicon" style="color:var(--xlsx)"><use href="#i-file"/></svg><div><p class="fname">Project_Plan.xlsx</p><p class="meta">Excel · File storage transition tasks</p></div><div class="actions"><a class="btn" href="Project_Plan.xlsx" download><svg><use href="#i-down"/></svg>Download</a></div></div>
+    <div class="card file"><svg class="fileicon" style="color:var(--pptx)"><use href="#i-file"/></svg><div><p class="fname">My_Draft_Presentation.pptx</p><p class="meta">PowerPoint · A draft slide deck about file storage</p></div><div class="actions"><a class="btn" href="My_Draft_Presentation.pptx" download target="_blank" rel="noopener"><svg><use href="#i-down"/></svg>Download</a></div></div>
+    <div class="card file"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Personal_Working_Notes.docx</p><p class="meta">Word · Alex’s informal planning notes</p></div><div class="actions"><a class="btn" href="Personal_Working_Notes.docx" download target="_blank" rel="noopener"><svg><use href="#i-down"/></svg>Download</a></div></div>
+    <div class="card file"><svg class="fileicon" style="color:var(--xlsx)"><use href="#i-file"/></svg><div><p class="fname">Department_Budget.xlsx</p><p class="meta">Excel · Budget for 2026/27 with four owners</p></div><div class="actions"><a class="btn" href="Department_Budget.xlsx" download target="_blank" rel="noopener"><svg><use href="#i-down"/></svg>Download</a></div></div>
+    <div class="card file"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Meeting_Minutes.docx</p><p class="meta">Word · Department Operations Meeting, 9 September</p></div><div class="actions"><a class="btn" href="Meeting_Minutes.docx" download target="_blank" rel="noopener"><svg><use href="#i-down"/></svg>Download</a></div></div>
+    <div class="card file"><svg class="fileicon" style="color:var(--docx)"><use href="#i-file"/></svg><div><p class="fname">Staff_Procedure.docx</p><p class="meta">Word · How to book a meeting room</p></div><div class="actions"><a class="btn" href="Staff_Procedure.docx" download target="_blank" rel="noopener"><svg><use href="#i-down"/></svg>Download</a></div></div>
+    <div class="card file"><svg class="fileicon" style="color:var(--xlsx)"><use href="#i-file"/></svg><div><p class="fname">Project_Plan.xlsx</p><p class="meta">Excel · File storage transition tasks</p></div><div class="actions"><a class="btn" href="Project_Plan.xlsx" download target="_blank" rel="noopener"><svg><use href="#i-down"/></svg>Download</a></div></div>
   </div>
-  <p class="meta" style="color:var(--muted);font-size:13px;margin:10px 0 0">Workshop slides: <a href="Digital_Confidence_OneDrive_Teams_Sharepoint.pptx" download>Digital_Confidence_OneDrive_Teams_Sharepoint.pptx</a></p>
+  <p class="meta" style="color:var(--muted);font-size:13px;margin:10px 0 0">Workshop slides: <a href="Digital_Confidence_OneDrive_Teams_Sharepoint.pptx" download target="_blank" rel="noopener">Digital_Confidence_OneDrive_Teams_Sharepoint.pptx</a></p>
 
   <div class="pager"><span></span><button class="btn primary" data-go="familiar">Next: Look familiar?<svg><use href="#i-next"/></svg></button></div>
 </section>
@@ -824,6 +824,34 @@ details.answers .ans { padding: 0 18px 14px; display: grid; gap: 10px; }
       g.hidden = n === 0; if (n) any = true;
     });
     document.getElementById('empty').hidden = any;
+  });
+
+  // Proper downloads: fetch the file and save it, so the guide never leaves the page.
+  // If the fetch fails (e.g. the file is on another site that blocks it), open it in a new tab instead.
+  document.querySelectorAll('a[download]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      if (!window.fetch || !window.URL || !URL.createObjectURL) return; // old browser: use the plain link
+      e.preventDefault();
+      var href = a.getAttribute('href');
+      var name = decodeURIComponent(href.split('/').pop().split('?')[0]);
+      var label = a.lastChild, old = label.textContent;
+      label.textContent = 'Downloading…';
+      fetch(href).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.blob();
+      }).then(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var tmp = document.createElement('a');
+        tmp.href = url; tmp.download = name; tmp.style.display = 'none';
+        document.body.appendChild(tmp); tmp.click(); tmp.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+        label.textContent = 'Downloaded';
+        setTimeout(function () { label.textContent = old; }, 2000);
+      }).catch(function () {
+        label.textContent = old;
+        window.open(href, '_blank', 'noopener');
+      });
+    });
   });
 
   paintDone();
