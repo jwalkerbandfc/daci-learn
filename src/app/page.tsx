@@ -34,6 +34,7 @@ const PUBLIC_FOLDER_ROUTES = [
   { slug: 'digital', meta: 'digital' },
   { slug: 'ipad', meta: 'ipad' },
   { slug: 'github', meta: 'github' },
+  { slug: 'php-tutorial', meta: 'php-tutorial' },
 ];
 
 const PUBLIC_FILE_RESOURCES = [
