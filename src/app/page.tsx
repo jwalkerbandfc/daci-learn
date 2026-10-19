@@ -33,6 +33,7 @@ const PUBLIC_FOLDER_ROUTES = [
   { slug: 'lockdown', meta: 'lockdown' },
   { slug: 'digital', meta: 'digital' },
   { slug: 'ipad', meta: 'ipad' },
+  { slug: 'github', meta: 'github' },
 ];
 
 const PUBLIC_FILE_RESOURCES = [
