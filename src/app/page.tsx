@@ -22,19 +22,12 @@ const EXTERNAL_ROUTES = [
 ];
 
 const PUBLIC_FOLDER_ROUTES = [
-  { slug: 'Flutter',       meta: 'App' },
-  { slug: 'resources',     meta: 'Docs' },
-  { slug: 'Cisco-Sim',     meta: 'Tool' },
   { slug: 'Raid-Calc',     meta: 'Calculator' },
-  { slug: 'flutter-guide', meta: 'Guide' },
   { slug: 'RPS', meta: 'RockPaperScissors' },
   { slug: 'data', meta: 'data' },
-  { slug: 'cpp', meta: 'cpp' },
-  { slug: 'lockdown', meta: 'lockdown' },
   { slug: 'digital', meta: 'digital' },
   { slug: 'ipad', meta: 'ipad' },
   { slug: 'github', meta: 'github' },
-  { slug: 'php-tutorial', meta: 'php-tutorial' },
 ];
 
 const PUBLIC_FILE_RESOURCES = [
