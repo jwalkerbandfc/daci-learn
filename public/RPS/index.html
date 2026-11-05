@@ -17,6 +17,50 @@
         .code-font {
             font-family: 'JetBrains Mono', monospace;
         }
+
+        /* Gentle fade-in when a chapter pane becomes visible */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn .35s ease-out; }
+
+        /* ===== OneCompiler guided mockup: pins + absolute tooltips ===== */
+        .oc-mock { position: relative; }
+        .oc-pin {
+            position: absolute;
+            width: 26px; height: 26px;
+            border-radius: 9999px;
+            background: #6366f1; color: #fff;
+            font-weight: 800; font-size: 12px;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid #c7d2fe;
+            box-shadow: 0 0 0 4px rgba(99,102,241,.22);
+            cursor: pointer; z-index: 20;
+            transition: transform .15s ease;
+        }
+        .oc-pin:hover { transform: scale(1.12); }
+        .oc-pin--active {
+            background: #ec4899; border-color: #fbcfe8;
+            animation: ocPulse 1.6s infinite;
+        }
+        @keyframes ocPulse {
+            0%,100% { box-shadow: 0 0 0 4px rgba(236,72,153,.40); }
+            50%     { box-shadow: 0 0 0 10px rgba(236,72,153,.06); }
+        }
+        .oc-callout {
+            position: absolute; z-index: 25; display: none;
+            width: 230px;
+            background: #1e1b4b; color: #e0e7ff;
+            border: 1px solid rgba(129,140,248,.45);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 11px; line-height: 1.45;
+            box-shadow: 0 12px 34px rgba(0,0,0,.5);
+        }
+        .oc-callout--on { display: block; }
+        .oc-callout b { color: #fff; }
+
         /* Custom scrollbar styling */
         ::-webkit-scrollbar {
             width: 6px;
@@ -80,10 +124,19 @@
                         <div class="w-6 h-6 rounded-full bg-indigo-500 text-slate-900 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5" id="badge-setup">0</div>
                         <div>
                             <p class="text-xs text-indigo-400 font-bold uppercase tracking-wider">Preparation</p>
-                            <h3 class="text-sm font-semibold text-slate-100">Setting Up VS Code</h3>
+                            <h3 class="text-sm font-semibold text-slate-100">Pick Your Playground</h3>
                         </div>
                     </button>
-                    
+
+                    <!-- Foundations (reference primer) -->
+                    <button onclick="switchChapter('basics')" id="nav-basics" class="w-full text-left p-3.5 rounded-xl border border-transparent hover:bg-slate-800/50 text-slate-400 transition duration-150 flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5" id="badge-basics">📘</div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Foundations</p>
+                            <h3 class="text-sm font-semibold text-slate-300">Python in 10 Minutes</h3>
+                        </div>
+                    </button>
+
                     <!-- Chapter 1 -->
                     <button onclick="switchChapter('chunk1')" id="nav-chunk1" class="w-full text-left p-3.5 rounded-xl border border-transparent hover:bg-slate-800/50 text-slate-400 transition duration-150 flex items-start gap-3">
                         <div class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5" id="badge-chunk1">1</div>
@@ -176,56 +229,343 @@
                 <div id="pane-setup" class="space-y-8 animate-fade-in">
                     <div class="space-y-3">
                         <span class="text-xs font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/30 px-3 py-1 rounded-full uppercase tracking-wider">Preparation Step</span>
-                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">Setting Up Your Workspace</h2>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">Pick Your Playground</h2>
                         <p class="text-slate-400 leading-relaxed text-sm md:text-base">
-                            Before writing code, we need to set up your environment. Think of this like arranging the clean surface of a modern engineering workbench.
+                            To write code you need a place to type it and a button to run it. You have two options—we recommend starting with the one that needs <strong>zero installation</strong>.
                         </p>
                     </div>
 
-                    <!-- Setup Grid Layout -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 relative group hover:border-slate-700 transition">
-                            <span class="text-3xl mb-4 block">💻</span>
-                            <h3 class="text-sm font-bold text-slate-100 mb-2">1. Install VS Code</h3>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Go to <a href="https://code.visualstudio.com" target="_blank" class="text-indigo-400 hover:underline">code.visualstudio.com</a>. Install with all default parameters.
-                            </p>
+                    <!-- Recommended: OneCompiler -->
+                    <div class="bg-gradient-to-br from-indigo-500/10 to-slate-900 border border-indigo-500/30 rounded-2xl p-6 space-y-3">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-2xl">🚀</span>
+                            <h3 class="text-md font-bold text-slate-100">Option A — OneCompiler (online, nothing to install)</h3>
+                            <span class="text-[10px] font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full uppercase tracking-wider">Recommended</span>
                         </div>
-                        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 relative group hover:border-slate-700 transition">
-                            <span class="text-3xl mb-4 block">🐍</span>
-                            <h3 class="text-sm font-bold text-slate-100 mb-2">2. Python Extension</h3>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Open VS Code, select the Extensions tab on the left margin, search for <strong>Python</strong>, and install the Microsoft bundle.
-                            </p>
-                        </div>
-                        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 relative group hover:border-slate-700 transition">
-                            <span class="text-3xl mb-4 block">📄</span>
-                            <h3 class="text-sm font-bold text-slate-100 mb-2">3. Create file</h3>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Press <code class="bg-slate-800 text-slate-200 px-1.5 py-0.5 rounded text-[10px]">Ctrl+N</code> / <code class="bg-slate-800 text-slate-200 px-1.5 py-0.5 rounded text-[10px]">Cmd+N</code>. Save it with the name <code class="text-indigo-400 font-semibold text-[11px]">main.py</code> on your Desktop.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Explicit VS Code Mechanics Explained -->
-                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-                        <h3 class="text-md font-bold text-slate-100 flex items-center gap-2">
-                            <span class="text-indigo-400">⚙️</span> Learn the VS Code Workflow Cycle
-                        </h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            Once your <code class="text-indigo-300 font-semibold">main.py</code> file is open, you will follow a strict cycle to write and run each part of your code:
+                            <a href="https://onecompiler.com/python" target="_blank" class="text-indigo-300 font-semibold hover:underline">OneCompiler</a> runs Python right in your browser—no downloads, no setup, works on a school Chromebook or a phone. Open it, make sure the language says <strong>Python</strong>, type your code, and press <strong>Run</strong>. That's the whole loop.
                         </p>
-                        <ol class="text-xs text-slate-300 list-decimal list-inside space-y-2 pl-2">
-                            <li><strong>Write:</strong> Type code directly into the large editor panel of VS Code.</li>
-                            <li><strong>Look for the Dot:</strong> When you start typing, look at the top tab labeled <code class="text-indigo-300 font-semibold">main.py</code>. You'll see a small <strong class="text-pink-400 font-semibold">white circle icon</strong>. This means you have made changes but haven't saved yet!</li>
-                            <li><strong>Save:</strong> Press <code class="bg-slate-800 border border-slate-700 text-indigo-300 px-1.5 py-0.5 rounded font-mono font-bold">Ctrl + S</code> (Windows) or <code class="bg-slate-800 border border-slate-700 text-indigo-300 px-1.5 py-0.5 rounded font-mono font-bold">Cmd + S</code> (Mac). The circle icon will turn back into an 'X', confirming your file is saved.</li>
-                            <li><strong>Run:</strong> Click the small triangular <strong class="text-emerald-400 font-semibold">Play Button</strong> in the top-right corner of the VS Code window. This opens the computer terminal at the bottom to execute your latest saved instructions!</li>
-                        </ol>
+                        <a href="https://onecompiler.com/python" target="_blank" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 px-5 rounded-xl transition">
+                            Open OneCompiler
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                        </a>
                     </div>
+
+                    <!-- Guided OneCompiler tour (annotated mockup + absolute tooltips) -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5">
+                        <div class="space-y-1">
+                            <h3 class="text-md font-bold text-slate-100 flex items-center gap-2">
+                                <span class="text-indigo-400">🧭</span> A quick tour of the OneCompiler screen
+                            </h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Use the <strong>Prev</strong> / <strong>Next</strong> buttons (or click a numbered dot) to walk through the parts of the editor you'll use.
+                            </p>
+                        </div>
+
+                        <!-- The mockup scrolls sideways on small screens so the tooltips never squash -->
+                        <div class="overflow-x-auto rounded-xl border border-slate-700 shadow-2xl">
+                            <div class="oc-mock bg-white text-slate-800 select-none" style="width:720px; height:384px;">
+
+                                <!-- Top bar -->
+                                <div class="flex items-center justify-between px-4 border-b border-slate-200" style="height:48px;">
+                                    <div class="flex items-center gap-1.5 font-extrabold text-indigo-600 text-sm">
+                                        <span class="code-font text-indigo-500">&lt;/&gt;</span> OneCompiler
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="bg-emerald-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-md">✦ AI</span>
+                                        <span class="bg-blue-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-md">Python ▾</span>
+                                        <span class="bg-pink-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-md">Run ▶</span>
+                                        <span class="text-slate-400 font-bold">⋮</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-[11px] text-slate-500">
+                                        <span class="flex items-center gap-1">💾 Save</span>
+                                        <span class="border border-slate-300 rounded px-2 py-0.5 font-semibold">Login</span>
+                                    </div>
+                                </div>
+
+                                <!-- Body: rail + editor + console -->
+                                <div class="flex" style="height:308px;">
+                                    <div class="border-r border-slate-200 flex flex-col items-center gap-3 pt-3 text-slate-400 text-sm" style="width:36px;">
+                                        <span>🗂️</span><span>🔍</span>
+                                    </div>
+                                    <div class="flex-1 border-r border-slate-200" style="min-width:0;">
+                                        <div class="flex items-center gap-2 px-3 border-b border-slate-200 text-[11px]" style="height:32px;">
+                                            <span class="flex items-center gap-1 bg-slate-100 rounded px-2 py-0.5 font-semibold text-slate-600">🐍 main.py ✕</span>
+                                            <span class="text-slate-400 font-bold">+</span>
+                                        </div>
+                                        <div class="p-3 code-font text-[12px] leading-relaxed">
+                                            <span class="text-slate-400 mr-3">1</span><span class="text-sky-700">print</span><span class="text-slate-700">(</span><span class="text-rose-600">"Hello, World!"</span><span class="text-slate-700">)</span>
+                                        </div>
+                                    </div>
+                                    <div class="bg-slate-50" style="width:236px;">
+                                        <div class="flex items-center gap-3 px-3 border-b border-slate-200 text-[11px]" style="height:32px;">
+                                            <span class="font-bold text-slate-700">Console</span>
+                                            <span class="text-slate-400">I/O</span>
+                                            <span class="text-slate-400">AI Agent</span>
+                                        </div>
+                                        <div class="flex flex-col items-center justify-center text-slate-400 text-[11px] gap-1" style="height:276px;">
+                                            <span class="text-2xl code-font">&gt;_</span>
+                                            <span class="font-semibold text-slate-500">Live Console</span>
+                                            <span>Click Run to start</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Status bar -->
+                                <div class="flex items-center justify-between px-3 border-t border-slate-200 text-[10px] text-slate-500" style="height:28px;">
+                                    <span>✓ Ready&nbsp;&nbsp;·&nbsp;&nbsp;&gt;_ Terminal</span>
+                                    <span>Light&nbsp;&nbsp;·&nbsp;&nbsp;Wiki&nbsp;&nbsp;·&nbsp;&nbsp;Internet</span>
+                                </div>
+
+                                <!-- ===== Numbered pins (absolutely positioned over the UI) ===== -->
+                                <div class="oc-pin oc-pin--active" id="oc-pin-1" style="top:11px; left:325px;" onclick="ocTour(1)">1</div>
+                                <div class="oc-pin" id="oc-pin-2" style="top:11px; left:402px;" onclick="ocTour(2)">2</div>
+                                <div class="oc-pin" id="oc-pin-3" style="top:94px; left:150px;" onclick="ocTour(3)">3</div>
+                                <div class="oc-pin" id="oc-pin-4" style="top:150px; left:585px;" onclick="ocTour(4)">4</div>
+                                <div class="oc-pin" id="oc-pin-5" style="top:58px; left:60px;" onclick="ocTour(5)">5</div>
+                                <div class="oc-pin" id="oc-pin-6" style="top:11px; left:632px;" onclick="ocTour(6)">6</div>
+
+                                <!-- ===== Absolute tooltips (one shown at a time) ===== -->
+                                <div class="oc-callout oc-callout--on" id="oc-call-1" style="top:46px; left:210px;">
+                                    <b>1. Language selector.</b> Make sure this reads <b>Python</b>. If not, click it and choose Python from the list.
+                                </div>
+                                <div class="oc-callout" id="oc-call-2" style="top:46px; left:300px;">
+                                    <b>2. Run button.</b> Click this to execute your code. Output appears in the console on the right.
+                                </div>
+                                <div class="oc-callout" id="oc-call-3" style="top:128px; left:60px;">
+                                    <b>3. The editor.</b> This is where you type your Python. Each line is numbered down the side.
+                                </div>
+                                <div class="oc-callout" id="oc-call-4" style="top:150px; left:345px;">
+                                    <b>4. The console.</b> Your program's output—and any <code class="code-font">input()</code> prompts—show up here after you press Run.
+                                </div>
+                                <div class="oc-callout" id="oc-call-5" style="top:92px; left:48px;">
+                                    <b>5. Your file.</b> <code class="code-font">main.py</code> is your Python file. The <b>+</b> adds more files later on.
+                                </div>
+                                <div class="oc-callout" id="oc-call-6" style="top:46px; left:470px;">
+                                    <b>6. Save (optional).</b> Create a free account to <b>Save</b> and share your work with a link. Not needed to just run code.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tour controls -->
+                        <div class="flex items-center justify-between gap-3">
+                            <button onclick="ocTour(ocStep - 1)" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-4 py-2 rounded-lg border border-slate-700 transition">← Prev</button>
+                            <span id="oc-step-counter" class="text-xs font-bold text-indigo-300">Step 1 of 6</span>
+                            <button onclick="ocTour(ocStep + 1)" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-lg transition">Next →</button>
+                        </div>
+                    </div>
+
+                    <!-- First-run workflow on OneCompiler -->
+                    <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                            <span class="text-indigo-400">🎮</span> Your OneCompiler loop (you'll repeat this every step)
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">1. Type</div>
+                                <p class="text-slate-400">Clear the sample line and type (or paste) the code for the current step into the editor.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">2. Run</div>
+                                <p class="text-slate-400">Click the pink <strong>Run ▶</strong> button. No saving needed—it runs instantly.</p>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <div class="text-indigo-400 font-bold mb-1">3. Read &amp; Type Back</div>
+                                <p class="text-slate-400">Watch the console. When the game asks for a move, click into the console, type your answer, and press Enter.</p>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">
+                            💡 Wherever this guide later says "VS Code", "Play button" or "save your file", you can simply press <strong>Run</strong> on OneCompiler instead—it does the same job.
+                        </p>
+                    </div>
+
+                    <!-- Optional: VS Code path -->
+                    <details class="bg-slate-900 border border-slate-800 rounded-2xl p-6 group">
+                        <summary class="cursor-pointer text-md font-bold text-slate-100 flex items-center gap-2 list-none">
+                            <span class="text-indigo-400">💻</span> Option B — Install VS Code on your own computer
+                            <span class="ml-auto text-xs text-slate-500 group-open:hidden">Show ▾</span>
+                            <span class="ml-auto text-xs text-slate-500 hidden group-open:inline">Hide ▴</span>
+                        </summary>
+                        <div class="mt-4 space-y-4">
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Prefer working offline, or want the full professional tool? Install VS Code locally. It takes longer to set up but is what most developers use day to day.
+                            </p>
+                            <ol class="text-xs text-slate-300 list-decimal list-inside space-y-2 pl-2">
+                                <li><strong>Install VS Code:</strong> from <a href="https://code.visualstudio.com" target="_blank" class="text-indigo-400 hover:underline">code.visualstudio.com</a> with the default options.</li>
+                                <li><strong>Add the Python extension:</strong> open the Extensions tab on the left, search <strong>Python</strong>, install the Microsoft one.</li>
+                                <li><strong>Create a file</strong> called <code class="text-indigo-400 font-semibold text-[11px]">main.py</code> and save it on your Desktop.</li>
+                                <li><strong>The cycle:</strong> Write → Save with <code class="bg-slate-800 border border-slate-700 text-indigo-300 px-1.5 py-0.5 rounded font-mono font-bold">Ctrl/Cmd + S</code> (the white dot on the tab disappears) → click the ▶ <strong class="text-emerald-400">Play button</strong> top-right to run.</li>
+                            </ol>
+                        </div>
+                    </details>
 
                     <div class="border-t border-[#1f2937] pt-8 flex justify-end">
                         <button onclick="markStepComplete('setup')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-indigo-600/15 transition flex items-center gap-2">
-                            <span>Workspace Setup Complete</span>
+                            <span>Playground Ready — Learn the Basics</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHAPTER: PYTHON FOUNDATIONS (reference primer) -->
+                <div id="pane-basics" class="space-y-8 hidden animate-fade-in">
+                    <div class="space-y-3">
+                        <span class="text-xs font-bold text-sky-400 bg-sky-500/10 border border-sky-500/30 px-3 py-1 rounded-full uppercase tracking-wider">Foundations</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">Python in 10 Minutes</h2>
+                        <p class="text-slate-400 leading-relaxed text-sm md:text-base">
+                            Before we build, here's a quick tour of every idea the game uses. Don't worry about memorising it—skim it now and flip back whenever a new word pops up. Each card has a tiny example you'll see again for real.
+                        </p>
+                    </div>
+
+                    <!-- Variables intro -->
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3">
+                        <h3 class="text-md font-bold text-slate-100 flex items-center gap-2"><span class="text-indigo-400">📦</span> Variables: labelled boxes</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            A <strong>variable</strong> is a named box that holds a value. You put something in with <code class="text-indigo-300 font-mono">=</code> and use the name later to get it back. The name goes on the left, the value on the right.
+                        </p>
+                        <pre class="code-font text-[#34d399] text-xs bg-slate-950 p-3 rounded-lg overflow-x-auto">player_choice = "rock"   # make a box called player_choice, put "rock" in it
+score = 0                # a box holding the number 0</pre>
+                    </div>
+
+                    <!-- DATA TYPES -->
+                    <div class="space-y-3">
+                        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2"><span>🔤</span> Data types — the <em>kinds</em> of value</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">Every value has a type. The game uses three basic ones:</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-2">
+                                <h4 class="text-sm font-bold text-slate-100">Text — <code class="code-font text-emerald-400">str</code></h4>
+                                <p class="text-xs text-slate-400 leading-relaxed">Letters and words, always in quotes. This is what the player types.</p>
+                                <pre class="code-font text-[#34d399] text-[11px] bg-slate-950 p-2.5 rounded-lg overflow-x-auto">move = "paper"
+"rock".upper()  # "ROCK"</pre>
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-2">
+                                <h4 class="text-sm font-bold text-slate-100">Whole numbers — <code class="code-font text-emerald-400">int</code></h4>
+                                <p class="text-xs text-slate-400 leading-relaxed">Counting numbers with no decimal point. We use these for the score.</p>
+                                <pre class="code-font text-[#34d399] text-[11px] bg-slate-950 p-2.5 rounded-lg overflow-x-auto">score = 0
+score = score + 1  # now 1</pre>
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-2">
+                                <h4 class="text-sm font-bold text-slate-100">True / False — <code class="code-font text-emerald-400">bool</code></h4>
+                                <p class="text-xs text-slate-400 leading-relaxed">Only two values. It's the <em>answer</em> to a yes/no question, like "are these equal?"</p>
+                                <pre class="code-font text-[#34d399] text-[11px] bg-slate-950 p-2.5 rounded-lg overflow-x-auto">"rock" == "rock"  # True
+"rock" == "paper" # False</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DATA STRUCTURES -->
+                    <div class="space-y-3">
+                        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2"><span>🗃️</span> Data structures — holding <em>many</em> values</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">When one box isn't enough, these hold a whole collection. The game gets smarter as we move from a list to a dictionary.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-2">
+                                <h4 class="text-sm font-bold text-slate-100">List — <code class="code-font text-emerald-400">[ ]</code></h4>
+                                <p class="text-xs text-slate-400 leading-relaxed">An <strong>ordered</strong> row of values in square brackets. Great for "a bunch of options to pick from". The computer draws its move from one.</p>
+                                <pre class="code-font text-[#34d399] text-[11px] bg-slate-950 p-2.5 rounded-lg overflow-x-auto">options = ["rock", "paper", "scissors"]
+options[0]          # "rock" (counting starts at 0)
+random.choice(options)  # a random one</pre>
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-2">
+                                <h4 class="text-sm font-bold text-slate-100">Dictionary — <code class="code-font text-emerald-400">{ }</code></h4>
+                                <p class="text-xs text-slate-400 leading-relaxed">Pairs of <strong>key → value</strong>. You look a thing up by its key, like a word in a dictionary. We'll use it to store "what beats what".</p>
+                                <pre class="code-font text-[#34d399] text-[11px] bg-slate-950 p-2.5 rounded-lg overflow-x-auto">beats = {"rock": "scissors",
+         "paper": "rock",
+         "scissors": "paper"}
+beats["rock"]       # "scissors"</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick glance table -->
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">📋 At a glance: what the game uses each type for</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left border-collapse">
+                                <thead>
+                                    <tr class="text-slate-400 border-b border-slate-800">
+                                        <th class="py-2 pr-4 font-semibold">Type</th>
+                                        <th class="py-2 pr-4 font-semibold">Looks like</th>
+                                        <th class="py-2 font-semibold">Used in the game for…</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-slate-300">
+                                    <tr class="border-b border-slate-800/60"><td class="py-2 pr-4 code-font text-emerald-400">str</td><td class="py-2 pr-4 code-font">"rock"</td><td class="py-2">the player's and computer's moves</td></tr>
+                                    <tr class="border-b border-slate-800/60"><td class="py-2 pr-4 code-font text-emerald-400">int</td><td class="py-2 pr-4 code-font">0, 1, 2</td><td class="py-2">keeping score</td></tr>
+                                    <tr class="border-b border-slate-800/60"><td class="py-2 pr-4 code-font text-emerald-400">bool</td><td class="py-2 pr-4 code-font">True / False</td><td class="py-2">the result of a comparison</td></tr>
+                                    <tr class="border-b border-slate-800/60"><td class="py-2 pr-4 code-font text-emerald-400">list</td><td class="py-2 pr-4 code-font">["rock", …]</td><td class="py-2">the options the computer picks from</td></tr>
+                                    <tr><td class="py-2 pr-4 code-font text-emerald-400">dict</td><td class="py-2 pr-4 code-font">{"rock": "scissors"}</td><td class="py-2">the rules of what beats what</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Operators + f-strings -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-2">
+                            <h4 class="text-sm font-bold text-slate-100">Operators — asking questions</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">These compare values and give back <code class="code-font text-emerald-400">True</code> or <code class="code-font text-emerald-400">False</code>:</p>
+                            <ul class="text-xs text-slate-300 space-y-1">
+                                <li><code class="code-font text-indigo-300">==</code> equal to &nbsp; <code class="code-font text-indigo-300">!=</code> not equal</li>
+                                <li><code class="code-font text-indigo-300">and</code> both true &nbsp; <code class="code-font text-indigo-300">or</code> either true &nbsp; <code class="code-font text-indigo-300">not</code> flips it</li>
+                                <li><code class="code-font text-indigo-300">in</code> is it inside a list? <code class="code-font text-slate-400">"rock" in options</code></li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-2">
+                            <h4 class="text-sm font-bold text-slate-100">f-strings — values inside text</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">Put an <code class="code-font text-emerald-400">f</code> before the quotes and drop variables in <code class="code-font text-emerald-400">{ }</code>. Cleaner than gluing text with <code class="code-font">+</code>.</p>
+                            <pre class="code-font text-[#34d399] text-[11px] bg-slate-950 p-2.5 rounded-lg overflow-x-auto">score = 3
+print(f"You have {score} wins")
+# You have 3 wins</pre>
+                        </div>
+                    </div>
+
+                    <!-- CONDITIONALS -->
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3">
+                        <h3 class="text-md font-bold text-slate-100 flex items-center gap-2"><span class="text-indigo-400">🔀</span> Conditionals: making decisions with <code class="code-font text-emerald-400">if</code></h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            A conditional runs a block of code <strong>only if</strong> something is true. Python checks each branch top to bottom and runs the <strong>first</strong> one that matches. <code class="text-indigo-300 font-mono">elif</code> means "else, if…" and <code class="text-indigo-300 font-mono">else</code> is the catch-all for everything left over.
+                        </p>
+                        <pre class="code-font text-[#34d399] text-xs bg-slate-950 p-3 rounded-lg overflow-x-auto">if player == computer:          # question ends with a colon
+    print("Draw!")              # indented = runs only if the line above is True
+elif player == "rock":
+    print("You picked rock")
+else:
+    print("Something else")</pre>
+                        <div class="bg-[#1e1b4b]/30 border border-indigo-500/10 p-4 rounded-xl">
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                <strong class="text-indigo-300">⚠️ Indentation matters in Python.</strong> The spaces at the start of a line are not decoration—they tell Python which lines belong inside the <code class="code-font">if</code>. Four spaces is the standard.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- LOOPS + FUNCTIONS -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-2">
+                            <h4 class="text-sm font-bold text-slate-100">Loops — repeating with <code class="code-font text-emerald-400">while</code></h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">A <code class="code-font">while</code> loop repeats a block as long as its condition stays true. <code class="code-font text-indigo-300">break</code> stops it; <code class="code-font text-indigo-300">continue</code> skips to the next go.</p>
+                            <pre class="code-font text-[#34d399] text-[11px] bg-slate-950 p-2.5 rounded-lg overflow-x-auto">while True:        # repeat forever…
+    answer = input("> ")
+    if answer == "quit":
+        break      # …until we break out</pre>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-2">
+                            <h4 class="text-sm font-bold text-slate-100">Functions — reusable blocks</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">A <code class="code-font text-emerald-400">def</code> names a chunk of code so you can run it again by calling its name. The GUI version uses one for each button.</p>
+                            <pre class="code-font text-[#34d399] text-[11px] bg-slate-950 p-2.5 rounded-lg overflow-x-auto">def greet(name):
+    print("Hi " + name)
+
+greet("Sam")   # Hi Sam</pre>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#1f2937] pt-8 flex justify-between items-center">
+                        <button onclick="switchChapter('setup')" class="text-slate-400 hover:text-slate-200 text-sm font-semibold flex items-center gap-2">
+                            ← Back to Setup
+                        </button>
+                        <button onclick="markStepComplete('basics')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-600/15 transition flex items-center gap-2">
+                            <span>Start Building the Game</span>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                             </svg>
@@ -404,6 +744,12 @@ print("----------------")</pre>
                         <p class="text-slate-400 text-sm leading-relaxed">
                             Square brackets <code class="text-indigo-300 font-mono">[...]</code> represent a <strong>List</strong> in Python. The command <code class="text-indigo-300 font-mono">random.choice()</code> acts like pulling a random weapon out of a hat containing your options!
                         </p>
+                        <div class="bg-sky-500/5 border border-sky-500/20 p-4 rounded-xl flex items-start gap-3">
+                            <span class="text-lg">🗃️</span>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                <strong class="text-sky-300">Data-structure spotlight — List.</strong> This is our first data structure: one box holding several ordered values. It's perfect here because the computer just needs a bag of options to pick from. Later we'll swap in a smarter structure (a <strong>dictionary</strong>) once the game needs to know the <em>rules</em>, not just the choices.
+                            </p>
+                        </div>
                         <div class="bg-[#1e1b4b]/30 border border-indigo-500/10 p-5 rounded-2xl">
                             <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2">The Next Missing Link</h4>
                             <p class="text-xs text-slate-400 leading-relaxed">
@@ -782,6 +1128,13 @@ else:
                         </h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
                             Every move beats exactly one other move. Rock beats scissors, paper beats rock, scissors beats paper. A <strong>dictionary</strong> stores these pairs as <code class="text-indigo-300 font-mono">key: value</code> links. We can then ask one simple question: <em>"Does the player's move beat the computer's move?"</em> No need to list every combination by hand.
+                        </p>
+                    </div>
+
+                    <div class="bg-sky-500/5 border border-sky-500/20 p-4 rounded-xl flex items-start gap-3">
+                        <span class="text-lg">🪜</span>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            <strong class="text-sky-300">The robustness ladder.</strong> Notice how the game keeps levelling up by choosing a better data structure: a <strong>list</strong> held the choices → a <strong>dictionary</strong> now holds the rules → next a <strong>loop</strong> lets it run forever with a running score. Picking the right structure is what turns a toy script into something solid.
                         </p>
                     </div>
 
@@ -1392,6 +1745,7 @@ window.mainloop()</pre>
         // Progress State tracking
         let chapterProgress = {
             setup: false,
+            basics: false,
             chunk1: false,
             chunk2: false,
             chunk3: false,
@@ -1403,7 +1757,7 @@ window.mainloop()</pre>
             graduation: false
         };
 
-        const stepsList = ['setup', 'chunk1', 'chunk2', 'chunk3', 'chunk4', 'chunk5', 'chunk6', 'chunk7', 'chunk8', 'graduation'];
+        const stepsList = ['setup', 'basics', 'chunk1', 'chunk2', 'chunk3', 'chunk4', 'chunk5', 'chunk6', 'chunk7', 'chunk8', 'graduation'];
 
         function switchChapter(chapterKey) {
             // Hide all cards
@@ -1497,6 +1851,22 @@ window.mainloop()</pre>
             }
         }
 
+        // ===== OneCompiler guided tour: show one tooltip at a time =====
+        let ocStep = 1;
+        const OC_TOTAL = 6;
+        function ocTour(n) {
+            // Wrap around so Prev on step 1 goes to 6, Next on 6 goes to 1
+            ocStep = ((n - 1 + OC_TOTAL) % OC_TOTAL) + 1;
+            for (let i = 1; i <= OC_TOTAL; i++) {
+                const pin = document.getElementById('oc-pin-' + i);
+                const call = document.getElementById('oc-call-' + i);
+                if (pin) pin.classList.toggle('oc-pin--active', i === ocStep);
+                if (call) call.classList.toggle('oc-callout--on', i === ocStep);
+            }
+            const counter = document.getElementById('oc-step-counter');
+            if (counter) counter.innerText = `Step ${ocStep} of ${OC_TOTAL}`;
+        }
+
         function resetAllProgress() {
             stepsList.forEach(step => {
                 chapterProgress[step] = false;
@@ -1504,6 +1874,8 @@ window.mainloop()</pre>
                 if (badge) {
                     if (step === 'setup') {
                         badge.innerHTML = "0";
+                    } else if (step === 'basics') {
+                        badge.innerHTML = "📘";
                     } else if (step === 'graduation') {
                         badge.innerHTML = "👑";
                     } else {
