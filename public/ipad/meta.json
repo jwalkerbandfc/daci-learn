@@ -1,0 +1,14 @@
+{
+  "title": "iPad Office Guide",
+  "topic": "Office & devices",
+  "level": "Beginner",
+  "theme": "iPad style",
+  "look": "ipad",
+  "overview": "Outlook, Word and Copilot on an iPad.",
+  "learn": [
+    "To, Cc and Bcc",
+    "Text size and fonts",
+    "Printing and Copilot"
+  ],
+  "order": 2
+}
