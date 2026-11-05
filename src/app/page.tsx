@@ -1,7 +1,18 @@
 /* app/page.tsx  —  Server Component.
  *
- * Lists every guide found in /public (see scan-public.ts) plus anything in
- * EXTERNAL below.
+ * Lists every guide found in /public plus anything in EXTERNAL below.
+ *
+ * The list of guides is built before the build starts, by
+ * scripts/scan-public.mjs, which writes guides.generated.json next to this
+ * file. Nothing here touches the filesystem, so it renders the same whether
+ * Next prerenders the page or a worker does.
+ *
+ * Add this to package.json so the scan runs on every build:
+ *
+ *   "scripts": {
+ *     "prebuild": "node scripts/scan-public.mjs",
+ *     "build": "next build"
+ *   }
  *
  * Locking is decided by app/api/unlock/codes.json: if a guide's id is a key in
  * there it asks for a code, otherwise it opens straight away. Only the list of
@@ -10,11 +21,9 @@
  */
 
 import CODES from './api/unlock/codes.json';
+import SCANNED from './guides.generated.json';
 import Library, { type Guide } from './library-client';
-import { scanPublic } from './scan-public';
 
-/* The scan reads the filesystem, so it has to happen while /public exists:
-   during next build. Keep this page static and it will. */
 export const dynamic = 'force-static';
 
 /* Anything extra that is not a folder in /public: other people's sites, docs. */
@@ -33,9 +42,8 @@ const EXTERNAL: Guide[] = [
   },
 ];
 
-
 export default function Page() {
-  const guides = [...scanPublic(), ...EXTERNAL];
+  const guides: Guide[] = [...(SCANNED as Guide[]), ...EXTERNAL];
 
   /* Object.keys only. The codes themselves must not cross into the browser. */
   const lockedIds = Object.keys(CODES as Record<string, string>);
