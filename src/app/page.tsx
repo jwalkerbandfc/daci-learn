@@ -1,23 +1,16 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /* ───────────────────────────────────────────────────────────────────────────
    Tutorial Library
 
    To add or change a guide, edit GUIDES below. Nothing else needs touching.
 
-   href rules
-     • A guide that lives in /public as static HTML is linked with a plain <a>,
-       never next/link, because it is not an app route.
-     • Next serves public/ipad/index.html at /ipad/index.html, NOT at /ipad.
-       Either use the full path as below, or add a rewrite in next.config.js:
-           async rewrites() {
-             return [{ source: '/ipad', destination: '/ipad/index.html' }];
-           }
-     • href: null means "not hosted yet". The card shows as coming soon
-       instead of a dead link.
+   locked: true  → the card asks for a code before it opens.
+                   Codes live in app/api/unlock/codes.json and are checked on
+                   the server, so they are never sent to the browser.
+   href: null    → not hosted yet. The card shows as coming soon, no dead link.
    ─────────────────────────────────────────────────────────────────────────── */
 
 type Topic = 'Databases' | 'Networking' | 'Coding' | 'Office & devices' | 'Study skills';
@@ -32,6 +25,7 @@ interface Guide {
   look: Look;
   theme: string;
   href: string | null;
+  locked?: boolean;
   external?: boolean;
   overview: string;
   learn: string[];
@@ -46,6 +40,7 @@ const GUIDES: Guide[] = [
     look: 'db',
     theme: 'BTEC Unit 2',
     href: '/normalise-it.html',
+    locked: true,
     overview:
       'Six jobs, same five steps each time. Take a flat file to three tables and a join table, then set the types, masks, validation and queries.',
     learn: [
@@ -62,7 +57,8 @@ const GUIDES: Guide[] = [
     level: 'Beginner',
     look: 'ipad',
     theme: 'iPad style',
-    href: '/ipad/index.html',
+    href: '/ipad',
+    locked: true,
     overview: 'Outlook, Word and Copilot on an iPad, with the touch gestures that make it quicker.',
     learn: [
       'Outlook: To, Cc and Bcc, flags and filters',
@@ -78,7 +74,8 @@ const GUIDES: Guide[] = [
     level: 'Beginner',
     look: 'win',
     theme: 'Windows style',
-    href: '/digital/index.html',
+    href: '/digital',
+    locked: true,
     overview: 'A hands-on workshop on OneDrive, Teams and SharePoint, with practice files to work through.',
     learn: [
       'Where to save: OneDrive, Teams or SharePoint',
@@ -93,7 +90,8 @@ const GUIDES: Guide[] = [
     level: 'Beginner',
     look: 'vs',
     theme: 'Visual Studio 2022',
-    href: '/github/index.html',
+    href: '/github',
+    locked: true,
     overview: 'Push and pull your first file with Git and GitHub, without leaving Visual Studio.',
     learn: [
       'Global settings: name, email and defaults',
@@ -108,7 +106,8 @@ const GUIDES: Guide[] = [
     level: 'Beginner',
     look: 'word',
     theme: 'Worksheet',
-    href: '/data/index.html',
+    href: '/data',
+    locked: true,
     overview: 'Rename this entry to match whatever is in your /public/data folder.',
     learn: ['Edit the title, overview and bullets in GUIDES'],
   },
@@ -122,6 +121,7 @@ const GUIDES: Guide[] = [
     look: 'net',
     theme: 'Packet Tracer style',
     href: null,
+    locked: true,
     overview: 'Build a network by dragging real equipment onto a diagram, wiring it up and sending a packet.',
     learn: [
       'Cabling, MAC and IP addressing, subnetting',
@@ -137,6 +137,7 @@ const GUIDES: Guide[] = [
     look: 'word',
     theme: 'Word style',
     href: null,
+    locked: true,
     overview: 'Harvard referencing, breaking down a brief, building a template and checking a draft.',
     learn: ['Citations and quotes', 'Command words and a word plan', 'A ready-made Word template'],
   },
@@ -148,6 +149,7 @@ const GUIDES: Guide[] = [
     look: 'code',
     theme: 'VS Code style',
     href: null,
+    locked: true,
     overview: 'PHP from scratch with XAMPP: variables, functions, forms, sessions and a small JSON API.',
     learn: ['Variables, output, loops and functions', 'GET and POST with validation', 'Sessions and JSON endpoints'],
   },
@@ -159,6 +161,7 @@ const GUIDES: Guide[] = [
     look: 'code',
     theme: 'VS Code style',
     href: null,
+    locked: true,
     overview: 'Set up XAMPP, PHP and MySQL, then build a web app with Laravel.',
     learn: ['XAMPP, Composer and extensions', 'MySQL in phpMyAdmin', 'Models, controllers, Blade views and sign-in'],
   },
@@ -170,6 +173,7 @@ const GUIDES: Guide[] = [
     look: 'code',
     theme: 'VS Code style',
     href: null,
+    locked: true,
     overview: 'Learn Dart and Flutter with nothing to install, in a GitHub codespace.',
     learn: ['Dart basics, then widgets and state', 'A guided practice editor', 'Supabase sign-in and live data'],
   },
@@ -181,16 +185,22 @@ const GUIDES: Guide[] = [
     look: 'code',
     theme: 'VS Code style',
     href: null,
+    locked: true,
     overview: 'Learn TypeScript, then build a shop with a basket, a headless CMS and a REST API.',
     learn: ['TypeScript basics', 'Next.js pages in a live preview', 'Supabase tables, rules and roles'],
   },
 ];
 
-/* Small apps that are not tutorials. */
+/* Small apps that are not tutorials. No code needed. */
 const TOOLS = [
-  { slug: 'Raid-Calc', label: 'RAID Calculator', meta: 'Calculator', href: '/Raid-Calc/index.html' },
-  { slug: 'RPS', label: 'Rock Paper Scissors', meta: 'Game', href: '/RPS/index.html' },
-  { slug: 'gradecalc', label: 'Degree Grade Calculator', meta: 'Calculator', href: 'https://daci-learn.uk/PredictiveGradeCalculator.html' },
+  { slug: 'raid', label: 'RAID Calculator', meta: 'Calculator', href: '/Raid-Calc' },
+  { slug: 'rps', label: 'Rock Paper Scissors', meta: 'Game', href: '/RPS' },
+  {
+    slug: 'grade',
+    label: 'Degree Grade Calculator',
+    meta: 'Calculator',
+    href: 'https://daci-learn.uk/PredictiveGradeCalculator.html',
+  },
 ];
 
 const DOWNLOADS = [
@@ -199,45 +209,35 @@ const DOWNLOADS = [
   { label: 'Data Spreadsheet', href: '/files/data.xlsx', ext: 'xlsx' },
 ];
 
-/* Legacy paths that should bounce straight to an external document. */
-const EXTERNAL_ROUTES = [
-  {
-    path: '/automation',
-    target:
-      'https://docs.google.com/document/d/1sTN42CeHMfgCqBK6aTj_3u21IPb2m1YIpO-WQUJ6tYY/edit?tab=t.0',
-  },
-  { path: '/gradecalc', target: 'https://daci-learn.uk/PredictiveGradeCalculator.html' },
-];
-
 const TOPICS: Topic[] = ['Office & devices', 'Study skills', 'Coding', 'Networking', 'Databases'];
 
-// ─── Redirect hook ────────────────────────────────────────────────────────────
+const UNLOCKED_KEY = 'tl-unlocked-v1';
 
-function useSimpleRedirect(isLoggedIn: boolean) {
-  const pathname = usePathname();
+// ─── Unlocked guides, remembered in this browser ──────────────────────────────
 
-  useEffect(() => {
-    if (isLoggedIn) return;
-    const path = pathname || '/';
-    for (const route of EXTERNAL_ROUTES) {
-      if (path === route.path || path.startsWith(`${route.path}/`)) {
-        window.location.replace(route.target);
-        return;
-      }
-    }
-  }, [isLoggedIn, pathname]);
+function readUnlocked(): string[] {
+  try {
+    const raw = localStorage.getItem(UNLOCKED_KEY);
+    const list: unknown = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list.filter((x): x is string => typeof x === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeUnlocked(list: string[]) {
+  try {
+    localStorage.setItem(UNLOCKED_KEY, JSON.stringify(list));
+  } catch {
+    /* private window: the code just gets asked for again next time */
+  }
 }
 
 // ─── Preview art, drawn in CSS so there are no images to host ─────────────────
 
 function Preview({ look }: { look: Look }) {
   const bars = (rows: Array<[number, number, number, string]>) =>
-    rows.map((r, i) => (
-      <i
-        key={i}
-        style={{ left: r[0], top: r[1], width: r[2], height: 7, background: r[3] }}
-      />
-    ));
+    rows.map((r, i) => <i key={i} style={{ left: r[0], top: r[1], width: r[2], height: 7, background: r[3] }} />);
 
   return (
     <div className={`tl-pv tl-pv-${look}`} aria-hidden="true">
@@ -325,12 +325,7 @@ function Preview({ look }: { look: Look }) {
                 <i
                   key={k}
                   className="row"
-                  style={{
-                    left: x + 7,
-                    top: 24 + 22 + k * 14,
-                    width: (i === 1 ? 82 : 74) - (k % 2) * 18,
-                    height: 6,
-                  }}
+                  style={{ left: x + 7, top: 46 + k * 14, width: (i === 1 ? 82 : 74) - (k % 2) * 18, height: 6 }}
                 />
               ))}
             </span>
@@ -343,8 +338,8 @@ function Preview({ look }: { look: Look }) {
 
 // ─── Cards ────────────────────────────────────────────────────────────────────
 
-function GuideCard({ g }: { g: Guide }) {
-  const body = (
+function CardInner({ g, state }: { g: Guide; state: 'open' | 'locked' | 'soon' }) {
+  return (
     <>
       <Preview look={g.look} />
       <div className="tl-body">
@@ -361,13 +356,35 @@ function GuideCard({ g }: { g: Guide }) {
           ))}
         </ul>
         <div className="tl-foot">
-          {g.href ? <span className="tl-open">Open guide&nbsp;↗</span> : <span className="tl-soon">Not hosted yet</span>}
+          {state === 'soon' && <span className="tl-soon">Not hosted yet</span>}
+          {state === 'locked' && (
+            <span className="tl-open is-locked">
+              <span aria-hidden="true">🔒</span> Enter code
+            </span>
+          )}
+          {state === 'open' && <span className="tl-open">Open guide&nbsp;↗</span>}
         </div>
       </div>
     </>
   );
+}
 
-  if (!g.href) return <div className="tl-card is-soon">{body}</div>;
+function GuideCard({ g, unlocked, onAsk }: { g: Guide; unlocked: boolean; onAsk: (g: Guide) => void }) {
+  if (!g.href) {
+    return (
+      <div className="tl-card is-soon">
+        <CardInner g={g} state="soon" />
+      </div>
+    );
+  }
+
+  if (g.locked && !unlocked) {
+    return (
+      <button type="button" className="tl-card" onClick={() => onAsk(g)}>
+        <CardInner g={g} state="locked" />
+      </button>
+    );
+  }
 
   /* A plain anchor, not next/link: these are static files in /public, not routes. */
   return (
@@ -377,7 +394,7 @@ function GuideCard({ g }: { g: Guide }) {
       target={g.external ? '_blank' : undefined}
       rel={g.external ? 'noopener noreferrer' : undefined}
     >
-      {body}
+      <CardInner g={g} state="open" />
     </a>
   );
 }
@@ -389,24 +406,115 @@ function extIcon(ext: string) {
   return { icon: '📁', colour: '#888' };
 }
 
+// ─── Code dialog ──────────────────────────────────────────────────────────────
+
+function CodeDialog({
+  guide,
+  onClose,
+  onUnlocked,
+}: {
+  guide: Guide;
+  onClose: () => void;
+  onUnlocked: (id: string) => void;
+}) {
+  const [code, setCode] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  async function submit() {
+    if (busy || !code.trim()) return;
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch('/api/unlock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: guide.id, code }),
+      });
+      const data: { ok?: boolean } = await res.json();
+      if (data.ok && guide.href) {
+        onUnlocked(guide.id);
+        window.location.assign(guide.href);
+        return;
+      }
+      setError('That code is not right. Check it and try again.');
+      setCode('');
+      inputRef.current?.focus();
+    } catch {
+      setError('Could not check the code. Check your connection and try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="tl-scrim" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="tl-dialog" role="dialog" aria-modal="true" aria-labelledby="tl-dlg-title">
+        <h2 id="tl-dlg-title">{guide.title}</h2>
+        <p>Enter the code your tutor gave you.</p>
+        <input
+          ref={inputRef}
+          className="tl-input"
+          type="text"
+          value={code}
+          inputMode="text"
+          autoCapitalize="characters"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder="Access code"
+          aria-label={`Access code for ${guide.title}`}
+          aria-invalid={error ? true : undefined}
+          onChange={(e) => setCode(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') void submit(); }}
+        />
+        {error && <p className="tl-err" role="alert">{error}</p>}
+        <div className="tl-dlg-foot">
+          <button type="button" className="tl-btn" onClick={onClose}>
+            Cancel
+          </button>
+          <button type="button" className="tl-btn primary" onClick={() => void submit()} disabled={busy || !code.trim()}>
+            {busy ? 'Checking…' : 'Unlock'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function Home() {
-  const userIsLoggedIn = false;
-  useSimpleRedirect(userIsLoggedIn);
-
   const [topic, setTopic] = useState<'All' | Topic>('All');
   const [q, setQ] = useState('');
+  const [unlocked, setUnlocked] = useState<string[]>([]);
+  const [asking, setAsking] = useState<Guide | null>(null);
+
+  useEffect(() => setUnlocked(readUnlocked()), []);
+
+  const unlock = useCallback((id: string) => {
+    setUnlocked((prev) => {
+      const next = prev.includes(id) ? prev : [...prev, id];
+      writeUnlocked(next);
+      return next;
+    });
+  }, []);
 
   const shown = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return GUIDES.filter((g) => {
       if (topic !== 'All' && g.topic !== topic) return false;
       if (!needle) return true;
-      return [g.title, g.overview, g.topic, g.level, ...g.learn]
-        .join(' ')
-        .toLowerCase()
-        .includes(needle);
+      return [g.title, g.overview, g.topic, g.level, ...g.learn].join(' ').toLowerCase().includes(needle);
     });
   }, [topic, q]);
 
@@ -425,13 +533,7 @@ export default function Home() {
         <div className="tl-bar">
           <div className="tl-chips" role="group" aria-label="Filter by topic">
             {(['All', ...TOPICS] as Array<'All' | Topic>).map((t) => (
-              <button
-                key={t}
-                type="button"
-                className="tl-chip"
-                aria-pressed={topic === t}
-                onClick={() => setTopic(t)}
-              >
+              <button key={t} type="button" className="tl-chip" aria-pressed={topic === t} onClick={() => setTopic(t)}>
                 {t}
               </button>
             ))}
@@ -451,28 +553,31 @@ export default function Home() {
 
         <div className="tl-grid">
           {shown.map((g) => (
-            <GuideCard key={g.id} g={g} />
+            <GuideCard key={g.id} g={g} unlocked={unlocked.includes(g.id)} onAsk={setAsking} />
           ))}
         </div>
         {shown.length === 0 && <p className="tl-empty">No guides match. Try another topic or search.</p>}
 
         <h2 className="tl-sec">Tools</h2>
         <div className="tl-small">
-          {TOOLS.map((t) => (
-            <a
-              key={t.slug}
-              className="tl-mini"
-              href={t.href}
-              target={t.href.startsWith('http') ? '_blank' : undefined}
-              rel={t.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-            >
-              <span className="tl-mini-ic">🧮</span>
-              <span>
-                <b>{t.label}</b>
-                <small>{t.meta}</small>
-              </span>
-            </a>
-          ))}
+          {TOOLS.map((t) => {
+            const ext = t.href.startsWith('http');
+            return (
+              <a
+                key={t.slug}
+                className="tl-mini"
+                href={t.href}
+                target={ext ? '_blank' : undefined}
+                rel={ext ? 'noopener noreferrer' : undefined}
+              >
+                <span className="tl-mini-ic">🧮</span>
+                <span>
+                  <b>{t.label}</b>
+                  <small>{t.meta}</small>
+                </span>
+              </a>
+            );
+          })}
         </div>
 
         <h2 className="tl-sec">Downloads</h2>
@@ -493,6 +598,17 @@ export default function Home() {
           })}
         </div>
       </main>
+
+      {asking && (
+        <CodeDialog
+          guide={asking}
+          onClose={() => setAsking(null)}
+          onUnlocked={(id) => {
+            unlock(id);
+            setAsking(null);
+          }}
+        />
+      )}
     </>
   );
 }
@@ -500,18 +616,20 @@ export default function Home() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const CSS = `
-.tl-wrap {
+.tl-wrap, .tl-scrim {
   --tl-bg: #f3f5f7; --tl-card: #fff; --tl-ink: #17202a; --tl-dim: #56636f;
-  --tl-line: #dde2e7; --tl-accent: #0b6e6e; --tl-soft: #e3f1f0; --tl-warn: #9a5b00;
+  --tl-line: #dde2e7; --tl-accent: #0b6e6e; --tl-soft: #e3f1f0; --tl-warn: #9a5b00; --tl-bad: #b42318;
+}
+@media (prefers-color-scheme: dark) {
+  .tl-wrap, .tl-scrim {
+    --tl-bg: #11161b; --tl-card: #192027; --tl-ink: #e8edf1; --tl-dim: #9eabb7;
+    --tl-line: #2a333c; --tl-accent: #4cc2b8; --tl-soft: #17302f; --tl-warn: #e3a84a; --tl-bad: #ff8a80;
+  }
+}
+.tl-wrap {
   max-width: 1120px; margin: 0 auto; color: var(--tl-ink);
   font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   padding: 40px max(16px, env(safe-area-inset-left,0px)) 72px max(16px, env(safe-area-inset-right,0px));
-}
-@media (prefers-color-scheme: dark) {
-  .tl-wrap {
-    --tl-bg: #11161b; --tl-card: #192027; --tl-ink: #e8edf1; --tl-dim: #9eabb7;
-    --tl-line: #2a333c; --tl-accent: #4cc2b8; --tl-soft: #17302f; --tl-warn: #e3a84a;
-  }
 }
 .tl-wrap * { box-sizing: border-box; }
 .tl-hero h1 { font-size: clamp(28px, 5vw, 42px); line-height: 1.08; letter-spacing: -.02em; font-weight: 700; margin: 0; }
@@ -529,9 +647,11 @@ const CSS = `
 
 .tl-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
 .tl-card { background: var(--tl-card); border: 1px solid var(--tl-line); border-radius: 14px;
-  display: flex; flex-direction: column; overflow: hidden; min-width: 0; text-decoration: none; color: inherit; }
+  display: flex; flex-direction: column; overflow: hidden; min-width: 0;
+  text-decoration: none; color: inherit; text-align: left; padding: 0; font: inherit; cursor: pointer; }
 .tl-card:hover { border-color: var(--tl-accent); }
-.tl-card.is-soon { opacity: .62; }
+.tl-card:focus-visible { outline: 3px solid var(--tl-accent); outline-offset: 2px; }
+.tl-card.is-soon { opacity: .62; cursor: default; }
 .tl-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
 .tl-meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12.5px; }
 .tl-tag { background: var(--tl-soft); color: var(--tl-ink); border-radius: 6px; padding: 2px 8px; }
@@ -540,8 +660,9 @@ const CSS = `
 .tl-card p { margin: 0; color: var(--tl-dim); }
 .tl-learn { margin: 0; padding-left: 18px; font-size: 14.5px; display: grid; gap: 3px; }
 .tl-foot { margin-top: auto; padding-top: 8px; }
-.tl-open { display: inline-flex; align-items: center; background: var(--tl-accent); color: #fff;
+.tl-open { display: inline-flex; align-items: center; gap: 6px; background: var(--tl-accent); color: #fff;
   border-radius: 10px; padding: 9px 15px; font-weight: 700; font-size: 14px; }
+.tl-open.is-locked { background: none; color: var(--tl-ink); border: 1px solid var(--tl-line); }
 .tl-soon { font-size: 13.5px; color: var(--tl-warn); }
 .tl-empty { border: 1px dashed var(--tl-line); border-radius: 14px; padding: 22px; color: var(--tl-dim); text-align: center; }
 
@@ -554,6 +675,23 @@ const CSS = `
 .tl-mini-ic { font-size: 19px; flex: none; }
 .tl-mini b { display: block; font-size: 14.5px; font-weight: 600; }
 .tl-mini small { color: var(--tl-dim); font-size: 12px; }
+
+.tl-scrim { position: fixed; inset: 0; z-index: 100; background: rgba(8,14,22,.5);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.tl-dialog { background: var(--tl-card); color: var(--tl-ink); border: 1px solid var(--tl-line);
+  border-radius: 14px; padding: 20px; width: 360px; max-width: 100%; }
+.tl-dialog h2 { font-size: 19px; font-weight: 700; margin: 0 0 4px; }
+.tl-dialog p { margin: 0 0 14px; font-size: 14.5px; color: var(--tl-dim); }
+.tl-input { width: 100%; font: 17px inherit; letter-spacing: .06em; color: var(--tl-ink);
+  background: var(--tl-bg); border: 1px solid var(--tl-line); border-radius: 10px; padding: 11px 13px; min-height: 48px; }
+.tl-input:focus { outline: 2px solid var(--tl-accent); outline-offset: 1px; }
+.tl-err { color: var(--tl-bad); font-size: 14px; margin: 10px 0 0; }
+.tl-dlg-foot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.tl-btn { border: 1px solid var(--tl-line); background: var(--tl-card); color: var(--tl-ink);
+  border-radius: 10px; padding: 10px 16px; font: 600 15px inherit; cursor: pointer; min-height: 44px; }
+.tl-btn.primary { background: var(--tl-accent); border-color: var(--tl-accent); color: #fff; }
+.tl-btn[disabled] { opacity: .5; cursor: default; }
 
 .tl-pv { height: 132px; position: relative; overflow: hidden; border-bottom: 1px solid var(--tl-line); }
 .tl-pv i { position: absolute; display: block; border-radius: 3px; }
