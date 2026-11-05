@@ -1,0 +1,13 @@
+{
+  "normalise": "DB-2026",
+  "ipad": "IPAD-2026",
+  "digital": "ONEDRIVE-2026",
+  "github": "GIT-2026",
+  "data": "DATA-2026",
+  "network": "NET-2026",
+  "referencing": "REF-2026",
+  "php": "PHP-2026",
+  "laravel": "LARA-2026",
+  "flutter": "FLUT-2026",
+  "nextjs": "NEXT-2026"
+}
