@@ -1,0 +1,24 @@
+name: TDD bug report
+description: Report a bug. Fix it by writing a failing test first.
+title: "[Bug]: "
+labels: ["tdd", "bug"]
+body:
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happens instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps or input that show the bug
+      description: This becomes your first failing (Red) test.
+    validations:
+      required: true

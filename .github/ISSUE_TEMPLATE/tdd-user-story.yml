@@ -1,0 +1,34 @@
+name: TDD user story
+description: Plan a feature with acceptance criteria that become tests (from the TDD course).
+title: "[Story]: "
+labels: ["tdd", "feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Each acceptance criterion below should become at least one test.
+        Move this issue to **Ready** on the Project board once the criteria are written.
+  - type: textarea
+    id: story
+    attributes:
+      label: User story
+      description: As a [who], I want [what], so that [why].
+      placeholder: As a new user, I want to know if my password is strong, so that my account is safe.
+    validations:
+      required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Acceptance criteria
+      description: One testable behaviour per line. Each one becomes a test.
+      value: |
+        - [ ] Criterion one (becomes a test)
+        - [ ] Criterion two (becomes a test)
+        - [ ] Criterion three (becomes a test)
+    validations:
+      required: true
+  - type: textarea
+    id: edges
+    attributes:
+      label: Edge cases to remember
+      description: Zero, empty, boundaries, wrong types.
