@@ -2,13 +2,13 @@
   "title": "Test-Driven Development (TDD)",
   "topic": "Programming",
   "level": "Beginner",
-  "theme": "Interactive course",
+  "theme": "GitHub style",
   "look": "code",
-  "overview": "Learn Red, Green, Refactor with live tests in your browser, then plan and ship the work with GitHub issues, project boards and pull requests.",
+  "overview": "Learn Red, Green, Refactor with live tests, then practise on interactive copies of GitHub issues, Projects boards and pull requests.",
   "learn": [
     "Write a failing test first",
     "Red, Green, Refactor",
-    "Plan work with GitHub issues and Projects",
-    "Commits, pull requests and CI"
+    "Create issues and move cards on a Projects board",
+    "Pull requests with live test checks"
   ]
 }
