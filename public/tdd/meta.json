@@ -1,14 +1,14 @@
 {
-  "title": "Test-Driven Development (TDD)",
+  "title": "Test-Driven Development for Flutter and Unity",
   "topic": "Programming",
   "level": "Beginner",
-  "theme": "GitHub style",
+  "theme": "Flutter / Unity",
   "look": "code",
-  "overview": "Learn Red, Green, Refactor with live tests, then practise on interactive copies of GitHub issues, Projects boards and pull requests.",
+  "overview": "Learn Red, Green, Refactor in Dart (flutter_test) or C# (NUnit) with live tests in your browser, then plan and ship the work with GitHub issues, Projects and pull requests.",
   "learn": [
-    "Write a failing test first",
-    "Red, Green, Refactor",
-    "Create issues and move cards on a Projects board",
-    "Pull requests with live test checks"
+    "Write failing tests in Dart or C# first",
+    "Red, Green, Refactor with real test runs",
+    "Keep game and app logic testable",
+    "Issues, Projects boards and pull requests"
   ]
 }
