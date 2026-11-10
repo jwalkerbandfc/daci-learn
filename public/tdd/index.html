@@ -83,6 +83,8 @@ li { margin-bottom: .35rem; }
 a { color: var(--accent); text-underline-offset: 3px; }
 code, kbd { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; font-size: .88em; background: var(--code-bg); padding: .15em .4em; border-radius: 6px; }
 kbd { border: 1px solid var(--line); border-bottom-width: 2px; }
+code, .opt span, .map td, .map th, .feedback, .callout, .commits li { overflow-wrap: anywhere; }
+pre.code code { overflow-wrap: normal; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
 svg.ico { vertical-align: -2px; flex: none; }
 
@@ -151,7 +153,7 @@ svg.ico { vertical-align: -2px; flex: none; }
 .contrib i.cur { outline: 2px solid var(--accent); outline-offset: 1px; }
 .contrib-note { font-size: .85rem; color: var(--muted); margin: .5rem 0 0; }
 
-.main:focus { outline: none; }
+.main:focus, h2[tabindex="-1"]:focus { outline: none; }
 .mod-head { margin-bottom: 1.25rem; }
 .mod-head h2 { padding-bottom: .3em; border-bottom: 1px solid var(--line); }
 .mod-head .kicker { color: var(--muted); font-size: .9rem; margin: 0 0 .25rem; }
@@ -276,6 +278,21 @@ textarea.text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, mono
 .merge-box.blocked { border-color: var(--bad-line); }
 .merge-box.ready { border-color: var(--ok-line); }
 
+/* ---------- Track picker and simulated output ---------- */
+.tracks { list-style: none; padding: 0; margin: 0 0 1rem; display: grid; gap: 1rem; max-width: none; }
+@media (min-width: 48rem) { .tracks { grid-template-columns: 1fr 1fr; } }
+.tracks li { margin: 0; }
+.trackbtn { width: 100%; height: 100%; text-align: left; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; cursor: pointer; display: flex; gap: 1rem; align-items: flex-start; }
+.trackbtn:hover { background: var(--surface); }
+.trackbtn[aria-current="true"] { border: 2px solid var(--accent); padding: calc(1rem - 1px); }
+.tglyph { flex: none; width: 3rem; height: 3rem; border-radius: 6px; background: var(--bar-bg); color: #fff; display: grid; place-items: center; font-size: 1.5rem; font-weight: 700; }
+.trackbtn strong { display: block; font-size: 1.15rem; }
+.tdesc { display: block; margin: .25rem 0 .5rem; }
+.tmeta { display: block; color: var(--muted); font-size: .9rem; font-weight: 600; }
+pre.code.term { background: var(--bar-bg); color: #e6edf3; border-color: var(--bar-bg); white-space: pre; }
+body.picking .side, body.picking .prog-wrap { display: none; }
+body.picking .shell { grid-template-columns: minmax(0, 1fr); }
+
 /* ---------- Tooltips (absolutely positioned) ---------- */
 .tipw { position: relative; display: inline-block; }
 .tip { font: inherit; color: inherit; background: none; border: 0; padding: 0 1px; cursor: help; border-bottom: 2px dotted var(--accent); font-weight: 600; text-align: inherit; }
@@ -307,7 +324,7 @@ noscript p { padding: 1rem; background: var(--warn-bg); }
   <div class="gh-bar"><div class="gh-bar-in">
     <div class="crumb">
       <svg class="ico" viewBox="0 0 16 16" width="28" height="28" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2 2.75A1.75 1.75 0 0 1 3.75 1h8.5C13.22 1 14 1.78 14 2.75v10.5A1.75 1.75 0 0 1 12.25 15h-8.5A1.75 1.75 0 0 1 2 13.25Zm1.75-.25a.25.25 0 0 0-.25.25v10.5c0 .14.11.25.25.25H4.5v-11Zm2.25 0v11h6.25a.25.25 0 0 0 .25-.25V2.75a.25.25 0 0 0-.25-.25Z"/></svg>
-      <h1><span class="sep" aria-hidden="true">/</span><strong>Test-Driven Development</strong><small>A hands-on course in the style of GitHub. Progress saves on this device.</small></h1>
+      <h1><span class="sep" aria-hidden="true">/</span><strong>Test-Driven Development</strong><small><span id="crumbtrack">Flutter and Unity edition</span>. Progress saves on this device.</small></h1>
     </div>
     <div class="tools" id="tools"></div>
   </div></div>
@@ -335,6 +352,8 @@ noscript p { padding: 1rem; background: var(--warn-bg); }
 </div>
 <div class="sr-only" id="live" aria-live="polite" role="status"></div>
 
+<script src="lang.js"></script>
+<script src="course.js"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -342,35 +361,31 @@ noscript p { padding: 1rem; background: var(--warn-bg); }
    Progress is a single number: how many steps are done, in order.
    There is no skip and no reset in the interface.
    ===================================================================== */
-var KEY = 'tdd-progress-v1';
+var TRACKKEY = 'tdd-track', PROGKEY = 'tdd-progress-v3-';
 var storageOK = true;
-var R = String.raw;
+var TRACK = null, COURSE = null, X = null;
+var MODULES = [], ALL = [], TOTAL = 0;
 
-function loadState() {
-  try {
-    var raw = localStorage.getItem(KEY);
-    var p = raw ? JSON.parse(raw) : {};
-    return {
-      n: 0,
-      doneIds: Array.isArray(p.done) ? p.done.filter(function (x) { return typeof x === 'string'; }) : null,
-      legacyN: Math.max(0, parseInt(p.n, 10) || 0), /* older saves stored one number */
-      drafts: (p.drafts && typeof p.drafts === 'object') ? p.drafts : {},
-      view: Number.isInteger(p.view) ? p.view : null
-    };
-  } catch (e) { storageOK = false; return { n: 0, doneIds: null, legacyN: 0, drafts: {}, view: null }; }
-}
-var state = loadState();
-var ALL = [], LEGACY = [];
-function save() {
-  try { localStorage.setItem(KEY, JSON.stringify({ v: 2, done: ALL.slice(0, state.n).map(function (x) { return x.id; }), drafts: state.drafts, view: state.view })); }
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { storageOK = false; return null; } }
+function lsSet(k, v) {
+  try { localStorage.setItem(k, v); }
   catch (e) { storageOK = false; var n = document.getElementById('storagenote'); if (n) n.hidden = false; }
 }
-/* Progress is always the unbroken run of finished steps from the start. */
+/* Each track keeps its own progress. Progress is the unbroken run of finished
+   steps from the start, saved as step ids. There is no skip and no reset. */
+function loadState(trackId) {
+  try {
+    var p = JSON.parse(lsGet(PROGKEY + trackId) || '{}');
+    return { n: 0, doneIds: Array.isArray(p.done) ? p.done.filter(function (x) { return typeof x === 'string'; }) : [], drafts: (p.drafts && typeof p.drafts === 'object') ? p.drafts : {}, view: Number.isInteger(p.view) ? p.view : null };
+  } catch (e) { return { n: 0, doneIds: [], drafts: {}, view: null }; }
+}
+var state = { n: 0, doneIds: [], drafts: {}, view: null };
+function save() {
+  lsSet(PROGKEY + TRACK.id, JSON.stringify({ v: 3, done: ALL.slice(0, state.n).map(function (x) { return x.id; }), drafts: state.drafts, view: state.view }));
+}
 function resolveProgress() {
-  var set = {};
-  (state.doneIds || LEGACY.slice(0, state.legacyN)).forEach(function (id) { set[id] = 1; });
-  var n = 0;
-  while (n < ALL.length && set[ALL[n].id]) n++;
+  var set = {}; state.doneIds.forEach(function (id) { set[id] = 1; });
+  var n = 0; while (n < ALL.length && set[ALL[n].id]) n++;
   state.n = n;
 }
 
@@ -402,7 +417,11 @@ var GLOSSARY = {
   commit: ['commit', 'A saved snapshot of your changes with a short message describing them.'],
   pr: ['pull request', 'A request to merge your branch into main. Others can review it and tests can run on it.'],
   ci: ['CI', 'Continuous integration. A service such as GitHub Actions runs your tests automatically on every push.'],
-  main: ['main branch', 'The trusted version of the code. Only reviewed, passing work should reach it.']
+  main: ['main branch', 'The trusted version of the code. Only reviewed, passing work should reach it.'],
+  equals: ['equals', 'A matcher from flutter_test. It checks the actual value is equal to the expected value.'],
+  areequal: ['Assert.AreEqual', 'An NUnit check that two values are equal. The expected value goes first, then the actual value.'],
+  editmode: ['EditMode', 'Unity tests that run in the editor without playing the game. They are fast, so they suit TDD.'],
+  playmode: ['PlayMode', 'Unity tests that run while the game is playing, with a real scene. They are slower.']
 };
 var tipN = 0;
 function T(key, label) {
@@ -416,8 +435,16 @@ function UITIP(label, text, extraClass, attrs) {
          '<span role="tooltip" id="' + id + '" class="tipbox">' + text + '</span></span>';
 }
 function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-function hl(code) {
-  var re = /(\/\/.*$)|('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")|\b(const|let|var|function|return|if|else|for|while|new|throw|true|false|null|undefined|typeof)\b|\b(\d+(?:\.\d+)?)\b/gm;
+var KW = {
+  dart: 'abstract as async await break case catch class const continue default do else enum extends false final finally for get if implements import in is late new null override required return set static super switch this throw true try var void while with',
+  cs: 'abstract as break case catch class const continue default do else enum false finally for foreach get if in is namespace new null override private protected public readonly return set static struct switch this throw true try using var virtual void while yield'
+};
+var KWRE = {};
+function hl(code, lang) {
+  if (lang === 'text') return esc(code);
+  lang = lang === 'cs' || lang === 'dart' ? lang : (TRACK ? TRACK.lang : 'dart');
+  if (!KWRE[lang]) KWRE[lang] = new RegExp('(\\/\\/.*$)|(\\$?@?"(?:[^"\\\\\\n]|\\\\.)*"|\'(?:[^\'\\\\\\n]|\\\\.)*\')|\\b(' + KW[lang].split(' ').join('|') + ')\\b|\\b(\\d+(?:\\.\\d+)?)\\b', 'gm');
+  var re = KWRE[lang]; re.lastIndex = 0;
   var out = '', last = 0, m;
   while ((m = re.exec(code))) {
     out += esc(code.slice(last, m.index));
@@ -438,413 +465,53 @@ var COPY = [];
 /* C(code, {title, lang, copy}) -> a captioned code block. */
 function C(code, o) {
   o = o || {}; code = code.replace(/^\n/, '').replace(/\s+$/, '');
-  var body = o.lang === 'text' ? esc(code) : hl(code);
+  var body = hl(code, o.lang);
   var btn = '';
   if (o.copy) { COPY.push(code); btn = '<button type="button" class="btn sec" data-copy="' + (COPY.length - 1) + '">Copy</button>'; }
-  return '<div class="codebox"><div class="cap"><span>' + esc(o.title || 'JavaScript') + '</span>' + btn + '</div><pre class="code" tabindex="0" aria-label="' + esc(o.title || 'Code example') + '"><code>' + body + '</code></pre></div>';
+  return '<div class="codebox"><div class="cap"><span>' + esc(o.title || 'Code') + '</span>' + btn + '</div><pre class="code" tabindex="0" aria-label="' + esc(o.title || 'Code example') + '"><code>' + body + '</code></pre></div>';
 }
 
 /* =====================================================================
-   3. Course content
-   Step types: read, demo, quiz, task (fix | refactor | write-test), checklist
+   3. Course content (see course.js) and track set-up
    ===================================================================== */
-var MODULES = [
-
-/* ---------------- 1 ---------------- */
-{ id: 'idea', title: 'The big idea', time: 8,
-  goal: 'Explain what ' + '{TDD}' + ' is and describe the Red, Green, Refactor loop in your own words.',
-  steps: [
-    { title: 'Test first, code second', type: 'read', html:
-      '<p>Most people write code first, then click around to see if it works. ' + '{TDD}' + ' flips this around.</p>' +
-      '<ol><li>You write a small ' + '{test}' + ' that describes what the code <em>should</em> do.</li>' +
-      '<li>The test fails, because the code does not exist yet.</li>' +
-      '<li>You write the code that makes the test pass.</li></ol>' +
-      '<p>Think of a marking scheme. If you know exactly how your essay will be marked <em>before</em> you start writing, you write a better essay. A test is a marking scheme for your code.</p>' },
-    { title: 'The loop: Red, Green, Refactor', type: 'read', html:
-      '<p>TDD works in short laps. Each lap takes a few minutes.</p>' +
-      '<ol class="loop"><li class="l-red"><h4>1. {red}</h4><p>Write one test for one tiny behaviour. Run it. It must fail.</p></li>' +
-      '<li class="l-green"><h4>2. {green}</h4><p>Write the simplest code that makes the test pass. Nothing extra.</p></li>' +
-      '<li class="l-blue"><h4>3. {refactor}</h4><p>Tidy up your code and your test. Run the tests again. They stay green.</p></li></ol>' +
-      '<p class="loop-note">Then go round again with the next small behaviour.</p>' +
-      '<p>The colours come from test runners, which show failing tests in red and passing tests in green.</p>' },
-    { title: 'Why bother?', type: 'read', html:
-      '<ul><li><strong>You catch mistakes early.</strong> A failing test tells you the problem within seconds.</li>' +
-      '<li><strong>You can change code without fear.</strong> If something breaks, a {regression} shows up straight away.</li>' +
-      '<li><strong>You think before you type.</strong> Writing the test makes you decide what "correct" means.</li>' +
-      '<li><strong>Your tests explain the code.</strong> New people can read them to see what each part is meant to do.</li></ul>' +
-      '<p class="note"><strong>Be honest about limits:</strong> TDD is less useful for quick throw-away experiments or for deciding how a page should look. It shines on logic: calculations, rules and data handling.</p>' },
-    { title: 'Check: what comes first?', type: 'quiz',
-      q: 'In TDD, what is the very first thing you do on each lap?',
-      opts: [
-        { t: 'Write the code for the feature', why: 'In TDD the code comes second. You need a test to aim at first.' },
-        { t: 'Write a test that fails', why: 'Right. A failing test proves the behaviour is missing and gives you a target.' },
-        { t: 'Tidy up the code', why: 'Tidying (refactoring) is the last part of the lap, not the first.' },
-        { t: 'Ask someone to review it', why: 'Review matters, but it happens later, once the work exists.' }
-      ], correct: 1 },
-    { title: 'Check: put the loop in order', type: 'quiz',
-      q: 'Which order is the TDD loop?',
-      opts: [
-        { t: 'Green, Red, Refactor', why: 'Green cannot come first. There must be a failing test before you make anything pass.' },
-        { t: 'Refactor, Red, Green', why: 'You refactor working code, so it comes last.' },
-        { t: 'Red, Green, Refactor', why: 'Correct. Fail, pass, then tidy.' },
-        { t: 'Red, Refactor, Green', why: 'You should not tidy while a test is failing. Get to green first.' }
-      ], correct: 2 }
-  ] },
-
-/* ---------------- 2 ---------------- */
-{ id: 'anatomy', title: 'Anatomy of a test', time: 12,
-  goal: 'Read a test, run it, understand a failure message, and make your first failing test pass.',
-  steps: [
-    { title: 'Three parts of every test', type: 'read', html:
-      '<p>Most tests follow {aaa}.</p>' +
-      C('test(\'adds two numbers\', () => {\n  const result = add(2, 3);   // Arrange and Act\n  expect(result).toBe(5);     // Assert\n});', { title: 'A test in JavaScript' }) +
-      '<ul><li><code>test(\'name\', ...)</code> gives the test a name that says what should happen.</li>' +
-      '<li><code>add(2, 3)</code> runs the code being tested.</li>' +
-      '<li><code>{expect}(result).{tobe}(5)</code> is the {assertion}. If result is not 5, the test fails.</li></ul>' +
-      '<p>All the examples in this course are in JavaScript, but the idea is the same in Python, Java, C# and others.</p>' },
-    { title: 'Run a passing test', type: 'demo', expect: 'pass',
-      intro: '<p>Here is a function and two tests. Press <strong>Run tests</strong>. Everything should go green.</p>',
-      code: 'function add(a, b) {\n  return a + b;\n}',
-      tests: 'test(\'adds two positive numbers\', () => {\n  expect(add(2, 3)).toBe(5);\n});\n\ntest(\'adds a negative number\', () => {\n  expect(add(5, -2)).toBe(3);\n});' },
-    { title: 'Run a failing test', type: 'demo', expect: 'fail',
-      intro: '<p>Now the code has a bug: it subtracts instead of adding. Run the tests. <strong>They should fail.</strong> A failing test is not a problem. It is the test doing its job.</p><p>Read the message under each failure. "Expected 5 but got -1" tells you what the test wanted and what the code gave.</p>',
-      code: 'function add(a, b) {\n  return a - b;   // bug!\n}',
-      tests: 'test(\'adds two positive numbers\', () => {\n  expect(add(2, 3)).toBe(5);\n});\n\ntest(\'adds a negative number\', () => {\n  expect(add(5, -2)).toBe(3);\n});' },
-    { title: 'Check: spot the parts', type: 'quiz',
-      q: 'In expect(total).toBe(10), which part is the value your code produced?',
-      opts: [
-        { t: 'toBe', why: 'toBe is the type of check. It compares two values.' },
-        { t: 'total', why: 'Correct. total is the actual result. 10 is the expected result.' },
-        { t: '10', why: '10 is what you expect. The actual value goes inside expect().' }
-      ], correct: 1 },
-    { title: 'Your turn: make it green', type: 'task', kind: 'fix',
-      brief: '<p>The tests below are already written. They fail, because <code>doubleIt</code> does nothing yet. Write the code so every test passes.</p><p><span class="chip now">Goal</span> Get from {red} to {green}.</p>',
-      stub: 'function doubleIt(n) {\n  // your code here\n}',
-      tests: 'test(\'doubles a positive number\', () => {\n  expect(doubleIt(2)).toBe(4);\n});\n\ntest(\'doubling zero gives zero\', () => {\n  expect(doubleIt(0)).toBe(0);\n});\n\ntest(\'doubles a negative number\', () => {\n  expect(doubleIt(-3)).toBe(-6);\n});\n\ntest(\'doubles a decimal\', () => {\n  expect(doubleIt(2.5)).toBe(5);\n});',
-      hints: ['Run the tests first. Read what each one expects.', 'The function needs a return statement.', 'Doubling means multiplying by 2: return n * 2;'] }
-  ] },
-
-/* ---------------- 3 ---------------- */
-{ id: 'red', title: 'Red: write the failing test', time: 12,
-  goal: 'Choose a tiny behaviour, write a test that fails for the right reason, and write your own tests.',
-  steps: [
-    { title: 'Start with the smallest behaviour', type: 'read', html:
-      '<p>Do not try to test everything at once. Pick <strong>one</strong> small behaviour and write one test for it.</p>' +
-      '<p>Say you need a function called <code>isEven</code>. A good first test is just one example:</p>' +
-      C('test(\'returns true for an even number\', () => {\n  expect(isEven(4)).toBe(true);\n});', { title: 'One small test' }) +
-      '<p>Name tests like sentences: what does the code do, and in which situation? <code>returns true for an even number</code> is far more useful than <code>test 1</code>.</p>' },
-    { title: 'See it fail', type: 'demo', expect: 'fail',
-      intro: '<p>We have <strong>not</strong> written <code>isEven</code> yet, only the test. Run it and read the message.</p><p>"isEven is not defined" is a good {red}. It fails because the code is missing, which is exactly the reason we expect.</p>',
-      code: '// isEven does not exist yet.',
-      tests: 'test(\'returns true for an even number\', () => {\n  expect(isEven(4)).toBe(true);\n});' },
-    { title: 'Fail for the right reason', type: 'read', html:
-      '<p>A red test is only useful if it fails <em>for the reason you expect</em>.</p>' +
-      '<ul><li><strong>Good red:</strong> "Expected true but got false". The behaviour is missing.</li>' +
-      '<li><strong>Bad red:</strong> a typo in the test, or a missing bracket. That tells you nothing about your code.</li>' +
-      '<li><strong>Suspicious:</strong> a new test that passes straight away. Either the behaviour already existed or the test checks nothing.</li></ul>' +
-      '<p>Always run the test and <em>see it fail</em> before you write the code. It is the only way to know the test can fail at all.</p>' },
-    { title: 'Your turn: write the tests', type: 'task', kind: 'write-test', fn: 'isEven', minTests: 3,
-      brief: '<p>This time <strong>you</strong> write the tests. The function below is a {stub}, an unfinished version that always returns false.</p>' +
-        '<p>Write at least <strong>3 tests</strong> for <code>isEven</code>. The checker will confirm that:</p>' +
-        '<ul><li>your tests {red} (fail) against the unfinished code,</li><li>they all pass against a correct version, so they are testing the right thing,</li><li>they catch some {mutant}s.</li></ul>',
-      stub: 'function isEven(n) {\n  return false;\n}',
-      starter: '// Write at least 3 tests for isEven.\n// Shape: test(\'name\', () => { expect(...).toBe(...); });\n',
-      reference: 'function isEven(n) {\n  return n % 2 === 0;\n}',
-      mutants: ['function isEven(n) { return true; }', 'function isEven(n) { return n > 10; }', 'function isEven(n) { return n % 2 === 1; }'],
-      hints: ['Test one even number, one odd number and zero.', 'An even number test looks like: expect(isEven(4)).toBe(true);', 'Example set: isEven(4) is true, isEven(7) is false, isEven(0) is true.'] }
-  ] },
-
-/* ---------------- 4 ---------------- */
-{ id: 'green', title: 'Green: the simplest code', time: 12,
-  goal: 'Write just enough code to pass each test, and let new tests grow the solution step by step.',
-  steps: [
-    { title: 'Write the simplest thing', type: 'read', html:
-      '<p>In the {green} step your only job is to make the failing test pass. Do not add extra features. Do not guess what you might need later.</p>' +
-      '<p>This feels strange at first. It keeps your code small and means every line exists because a test asked for it.</p>' +
-      '<p class="note"><strong>Rule of thumb:</strong> if no test needs the line, do not write it yet.</p>' },
-    { title: 'Fake it, then prove it', type: 'read', html:
-      '<p>Imagine your first test says <code>fizzBuzz(1)</code> should give <code>\'1\'</code>. The simplest passing code is:</p>' +
-      C('function fizzBuzz(n) {\n  return \'1\';   // fake it!\n}') +
-      '<p>That is allowed. Now add the next test: <code>fizzBuzz(2)</code> should give <code>\'2\'</code>. The fake no longer works, so you are forced to write real logic:</p>' +
-      C('function fizzBuzz(n) {\n  return String(n);\n}') +
-      '<p>Each new test pushes the code to become more general. Adding tests to force better code is called <em>triangulation</em>.</p>' },
-    { title: 'Check: what is "simplest"?', type: 'quiz',
-      q: 'You have one test: add(1, 1) should be 2. What does "the simplest code" mean here?',
-      opts: [
-        { t: 'Any code that passes it, even return 2. The next test will force a real solution.', why: 'Right. Pass the test you have, then let the next test push the code forward.' },
-        { t: 'A full add function that handles every type of input and every error', why: 'That is far more than one test asks for. Extra code with no test is risky.' },
-        { t: 'Nothing. Wait until every test is written first.', why: 'TDD works one test at a time, not all at once.' },
-        { t: 'Copy a finished solution from the internet', why: 'Then you would not learn what the tests are driving you towards.' }
-      ], correct: 0 },
-    { title: 'Your turn: grow FizzBuzz', type: 'task', kind: 'fix',
-      brief: '<p>Time to run the loop. <code>fizzBuzz(n)</code> must follow these rules:</p><ul><li>Multiples of 3 give <code>\'Fizz\'</code>.</li><li>Multiples of 5 give <code>\'Buzz\'</code>.</li><li>Multiples of both give <code>\'FizzBuzz\'</code>.</li><li>Anything else gives the number as text.</li></ul>' +
-        '<p>Tip: make the tests pass one by one, from the top. Run often. Seeing the count go up is the {green} step in action.</p>',
-      stub: 'function fizzBuzz(n) {\n  return \'\';\n}',
-      tests: 'test(\'1 gives "1"\', () => {\n  expect(fizzBuzz(1)).toBe(\'1\');\n});\n\ntest(\'2 gives "2"\', () => {\n  expect(fizzBuzz(2)).toBe(\'2\');\n});\n\ntest(\'3 gives "Fizz"\', () => {\n  expect(fizzBuzz(3)).toBe(\'Fizz\');\n});\n\ntest(\'9 gives "Fizz"\', () => {\n  expect(fizzBuzz(9)).toBe(\'Fizz\');\n});\n\ntest(\'5 gives "Buzz"\', () => {\n  expect(fizzBuzz(5)).toBe(\'Buzz\');\n});\n\ntest(\'10 gives "Buzz"\', () => {\n  expect(fizzBuzz(10)).toBe(\'Buzz\');\n});\n\ntest(\'15 gives "FizzBuzz"\', () => {\n  expect(fizzBuzz(15)).toBe(\'FizzBuzz\');\n});',
-      hints: ['Start with just the first two tests: return String(n);', 'Use the remainder operator: n % 3 === 0 means n is a multiple of 3.', 'Check for 15 (both) first, otherwise 3 and 5 will catch it early. Structure: if both, return FizzBuzz; else if by 3, Fizz; else if by 5, Buzz; else String(n).'] }
-  ] },
-
-/* ---------------- 5 ---------------- */
-{ id: 'refactor', title: 'Refactor: tidy up safely', time: 12,
-  goal: 'Improve working code without changing what it does, using your tests as a safety net.',
-  steps: [
-    { title: 'Tests are your safety net', type: 'read', html:
-      '<p>Once the tests are green, the code works but it may be messy. Now you can {refactor}: improve how the code is written without changing what it does.</p>' +
-      '<p>Things worth tidying:</p><ul><li>Names that do not explain themselves</li><li>Repeated code</li><li>Long chains of <code>if</code> and <code>else</code></li><li>Numbers or text with no explanation</li></ul>' +
-      '<p>Three rules keep refactoring safe:</p><ol><li><strong>Only refactor when everything is green.</strong></li><li><strong>Change one small thing, then run the tests.</strong></li><li><strong>Do not add new features.</strong> That needs a new {red} test first.</li></ol>' },
-    { title: 'Before: working but repetitive', type: 'demo', expect: 'pass',
-      intro: '<p>This code works, and the tests prove it. But it repeats itself.</p>',
-      code: 'function levelName(n) {\n  if (n === 1) {\n    return \'Beginner\';\n  } else if (n === 2) {\n    return \'Intermediate\';\n  } else if (n === 3) {\n    return \'Advanced\';\n  } else {\n    return \'Unknown\';\n  }\n}',
-      tests: 'test(\'level 1 is Beginner\', () => {\n  expect(levelName(1)).toBe(\'Beginner\');\n});\n\ntest(\'level 2 is Intermediate\', () => {\n  expect(levelName(2)).toBe(\'Intermediate\');\n});\n\ntest(\'level 3 is Advanced\', () => {\n  expect(levelName(3)).toBe(\'Advanced\');\n});\n\ntest(\'other levels are Unknown\', () => {\n  expect(levelName(99)).toBe(\'Unknown\');\n});' },
-    { title: 'After: same tests, tidier code', type: 'demo', expect: 'pass',
-      intro: '<p>We replaced the chain with a lookup table. The <strong>tests did not change</strong>, and they still pass. That is how you know the behaviour stayed the same.</p>',
-      code: 'const LEVELS = {\n  1: \'Beginner\',\n  2: \'Intermediate\',\n  3: \'Advanced\'\n};\n\nfunction levelName(n) {\n  return LEVELS[n] || \'Unknown\';\n}',
-      tests: 'test(\'level 1 is Beginner\', () => {\n  expect(levelName(1)).toBe(\'Beginner\');\n});\n\ntest(\'level 2 is Intermediate\', () => {\n  expect(levelName(2)).toBe(\'Intermediate\');\n});\n\ntest(\'level 3 is Advanced\', () => {\n  expect(levelName(3)).toBe(\'Advanced\');\n});\n\ntest(\'other levels are Unknown\', () => {\n  expect(levelName(99)).toBe(\'Unknown\');\n});' },
-    { title: 'Your turn: refactor', type: 'task', kind: 'refactor',
-      brief: '<p>This function works and the tests pass. Your job is to <strong>refactor</strong> it so it has <strong>no <code>if</code> statements</strong> (or one at most), for example by using a lookup object. The tests must stay green the whole time.</p>' +
-        '<p>The check needs two things: all tests pass, and the code is different from the starting point.</p>',
-      stub: 'function colourCode(name) {\n  if (name === \'red\') {\n    return \'#ff0000\';\n  } else if (name === \'green\') {\n    return \'#00ff00\';\n  } else if (name === \'blue\') {\n    return \'#0000ff\';\n  } else {\n    return \'#000000\';\n  }\n}',
-      tests: 'test(\'red\', () => {\n  expect(colourCode(\'red\')).toBe(\'#ff0000\');\n});\n\ntest(\'green\', () => {\n  expect(colourCode(\'green\')).toBe(\'#00ff00\');\n});\n\ntest(\'blue\', () => {\n  expect(colourCode(\'blue\')).toBe(\'#0000ff\');\n});\n\ntest(\'unknown colours are black\', () => {\n  expect(colourCode(\'pink\')).toBe(\'#000000\');\n});',
-      maxIf: 1,
-      hints: ['Run the tests before you change anything so you know they start green.', 'Create an object with the colour names as keys and the hex codes as values.', 'Look up the name in the object. For unknown names, fall back with ||: return COLOURS[name] || \'#000000\';'] },
-    { title: 'Check: when is it safe?', type: 'quiz',
-      q: 'When is it safe to refactor?',
-      opts: [
-        { t: 'While a test is failing, so you can fix both at once', why: 'Mixing a fix and a tidy-up makes it hard to tell what broke. Get to green first.' },
-        { t: 'When all tests are green', why: 'Correct. Green tests are your safety net.' },
-        { t: 'Before writing any tests', why: 'Without tests you cannot tell whether you changed the behaviour.' },
-        { t: 'Only at the very end of a project', why: 'Small tidy-ups every lap stop mess from piling up.' }
-      ], correct: 1 }
-  ] },
-
-/* ---------------- 6 ---------------- */
-{ id: 'good', title: 'Good tests and edge cases', time: 15,
-  goal: 'Write clear tests, hunt for edge cases, and prove your tests can catch real bugs.',
-  steps: [
-    { title: 'Clear tests', type: 'read', html:
-      '<p>Good tests are easy to read and fail for one reason only.</p>' +
-      '<ul><li><strong>Name it like a sentence.</strong> <code>returns 0 for an empty basket</code>, not <code>test 3</code>.</li>' +
-      '<li><strong>One idea per test.</strong> If it fails, you know what is wrong.</li>' +
-      '<li><strong>Keep it simple.</strong> A test should not need its own tests.</li>' +
-      '<li><strong>Keep tests independent.</strong> One test should never rely on another having run first.</li></ul>' +
-      C('test(\'returns 0 for an empty basket\', () => {\n  const basket = [];              // Arrange\n  const total = basketTotal(basket); // Act\n  expect(total).toBe(0);          // Assert\n});') },
-    { title: 'Hunt for edge cases', type: 'read', html:
-      '<p>Bugs love the edges. For every function, ask: what happens at the limits? Try the <strong>Zero, One, Many, Edge</strong> list:</p>' +
-      '<ul><li><strong>Zero:</strong> 0, an empty string, an empty list.</li><li><strong>One:</strong> a single item.</li><li><strong>Many:</strong> a typical example with several items.</li><li><strong>Edge:</strong> negative numbers, the exact {boundary}, the biggest and smallest allowed values, wrong types.</li></ul>' +
-      '<p>If a rule says "at least 8 characters", test 7 characters (too short) <em>and</em> 8 characters (just enough). Most real bugs hide on that line.</p>' +
-      '<p>These are all {edge}s.</p>' },
-    { title: 'Check: the best test name', type: 'quiz',
-      q: 'Which test name is the most useful when it fails?',
-      opts: [
-        { t: 'test 1', why: 'When this fails you have to open the test to learn what it was checking.' },
-        { t: 'works', why: 'Too vague. What works, and in which situation?' },
-        { t: 'returns the minimum when the number is below the range', why: 'Correct. It names the behaviour and the situation.' },
-        { t: 'clampTest', why: 'It names the function but not what should happen.' }
-      ], correct: 2 },
-    { title: 'Do your tests catch bugs?', type: 'read', html:
-      '<p>Passing tests do not prove the code is right. They only prove the code is right <em>for the cases you wrote</em>.</p>' +
-      '<p>A smart way to check test quality is to add a bug on purpose and see if the tests notice. We call that a {mutant}. If your tests still pass, they have a gap.</p>' +
-      '<p>In the next task the checker has several hidden buggy versions of the function. Your tests need to fail on every one of them. The only way to do that is to cover the edges.</p>' },
-    { title: 'Your turn: test the edges', type: 'task', kind: 'write-test', fn: 'clamp', minTests: 5,
-      brief: '<p><code>clamp(n, min, max)</code> keeps a number inside a range. If <code>n</code> is below <code>min</code> it returns <code>min</code>. If it is above <code>max</code> it returns <code>max</code>. Otherwise it returns <code>n</code>.</p>' +
-        '<p>Write at least <strong>5 tests</strong>. The checker will plant bugs in the code, and your tests must catch all of them.</p>',
-      stub: 'function clamp(n, min, max) {\n  return n;\n}',
-      starter: '// Example: clamp(15, 0, 10) should give 10\n// Think: below the range, above the range, inside it, and exactly on each boundary.\n',
-      reference: 'function clamp(n, min, max) {\n  return Math.min(Math.max(n, min), max);\n}',
-      mutants: ['function clamp(n, min, max) { return Math.max(n, min); }',
-                'function clamp(n, min, max) { return Math.min(n, max); }',
-                'function clamp(n, min, max) { if (n <= min) return min + 1; if (n > max) return max; return n; }',
-                'function clamp(n, min, max) { if (n < min) return min; if (n >= max) return max - 1; return n; }'],
-      hints: ['You need at least one test for each of: below the range, above the range, inside the range.', 'Some bugs only show on the boundary. Test n equal to min and n equal to max.', 'Example set for clamp(n, 0, 10): -5 gives 0, 15 gives 10, 5 gives 5, 0 gives 0, 10 gives 10.'] }
-  ] },
-
-/* ---------------- 7 ---------------- */
-{ id: 'plan', title: 'Plan it with GitHub issues and Projects', time: 15,
-  goal: 'Turn an idea into a GitHub issue with testable acceptance criteria and track it on a Project board.',
-  steps: [
-    { title: 'From idea to issue', type: 'read', html:
-      '<p>Before you write any test you need to know what you are building. On GitHub, that starts with an {issue}.</p>' +
-      '<p>A good issue has a short title, a {story} and {criteria}:</p>' +
-      '<div class="gh"><div class="gh-h"><span>Password strength checker</span><span class="open">Open</span></div><div class="gh-b">' +
-      '<p><span class="lab">tdd</span><span class="lab">feature</span></p>' +
-      '<p><strong>User story:</strong> As a new user, I want to know if my password is strong, so that my account is safe.</p>' +
-      '<p><strong>Acceptance criteria</strong></p><ul><li>&#9744; Returns false if shorter than 8 characters</li><li>&#9744; Returns false if it has no number</li><li>&#9744; Returns true for "Sunny2day"</li></ul></div></div>' +
-      '<p>Each issue is <em>one</em> small piece of work. If it feels big, split it into several issues.</p>' },
-    { title: 'Criteria become test names', type: 'read', html:
-      '<p>Here is the link between GitHub and TDD. <strong>Every acceptance criterion becomes at least one test.</strong> You do not need to invent tests from nothing.</p>' +
-      '<table class="map"><caption class="sr-only">Acceptance criteria and matching tests</caption><thead><tr><th scope="col">Acceptance criterion</th><th scope="col">Test name</th></tr></thead><tbody>' +
-      '<tr><td>Returns false if shorter than 8 characters</td><td><code>rejects a password shorter than 8 characters</code></td></tr>' +
-      '<tr><td>Returns false if it has no number</td><td><code>rejects a password with no number</code></td></tr>' +
-      '<tr><td>Returns true for "Sunny2day"</td><td><code>accepts a strong password</code></td></tr></tbody></table>' +
-      '<p>When all the tests are green, all the criteria are met, and the issue is finished.</p>' },
-    { title: 'Check: a testable criterion', type: 'quiz',
-      q: 'Which acceptance criterion is easiest to turn into a test?',
-      opts: [
-        { t: 'The password checker should be good', why: 'What does "good" mean? Nobody can write a test for that.' },
-        { t: 'Returns false when the password has fewer than 8 characters', why: 'Correct. It has a clear input and a clear expected output.' },
-        { t: 'It should feel secure to users', why: 'Feelings cannot be tested with code.' },
-        { t: 'Code should be clean', why: 'Important, but it is not a behaviour to test. Refactoring covers that.' }
-      ], correct: 1 },
-    { title: 'Track work on a Project board', type: 'read', html:
-      '<p>A {project} shows all your issues as cards on one board. Your team sees at a glance what is waiting, what is being built and what is done.</p>' +
-      '<ol class="board"><li><b>Backlog</b>Ideas not yet planned</li><li><b>Ready</b>Has acceptance criteria</li><li><b>In progress</b>Red, Green, Refactor happens here</li><li><b>In review</b>A {pr} is open</li><li><b>Done</b>Merged and closed</li></ol>' +
-      '<p>An issue is <strong>Ready</strong> only when its acceptance criteria are written. That is your "definition of ready" for TDD.</p>' +
-      '<h4>How to set one up</h4><ol><li>Open your repository on GitHub and choose <strong>Projects</strong>, then <strong>New project</strong>.</li><li>Pick the <strong>Board</strong> template.</li><li>Rename the Status columns to match the five above.</li><li>Choose <strong>Add item</strong> and search for an issue, or press <kbd>+</kbd> in a column to create one.</li></ol>' +
-      '<p>Use {label}s such as <code>tdd</code>, <code>bug</code> and <code>feature</code> to filter the board.</p>' },
-    { title: 'Copy the issue template', type: 'read', html:
-      '<p>Use this body whenever you create a new issue. It forces you to write acceptance criteria <em>before</em> any code.</p>' +
-      C('## User story\nAs a [who], I want [what], so that [why].\n\n## Acceptance criteria\n- [ ] Criterion one (becomes a test)\n- [ ] Criterion two (becomes a test)\n- [ ] Criterion three (becomes a test)\n\n## Notes\nEdge cases to remember: zero, empty, boundaries.', { title: 'Issue body (Markdown)', lang: 'text', copy: true }) +
-      '<p class="callout">This repository already includes it as an issue form in <code>.github/ISSUE_TEMPLATE</code>. If you copy or fork the repository, the same form appears when you press <strong>New issue</strong>.</p>' },
-    { id: 'plan-issue-sim', isNew: true, title: 'Showcase: create the issue', type: 'showcase', demo: 'issue',
-      intro: '<p>Practise on a safe copy of GitHub\'s <strong>New issue</strong> page. Fill it in for a password strength checker (or any idea you like). Replace the example criteria with your own, then press <strong>Submit new issue</strong>.</p>' },
-    { id: 'plan-board-sim', isNew: true, title: 'Showcase: move the card across the board', type: 'showcase', demo: 'board',
-      intro: '<p>Your issue is now a card on a {project} board. Move it from <strong>Backlog</strong> to <strong>Done</strong>. Each column has a rule that must be met first, just like a real team\'s "definition of done". The buttons work with a keyboard, so no dragging is needed.</p>' },
-    { title: 'Try it in your own repository', type: 'checklist',
-      intro: '<p>Do these on GitHub, then tick each box. These are honour-based, so be honest: the next module builds on them.</p>',
-      items: ['I have a repository to practise in (a new empty one is fine).', 'I created a Project using the Board template.', 'I created an issue with a user story and at least three acceptance criteria as a checklist.', 'I added the issue to my Project and moved it to Ready.'] }
-  ] },
-
-/* ---------------- 8 ---------------- */
-{ id: 'ship', title: 'Branch, commit, review, merge', time: 15,
-  goal: 'Work on an issue in a branch, record Red, Green, Refactor in your commits, and merge through a pull request that runs your tests.',
-  steps: [
-    { title: 'One issue, one branch', type: 'read', html:
-      '<p>Never build on the {main}. Create a {branch} for each issue. Put the issue number in the name so it is easy to link back:</p>' +
-      C('12-password-checker', { title: 'Branch name', lang: 'text' }) +
-      '<p>The easy way: open the issue on GitHub, find <strong>Development</strong> in the right-hand sidebar and choose <strong>Create a branch</strong>. GitHub links the branch to the issue for you.</p>' },
-    { title: 'Commits tell the Red, Green, Refactor story', type: 'read', html:
-      '<p>A {commit} is a saved snapshot. Make a small one at the end of each step of the loop. Run your tests before every commit.</p>' +
-      C('test: add failing test for password under 8 characters   (Red)\nfeat: reject passwords shorter than 8 characters            (Green)\nrefactor: extract MIN_LENGTH constant                       (Refactor)', { title: 'Commit messages', lang: 'text', copy: true }) +
-      '<p>Anyone reading your history can see that you wrote the test first. It is also easy to undo one small commit if something goes wrong.</p>' },
-    { title: 'Check: which commit?', type: 'quiz',
-      q: 'You just made a new test pass and all tests are green. Which commit message fits best?',
-      opts: [
-        { t: 'stuff', why: 'Messages should say what changed. "stuff" helps nobody.' },
-        { t: 'test: add failing test for empty password', why: 'That describes a Red step. Your test is already passing now.' },
-        { t: 'feat: reject empty passwords', why: 'Correct. It describes the behaviour you just added (Green).' },
-        { t: 'fixed it', why: 'Say what you fixed. Future you will not remember.' }
-      ], correct: 2 },
-    { title: 'Open a pull request that closes the issue', type: 'read', html:
-      '<p>When the work is done, push your branch and open a {pr}. Link the issue in the description:</p>' +
-      C('## What changed\nAdds isStrongPassword with tests.\n\n## How I tested\n- [x] Wrote the failing tests first\n- [x] All tests pass\n- [x] Refactored with tests green\n\nCloses #12', { title: 'Pull request description (Markdown)', lang: 'text', copy: true }) +
-      '<p>The words <code>Closes #12</code> are special. When the pull request is merged, GitHub <strong>closes issue 12 automatically</strong> and the card on your Project moves to Done.</p>' +
-      '<p>This repository includes this as a pull request template in <code>.github</code>.</p>' },
-    { title: 'Let GitHub run your tests', type: 'read', html:
-      '<p>{ci} runs your tests on every push so nobody has to remember to. On GitHub it is called <strong>GitHub Actions</strong>. Save this file in your repository as <code>.github/workflows/tests.yml</code> (this example is for a Node project that has an <code>npm test</code> script):</p>' +
-      C('name: Tests\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 22\n      - run: npm ci\n      - run: npm test', { title: '.github/workflows/tests.yml', lang: 'text', copy: true }) +
-      '<p>You will see a green tick or a red cross on every pull request. In <strong>Settings, Branches</strong> you can require that check to pass before anything is merged into main.</p>' },
-    { id: 'ship-pr-sim', isNew: true, title: 'Showcase: a pull request with live checks', type: 'showcase', demo: 'pr',
-      intro: '<p>This is a simulated {pr}. The checks run <strong>real tests</strong> on each commit. Start with the Red commit, watch the check fail and block the merge, then push the next commits and merge once it turns green.</p>' },
-    { title: 'Check: what does it do?', type: 'quiz',
-      q: 'You write "Closes #12" in a pull request description. What happens when the pull request is merged?',
-      opts: [
-        { t: 'Nothing. It is just a comment.', why: 'GitHub reads those words and acts on them.' },
-        { t: 'Issue 12 is closed automatically.', why: 'Correct. The issue closes and any linked Project card moves to Done.' },
-        { t: 'The branch is renamed to 12.', why: 'Branch names are not changed by this.' },
-        { t: 'The tests are skipped.', why: 'It has no effect on tests. Your Actions workflow still runs them.' }
-      ], correct: 1 },
-    { title: 'Try it in your own repository', type: 'checklist',
-      intro: '<p>Use the issue from the last module. Tick each box when it is done on GitHub.</p>',
-      items: ['I created a branch from my issue (the name includes the issue number).', 'I made at least three commits: one Red, one Green and one Refactor.', 'I opened a pull request with "Closes #" and the issue number.', 'I merged the pull request and saw the issue close and the card move to Done.'] }
-  ] },
-
-/* ---------------- 9 ---------------- */
-{ id: 'final', title: 'Final challenge: password checker', time: 20,
-  goal: 'Put it all together: start from an issue, write tests first, make them pass, and be ready to ship.',
-  steps: [
-    { title: 'The issue', type: 'read', html:
-      '<p>A teammate has put this issue in <strong>Ready</strong> on your board. You will do the work in two parts, just like a real lap of TDD.</p>' +
-      '<div class="gh"><div class="gh-h"><span>Password strength checker</span><span class="open">Ready</span></div><div class="gh-b">' +
-      '<p><span class="lab">tdd</span><span class="lab">feature</span></p>' +
-      '<p><strong>User story:</strong> As a new user, I want to know if my password is strong, so that my account is safe.</p>' +
-      '<p><strong>Acceptance criteria</strong></p><ul><li>&#9744; Returns true only if the password has at least 8 characters</li><li>&#9744; and at least one number</li><li>&#9744; and at least one capital letter</li><li>&#9744; Returns false for anything that is not text</li></ul></div></div>' +
-      '<ol><li><strong>Part 1, {red}:</strong> write your own tests from the criteria.</li><li><strong>Part 2, {green}:</strong> make your team\'s tests pass.</li></ol>' },
-    { title: 'Part 1: write the tests (Red)', type: 'task', kind: 'write-test', fn: 'isStrongPassword', minTests: 6,
-      brief: '<p>Turn the acceptance criteria into at least <strong>6 tests</strong>. Remember the boundary at 8 characters, a password with no number, and a password with no capital letter. The checker plants bugs in hidden versions of the function, and your tests must catch every one.</p>',
-      stub: 'function isStrongPassword(pw) {\n  return false;\n}',
-      starter: '// One test per acceptance criterion, plus edge cases.\n// Strong example: \'Sunny2day\'\n',
-      reference: 'function isStrongPassword(pw) {\n  return typeof pw === \'string\' && pw.length >= 8 && /[0-9]/.test(pw) && /[A-Z]/.test(pw);\n}',
-      mutants: ['function isStrongPassword(pw) { return pw.length >= 7 && /[0-9]/.test(pw) && /[A-Z]/.test(pw); }',
-                'function isStrongPassword(pw) { return pw.length > 8 && /[0-9]/.test(pw) && /[A-Z]/.test(pw); }',
-                'function isStrongPassword(pw) { return pw.length >= 8 && /[A-Z]/.test(pw); }',
-                'function isStrongPassword(pw) { return pw.length >= 8 && /[0-9]/.test(pw); }'],
-      hints: ['Write one test that should return true, such as Sunny2day.', 'Then one test that breaks each rule on its own: too short, no number, no capital.', 'Add boundary tests: exactly 8 characters (should pass) and 7 characters (should fail), both with a number and a capital.'] },
-    { title: 'Part 2: make the tests pass (Green)', type: 'task', kind: 'fix',
-      brief: '<p>Your teammate wrote these tests from the same issue. The function is a {stub} that always returns false. Write <code>isStrongPassword</code> so every test passes. Run often, and fix one failure at a time.</p>',
-      stub: 'function isStrongPassword(pw) {\n  return false;\n}',
-      tests: 'test(\'accepts a long password with a number and a capital\', () => {\n  expect(isStrongPassword(\'Sunny2day\')).toBe(true);\n});\n\ntest(\'accepts exactly 8 characters\', () => {\n  expect(isStrongPassword(\'Abcdef12\')).toBe(true);\n});\n\ntest(\'rejects 7 characters\', () => {\n  expect(isStrongPassword(\'Abcde12\')).toBe(false);\n});\n\ntest(\'rejects a password with no number\', () => {\n  expect(isStrongPassword(\'Sunnyyday\')).toBe(false);\n});\n\ntest(\'rejects a password with no capital letter\', () => {\n  expect(isStrongPassword(\'sunny2day\')).toBe(false);\n});\n\ntest(\'rejects an empty string\', () => {\n  expect(isStrongPassword(\'\')).toBe(false);\n});\n\ntest(\'rejects something that is not text\', () => {\n  expect(isStrongPassword(null)).toBe(false);\n  expect(isStrongPassword(12345678)).toBe(false);\n});',
-      hints: ['Check one rule at a time. Start by returning pw.length >= 8.', 'Test for a number with /[0-9]/.test(pw) and for a capital with /[A-Z]/.test(pw).', 'First check typeof pw === \'string\', then join the checks with &&. That also handles null and numbers without crashing.'] },
-    { title: 'Ready to ship', type: 'checklist',
-      intro: '<p>Final step. Before you would merge this in a real project, you check the whole loop. Be honest with each one.</p>',
-      items: ['I wrote the tests before the code and saw them fail.', 'I wrote only enough code to make them pass.', 'I could refactor the code and the tests would tell me if I broke it.', 'I know how to link my work to an issue and a Project board with a branch and pull request.'] }
-  ] }
-];
-
-/* Fill in glossary tags like {red}. Steps added later carry their own id, so
-   saved progress from earlier versions of the course still lines up. */
-var TOTAL = 0;
-(function prepare() {
-  function fill(s) {
-    return typeof s === 'string' ? s.replace(/\{(\w+)\}/g, function (m, k) { return GLOSSARY[k] ? T(k) : m; }) : s;
-  }
+function fillTokens(str) {
+  return typeof str === 'string' ? str.replace(/\{(\w+)\}/g, function (m, k) { return GLOSSARY[k] ? T(k) : m; }) : str;
+}
+function initCourse(trackId) {
+  TRACK = TDD_COURSE.tracks[trackId];
+  COPY.length = 0;
+  COURSE = TDD_COURSE.build(trackId, C);
+  MODULES = COURSE.modules; X = COURSE.X;
+  TOTAL = 0; ALL = [];
   MODULES.forEach(function (m, mi) {
-    var legacy = 0;
-    m.goal = fill(m.goal.replace('{TDD}', '{tdd}'));
-    m.steps.forEach(function (s, si) {
-      s.g = TOTAL++; s.mi = mi; s.si = si;
-      if (!s.isNew) { s.id = m.id + '-' + legacy; legacy++; LEGACY.push(s.id); }
-      ALL.push(s);
-      ['html', 'intro', 'brief'].forEach(function (k) { if (s[k]) s[k] = fill(s[k].replace(/\{TDD\}/g, '{tdd}')); });
+    m.goal = fillTokens(m.goal.replace('{TDD}', '{tdd}'));
+    m.steps.forEach(function (st, si) {
+      st.g = TOTAL++; st.mi = mi; st.si = si; st.id = m.id + '-' + si;
+      ALL.push(st);
+      ['html', 'intro', 'brief'].forEach(function (k) { if (st[k]) st[k] = fillTokens(st[k].replace(/\{TDD\}/g, '{tdd}')); });
     });
   });
-  resolveProgress();
-})();
+  state = loadState(trackId); resolveProgress();
+}
+function countSteps(trackId) {
+  var n = 0; TDD_COURSE.build(trackId, function () { return ''; }).modules.forEach(function (m) { n += m.steps.length; });
+  return n;
+}
 
 /* =====================================================================
    4. Test runner: runs in a Web Worker so a bad loop can be stopped
    ===================================================================== */
-var WORKER_SRC = '(' + function () {
-  self.onmessage = function (ev) {
-    var code = ev.data.code, tests = ev.data.tests, queue = [], prefix = [];
-    function fmt(v) { if (typeof v === 'string') return '"' + v + '"'; if (v === undefined) return 'undefined'; try { var j = JSON.stringify(v); return j === undefined ? String(v) : j; } catch (e) { return String(v); } }
-    function deq(a, b) {
-      if (Object.is(a, b)) return true;
-      if (typeof a !== 'object' || typeof b !== 'object' || !a || !b) return false;
-      if (Array.isArray(a) !== Array.isArray(b)) return false;
-      var ka = Object.keys(a), kb = Object.keys(b);
-      if (ka.length !== kb.length) return false;
-      return ka.every(function (k) { return deq(a[k], b[k]); });
-    }
-    function describe(n, fn) { prefix.push(n); try { fn(); } finally { prefix.pop(); } }
-    function test(n, fn) { queue.push({ name: prefix.concat(n).join(' > '), fn: fn }); }
-    function make(a, neg) {
-      function chk(ok, msg, nmsg) { if (neg ? ok : !ok) throw new Error(neg ? nmsg : msg); }
-      return {
-        toBe: function (b) { chk(Object.is(a, b), 'Expected ' + fmt(b) + ' but got ' + fmt(a), 'Expected not to get ' + fmt(b)); },
-        toEqual: function (b) { chk(deq(a, b), 'Expected ' + fmt(b) + ' but got ' + fmt(a), 'Expected not to equal ' + fmt(b)); },
-        toBeTruthy: function () { chk(!!a, 'Expected a truthy value but got ' + fmt(a), 'Expected a falsy value'); },
-        toBeFalsy: function () { chk(!a, 'Expected a falsy value but got ' + fmt(a), 'Expected a truthy value'); },
-        toContain: function (b) { chk(a != null && a.indexOf && a.indexOf(b) !== -1, 'Expected ' + fmt(a) + ' to contain ' + fmt(b), 'Expected ' + fmt(a) + ' not to contain ' + fmt(b)); },
-        toHaveLength: function (n) { chk(a != null && a.length === n, 'Expected length ' + n + ' but got ' + (a == null ? 'none' : a.length), 'Expected length not to be ' + n); },
-        toBeGreaterThan: function (b) { chk(a > b, 'Expected ' + fmt(a) + ' to be greater than ' + fmt(b), 'Expected ' + fmt(a) + ' not to be greater than ' + fmt(b)); },
-        toBeLessThan: function (b) { chk(a < b, 'Expected ' + fmt(a) + ' to be less than ' + fmt(b), 'Expected ' + fmt(a) + ' not to be less than ' + fmt(b)); },
-        toBeCloseTo: function (b, d) { var p = d === undefined ? 2 : d; chk(Math.abs(a - b) < Math.pow(10, -p) / 2, 'Expected ' + fmt(a) + ' to be close to ' + fmt(b), 'Expected ' + fmt(a) + ' not to be close to ' + fmt(b)); },
-        toThrow: function () { var threw = false; try { a(); } catch (e) { threw = true; } chk(threw, 'Expected the function to throw an error', 'Expected the function not to throw'); }
-      };
-    }
-    function expect(a) { var m = make(a, false); m.not = make(a, true); return m; }
-    try { new Function('test', 'it', 'describe', 'expect', code + '\n;\n' + tests)(test, test, describe, expect); }
-    catch (err) { postMessage({ fatal: String(err && err.message || err), results: [] }); return; }
-    var results = queue.map(function (q) {
-      try { q.fn(); return { name: q.name, pass: true }; }
-      catch (e) { return { name: q.name, pass: false, message: String(e && e.message || e) }; }
-    });
-    postMessage({ results: results });
-  };
-} + ')()';
+var WORKER_SRC = 'self.onmessage=function(e){var d=e.data;postMessage((' + TDD_LANG.execute.toString() + ')(d.lang,d.code,d.tests));};';
 var workerURL = null;
-function runTests(code, tests) {
+/* codeSrc and testsSrc are Dart or C# text. "mine" says which one the learner wrote,
+   so a syntax problem is blamed on the right file. */
+function runTests(codeSrc, testsSrc, mine) {
   return new Promise(function (resolve) {
+    var js = {};
+    try { js.code = TDD_LANG.compile(TRACK.lang, codeSrc); }
+    catch (e) { if (e.name !== 'CompileError') throw e; resolve({ fatal: (mine === 'tests' ? 'This is not your tests. ' : '') + 'Syntax problem in the code, line ' + e.line + ': ' + e.message, compile: true, results: [] }); return; }
+    try { js.tests = TDD_LANG.compile(TRACK.lang, testsSrc); }
+    catch (e) { if (e.name !== 'CompileError') throw e; resolve({ fatal: 'Syntax problem in ' + (mine === 'tests' ? 'your tests' : 'the tests') + ', line ' + e.line + ': ' + e.message, compile: true, results: [] }); return; }
     var w, timer;
     try {
       if (!workerURL) workerURL = URL.createObjectURL(new Blob([WORKER_SRC], { type: 'text/javascript' }));
@@ -853,7 +520,7 @@ function runTests(code, tests) {
     timer = setTimeout(function () { w.terminate(); resolve({ fatal: 'Your code ran for more than 3 seconds and was stopped. Check for a loop that never ends.', results: [] }); }, 3000);
     w.onmessage = function (e) { clearTimeout(timer); w.terminate(); resolve(e.data); };
     w.onerror = function (e) { clearTimeout(timer); w.terminate(); resolve({ fatal: e.message || 'Something went wrong while running the code.', results: [] }); };
-    w.postMessage({ code: code, tests: tests });
+    w.postMessage({ lang: TRACK.lang, code: js.code, tests: js.tests });
   });
 }
 function allPass(run) { return !run.fatal && run.results.length > 0 && run.results.every(function (r) { return r.pass; }); }
@@ -874,6 +541,7 @@ function stepsDoneIn(mi) { var m = MODULES[mi]; return Math.max(0, Math.min(m.st
 
 /* ---------- header and sidebar ---------- */
 function updateProgress() {
+  if (!TRACK) { $('#progtext').textContent = 'Choose a track to begin'; return; }
   var pct = Math.round((state.n / TOTAL) * 100);
   $('#bar').setAttribute('aria-valuenow', pct);
   $('#bar').setAttribute('aria-valuetext', pct + ' percent, ' + state.n + ' of ' + TOTAL + ' steps');
@@ -992,7 +660,7 @@ function renderTests(box, run) {
   run.results.forEach(function (r) {
     html += '<li class="' + (r.pass ? 'pass' : 'fail') + '"><span class="badge">' + (r.pass ? '&#10003; Pass' : '&#10007; Fail') + '</span><span>' + esc(r.name) + '</span>' + (r.pass ? '' : '<span class="msg">' + esc(r.message) + '</span>') + '</li>';
   });
-  box.innerHTML = html + '</ul>';
+  box.innerHTML = html + '</ul>' + (run.logs && run.logs.length ? '<p class="hint-text" style="margin-top:.6rem">Console output:</p><pre class="code" style="border-radius:6px"><code>' + esc(run.logs.join('\n')) + '</code></pre>' : '');
 }
 function renderChecks(box, checks) {
   var ok = checks.filter(function (c) { return c.ok; }).length;
@@ -1003,7 +671,9 @@ function renderChecks(box, checks) {
 
 /* ---------- demo ---------- */
 function bDemo(s, getCard) {
-  var w = el('<div>' + s.intro + C(s.code, { title: 'Code' }) + C(s.tests, { title: 'Tests' }) +
+  var lang = TRACK.lang;
+  if (s.sim) return bSimDemo(s, getCard);
+  var w = el('<div>' + s.intro + C(s.code, { title: 'Code', lang: lang }) + C(s.tests, { title: 'Tests', lang: lang }) +
     '<div class="actions"><button type="button" class="btn">Run tests</button></div><div class="results" aria-live="polite"></div></div>');
   var btn = $('.btn', w), box = $('.results', w), busy = false;
   btn.addEventListener('click', function () {
@@ -1017,6 +687,20 @@ function bDemo(s, getCard) {
       }
     });
   });
+  return w;
+}
+/* A scripted demo for things the browser cannot run (widgets, scenes). */
+function bSimDemo(s, getCard) {
+  var lang = TRACK.lang;
+  var w = el('<div>' + s.intro + C(s.code, { title: 'Code (shown, not run)', lang: lang }) + C(s.tests, { title: (s.testsTitle || 'Test') + ' (shown, not run)', lang: lang }) +
+    '<div class="actions"><button type="button" class="btn">Show output</button></div><div class="out" aria-live="polite"></div></div>');
+  var btn = $('.btn', w), out = $('.out', w);
+  function show() {
+    out.innerHTML = '<div class="codebox"><div class="cap"><span>Simulated output</span></div><pre class="code term" tabindex="0" aria-label="Simulated test output"><code>' + esc(s.output) + '</code></pre></div>' +
+      '<p class="callout"><strong>That is Red.</strong> This is a simulation of what the tool prints on your own machine. Read the message: it says what was expected and what was found.</p>';
+  }
+  if (s.g < state.n) show();
+  btn.addEventListener('click', function () { show(); if (s.g >= state.n) completeStep(s, getCard()); });
   return w;
 }
 
@@ -1067,9 +751,9 @@ function bTask(s, getCard) {
   var value = typeof saved === 'string' ? saved : initial;
   var rows = Math.max(8, Math.min(20, value.split('\n').length + 2));
   var html = s.brief;
-  if (write) html += C(s.stub, { title: 'Unfinished code (read-only)' });
-  else html += C(s.tests, { title: 'Tests (read-only)' });
-  html += '<label class="lbl" for="ta-' + s.id + '">' + (write ? 'Your tests' : s.kind === 'refactor' ? 'Your refactored code' : 'Your code') + '</label>' +
+  if (write) html += C(s.stub, { title: 'Unfinished code (read-only)', lang: TRACK.lang });
+  else html += C(s.tests, { title: 'Tests (read-only)', lang: TRACK.lang });
+  html += '<label class="lbl" for="ta-' + s.id + '">' + (write ? 'Your tests' : s.kind === 'refactor' ? 'Your refactored code' : 'Your code') + ' (' + (TRACK.lang === 'dart' ? 'Dart' : 'C#') + ')</label>' +
     '<p class="hint-text">Press Ctrl+Enter (or Cmd+Enter) to run. Press Tab to move on, so type spaces to indent.</p>' +
     '<textarea class="editor" id="ta-' + s.id + '" rows="' + rows + '" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>' +
     '<div class="actions"><button type="button" class="btn" data-run>' + (write ? 'Check my tests' : 'Run tests') + '</button>' +
@@ -1095,33 +779,35 @@ function bTask(s, getCard) {
     try {
       if (write) {
         var checks = [];
-        var onStub = await runTests(s.stub, code);
+        var onStub = await runTests(s.stub, code, 'tests');
         if (onStub.fatal) { renderTests(box, onStub); return; }
         var n = onStub.results.length;
         checks.push({ ok: n >= s.minTests, text: 'You wrote at least ' + s.minTests + ' tests.', detail: n >= s.minTests ? '' : 'You have ' + n + '. Add ' + (s.minTests - n) + ' more.' });
         var red = onStub.results.some(function (r) { return !r.pass; });
         checks.push({ ok: red, text: 'Red: at least one of your tests fails against the unfinished code.', detail: red ? '' : 'Every test passes on the unfinished code, so none of them can prove anything yet.' });
-        var onRef = await runTests(s.reference, code);
+        var onRef = await runTests(s.reference, code, 'tests');
         var refOK = allPass(onRef);
         var bad = (onRef.results || []).filter(function (r) { return !r.pass; })[0];
         checks.push({ ok: refOK, text: 'All your tests pass against a correct version, so they check the right behaviour.', detail: refOK ? '' : onRef.fatal ? onRef.fatal : bad ? '"' + bad.name + '" failed on correct code: ' + bad.message : 'No tests found.' });
         if (s.mutants && n > 0) {
           var caught = 0;
-          for (var i = 0; i < s.mutants.length; i++) { var mr = await runTests(s.mutants[i], code); if (anyFail(mr)) caught++; }
+          for (var i = 0; i < s.mutants.length; i++) { var mr = await runTests(s.mutants[i], code, 'tests'); if (anyFail(mr)) caught++; }
           checks.push({ ok: caught === s.mutants.length, text: 'Your tests catch the planted bugs (' + caught + ' of ' + s.mutants.length + ').', detail: caught === s.mutants.length ? '' : 'A hidden buggy version slipped through. Think about edge cases and boundaries.' });
         }
         renderChecks(box, checks);
         ok = checks.every(function (c) { return c.ok; });
       } else {
-        var r = await runTests(code, s.tests);
+        var r = await runTests(code, s.tests, 'code');
         renderTests(box, r);
         ok = allPass(r);
         if (ok && s.kind === 'refactor') {
           var norm = function (x) { return x.replace(/\s+/g, ''); };
           var stripped = code.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
-          var ifs = (stripped.match(/\bif\b/g) || []).length;
+          var repeated = (s.magic || []).filter(function (n) { return (stripped.match(new RegExp('\\b' + n + '\\b', 'g')) || []).length > 1; });
+          var named = /\b(const|final|readonly)\b/.test(stripped);
           if (norm(code) === norm(s.stub)) { ok = false; box.insertAdjacentHTML('beforeend', '<p class="feedback bad"><strong class="bad">The tests pass, but the code has not changed.</strong> Refactor it, then run again.</p>'); }
-          else if (ifs > s.maxIf) { ok = false; box.insertAdjacentHTML('beforeend', '<p class="feedback bad"><strong class="bad">The tests pass, but there are still ' + ifs + ' if statements.</strong> Aim for ' + s.maxIf + ' or fewer.</p>'); }
+          else if (!named) { ok = false; box.insertAdjacentHTML('beforeend', '<p class="feedback bad"><strong class="bad">The tests pass, but there is no named constant yet.</strong> Declare one with <code>const</code> for each magic number.</p>'); }
+          else if (repeated.length) { ok = false; box.insertAdjacentHTML('beforeend', '<p class="feedback bad"><strong class="bad">The tests pass, but ' + repeated.join(' and ') + ' still appear' + (repeated.length > 1 ? '' : 's') + ' more than once.</strong> Use the constant\'s name everywhere except where you declare it.</p>'); }
         }
       }
     } finally { busy = false; run.removeAttribute('aria-disabled'); }
@@ -1153,11 +839,11 @@ function parseCriteria(text) {
   return text.split('\n').map(function (l) { var m = l.match(/^\s*-\s*\[\s?\]\s*(.+?)\s*$/); return m ? m[1] : null; }).filter(Boolean);
 }
 function simIssue(s, done, finish) {
-  var f = simFrame('New issue');
+  var SI = X.simIssue, f = simFrame('New issue');
   f.body.innerHTML =
     '<form novalidate>' +
-    '<div class="field"><label for="si-title">Title</label><input class="text" id="si-title" type="text" autocomplete="off" placeholder="Password strength checker"></div>' +
-    '<div class="field"><label for="si-story">User story</label><textarea class="text" id="si-story" rows="2" placeholder="As a new user, I want to know if my password is strong, so that my account is safe."></textarea></div>' +
+    '<div class="field"><label for="si-title">Title</label><input class="text" id="si-title" type="text" autocomplete="off" placeholder="' + esc(SI.ph) + '"></div>' +
+    '<div class="field"><label for="si-story">User story</label><textarea class="text" id="si-story" rows="2" placeholder="' + esc(SI.story) + '"></textarea></div>' +
     '<div class="field"><label for="si-crit">Acceptance criteria</label><textarea class="text" id="si-crit" rows="5">- [ ] Criterion one (becomes a test)\n- [ ] Criterion two (becomes a test)\n- [ ] Criterion three (becomes a test)</textarea></div>' +
     '<fieldset class="field"><legend class="fl">Labels</legend><label class="chipcheck"><input type="checkbox" checked> tdd</label><label class="chipcheck"><input type="checkbox"> feature</label><label class="chipcheck"><input type="checkbox"> bug</label></fieldset>' +
     '<button type="submit" class="btn">Submit new issue</button></form>' +
@@ -1178,7 +864,7 @@ function simIssue(s, done, finish) {
     out.innerHTML = '<h4>Issue created</h4><div class="gh"><div class="gh-h">' + ICON.issue + '<span>' + esc(title) + '</span><span class="num">#12</span><span class="state">Open</span></div><div class="gh-b">' +
       '<p>' + labels.map(function (l) { return '<span class="lab">' + esc(l) + '</span>'; }).join('') + '</p><p><strong>User story:</strong> ' + esc(story) + '</p><p><strong>Acceptance criteria</strong></p><ul>' +
       crit.map(function (c) { return '<li>&#9744; ' + esc(c) + '</li>'; }).join('') + '</ul></div></div>' +
-      '<h4>Your criteria give you these tests</h4>' + C(crit.map(function (c) { return "test('" + c.replace(/'/g, '') + "', () => { /* ... */ });"; }).join('\n'), { title: 'Starter tests, one per criterion' });
+      '<h4>Your criteria give you these tests</h4>' + C(crit.map(SI.mkTest).join('\n\n'), { title: SI.startersTitle, lang: SI.lang });
     say('Issue created. Your criteria have been turned into starter tests.');
     if (!done) finish();
   });
@@ -1203,10 +889,10 @@ function simBoard(s, done, finish) {
     []
   ];
   var col = done ? 4 : 0;
-  var f = simFrame('Project board: Password strength checker');
+  var f = simFrame('Project board: ' + X.P.title);
   function draw(refocus) {
     var h = '<ol class="kanban" aria-label="Board columns">';
-    COLS.forEach(function (c, i) { h += '<li class="kcol' + (i === col ? ' is-here' : '') + '"><h4>' + c + (i === col ? ' <span class="sr-only">(card is here)</span>' : '') + '</h4>' + (i === col ? '<div class="kcard">' + ICON.issue + ' #12 Password checker</div>' : '') + '</li>'; });
+    COLS.forEach(function (c, i) { h += '<li class="kcol' + (i === col ? ' is-here' : '') + '"><h4>' + c + (i === col ? ' <span class="sr-only">(card is here)</span>' : '') + '</h4>' + (i === col ? '<div class="kcard">' + ICON.issue + ' ' + esc(X.P.card) + '</div>' : '') + '</li>'; });
     h += '</ol>';
     if (col < 4) {
       h += '<div class="callout"><p><strong>' + COLS[col] + ':</strong> ' + NOTE[col] + '</p><fieldset><legend class="sr-only">Before moving on, confirm each item</legend>';
@@ -1227,13 +913,8 @@ function simBoard(s, done, finish) {
 }
 
 /* ---- Pull request with real checks ---- */
-var PR_TESTS = "test('accepts a strong password', () => {\n  expect(isStrongPassword('Sunny2day')).toBe(true);\n});\n\ntest('rejects a short password', () => {\n  expect(isStrongPassword('Ab1')).toBe(false);\n});";
-var PR_COMMITS = [
-  { msg: 'test: add failing tests for password strength', tag: 'Red', cls: 'red', code: 'function isStrongPassword(pw) {\n  return false;\n}' },
-  { msg: 'feat: accept passwords with 8+ characters and a number', tag: 'Green', cls: 'green', code: 'function isStrongPassword(pw) {\n  return pw.length >= 8 && /[0-9]/.test(pw);\n}' },
-  { msg: 'refactor: name the minimum length', tag: 'Refactor', cls: 'blue', code: 'const MIN_LENGTH = 8;\n\nfunction isStrongPassword(pw) {\n  return pw.length >= MIN_LENGTH && /[0-9]/.test(pw);\n}' }
-];
 function simPR(s, done, finish) {
+  var PR_COMMITS = X.prCommits, PR_TESTS = X.prTests;
   var head = done ? 2 : 0, merged = done, run = null, busy = false;
   var f = simFrame('Pull request');
   function check(i) {
@@ -1242,9 +923,9 @@ function simPR(s, done, finish) {
   }
   function draw() {
     var c = PR_COMMITS[head], ok = run && run !== 'running' && allPass(run), h = '';
-    h += '<h3 class="pr-title">Add password strength checker <span class="num">#13</span></h3><p class="pr-meta"><span class="state ' + (merged ? 'merged' : '') + '">' + ICON.pr + (merged ? 'Merged' : 'Open') + '</span><span>Branch <code>12-password-checker</code> into <code>main</code>. The description says <code>Closes #12</code>.</span></p>';
+    h += '<h3 class="pr-title">' + esc(X.prTitle) + ' <span class="num">#13</span></h3><p class="pr-meta"><span class="state ' + (merged ? 'merged' : '') + '">' + ICON.pr + (merged ? 'Merged' : 'Open') + '</span><span>Branch <code>' + esc(X.P.branch) + '</code> into <code>main</code>. The description says <code>Closes #12</code>.</span></p>';
     h += '<h4>Commits (' + (head + 1) + ')</h4><ol class="commits">' + PR_COMMITS.slice(0, head + 1).map(function (x) { return '<li><span class="tag ' + x.cls + '">' + x.tag + '</span><span>' + esc(x.msg) + '</span></li>'; }).join('') + '</ol>';
-    h += C(c.code, { title: 'isStrongPassword.js at this commit' });
+    h += C(c.code, { title: X.prFile + ' at this commit', lang: TRACK.lang });
     h += '<div class="checks"><div class="checks-h ' + (run === null || run === 'running' ? '' : ok ? 'ok' : 'bad') + '">' + (run === null ? 'Checks have not run yet' : run === 'running' ? 'Checks are running&hellip;' : ok ? ICON.check + ' All checks have passed' : ICON.x + ' Some checks were not successful') + '</div><div class="checks-b results" id="pr-res" aria-live="polite"></div></div>';
     if (merged) h += '<div class="feedback ok"><strong class="ok">&#10003; Pull request merged.</strong> Because the description says <code>Closes #12</code>, GitHub closed the issue <span class="state closed">' + ICON.issue + 'Closed</span> and moved its card to Done. Your tests were the gate that got it here.</div>';
     else h += '<div class="merge-box ' + (ok ? 'ready' : 'blocked') + '"><p>' + (ok ? '<strong class="result-ok">This branch has no conflicts and all required checks passed.</strong>' : '<strong class="result-bad">Merging is blocked.</strong> The required check <code>Tests</code> has not passed.') + '</p><div class="actions" style="margin-top:0"><button type="button" class="btn" data-merge' + (ok ? '' : ' aria-disabled="true"') + '>Merge pull request</button>' + (head < 2 ? '<button type="button" class="btn sec" data-push' + (busy ? ' aria-disabled="true"' : '') + '>Push next commit (' + PR_COMMITS[head + 1].tag + ')</button>' : '') + '</div></div>';
@@ -1301,23 +982,53 @@ function fallbackCopy(text) { var t = document.createElement('textarea'); t.valu
 /* Theme: follows the device until the learner picks one. */
 function systemDark() { return window.matchMedia('(prefers-color-scheme: dark)').matches; }
 function currentTheme() { return document.documentElement.dataset.theme || (systemDark() ? 'dark' : 'light'); }
-function themeButton() {
-  var dark = currentTheme() === 'dark';
-  $('#tools').innerHTML = UITIP(dark ? 'Light mode' : 'Dark mode', dark ? 'Switch to a light background.' : 'Switch to a dark background.', '', 'id="themebtn" aria-pressed="' + dark + '"');
+function renderTools() {
+  var dark = currentTheme() === 'dark', h = '';
+  if (TRACK) h += UITIP('Track: ' + TRACK.short, 'Switch between Flutter and Unity. Each track keeps its own progress.', '', 'id="trackbtn"');
+  h += UITIP(dark ? 'Light mode' : 'Dark mode', dark ? 'Switch to a light background.' : 'Switch to a dark background.', '', 'id="themebtn" aria-pressed="' + dark + '"');
+  $('#tools').innerHTML = h;
   $('#themebtn').addEventListener('click', function () {
     var next = currentTheme() === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem('tdd-theme', next); } catch (e) {}
-    themeButton(); $('#themebtn').focus(); say(next === 'dark' ? 'Dark mode on' : 'Light mode on');
+    renderTools(); $('#themebtn').focus(); say(next === 'dark' ? 'Dark mode on' : 'Light mode on');
   });
+  var tb = $('#trackbtn'); if (tb) tb.addEventListener('click', function () { showTrackPicker(); });
+}
+
+/* ---------- track picker ---------- */
+function showTrackPicker() {
+  var main = $('#main'); main.innerHTML = '';
+  document.body.classList.add('picking');
+  var h = '<div class="mod-head"><p class="kicker">Step 0</p><h2 id="modtitle" tabindex="-1">Choose your track</h2><p class="goal">Pick the one that matches what you are building. The ideas are the same, but the code, tests and tools use your language. Each track keeps its own progress, and you can come back and switch at any time.</p></div><ul class="tracks">';
+  Object.keys(TDD_COURSE.tracks).forEach(function (id) {
+    var t = TDD_COURSE.tracks[id], total = countSteps(id), done = loadState(id).doneIds.length;
+    var current = TRACK && TRACK.id === id;
+    h += '<li><button type="button" class="trackbtn" data-track="' + id + '"' + (current ? ' aria-current="true"' : '') + '><span class="tglyph" aria-hidden="true">' + t.icon + '</span><span><strong>' + t.name + '</strong><span class="tdesc">' + t.blurb + '</span><span class="tmeta">' + (done ? Math.min(done, total) + ' of ' + total + ' steps done' : 'Not started') + (current ? ' &middot; current track' : '') + '</span></span></button></li>';
+  });
+  main.innerHTML = h + '</ul><p class="storage-note">Tip: the in-browser checker runs a useful part of each language. Widgets and scenes are shown with simulated output.</p>';
+  main.querySelectorAll('.trackbtn').forEach(function (b) { b.addEventListener('click', function () { startTrack(b.dataset.track, true); }); });
+  var first = $('.trackbtn[aria-current="true"]', main) || $('.trackbtn', main);
+  $('#modtitle').focus({ preventScroll: true }); window.scrollTo({ top: 0 });
+  say('Choose your track: Flutter and Dart, or Unity and C#.');
+}
+function startTrack(id, focus) {
+  lsSet(TRACKKEY, id);
+  document.body.classList.remove('picking');
+  initCourse(id);
+  $('#crumbtrack').textContent = TRACK.name;
+  renderTools();
+  view = (state.view !== null && state.view >= 0 && state.view < MODULES.length && moduleUnlocked(state.view)) ? state.view : currentModule();
+  showModule(view, !!focus);
 }
 $('#sidetoggle').addEventListener('click', function () {
   var open = $('#side').classList.toggle('open'); this.setAttribute('aria-expanded', String(open));
 });
 
-themeButton();
-view = (state.view !== null && state.view >= 0 && state.view < MODULES.length && moduleUnlocked(state.view)) ? state.view : currentModule();
-showModule(view, false);
+renderTools();
+var savedTrack = lsGet(TRACKKEY);
+if (savedTrack && TDD_COURSE.tracks[savedTrack]) startTrack(savedTrack, false);
+else { updateProgress(); showTrackPicker(); }
 </script>
 </body>
 </html>
