@@ -1,0 +1,71 @@
+{
+  "id": "block-cpp-noughts-and-crosses",
+  "title": "Block C++: Noughts and Crosses",
+  "shortTitle": "Block C++",
+  "description": "An inclusive, Lego-style block course that teaches C++ one line at a time by building a playable Noughts and Crosses (Tic-Tac-Toe) game. Learners snap shaped blocks together, type names and values that are checked live, then run their own code in a built-in terminal and export real C++.",
+  "version": "1.0.0",
+  "entry": "index.html",
+  "type": "interactive-tutorial",
+  "subject": "Computer Science",
+  "topics": [
+    "C++",
+    "Programming fundamentals",
+    "Variables and data types",
+    "2D arrays",
+    "Functions",
+    "Loops and nested loops",
+    "Selection (if / else)",
+    "Input and output",
+    "Structs",
+    "Classes and inheritance"
+  ],
+  "tags": ["cpp", "c++", "block-coding", "scratch-style", "tic-tac-toe", "noughts-and-crosses", "beginner", "accessible", "dyslexia-friendly"],
+  "level": "Beginner",
+  "audience": "Learners new to text-based programming, including learners with dyslexia and learning difficulties",
+  "readingAge": 16,
+  "estimatedTime": "2–3 hours",
+  "steps": 16,
+  "language": "en-GB",
+  "learningOutcomes": [
+    "Use #include and namespaces to set up a C++ program",
+    "Declare variables and 2D arrays with suitable data types",
+    "Write and call void and value-returning functions",
+    "Use for loops, nested for loops and while loops",
+    "Make decisions with if, else and else if",
+    "Read input with cin and print output with cout",
+    "Group data with a struct and model objects with classes and inheritance",
+    "Run, test and export a complete C++ program"
+  ],
+  "features": [
+    "Free-form canvas with snapping, shape-checked blocks",
+    "Line-by-line guide with live checklists for every step",
+    "Live validation of names, values and code order with plain-English errors",
+    "Run Code Live terminal that runs the learner's own blocks",
+    "C++ code view with copy and download",
+    "Undo, keyboard controls and tap-to-place for touch screens"
+  ],
+  "accessibility": {
+    "textToSpeech": true,
+    "highContrastMode": true,
+    "adjustableTextSize": true,
+    "dyslexiaFriendlyFonts": ["Lexend", "Atkinson Hyperlegible"],
+    "keyboardNavigable": true,
+    "screenReaderAnnouncements": true,
+    "reducedMotionSupport": true
+  },
+  "technology": ["HTML", "Tailwind CSS (CDN)", "Vanilla JavaScript"],
+  "dependencies": {
+    "external": [
+      "https://cdn.tailwindcss.com",
+      "https://fonts.googleapis.com"
+    ],
+    "build": "none"
+  },
+  "offlineCapable": false,
+  "savesProgress": "localStorage",
+  "responsive": true,
+  "license": "",
+  "author": "",
+  "created": "2026-11-11",
+  "updated": "2026-11-11"
+}
