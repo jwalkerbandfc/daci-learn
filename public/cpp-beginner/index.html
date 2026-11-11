@@ -1,0 +1,2566 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Block C++: Noughts and Crosses</title>
+<meta name="description" content="An inclusive, Lego-style block tutorial that teaches C++ line by line by building a Noughts and Crosses game.">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Lexend:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --panel2:#f3f4f6; --ink:#1f2937; --muted:#5b6472; --line:#e3e6eb; --line2:#cfd5dd;
+  --accent:#2563eb; --accent-ink:#ffffff; --accent-soft:#eef3fe; --canvas:#eceef2; --dot:rgba(15,23,42,.11);
+  --focus:#f59e0b; --ok:#15803d; --ok-bg:#effaf3; --warn:#9a3412; --warn-bg:#fff7ed; --danger:#dc2626;
+  --run:#16a34a; --run-ink:#fff; --hole:var(--canvas); --hdr:#111827; --hdr-ink:#f3f4f6; --hdr-line:#2b3443;
+  --code-bg:#0d1117; --radius:8px;
+}
+html.hc{
+  --bg:#000; --panel:#000; --panel2:#000; --ink:#fff; --muted:#ffff00; --line:#fff; --line2:#fff; --accent:#ffff00; --accent-ink:#000;
+  --accent-soft:#000; --canvas:#000; --dot:rgba(255,255,255,.28); --focus:#00ffff; --ok:#00ff66; --ok-bg:#000; --warn:#ffff00; --warn-bg:#000;
+  --run:#ffff00; --run-ink:#000; --hdr:#000; --hdr-ink:#fff; --hdr-line:#fff; --code-bg:#000;
+}
+html{font-size:18px}
+[hidden]{display:none !important}
+body{background:var(--bg); color:var(--ink); height:100vh; display:flex; flex-direction:column; margin:0; line-height:1.6; letter-spacing:.01em; word-spacing:.05em}
+body.font-lexend{font-family:'Lexend',system-ui,sans-serif}
+body.font-atk{font-family:'Atkinson Hyperlegible',system-ui,sans-serif}
+.mono,code,pre,.fi,.fd,.kw,.auto{font-family:'JetBrains Mono',ui-monospace,monospace; letter-spacing:0; word-spacing:0}
+*:focus-visible{outline:3px solid var(--focus); outline-offset:2px}
+.skip{position:absolute; left:-999px; top:0; background:var(--accent); color:var(--accent-ink); padding:.5rem 1rem; z-index:99999}
+.skip:focus{left:.5rem}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ic{width:1.05em; height:1.05em; flex:none; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
+.ic.fill{fill:currentColor; stroke:none}
+.row{display:flex; flex-wrap:wrap; gap:.4rem; align-items:center}
+
+/* header */
+.app-header{background:var(--hdr); color:var(--hdr-ink); border-bottom:1px solid var(--hdr-line); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.6rem; padding:.5rem 1rem}
+.brand{display:flex; align-items:center; gap:.7rem}
+.logo{width:2.1rem;height:2.1rem;border-radius:6px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:.72rem;font-family:'JetBrains Mono',monospace}
+.brand h1{font-size:1rem; font-weight:600; margin:0; line-height:1.2}
+.brand p{font-size:.72rem; margin:0; color:#9ca3af}
+html.hc .brand p{color:#fff}
+.hgroup{display:flex; align-items:center; gap:.25rem; padding:0 .5rem; border-left:1px solid var(--hdr-line)}
+.hgroup:first-child{border-left:0}
+.hbtn{background:transparent; color:var(--hdr-ink); border:1px solid transparent; border-radius:6px; padding:.3rem .6rem; min-height:36px; font-size:.76rem; font-weight:500; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:.35rem}
+.hbtn:hover{background:rgba(255,255,255,.08); border-color:var(--hdr-line)}
+.hbtn[aria-pressed="true"]{background:rgba(37,99,235,.25); border-color:#3b82f6}
+html.hc .hbtn[aria-pressed="true"]{background:#ffff00; color:#000}
+.hlabel{font-size:.72rem; color:#9ca3af; min-width:2.4rem; text-align:center}
+
+/* buttons */
+.btn{border:1px solid var(--line2); background:var(--panel); color:var(--ink); border-radius:6px; padding:.3rem .7rem; font-weight:500; min-height:36px; font-size:.78rem; cursor:pointer; line-height:1.2; font-family:inherit; display:inline-flex; align-items:center; gap:.4rem}
+.btn:hover{border-color:var(--accent); color:var(--accent)}
+html.hc .btn:hover{color:var(--ink)}
+.btn-primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.btn-primary:hover{color:var(--accent-ink); filter:brightness(1.08)}
+.btn-run{background:var(--run); color:var(--run-ink); border-color:var(--run); font-weight:600}
+.btn-run:hover{color:var(--run-ink); filter:brightness(1.08)}
+.btn-ghost{border-color:transparent; background:transparent}
+.btn-danger:hover{border-color:var(--danger); color:var(--danger)}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.btn.speaking{background:var(--accent-soft); border-color:var(--accent); color:var(--accent)}
+
+/* layout */
+.layout{flex:1; min-height:0; display:grid; grid-template-columns:1fr}
+@media (min-width:1024px){ .layout{grid-template-columns:minmax(320px,25rem) 1fr minmax(270px,21rem)} }
+.panel{background:var(--panel); overflow-y:auto}
+#left{border-right:1px solid var(--line); padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.85rem}
+#right{border-left:1px solid var(--line); padding:.9rem}
+.center{display:flex; flex-direction:column; min-height:0; min-width:0}
+@media (max-width:1023px){ .center{height:85vh} #left,#right{border:0;border-bottom:1px solid var(--line)} }
+.eyebrow{font-size:.68rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted)}
+
+/* progress */
+.bar{height:6px; background:var(--panel2); border-radius:99px; overflow:hidden}
+#barFill{height:100%; width:0; background:var(--accent); transition:width .4s}
+.dots{display:flex; flex-wrap:wrap; gap:.25rem; list-style:none; padding:0; margin:.55rem 0 0}
+.dot{width:1.75rem;height:1.75rem;border-radius:50%; border:1px solid var(--line2); background:var(--panel); color:var(--muted); font-size:.66rem; font-weight:600; cursor:pointer; font-family:inherit}
+.dot.done{background:var(--ok); border-color:var(--ok); color:#fff}
+html.hc .dot.done{color:#000}
+.dot.current{box-shadow:0 0 0 2px var(--panel), 0 0 0 4px var(--accent); color:var(--ink)}
+
+/* step */
+.step-num{width:2.3rem; height:2.3rem; border-radius:8px; background:var(--accent-soft); color:var(--accent); display:grid; place-items:center; font-weight:700; font-size:.95rem; flex:none; border:1px solid var(--line)}
+.chunks{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.4rem}
+.chunk{display:flex; gap:.55rem; align-items:flex-start; font-size:.88rem; padding:.15rem 0}
+.chunk-n{flex:none; width:1.35rem; height:1.35rem; border-radius:50%; background:var(--panel2); color:var(--muted); font-size:.66rem; font-weight:700; display:grid; place-items:center; margin-top:.15rem; border:1px solid var(--line)}
+.say{flex:none; margin-left:auto; border:0; background:transparent; cursor:pointer; min-width:30px; min-height:30px; border-radius:6px; color:var(--muted); display:grid; place-items:center}
+.say:hover{background:var(--panel2); color:var(--accent)}
+.say.speaking{color:var(--accent); background:var(--accent-soft)}
+.card{border:1px solid var(--line); border-radius:var(--radius); padding:.7rem .8rem; background:var(--panel)}
+.task{border-left:3px solid var(--accent); background:var(--accent-soft); border-radius:0 var(--radius) var(--radius) 0; padding:.55rem .75rem}
+.task p{margin:.15rem 0 0; font-weight:600; font-size:.9rem}
+.checks{list-style:none; padding:0; margin:.4rem 0 0; display:flex; flex-direction:column; gap:.3rem; font-size:.84rem}
+.checks li{display:flex; gap:.5rem; align-items:flex-start}
+.tick{flex:none; width:1.15rem; height:1.15rem; border-radius:4px; border:1px solid var(--line2); display:grid; place-items:center; font-size:.68rem; font-weight:700; margin-top:.2rem; background:var(--panel)}
+.checks li.ok .tick,.g-item.done .tick{background:var(--ok); border-color:var(--ok); color:#fff}
+html.hc .checks li.ok .tick,html.hc .g-item.done .tick{color:#000}
+.status{border-radius:var(--radius); padding:.5rem .7rem; font-weight:500; font-size:.84rem; border:1px solid}
+.status.ok{background:var(--ok-bg); color:var(--ok); border-color:#bbe5c8}
+.status.wait{background:var(--warn-bg); color:var(--warn); border-color:#fed7aa}
+html.hc .status{border-color:currentColor}
+.hint{background:var(--panel2); border:1px solid var(--line); border-radius:var(--radius); padding:.55rem .75rem; font-size:.84rem}
+details.hint summary{cursor:pointer; font-weight:600; display:flex; gap:.45rem; align-items:center}
+.preview{background:var(--code-bg); color:#e6edf3; border-radius:6px; padding:.6rem .7rem; font-size:.7rem; line-height:1.55; overflow:auto; max-height:22rem; white-space:pre; margin:.5rem 0 0}
+.pulse{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}50%{box-shadow:0 0 0 6px rgba(37,99,235,0)}}
+@media (prefers-reduced-motion:reduce){.pulse,.b.flash,.pal-item.want{animation:none !important}}
+
+/* line-by-line guide */
+#guide{display:flex; flex-direction:column; gap:.45rem}
+.g-head{display:flex; justify-content:space-between; align-items:baseline}
+.g-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+.g-item{display:flex; gap:.55rem; padding:.45rem .6rem; border-top:1px solid var(--line); font-size:.82rem; align-items:flex-start}
+.g-item:first-child{border-top:0}
+.g-item.todo{opacity:.55}
+.g-item.done{background:var(--panel)}
+.g-item.done .g-code{color:var(--muted)}
+.g-item.current{background:var(--accent-soft); opacity:1; box-shadow:inset 3px 0 0 var(--accent)}
+.g-body{flex:1; min-width:0}
+.g-code{font-family:'JetBrains Mono',monospace; font-size:.72rem; white-space:pre-wrap; word-break:break-word; color:var(--ink)}
+.g-where{font-weight:600; margin:.35rem 0 .25rem; font-size:.86rem}
+.g-where code,.g-det code,.g-note code{background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:0 .25rem; font-size:.74rem}
+.g-det{margin:.2rem 0 .35rem; padding-left:1rem; font-size:.82rem; display:flex; flex-direction:column; gap:.15rem}
+.g-note{font-size:.8rem; color:var(--muted); border-left:2px solid var(--line2); padding:.1rem 0 .1rem .55rem; margin:.3rem 0}
+.g-btns{display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.4rem}
+.g-code .tk,.g-where .tk{color:#0550ae} .g-code .ts{color:#0a3069} .g-code .tn{color:#953800} .g-code .tio{color:#116329} .g-code .tp{color:#cf222e} .g-code .tc{color:#6e7781}
+html.hc .g-code span{color:inherit !important}
+
+/* visuals */
+.viz{display:flex; flex-direction:column; gap:.4rem; font-size:.78rem}
+.vgrid{display:grid; grid-template-columns:auto repeat(3, 1fr); gap:3px; max-width:17rem}
+.vgrid .h{font-size:.66rem; color:var(--muted); display:grid; place-items:center; font-family:'JetBrains Mono',monospace}
+.vgrid .c{border:1px solid var(--line2); border-radius:4px; background:var(--panel); padding:.25rem; text-align:center; font-family:'JetBrains Mono',monospace; font-size:.66rem; line-height:1.3}
+.vgrid .c b{display:block; font-size:.95rem; color:var(--accent)}
+.vlines{display:flex; flex-wrap:wrap; gap:.4rem}
+.mini{display:grid; grid-template-columns:repeat(3,.75rem); gap:2px}
+.mini i{width:.75rem; height:.75rem; border-radius:2px; background:var(--line)}
+.mini i.on{background:var(--accent)}
+
+/* tabs + canvas */
+.tabbar{background:var(--panel); border-bottom:1px solid var(--line); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.4rem; padding:0 .6rem}
+.tab{padding:.55rem .85rem; font-weight:500; border:0; border-bottom:2px solid transparent; color:var(--muted); min-height:42px; font-size:.82rem; background:none; cursor:pointer; font-family:inherit; display:inline-flex; gap:.4rem; align-items:center}
+.tab[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--accent); font-weight:600}
+.tabbadge{background:var(--danger); color:#fff; font-size:.62rem; border-radius:99px; padding:0 .4rem; font-weight:700}
+#viewBlocks{position:relative; flex:1; min-height:0}
+#scroller{position:absolute; inset:0; overflow:auto; background:var(--canvas)}
+#canvas{position:relative; width:3000px; height:3600px; background-image:radial-gradient(var(--dot) 1px, transparent 1.2px); background-size:20px 20px}
+#emptyHint{position:absolute; left:40px; top:40px; max-width:26rem; border:1px dashed var(--line2); border-radius:var(--radius); padding:1rem 1.2rem; color:var(--muted); background:var(--panel); font-size:.86rem}
+#trash{display:none; position:absolute; left:0; right:0; bottom:0; height:3.4rem; z-index:20000; align-items:center; justify-content:center; gap:.5rem;
+  background:rgba(254,242,242,.94); border-top:2px dashed var(--danger); color:#b91c1c; font-weight:600; font-size:.85rem; pointer-events:none}
+body.dragging #trash{display:flex}
+#trash.hot,#palBin.hot{background:var(--danger); color:#fff; border-color:var(--danger)}
+#palBin{display:none; position:fixed; z-index:59990; align-items:center; justify-content:center; flex-direction:column; gap:.4rem; text-align:center;
+  background:rgba(254,242,242,.94); border:2px dashed var(--danger); color:#b91c1c; font-weight:600; font-size:.9rem; pointer-events:none; border-radius:4px}
+body.dragging #palBin{display:flex}
+body.dragging #probPanel{display:none}
+html.hc #trash,html.hc #palBin{background:#000; color:#ffff00; border-color:#ffff00}
+#snapInd{position:fixed; height:5px; border-radius:4px; background:var(--focus); z-index:59999; pointer-events:none; box-shadow:0 0 0 2px rgba(245,158,11,.3)}
+#dragLayer{position:fixed; left:0; top:0; z-index:60000; pointer-events:none; --hole:var(--canvas)}
+#dragLayer > *{filter:drop-shadow(0 8px 12px rgba(0,0,0,.28))}
+#probPanel{position:absolute; right:1rem; bottom:1rem; z-index:20000; max-width:min(26rem,calc(100% - 2rem)); display:flex; flex-direction:column; align-items:flex-end; gap:.4rem}
+#probList{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:.4rem; max-height:16rem; overflow:auto; font-size:.8rem; box-shadow:0 8px 24px rgba(15,23,42,.14)}
+#probList li{display:flex; gap:.5rem; align-items:flex-start; padding:.35rem .2rem; border-bottom:1px solid var(--line)}
+#probList li:last-child{border-bottom:0}
+.probbtn{background:var(--danger); color:#fff; border-color:var(--danger)}
+.probbtn:hover{color:#fff}
+.probbtn.clear{background:var(--panel); color:var(--ok); border-color:var(--line2)}
+
+/* ===== BLOCKS ===== */
+.root{position:absolute; display:flex; flex-direction:column; align-items:flex-start}
+.b{--c:#555; background:var(--c); color:#fff; position:relative; font-size:.76rem; user-select:none; -webkit-user-select:none; touch-action:none; cursor:grab; box-sizing:border-box}
+.b.k-stack{display:flex; flex-direction:column; align-items:stretch; border-radius:6px; padding:.28rem .55rem .42rem; min-width:9rem; box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+.b.k-stack::before{content:''; position:absolute; top:-1px; left:1rem; width:1.4rem; height:.38rem; background:var(--hole); border-radius:0 0 .35rem .35rem}
+.b.k-stack::after{content:''; position:absolute; bottom:-.36rem; left:1rem; width:1.4rem; height:.38rem; background:var(--c); border-radius:0 0 .35rem .35rem; z-index:2}
+.b.n-top::before,.b.n-top::after{width:2.2rem; left:.7rem; border-radius:0}
+.b.n-member::before,.b.n-member::after{width:1.2rem; height:.46rem; border-radius:0; clip-path:polygon(0 0,100% 0,50% 100%)}
+.b.n-member::after{bottom:-.44rem}
+.b-row{display:flex; flex-wrap:wrap; align-items:center; gap:.26rem; min-height:1.8rem}
+.b-mouth{margin:.08rem 0 .08rem .85rem; background:var(--hole); border-radius:4px 0 0 4px; min-height:1.8rem; padding:.28rem 0 .42rem; display:flex; flex-direction:column; align-items:flex-start}
+.mouth-empty{color:var(--muted); font-size:.68rem; padding:.15rem .55rem; border:1px dashed var(--line2); border-radius:4px; margin-left:.3rem}
+.b.k-value{display:inline-flex; align-items:center; gap:.25rem; border-radius:999px; padding:.1rem .5rem; min-height:1.6rem; box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+.b.k-bool{display:inline-flex; align-items:center; gap:.25rem; padding:.1rem .95rem; min-height:1.6rem; clip-path:polygon(.7rem 0,calc(100% - .7rem) 0,100% 50%,calc(100% - .7rem) 100%,.7rem 100%,0 50%)}
+.b.k-type{display:inline-flex; align-items:center; gap:.25rem; padding:.1rem .9rem; min-height:1.55rem; clip-path:polygon(.55rem 0,100% 0,calc(100% - .55rem) 50%,100% 100%,.55rem 100%,0 50%)}
+.kw{font-weight:700; font-size:.8rem}
+.auto{font-weight:600; opacity:.7; font-size:.78rem}
+.lbl{font-weight:600}
+.slot{display:inline-flex; align-items:center; min-height:1.5rem; border-radius:999px}
+.slot.empty.sh-bool{background:rgba(0,0,0,.28); min-width:2.6rem; clip-path:polygon(.6rem 0,calc(100% - .6rem) 0,100% 50%,calc(100% - .6rem) 100%,.6rem 100%,0 50%); justify-content:center}
+.slot.empty.sh-type{background:rgba(0,0,0,.28); min-width:3rem; clip-path:polygon(.5rem 0,100% 0,calc(100% - .5rem) 50%,100% 100%,.5rem 100%,0 50%); justify-content:center; padding:0 .7rem}
+.slot.empty.sh-target .fi{border-style:dashed; border-color:rgba(0,0,0,.35)}
+.slot.hot{background:#fde047 !important; box-shadow:0 0 0 3px #fde047}
+.ph{font-size:.68rem; font-weight:600; opacity:.85; padding:0 .3rem}
+.fi{background:#fff; color:#111827; border:1px solid rgba(0,0,0,.12); border-radius:4px; padding:0 .3rem; font-size:.76rem; height:1.4rem; min-width:2.2ch; box-sizing:content-box; cursor:text; user-select:text; -webkit-user-select:text; touch-action:manipulation}
+.fi.shadow{border-radius:999px; padding:0 .45rem}
+.fi::placeholder{color:#6b7280}
+.fi.spacey{background:repeating-linear-gradient(90deg,#fff 0 4px,#dbeafe 4px 8px)}
+.fi.bad{border:2px solid #ef4444; background:#fef2f2}
+.fd{background:#fff; color:#111827; border:0; border-radius:4px; font-size:.76rem; height:1.5rem; padding:0 .15rem; cursor:pointer; touch-action:manipulation}
+.pm{width:1.35rem; height:1.35rem; border-radius:50%; background:rgba(255,255,255,.22); color:#fff; font-weight:700; border:0; cursor:pointer; font-size:.82rem; line-height:1; touch-action:manipulation}
+.pm:hover{background:rgba(255,255,255,.4)}
+.plus{display:inline-flex; gap:.2rem; margin-left:.2rem}
+.ebadge{width:1.1rem; height:1.1rem; border-radius:50%; background:#ef4444; color:#fff; font-weight:700; font-size:.68rem; display:inline-grid; place-items:center; box-shadow:0 0 0 2px #fff; flex:none}
+.b.k-stack.err,.b.k-value.err{box-shadow:0 0 0 2px #ef4444}
+.b.sel{outline:2px solid var(--focus); outline-offset:2px}
+.b.loose{opacity:.7}
+.b.flash{animation:flash .8s ease-in-out 2}
+@keyframes flash{50%{box-shadow:0 0 0 5px var(--focus)}}
+.b.running{box-shadow:0 0 0 4px #fde047, 0 0 18px #fde047 !important}
+.b.runerr{box-shadow:0 0 0 4px #ef4444, 0 0 18px #ef4444 !important}
+html.hc .b.k-stack,html.hc .b.k-value{background:#000; border:2px solid #fff; border-left:10px solid var(--c); box-shadow:none}
+html.hc .b.k-stack::after{background:#fff}
+html.hc .b.k-bool,html.hc .b.k-type{background:#fff; color:#000}
+html.hc .b .kw{color:#ffff00}
+html.hc .b.k-bool .kw,html.hc .b.k-type .kw{color:#000}
+
+/* palette */
+.pal{--hole:var(--panel)}
+.pal details{border-bottom:1px solid var(--line); padding:.2rem 0}
+.pal summary{cursor:pointer; font-weight:600; font-size:.8rem; padding:.4rem .2rem; display:flex; align-items:center; gap:.5rem; list-style:none; border-radius:6px}
+.pal summary::-webkit-details-marker{display:none}
+.pal summary::after{content:''; margin-left:auto; width:.45rem; height:.45rem; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:rotate(-45deg); transition:transform .15s}
+.pal details[open] summary::after{transform:rotate(45deg)}
+.swatch{width:.7rem; height:.7rem; border-radius:3px; flex:none}
+.pal details.focus summary{background:var(--accent-soft)}
+.pal-list{display:flex; flex-direction:column; align-items:flex-start; gap:.7rem; padding:.4rem .2rem .7rem}
+.pal-item{cursor:grab; touch-action:none; border-radius:6px}
+@media (max-width:1023px){ .pal-item{touch-action:pan-y} }
+.pal-item .fi,.pal-item .fd{pointer-events:none}
+.pal-item:focus-visible{outline:3px solid var(--focus); outline-offset:3px}
+.pal-item.want{animation:want 1.2s ease-in-out 3; border-radius:8px}
+@keyframes want{50%{box-shadow:0 0 0 4px var(--focus)}}
+
+#tip{position:absolute; z-index:70000; max-width:21rem; background:#111827; color:#f3f4f6; border-radius:8px; padding:.6rem .75rem; font-size:.78rem; line-height:1.5; box-shadow:0 10px 28px rgba(0,0,0,.3); pointer-events:none}
+html.hc #tip{background:#000; border:3px solid #ffff00}
+#tip strong{display:block; font-size:.86rem; margin-bottom:.15rem}
+#tip .t-shape{display:block; margin-top:.35rem; color:#93c5fd}
+#tip .t-err{display:block; margin-top:.35rem; color:#fca5a5; font-weight:600}
+
+.tk{color:#79c0ff} .ts{color:#a5d6ff} .tc{color:#8b949e} .tp{color:#ff7b72} .tn{color:#f2cc60} .tio{color:#7ee787}
+#codePre{background:var(--code-bg); color:#e6edf3; border-radius:var(--radius); padding:1rem 0; font-size:.78rem; line-height:1.6; overflow:auto; counter-reset:ln; white-space:pre; margin:0}
+html.hc #codePre,html.hc .preview{border:2px solid #fff}
+#codePre .cl{display:block; padding-right:1rem}
+#codePre .cl::before{counter-increment:ln; content:counter(ln); display:inline-block; width:3rem; padding-right:1rem; text-align:right; color:#6e7681; user-select:none}
+
+#terminal{height:46%; min-height:16rem; display:flex; flex-direction:column; background:var(--code-bg); color:#e6edf3; border-top:1px solid #30363d}
+#termOut{flex:1; overflow-y:auto; padding:.7rem 1rem; white-space:pre-wrap; font-size:.82rem; line-height:1.5}
+.term-head{display:flex; flex-wrap:wrap; gap:.4rem; align-items:center; padding:.35rem .8rem; border-bottom:1px solid #30363d; background:#161b22; font-size:.78rem}
+.term-btn{border:1px solid #30363d; color:#e6edf3; background:#21262d; border-radius:6px; padding:.2rem .6rem; font-weight:500; font-size:.74rem; min-height:34px; cursor:pointer; font-family:inherit; display:inline-flex; gap:.35rem; align-items:center}
+.term-btn:hover{border-color:#8b949e}
+.term-btn:disabled{opacity:.4; cursor:not-allowed}
+#termIn{background:#0d1117; color:#fff; border:1px solid #30363d; border-radius:6px; padding:.3rem .6rem; min-height:40px; font-size:.88rem; flex:1}
+#termIn:focus{border-color:#58a6ff}
+.o-x{color:#ff7b72; font-weight:700} .o-o{color:#79c0ff; font-weight:700}
+.o-err{color:#ffa198} .o-plain{color:#f2cc60} .o-ok{color:#7ee787} .o-cmd{color:#79c0ff} .o-note{color:#8b949e} .o-in{color:#fff; font-weight:700}
+.legend{display:flex; flex-direction:column; gap:.5rem; font-size:.82rem}
+.legend > div{display:flex; align-items:center; gap:.6rem}
+</style>
+</head>
+<body class="font-lexend">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-speaker" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+<symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/></symbol>
+<symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-wand" viewBox="0 0 24 24"><path d="m3 21 12-12"/><path d="M15 3v2M15 11v2M11 7h2M19 7h2M17.5 4.5 18.5 3.5M17.5 9.5l1 1"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
+<symbol id="i-blocks" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/></symbol>
+<symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5"/><path d="m16 7 5 5-5 5"/></symbol>
+<symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></symbol>
+<symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></symbol>
+<symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-5-6-5"/><path d="M12 19h8"/></symbol>
+</svg>
+<div id="palBin" aria-hidden="true"><svg class="ic" style="width:1.8rem;height:1.8rem"><use href="#i-trash"/></svg>Drop here to delete</div>
+<a href="#scroller" class="skip">Skip to the canvas</a>
+<datalist id="dl-funcs"></datalist><datalist id="dl-vars"></datalist><datalist id="dl-types"></datalist><datalist id="dl-libs"></datalist>
+
+<header class="app-header">
+  <div class="brand">
+    <div class="logo" aria-hidden="true">C++</div>
+    <div><h1>Block C++</h1><p>Noughts and Crosses &middot; a line-by-line C++ course</p></div>
+  </div>
+  <div class="row" role="toolbar" aria-label="Display settings" style="gap:0">
+    <div class="hgroup">
+      <button class="hbtn" id="fontDown" aria-label="Make text smaller">A−</button>
+      <span id="fontLabel" class="hlabel" aria-live="polite">18px</span>
+      <button class="hbtn" id="fontUp" aria-label="Make text bigger">A+</button>
+    </div>
+    <div class="hgroup">
+      <button class="hbtn" id="fontToggle">Font: Lexend</button>
+      <button class="hbtn" id="speedToggle">Voice: Slow</button>
+      <button class="hbtn" id="soundToggle" aria-pressed="true">Sound: On</button>
+      <button class="hbtn" id="hcToggle" aria-pressed="false">High contrast</button>
+    </div>
+    <div class="hgroup"><button class="btn btn-run" id="runBtn"><svg class="ic fill" aria-hidden="true"><use href="#i-play"/></svg>Run Code Live</button></div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside id="left" class="panel" aria-label="Instructions">
+    <section aria-label="Your progress">
+      <div class="row" style="justify-content:space-between; margin-bottom:.35rem"><span class="eyebrow" id="stepCount">Step 1</span><span class="eyebrow" id="stepPct">0% complete</span></div>
+      <div class="bar" id="barWrap" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100"><div id="barFill"></div></div>
+      <ol id="dots" class="dots" aria-label="Jump to a step"></ol>
+    </section>
+    <article style="display:flex; flex-direction:column; gap:.75rem">
+      <div class="row" style="gap:.7rem; flex-wrap:nowrap">
+        <span id="stepNum" class="step-num" aria-hidden="true">1</span>
+        <h2 id="stepTitle" tabindex="-1" style="margin:0; font-size:1.05rem; font-weight:600; line-height:1.3"></h2>
+      </div>
+      <button class="btn" id="readStep" style="align-self:flex-start"><svg class="ic" aria-hidden="true"><use href="#i-speaker"/></svg>Read this step aloud</button>
+      <div id="legend" hidden></div>
+      <ol id="chunks" class="chunks"></ol>
+      <div id="viz" hidden></div>
+      <div class="task"><span class="eyebrow" style="color:var(--accent)">Your task</span><p id="stepTask"></p><ul id="checks" class="checks" aria-label="Checklist"></ul></div>
+      <div id="guide" hidden></div>
+      <div id="stepStatus" class="status wait" role="status"></div>
+      <details id="previewBox" class="hint"><summary><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg>See the finished C++ for this step</summary><pre id="previewCode" class="preview mono"></pre></details>
+      <div class="row">
+        <button class="btn" id="hintBtn" aria-expanded="false" aria-controls="hintBox"><svg class="ic" aria-hidden="true"><use href="#i-bulb"/></svg><span>Show a hint</span></button>
+        <button class="btn" id="showMeBtn"><svg class="ic" aria-hidden="true"><use href="#i-wand"/></svg><span>Build the whole step for me</span></button>
+      </div>
+      <div id="hintBox" class="hint" hidden>
+        <div class="row" style="flex-wrap:nowrap; align-items:flex-start">
+          <p id="hintText" style="margin:0; flex:1"></p>
+          <button class="say" id="hintSay" aria-label="Read the hint aloud"><svg class="ic" aria-hidden="true"><use href="#i-speaker"/></svg></button>
+        </div>
+      </div>
+    </article>
+    <nav class="row" aria-label="Step navigation" style="flex-wrap:nowrap">
+      <button class="btn" id="prevBtn" style="flex:1; justify-content:center">← Back</button>
+      <button class="btn btn-primary" id="nextBtn" style="flex:1; justify-content:center">Next →</button>
+    </nav>
+    <details class="hint">
+      <summary><svg class="ic" aria-hidden="true"><use href="#i-keyboard"/></svg>Keyboard and touch tips</summary>
+      <ul style="margin:.4rem 0 0; padding-left:1.1rem; display:flex; flex-direction:column; gap:.25rem">
+        <li>Select a block on the canvas, then tap a palette block: it goes inside or under the selected one. "Show me where" selects the right place for you.</li>
+        <li>Shapes only fit where the code makes sense. A tag (data type) only fits a tag-shaped gap.</li>
+        <li>With a block selected: ↑ and ↓ move it, Delete removes it, Ctrl+Z undoes.</li>
+        <li>To delete by dragging, drop a block on the red bar at the bottom of the canvas, or anywhere over the palette.</li>
+        <li>A red ! marks something to fix. Hover over the block to see what.</li>
+      </ul>
+    </details>
+  </aside>
+
+  <main class="center" id="main">
+    <div class="tabbar">
+      <div role="tablist" aria-label="Views" class="row" style="gap:0">
+        <button role="tab" class="tab" id="tabBlocks" aria-selected="true" aria-controls="viewBlocks"><svg class="ic" aria-hidden="true"><use href="#i-blocks"/></svg>Blocks</button>
+        <button role="tab" class="tab" id="tabCode" aria-selected="false" aria-controls="viewCode"><svg class="ic" aria-hidden="true"><use href="#i-code"/></svg>C++ code<span id="tabBadge" class="tabbadge" hidden></span></button>
+      </div>
+      <div class="row" style="padding:.3rem 0">
+        <button class="btn" id="undoBtn"><svg class="ic" aria-hidden="true"><use href="#i-undo"/></svg>Undo</button>
+        <button class="btn btn-danger" id="delBtn" disabled><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg>Delete block</button>
+        <button class="btn" id="tidyBtn"><svg class="ic" aria-hidden="true"><use href="#i-layout"/></svg>Tidy up</button>
+        <button class="btn btn-ghost btn-danger" id="clearBtn">Clear all</button>
+      </div>
+    </div>
+    <div id="viewBlocks" role="tabpanel" aria-labelledby="tabBlocks">
+      <div id="scroller" tabindex="-1" aria-label="Building canvas">
+        <div id="canvas">
+          <div id="emptyHint">
+            <p class="font-bold" style="color:var(--ink); margin:0">This is your building canvas.</p>
+            <p style="margin:.3rem 0 0">Drag blocks here from the palette. Each block is one line of C++.</p>
+            <p style="margin:.3rem 0 0">Start with the purple #include block.</p>
+          </div>
+        </div>
+      </div>
+      <div id="trash" aria-hidden="true"><svg class="ic" style="width:1.3rem;height:1.3rem"><use href="#i-trash"/></svg>Drop here to delete</div>
+      <div id="probPanel">
+        <ul id="probList" hidden style="list-style:none; margin:0"></ul>
+        <button class="btn probbtn clear" id="probBtn" aria-expanded="false">✓ No problems</button>
+      </div>
+    </div>
+    <div id="viewCode" role="tabpanel" aria-labelledby="tabCode" hidden style="flex:1; overflow:auto; padding:1rem">
+      <div class="row" style="margin-bottom:.7rem">
+        <h2 style="margin:0 auto 0 0; font-size:1rem; font-weight:600">Your C++ code</h2>
+        <button class="btn btn-primary" id="copyBtn"><svg class="ic" aria-hidden="true"><use href="#i-copy"/></svg><span>Copy code</span></button>
+        <button class="btn" id="dlBtn"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Download main.cpp</button>
+      </div>
+      <div id="codeNotes" style="display:flex; flex-direction:column; gap:.4rem; margin-bottom:.7rem"></div>
+      <pre id="codePre" tabindex="0" aria-label="Your C++ code"></pre>
+    </div>
+    <section id="terminal" aria-label="Terminal" hidden>
+      <div class="term-head">
+        <span style="font-weight:600; display:inline-flex; gap:.4rem; align-items:center"><svg class="ic" aria-hidden="true"><use href="#i-terminal"/></svg>Terminal</span>
+        <span id="termNow" class="mono" style="color:#fde047; font-size:.75rem"></span>
+        <span style="margin-left:auto"></span>
+        <button class="term-btn" id="termRestart"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg>Run again</button>
+        <button class="term-btn" id="termStop"><svg class="ic" aria-hidden="true"><use href="#i-stop"/></svg>Stop</button>
+        <button class="term-btn" id="termClose" aria-label="Close terminal"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>Close</button>
+      </div>
+      <div id="termOut" class="mono" aria-live="polite" tabindex="0"></div>
+      <div style="padding:.4rem .8rem; border-top:1px solid #334155; display:flex; flex-direction:column; gap:.4rem">
+        <form id="termForm" class="row" style="flex-wrap:nowrap">
+          <label for="termIn" class="sr-only">Type your answer</label>
+          <input id="termIn" class="mono" autocomplete="off" placeholder="Type here, then press Enter" disabled>
+          <button class="term-btn" id="termSend" type="submit" disabled>Enter ⏎</button>
+        </form>
+        <div id="quickKeys" class="row" style="gap:.25rem" aria-label="Quick number buttons"></div>
+      </div>
+    </section>
+  </main>
+
+  <aside id="right" class="panel pal" aria-label="Block palette">
+    <h2 style="margin:0; font-size:.95rem; font-weight:600">Block palette</h2>
+    <p style="color:var(--muted); font-size:.8rem; margin:.2rem 0 .4rem">Hover a block to learn what it does. Drag it onto the canvas, or tap it to add it.</p>
+    <div id="palette"></div>
+  </aside>
+</div>
+
+<div id="dragLayer"></div>
+<div id="snapInd" hidden></div>
+<div id="tip" role="tooltip" hidden></div>
+<div id="live" class="sr-only" aria-live="assertive"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const span = (cls, text) => { const s = document.createElement('span'); if(cls) s.className = cls; s.textContent = text; return s; };
+
+/* =====================================================================
+   1. BLOCK DEFINITIONS
+   ===================================================================== */
+const CAT = {
+  setup:  { label:'Setup',             color:'#5b3fa3' },
+  types:  { label:'Data types',        color:'#0e6b67' },
+  vars:   { label:'Variables',         color:'#b0501d' },
+  io:     { label:'Input and output',  color:'#1f5fae' },
+  values: { label:'Values',            color:'#2e6680' },
+  logic:  { label:'Decisions',         color:'#86580f' },
+  loops:  { label:'Loops',             color:'#9c3766' },
+  maths:  { label:'Maths',             color:'#2c7443' },
+  funcs:  { label:'Functions',         color:'#a8383a' },
+  classes:{ label:'Classes and structs', color:'#474c9a' }
+};
+const K = t => ({p:'kw', t}), A = t => ({p:'auto', t}), L = t => ({p:'lbl', t});
+const F = (key, kind, ph, list) => ({p:'field', key, kind, ph, list});
+const D = (key, opts) => ({p:'drop', key, opts});
+const S = (key, shape, shadow, ph) => ({p:'slot', key, shape, shadow:shadow||null, ph:ph||''});
+const P = (key, min, max, what) => ({p:'plus', key, min, max, what});
+const num = (b, k) => parseInt(b.fields[k] ?? '0', 10) || 0;
+const nm = s => String(s ?? '').trim();
+const argSlots = (b, nk, pre) => { const r = []; for(let i = 0; i < num(b, nk); i++){ if(i) r.push(A(',')); r.push(S(pre+i, 'value', 'lit', 'value')); } return r; };
+
+const TYPE_TIPS = {
+  int:'int: a whole number, like 7 or -3. No decimal point.',
+  double:'double: a decimal number, like 2.5.',
+  char:'char: exactly one letter, digit or symbol, like X.',
+  bool:'bool: true or false. Good for yes or no answers.',
+  string:'string: text, like Hello. Needs #include <string>.',
+  void:'void: means "nothing". Use it for functions that do a job but give nothing back.'
+};
+
+const DEFS = {
+  include:{ kind:'stack', fits:['top'], cat:'setup', name:'#include',
+    tip:'Brings a library (a toolbox of ready-made code) into your program. Type the library name, like iostream.',
+    rows:b=>[[A('#'),K('include'),A('<'),F('lib','ident','library','dl-libs'),A('>')]] },
+  using:{ kind:'stack', fits:['top'], cat:'setup', name:'using namespace',
+    tip:'Lets you write cout instead of std::cout. Type std, which is short for "standard".',
+    rows:b=>[[K('using namespace'),F('ns','ident','std'),A(';')]] },
+  comment:{ kind:'stack', fits:['top','stmt','member'], cat:'setup', name:'Comment',
+    tip:'A note for humans. The computer ignores it. Use it to explain your code.',
+    rows:b=>[[A('//'),F('text','text','your note')]] },
+
+  type:{ kind:'type', cat:'types', name:'Data type', rows:b=>[[K(b.fields.t)]] },
+  ctype:{ kind:'type', cat:'types', name:'Your own type',
+    tip:'Use a struct or class you have made as a data type. Type its name exactly.',
+    rows:b=>[[F('t','ident','TypeName','dl-types')]] },
+
+  declare:{ kind:'stack', fits:['top','stmt','member'], cat:'vars', name:'New variable',
+    tip:'Makes a named box that stores one value. Drag a data type into the tag gap, type a name, then type a starting value. The value is checked against the type.',
+    rows:b=>[[S('type','type'),F('name','ident','name'),A('='),S('val','value','lit','value'),A(';')]] },
+  arr1:{ kind:'stack', fits:['top','stmt','member'], cat:'vars', name:'New list (array)',
+    tip:'Makes a row of boxes that share one name. The number says how many boxes. The first box is number 0.',
+    rows:b=>[[S('type','type'),F('name','ident','name'),A('['),F('n1','size','size'),A(']'),A(';')]] },
+  arr2:{ kind:'stack', fits:['top','stmt','member'], cat:'vars', name:'New grid (2D array)',
+    tip:'Makes a grid of boxes with rows and columns. Perfect for a game board. Type how many rows, then how many columns.',
+    rows:b=>[[S('type','type'),F('name','ident','name'),A('['),F('n1','size','rows'),A(']['),F('n2','size','cols'),A(']'),A(';')]] },
+  set:{ kind:'stack', fits:['stmt'], cat:'vars', name:'Set',
+    tip:'Changes what is stored in a variable. The old value is replaced by the new one.',
+    rows:b=>[[S('target','target','ident','variable'),A('='),S('val','value','lit','value'),A(';')]] },
+  change:{ kind:'stack', fits:['stmt'], cat:'vars', name:'Change', rerender:['op'], def:{op:'++'},
+    tip:'++ adds 1. -- takes away 1. += and -= add or take away any amount you type.',
+    rows:b=>[[S('target','target','ident','variable'),D('op',['++','--','+=','-=']),
+      ...((b.fields.op==='+='||b.fields.op==='-=') ? [S('val','value','lit','amount')] : []), A(';')]] },
+  var:{ kind:'value', anyShape:true, cat:'vars', name:'Variable',
+    tip:'Gives back the value stored in a variable. Type the variable name exactly (capital letters matter).',
+    rows:b=>[[F('name','ident','name','dl-vars')]] },
+  arrget1:{ kind:'value', anyShape:true, cat:'vars', name:'List item',
+    tip:'Gives back one box from a list. The number in [ ] is the position. The first position is 0.',
+    rows:b=>[[F('name','ident','list','dl-vars'),A('['),S('i','value','lit','0'),A(']')]] },
+  arrget2:{ kind:'value', anyShape:true, cat:'vars', name:'Grid item',
+    tip:'Gives back one box from a grid: first the row, then the column. Both start at 0.',
+    rows:b=>[[F('name','ident','grid','dl-vars'),A('['),S('i','value','lit','row'),A(']['),S('j','value','lit','col'),A(']')]] },
+
+  cout:{ kind:'stack', fits:['stmt'], cat:'io', name:'cout (print)', def:{n:'1'},
+    tip:'Shows text and values on the screen. Press + to add more pieces. The << arrows, quote marks and ; are added for you.',
+    rows:b=>{ const r = [K('cout')]; for(let i = 0; i < Math.max(1, num(b,'n')); i++) r.push(A('<<'), S('i'+i,'value','lit','text')); r.push(A(';'), P('n',1,8,'piece')); return [r]; } },
+  cin:{ kind:'stack', fits:['stmt'], cat:'io', name:'cin (read)',
+    tip:'Waits for the user to type something and press Enter. Then it stores what they typed in a variable.',
+    rows:b=>[[K('cin'),A('>>'),S('target','target','ident','variable'),A(';')]] },
+  endl:{ kind:'value', cat:'io', name:'endl (new line)',
+    tip:'Moves the output to a new line. It only works inside a cout block.', rows:b=>[[K('endl')]] },
+
+  text:{ kind:'value', cat:'values', name:'Text',
+    tip:'Words or symbols, like Hello. The quote marks are added for you. C++ calls this a string.',
+    rows:b=>[[A('"'),F('v','text','text'),A('"')]] },
+  letter:{ kind:'value', cat:'values', name:'Single letter (char)',
+    tip:'Exactly one letter, digit or symbol, like X. The single quotes are added for you.',
+    rows:b=>[[A("'"),F('v','char','X'),A("'")]] },
+  number:{ kind:'value', cat:'values', name:'Number',
+    tip:'A number, like 3 or 2.5.', rows:b=>[[F('v','num','0')]] },
+  boolv:{ kind:'bool', cat:'values', name:'true or false', def:{v:'true'},
+    tip:'A yes or no value. Pick true or false.', rows:b=>[[D('v',['true','false'])]] },
+
+  if:{ kind:'stack', fits:['stmt'], cat:'logic', name:'if',
+    tip:'Runs the lines inside only when the question is true. Put a hexagon question in the ( ) gap.',
+    rows:b=>[[K('if'),A('('),S('cond','bool'),A(') {')], {mouth:'then', ctx:'stmt'}, [A('}')]] },
+  ifelse:{ kind:'stack', fits:['stmt'], cat:'logic', name:'if / else',
+    tip:'If the question is true, the top lines run. If not, the else lines run instead. Put another if inside else to make "else if".',
+    rows:b=>[[K('if'),A('('),S('cond','bool'),A(') {')], {mouth:'then', ctx:'stmt'}, [A('}'),K('else'),A('{')], {mouth:'else', ctx:'stmt'}, [A('}')]] },
+  cmp:{ kind:'bool', cat:'logic', name:'Compare', def:{op:'=='},
+    tip:'Asks a yes or no question about two values. == means "is equal to". != means "is not equal to".',
+    rows:b=>[[S('a','value','lit','value'),D('op',['==','!=','<','>','<=','>=']),S('b','value','lit','value')]] },
+  logic:{ kind:'bool', cat:'logic', name:'and / or', def:{op:'&&'},
+    tip:'&& means "and": both questions must be true. || means "or": at least one must be true.',
+    rows:b=>[[S('a','bool'),D('op',['&&','||']),S('b','bool')]] },
+  not:{ kind:'bool', cat:'logic', name:'not',
+    tip:'! means "not". It flips true to false, and false to true.', rows:b=>[[A('!'),S('a','bool')]] },
+
+  while:{ kind:'stack', fits:['stmt'], cat:'loops', name:'while loop',
+    tip:'Repeats the lines inside again and again, as long as the question stays true.',
+    rows:b=>[[K('while'),A('('),S('cond','bool'),A(') {')], {mouth:'body', ctx:'stmt'}, [A('}')]] },
+  for:{ kind:'stack', fits:['stmt'], cat:'loops', name:'for loop', def:{var:'i', lit_from:'0'},
+    tip:'Counts with a variable. It starts at the first number and stops before the second. for 0 to 3 runs 3 times: 0, 1, 2.',
+    rows:b=>{ const v = nm(b.fields.var) || 'i'; return [[K('for'),A('(int'),F('var','ident','i'),A('='),S('from','value','lit','0'),A(';'),L(v),A('<'),S('to','value','lit','end'),A(';'),L(v+'++'),A(') {')], {mouth:'body', ctx:'stmt'}, [A('}')]]; } },
+  break:{ kind:'stack', fits:['stmt'], cat:'loops', name:'break',
+    tip:'Jumps out of the loop straight away.', rows:b=>[[K('break'),A(';')]] },
+
+  math:{ kind:'value', cat:'maths', name:'Maths', def:{op:'+'},
+    tip:'Does a sum. / with two whole numbers drops the remainder. % gives just the remainder.',
+    rows:b=>[[S('a','value','lit','0'),D('op',['+','-','*','/','%']),S('b','value','lit','0')]] },
+
+  func:{ kind:'stack', fits:['top','member'], cat:'funcs', name:'Function', def:{np:'0'},
+    tip:'A named set of instructions you can run again and again. Drag in the type it gives back (void means nothing), type its name, then snap lines inside.',
+    rows:b=>{ const r = [S('ret','type'),F('name','ident','name','dl-funcs'),A('(')];
+      for(let i = 0; i < num(b,'np'); i++){ if(i) r.push(A(',')); r.push(S('pt'+i,'type'), F('pn'+i,'ident','input')); }
+      r.push(A(') {'), P('np',0,4,'input'));
+      return [r, {mouth:'body', ctx:'stmt'}, [A('}')]]; } },
+  main:{ kind:'stack', fits:['top'], cat:'funcs', name:'int main()',
+    tip:'Every C++ program starts running here. There can only be one main.',
+    rows:b=>[[K('int main'),A('() {')], {mouth:'body', ctx:'stmt'}, [A('}')]] },
+  call:{ kind:'stack', fits:['stmt'], cat:'funcs', name:'Run a function', def:{na:'0'},
+    tip:'Runs a function. Type its name exactly. Use + if the function needs inputs.',
+    rows:b=>[[F('name','ident','function','dl-funcs'),A('('),...argSlots(b,'na','a'),A(');'),P('na',0,4,'input')]] },
+  callv:{ kind:'value', anyShape:true, cat:'funcs', name:'Function answer', def:{na:'0'},
+    tip:'Runs a function and gives back its answer, so you can store it or compare it.',
+    rows:b=>[[F('name','ident','function','dl-funcs'),A('('),...argSlots(b,'na','a'),A(')'),P('na',0,4,'input')]] },
+  return:{ kind:'stack', fits:['stmt'], cat:'funcs', name:'return',
+    tip:'Ends the function and gives back a value. Leave the gap empty in a void function.',
+    rows:b=>[[K('return'),S('val','value','lit','value'),A(';')]] },
+
+  struct:{ kind:'stack', fits:['top'], cat:'classes', name:'struct',
+    tip:'Groups several variables together under one new type name. Everything inside a struct is public.',
+    rows:b=>[[K('struct'),F('name','ident','Name','dl-types'),A('{')], {mouth:'body', ctx:'member'}, [A('};')]] },
+  class:{ kind:'stack', fits:['top'], cat:'classes', name:'class', def:{inh:'public'},
+    tip:'A class bundles variables and functions together. Type a parent class to use inheritance: the new class gets everything the parent has.',
+    rows:b=>[[K('class'),F('name','ident','Name','dl-types'),A(':'),D('inh',['public','protected','private']),F('base','ident','parent (optional)','dl-types'),A('{')], {mouth:'body', ctx:'member'}, [A('};')]] },
+  access:{ kind:'stack', fits:['member'], cat:'classes', name:'public / private', def:{acc:'public'},
+    tip:'public: anyone can use the members below. private: only the class itself can. protected: the class and its children can.',
+    rows:b=>[[D('acc',['public','private','protected']),A(':')]] },
+  member:{ kind:'value', anyShape:true, cat:'classes', name:'Object member',
+    tip:'Gives back one variable inside an object, like score.xWins.',
+    rows:b=>[[F('obj','ident','object','dl-vars'),A('.'),F('field','ident','member')]] },
+  mcall:{ kind:'stack', fits:['stmt'], cat:'classes', name:'Run object function', def:{na:'0'},
+    tip:'Runs a function that belongs to an object, like host.welcome().',
+    rows:b=>[[F('obj','ident','object','dl-vars'),A('.'),F('method','ident','function'),A('('),...argSlots(b,'na','a'),A(');'),P('na',0,4,'input')]] },
+  mcallv:{ kind:'value', anyShape:true, cat:'classes', name:'Object function answer', def:{na:'0'},
+    tip:'Runs an object\'s function and gives back its answer.',
+    rows:b=>[[F('obj','ident','object','dl-vars'),A('.'),F('method','ident','function'),A('('),...argSlots(b,'na','a'),A(')'),P('na',0,4,'input')]] }
+};
+const TARGETS = new Set(['var','arrget1','arrget2','member']);
+function accepts(shape, type){
+  const d = DEFS[type];
+  if(shape === 'type') return d.kind === 'type';
+  if(shape === 'target') return TARGETS.has(type);
+  if(shape === 'bool') return d.kind === 'bool' || !!d.anyShape;
+  if(shape === 'value') return d.kind === 'value' || d.kind === 'bool';
+  return false;
+}
+function tipFor(b){ const d = DEFS[b.type]; return b.type === 'type' ? TYPE_TIPS[b.fields.t] : d.tip; }
+function shapeHint(type){
+  const d = DEFS[type];
+  if(d.kind === 'type') return 'Tag shape: a data type. It only fits tag-shaped gaps.';
+  if(d.kind === 'bool') return 'Hexagon: a yes or no question. Fits hexagon gaps and round gaps.';
+  if(d.kind === 'value') return d.anyShape ? 'Round: a value. Fits round gaps, and hexagon gaps if it holds true or false.' : 'Round: a value. Fits round gaps.';
+  const w = { top:'at the top level of the program', stmt:'inside a function', member:'inside a class or struct' };
+  return 'This is one line of code. It can go ' + d.fits.map(f => w[f]).join(', or ') + '.';
+}
+
+/* =====================================================================
+   2. MODEL
+   ===================================================================== */
+let blocks = {}, roots = [], seq = 1, selected = null;
+const undoStack = [];
+function chainIds(id, B = blocks){ const a = []; while(id && B[id]){ a.push(id); id = B[id].next; } return a; }
+function instantiate(spec, B = blocks){
+  const id = (B === blocks ? 'b' : 'r') + (seq++);
+  const b = { id, type:spec.t, fields:{ ...(DEFS[spec.t].def || {}), ...(spec.f || {}) }, inputs:{}, stacks:{}, next:null };
+  B[id] = b;
+  for(const k in (spec.i || {})) b.inputs[k] = instantiate(spec.i[k], B);
+  for(const k in (spec.s || {})){
+    const ids = (spec.s[k] || []).map(s => instantiate(s, B));
+    ids.forEach((x, i) => B[x].next = ids[i+1] || null);
+    b.stacks[k] = ids[0] || null;
+  }
+  return id;
+}
+function findParent(id){
+  for(const b of Object.values(blocks)){
+    if(b.next === id) return { b, rel:'next' };
+    for(const k in b.stacks) if(b.stacks[k] === id) return { b, rel:'stack', key:k };
+    for(const k in b.inputs) if(b.inputs[k] === id) return { b, rel:'input', key:k };
+  }
+  const r = roots.find(r => r.id === id);
+  return r ? { rel:'root', r } : null;
+}
+function detach(id){
+  const p = findParent(id); if(!p) return;
+  if(p.rel === 'next') p.b.next = null;
+  else if(p.rel === 'stack') p.b.stacks[p.key] = null;
+  else if(p.rel === 'input') p.b.inputs[p.key] = null;
+  else roots.splice(roots.indexOf(p.r), 1);
+}
+function deleteTree(id, withNext){
+  const b = blocks[id]; if(!b) return;
+  Object.values(b.inputs).forEach(c => c && deleteTree(c, true));
+  Object.values(b.stacks).forEach(c => c && deleteTree(c, true));
+  if(withNext && b.next) deleteTree(b.next, true);
+  delete blocks[id];
+}
+function removeOne(id){
+  const b = blocks[id]; if(!b) return;
+  const p = findParent(id);
+  const nx = DEFS[b.type].kind === 'stack' ? b.next : null;
+  b.next = null;
+  if(p){
+    if(p.rel === 'next') p.b.next = nx;
+    else if(p.rel === 'stack') p.b.stacks[p.key] = nx;
+    else if(p.rel === 'input') p.b.inputs[p.key] = null;
+    else if(nx) p.r.id = nx; else roots.splice(roots.indexOf(p.r), 1);
+  }
+  deleteTree(id, false);
+}
+function headParent(id){ let h = id, p; while((p = findParent(h)) && p.rel === 'next') h = p.b.id; return { head:h, p }; }
+function moveInChain(id, dir){
+  const { head, p } = headParent(id);
+  const ids = chainIds(head), i = ids.indexOf(id), j = i + dir;
+  if(j < 0 || j >= ids.length) return false;
+  [ids[i], ids[j]] = [ids[j], ids[i]];
+  ids.forEach((x, k) => blocks[x].next = ids[k+1] || null);
+  if(p && p.rel === 'stack') p.b.stacks[p.key] = ids[0];
+  else if(p && p.rel === 'root') p.r.id = ids[0];
+  return true;
+}
+function ctxOf(id){
+  const { head, p } = headParent(id);
+  if(!p) return null;
+  if(p.rel === 'root') return DEFS[blocks[head].type].fits[0];
+  if(p.rel === 'stack'){ const m = DEFS[p.b.type].rows(p.b).find(r => !Array.isArray(r) && r.mouth === p.key); return m ? m.ctx : 'stmt'; }
+  return null;
+}
+function mainRoot(){
+  const rs = roots.filter(r => blocks[r.id] && DEFS[blocks[r.id].type].kind === 'stack' && DEFS[blocks[r.id].type].fits.includes('top'));
+  return rs.find(r => chainIds(r.id).some(id => blocks[id].type === 'main'))
+      || rs.slice().sort((a,b) => chainIds(b.id).length - chainIds(a.id).length)[0] || null;
+}
+function subIds(id, B = blocks){
+  const out = [];
+  const walk = x => { if(!x || !B[x]) return; out.push(x); const b = B[x];
+    Object.values(b.inputs).forEach(walk);
+    Object.values(b.stacks).forEach(h => { for(let y = h; y && B[y]; y = B[y].next) walk(y); }); };
+  walk(id); return out;
+}
+function snapshot(){ undoStack.push(JSON.stringify({ blocks, roots, seq })); if(undoStack.length > 40) undoStack.shift(); }
+function undo(){
+  const s = undoStack.pop(); if(!s){ announce('Nothing to undo.'); return; }
+  const d = JSON.parse(s); blocks = d.blocks; roots = d.roots; seq = d.seq; selected = null;
+  render(); update(); announce('Undone.');
+}
+
+/* =====================================================================
+   3. RENDERING
+   ===================================================================== */
+const canvas = $('#canvas'), scroller = $('#scroller'), tip = $('#tip');
+const mctx = document.createElement('canvas').getContext('2d');
+function sizeInput(i){ mctx.font = `${(0.78 * settings.font).toFixed(1)}px "JetBrains Mono", ui-monospace, monospace`;
+  i.style.width = Math.ceil(Math.max(24, mctx.measureText(i.value || i.placeholder || '').width * 1.15 + 16)) + 'px';
+  const sp = i.value.length > 0 && !i.value.trim(); i.classList.toggle('spacey', sp); if(sp) i.title = i.title || 'This is a space character'; }
+function mkInput(b, key, kind, ph, list, mode, isShadow){
+  const i = document.createElement('input');
+  i.className = 'fi' + (isShadow ? ' shadow' : '');
+  i.value = b.fields[key] ?? ''; i.placeholder = ph || ''; i.spellcheck = false; i.autocomplete = 'off';
+  if(list) i.setAttribute('list', list);
+  if(kind === 'num' || kind === 'size') i.inputMode = 'decimal';
+  sizeInput(i);
+  if(mode === 'ws'){
+    i.dataset.fid = b.id + '.' + key;
+    i.setAttribute('aria-label', `${DEFS[b.type].name}: ${ph || key}`);
+    i.addEventListener('input', () => { b.fields[key] = i.value; sizeInput(i); scheduleUpdate(); });
+    i.addEventListener('change', () => { if(b.type === 'for' && key === 'var') render(); });
+    i.addEventListener('keydown', e => { if(e.key === 'Enter') i.blur(); e.stopPropagation(); });
+  } else { i.readOnly = true; i.tabIndex = -1; }
+  return i;
+}
+function renderPart(b, p, mode){
+  switch(p.p){
+    case 'kw': return span('kw', p.t);
+    case 'lbl': return span('lbl mono', p.t);
+    case 'auto': { const s = span('auto', p.t); s.title = 'Added for you'; return s; }
+    case 'field': return mkInput(b, p.key, p.kind, p.ph, p.list, mode, false);
+    case 'drop': {
+      const s = document.createElement('select'); s.className = 'fd';
+      p.opts.forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; s.appendChild(op); });
+      s.value = b.fields[p.key] ?? p.opts[0];
+      if(mode !== 'ws'){ s.disabled = true; s.tabIndex = -1; }
+      else {
+        s.setAttribute('aria-label', DEFS[b.type].name + ' choice');
+        s.addEventListener('pointerdown', e => e.stopPropagation());
+        s.addEventListener('change', () => { snapshot(); b.fields[p.key] = s.value; if((DEFS[b.type].rerender || []).includes(p.key)) render(); update(); });
+      }
+      return s;
+    }
+    case 'slot': {
+      const s = span('slot sh-' + p.shape, '');
+      s.dataset.owner = b.id; s.dataset.key = p.key; s.dataset.shape = p.shape;
+      const cid = b.inputs && b.inputs[p.key];
+      if(cid && blocks[cid] && mode !== 'pal') s.appendChild(renderBlock(blocks[cid], mode));
+      else {
+        s.classList.add('empty');
+        if(p.shadow) s.appendChild(mkInput(b, 'lit_' + p.key, p.shadow, p.ph, p.shadow === 'ident' ? 'dl-vars' : null, mode, true));
+        else s.appendChild(span('ph', p.shape === 'type' ? 'type' : '?'));
+      }
+      return s;
+    }
+    case 'plus': {
+      if(mode !== 'ws') return span('', '');
+      const w = span('plus', '');
+      const mk = (t, delta, label) => {
+        const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'pm'; bt.textContent = t; bt.setAttribute('aria-label', label);
+        bt.addEventListener('click', e => { e.stopPropagation(); snapshot();
+          b.fields[p.key] = String(Math.max(p.min, Math.min(p.max, num(b, p.key) + delta))); render(); update(); });
+        return bt;
+      };
+      w.append(mk('−', -1, 'Remove a ' + p.what), mk('+', 1, 'Add a ' + p.what));
+      return w;
+    }
+  }
+  return span('', '');
+}
+function renderMouth(b, m, mode){
+  const d = document.createElement('div'); d.className = 'b-mouth';
+  d.dataset.owner = b.id; d.dataset.key = m.mouth; d.dataset.ctx = m.ctx || 'stmt';
+  const head = b.stacks && b.stacks[m.mouth];
+  if(head && blocks[head] && mode !== 'pal') renderChainInto(d, head, mode);
+  else d.appendChild(span('mouth-empty', m.ctx === 'member' ? '↳ put members here' : '↳ snap lines in here'));
+  return d;
+}
+function renderChainInto(container, head, mode){
+  const ids = chainIds(head);
+  ids.forEach((id, i) => { const el = renderBlock(blocks[id], mode); el.style.zIndex = String(ids.length - i + 1); container.appendChild(el); });
+}
+function renderBlock(b, mode){
+  const d = DEFS[b.type], el = document.createElement('div');
+  el.className = 'b k-' + d.kind + (d.kind === 'stack' ? ' n-' + d.fits[0] : '');
+  el.style.setProperty('--c', CAT[d.cat].color);
+  if(mode === 'ws'){ el.dataset.id = b.id; el.tabIndex = 0; el.setAttribute('aria-label', d.name + ' block'); }
+  const badge = () => { const s = span('ebadge', '!'); s.hidden = true; s.setAttribute('aria-hidden', 'true'); return s; };
+  const rows = d.rows(b);
+  if(d.kind === 'stack'){
+    let first = true;
+    for(const r of rows){
+      if(Array.isArray(r)){ const row = document.createElement('div'); row.className = 'b-row';
+        r.forEach(p => row.appendChild(renderPart(b, p, mode)));
+        if(first){ row.appendChild(badge()); first = false; }
+        el.appendChild(row);
+      } else el.appendChild(renderMouth(b, r, mode));
+    }
+  } else { rows[0].forEach(p => el.appendChild(renderPart(b, p, mode))); el.appendChild(badge()); }
+  return el;
+}
+function render(){
+  $$('#canvas > .root').forEach(e => e.remove());
+  roots = roots.filter(r => blocks[r.id]);
+  for(const r of roots){
+    const w = document.createElement('div'); w.className = 'root';
+    w.style.left = r.x + 'px'; w.style.top = r.y + 'px'; w.dataset.root = r.id;
+    const hb = blocks[r.id], d = DEFS[hb.type];
+    w.dataset.ctx = d.kind === 'stack' ? d.fits[0] : 'none';
+    if(d.kind === 'stack') renderChainInto(w, r.id, 'ws'); else w.appendChild(renderBlock(hb, 'ws'));
+    canvas.appendChild(w);
+  }
+  $('#emptyHint').hidden = roots.length > 0;
+  markSelected(); decorate();
+}
+function blockEl(id){ return canvas.querySelector(`.b[data-id="${id}"]`); }
+function markSelected(){
+  $$('#canvas .b.sel').forEach(e => e.classList.remove('sel'));
+  if(selected && blocks[selected]){ const el = blockEl(selected); if(el) el.classList.add('sel'); } else selected = null;
+  const db = $('#delBtn'); if(db){ db.disabled = !selected; db.setAttribute('aria-label', selected ? 'Delete the selected ' + DEFS[blocks[selected].type].name + ' block' : 'Delete block (select a block first)'); }
+}
+function flashBlock(id){ const el = blockEl(id); if(!el) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  el.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'smooth' }); setTimeout(() => el.classList.remove('flash'), 1700); }
+
+/* =====================================================================
+   4. DRAG AND DROP
+   ===================================================================== */
+let press = null, drag = null;
+const dragLayer = $('#dragLayer'), snapInd = $('#snapInd');
+function inRect(el, x, y){ const r = el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; }
+function overBin(e){ return inRect($('#trash'), e.clientX, e.clientY) || inRect($('#palBin'), e.clientX, e.clientY); }
+function placePalBin(){ const r = $('#right').getBoundingClientRect(), pb = $('#palBin');
+  const top = Math.max(0, r.top), bottom = Math.min(innerHeight, r.bottom);
+  if(bottom - top < 40 || r.width < 40){ pb.style.width = '0px'; pb.style.height = '0px'; return; }
+  pb.style.left = r.left + 'px'; pb.style.top = top + 'px'; pb.style.width = r.width + 'px'; pb.style.height = (bottom - top) + 'px'; }
+
+canvas.addEventListener('pointerdown', e => {
+  if(e.button > 0) return;
+  const bel = e.target.closest('.b[data-id]');
+  if(!bel){ selected = null; markSelected(); return; }
+  if(e.target.closest('input,select,button')) { selected = bel.dataset.id; markSelected(); return; }
+  if(e.pointerType === 'mouse') e.preventDefault();
+  selected = bel.dataset.id; markSelected(); bel.focus({ preventScroll:true });
+  const r = bel.getBoundingClientRect();
+  press = { id:bel.dataset.id, x:e.clientX, y:e.clientY, pid:e.pointerId, dx:e.clientX - r.left, dy:e.clientY - r.top };
+});
+window.addEventListener('pointermove', e => {
+  if(drag){ moveDrag(e); return; }
+  if(!press || e.pointerId !== press.pid) return;
+  if(Math.hypot(e.clientX - press.x, e.clientY - press.y) < 6) return;
+  startDrag(e);
+});
+window.addEventListener('pointerup', e => {
+  if(drag){ endDrag(e); return; }
+  if(press && press.spec && e.pointerId === press.pid) quickAdd(press.spec);
+  press = null;
+});
+window.addEventListener('pointercancel', e => { if(drag) endDrag(e, true); press = null; });
+
+function startDrag(e){
+  snapshot(); hideTip();
+  let id, dx, dy;
+  if(press.spec){ setTab('blocks'); id = instantiate(press.spec); dx = 18; dy = 14; }
+  else { id = press.id; dx = press.dx; dy = press.dy; detach(id); }
+  press = null;
+  drag = { id, dx, dy, pid:e.pointerId, target:null }; document.body.classList.add('dragging'); placePalBin();
+  render();
+  dragLayer.innerHTML = '';
+  const g = document.createElement('div'); g.className = 'root'; g.style.position = 'relative';
+  if(DEFS[blocks[id].type].kind === 'stack') renderChainInto(g, id, 'drag'); else g.appendChild(renderBlock(blocks[id], 'drag'));
+  dragLayer.appendChild(g); drag.ghost = g;
+  collectTargets(); moveDrag(e);
+  scroller.addEventListener('scroll', collectTargets);
+}
+function collectTargets(){
+  if(!drag) return;
+  const T = [], type = blocks[drag.id].type, d = DEFS[type];
+  if(d.kind === 'stack'){
+    const types = chainIds(drag.id).map(id => blocks[id].type);
+    const fits = ctx => types.every(t => DEFS[t].fits.includes(ctx));
+    $$('#canvas .b.k-stack').forEach(el => { const ctx = el.parentElement.dataset.ctx; if(!ctx || !fits(ctx)) return;
+      const r = el.getBoundingClientRect(); T.push({ k:'after', id:el.dataset.id, x:r.left, y:r.bottom, w:r.width }); });
+    $$('#canvas .b-mouth').forEach(el => { if(!fits(el.dataset.ctx)) return;
+      const r = el.getBoundingClientRect(); T.push({ k:'start', owner:el.dataset.owner, key:el.dataset.key, x:r.left, y:r.top, w:Math.max(140, r.width) }); });
+    $$('#canvas > .root').forEach(el => { const ctx = el.dataset.ctx; if(ctx === 'none' || !fits(ctx)) return;
+      const r = el.getBoundingClientRect(); T.push({ k:'before', root:el.dataset.root, x:r.left, y:r.top, w:r.width }); });
+  } else {
+    $$('#canvas .slot.empty').forEach(el => { if(!accepts(el.dataset.shape, type)) return;
+      T.push({ k:'slot', owner:el.dataset.owner, key:el.dataset.key, el, r:el.getBoundingClientRect() }); });
+  }
+  drag.targets = T;
+}
+function moveDrag(e){
+  if(!drag || e.pointerId !== drag.pid) return;
+  drag.ghost.style.left = (e.clientX - drag.dx) + 'px'; drag.ghost.style.top = (e.clientY - drag.dy) + 'px';
+  const sr = scroller.getBoundingClientRect();
+  if(e.clientX > sr.right - 36 && e.clientX < sr.right + 4) scroller.scrollLeft += 14;
+  if(e.clientX < sr.left + 36 && e.clientX > sr.left - 4) scroller.scrollLeft -= 14;
+  if(e.clientY > sr.bottom - 36 && e.clientY < sr.bottom + 4) scroller.scrollTop += 14;
+  if(e.clientY < sr.top + 36 && e.clientY > sr.top - 4) scroller.scrollTop -= 14;
+  const bin = overBin(e); $('#trash').classList.toggle('hot', inRect($('#trash'), e.clientX, e.clientY)); $('#palBin').classList.toggle('hot', inRect($('#palBin'), e.clientX, e.clientY));
+  if(drag.target && drag.target.el) drag.target.el.classList.remove('hot');
+  drag.target = null; snapInd.hidden = true;
+  if(bin) return;
+  const g = drag.ghost.getBoundingClientRect();
+  let best = null, bd = 56;
+  for(const t of drag.targets){
+    let dd;
+    if(t.k === 'slot'){
+      if(e.clientX >= t.r.left && e.clientX <= t.r.right && e.clientY >= t.r.top && e.clientY <= t.r.bottom) dd = 0;
+      else dd = Math.hypot(g.left - t.r.left, (g.top + g.height/2) - (t.r.top + t.r.height/2));
+      if(dd < 46 && dd < bd){ bd = dd; best = t; }
+    } else {
+      dd = t.k === 'before' ? Math.hypot(g.left - t.x, g.bottom - t.y) : Math.hypot(g.left - t.x, g.top - t.y);
+      if(dd < bd){ bd = dd; best = t; }
+    }
+  }
+  drag.target = best;
+  if(best){
+    if(best.k === 'slot') best.el.classList.add('hot');
+    else { snapInd.hidden = false; snapInd.style.left = best.x + 'px'; snapInd.style.top = (best.y - 3) + 'px'; snapInd.style.width = Math.min(best.w, 320) + 'px'; }
+  }
+}
+function endDrag(e, cancel){
+  const d = drag; drag = null;
+  const binDrop = !cancel && overBin(e);
+  document.body.classList.remove('dragging');
+  scroller.removeEventListener('scroll', collectTargets);
+  snapInd.hidden = true; $('#trash').classList.remove('hot'); $('#palBin').classList.remove('hot');
+  if(d.target && d.target.el) d.target.el.classList.remove('hot');
+  const g = d.ghost.getBoundingClientRect(); dragLayer.innerHTML = '';
+  const id = d.id, name = DEFS[blocks[id].type].name;
+  if(binDrop){ deleteTree(id, true); selected = null; clickSound(220); announce(name + ' deleted.'); }
+  else if(!cancel && d.target){
+    const t = d.target, tail = chainIds(id).slice(-1)[0];
+    if(t.k === 'after'){ const b = blocks[t.id]; blocks[tail].next = b.next; b.next = id; }
+    else if(t.k === 'start'){ const o = blocks[t.owner]; blocks[tail].next = o.stacks[t.key] || null; o.stacks[t.key] = id; }
+    else if(t.k === 'before'){ const r = roots.find(r => r.id === t.root); blocks[tail].next = r.id; r.id = id; r.y = Math.max(0, r.y - g.height); }
+    else if(t.k === 'slot'){ blocks[t.owner].inputs[t.key] = id; }
+    clickSound(); announce(name + ' snapped into place.');
+  } else {
+    const cr = canvas.getBoundingClientRect();
+    roots.push({ id, x:Math.max(0, Math.round(g.left - cr.left)), y:Math.max(0, Math.round(g.top - cr.top)) });
+  }
+  if(blocks[id]) selected = id;
+  render(); update();
+  if(blocks[id]) flashBlock(id);
+}
+
+function firstEmptySlot(id, type){
+  const b = blocks[id]; if(!b) return null;
+  for(const r of DEFS[b.type].rows(b)){
+    if(!Array.isArray(r)) continue;
+    for(const p of r){
+      if(p.p !== 'slot') continue;
+      const c = b.inputs[p.key];
+      if((!c || !blocks[c]) && accepts(p.shape, type)) return { owner:id, key:p.key };
+      if(c && blocks[c]){ const s = firstEmptySlot(c, type); if(s) return s; }
+    }
+  }
+  return null;
+}
+function freeSpot(){ const n = roots.length; return { x:scroller.scrollLeft + Math.max(40, scroller.clientWidth - 380) - (n % 4) * 20, y:scroller.scrollTop + 40 + (n % 6) * 46 }; }
+function quickAdd(spec){
+  setTab('blocks'); snapshot();
+  const id = instantiate(spec), b = blocks[id], d = DEFS[b.type];
+  const sel = selected && blocks[selected] ? blocks[selected] : null;
+  let placed = false, where = '';
+  if(d.kind === 'stack'){
+    if(sel && DEFS[sel.type].kind === 'stack'){
+      const m = DEFS[sel.type].rows(sel).find(r => !Array.isArray(r) && !sel.stacks[r.mouth] && d.fits.includes(r.ctx));
+      if(m){ sel.stacks[m.mouth] = id; placed = true; where = 'inside ' + DEFS[sel.type].name; }
+      else { const ctx = ctxOf(sel.id); if(ctx && d.fits.includes(ctx)){ b.next = sel.next; sel.next = id; placed = true; where = 'under ' + DEFS[sel.type].name; } }
+    }
+    if(!placed && d.fits.includes('top')){
+      const mr = mainRoot();
+      if(mr){ const ids = chainIds(mr.id); blocks[ids[ids.length-1]].next = id; } else roots.push({ id, x:40, y:40 });
+      placed = true; where = 'to the bottom of your program';
+    }
+  } else if(sel){
+    const s = firstEmptySlot(sel.id, b.type);
+    if(s){ blocks[s.owner].inputs[s.key] = id; placed = true; where = 'into a gap in ' + DEFS[sel.type].name; }
+  }
+  if(!placed){ const p = freeSpot(); roots.push({ id, x:p.x, y:p.y }); where = 'to the canvas. Drag it into place'; }
+  selected = id; render(); update(); clickSound();
+  const el = blockEl(id); if(el){ el.focus({ preventScroll:true }); flashBlock(id); }
+  announce(`${d.name} added ${where}.`);
+}
+canvas.addEventListener('keydown', e => {
+  const el = e.target; if(!el.classList || !el.classList.contains('b')) return;
+  const id = el.dataset.id; selected = id;
+  if(e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); snapshot(); const p = findParent(id); removeOne(id); selected = null; render(); update(); announce('Block removed.');
+    if(p && p.b && blockEl(p.b.id)) blockEl(p.b.id).focus(); }
+  else if((e.key === 'ArrowUp' || e.key === 'ArrowDown') && DEFS[blocks[id].type].kind === 'stack'){
+    e.preventDefault(); snapshot();
+    if(moveInChain(id, e.key === 'ArrowUp' ? -1 : 1)){ render(); update(); const n = blockEl(id); if(n) n.focus(); announce('Moved.'); } else announce(e.key === 'ArrowUp' ? 'Already at the top.' : 'Already at the bottom.');
+  } else if(e.key === 'Escape'){ selected = null; markSelected(); }
+});
+document.addEventListener('keydown', e => {
+  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.target.closest('input,textarea')){ e.preventDefault(); undo(); }
+  if(e.key === 'Escape') hideTip();
+});
+
+/* =====================================================================
+   5. TOOLTIPS
+   ===================================================================== */
+function showTip(anchor, b, errs){
+  const d = DEFS[b.type];
+  tip.innerHTML = `<strong>${esc(b.type === 'type' ? b.fields.t : d.name)}</strong>${esc(tipFor(b) || '')}<span class="t-shape">${esc(shapeHint(b.type))}</span>` +
+    (errs && errs.length ? errs.slice(0,3).map(e => `<span class="t-err">⚠ ${esc(e.msg)}</span>`).join('') : '');
+  tip.hidden = false;
+  const r = anchor.getBoundingClientRect(), tw = tip.offsetWidth, th = tip.offsetHeight;
+  let left = r.left - tw - 12, top = r.top;
+  if(left < 8){ left = r.right + 12; if(left + tw > innerWidth - 8){ left = Math.max(8, Math.min(r.left, innerWidth - tw - 8)); top = r.bottom + 10; } }
+  if(top + th > innerHeight - 8) top = Math.max(8, r.top - th - 10);
+  tip.style.left = (left + scrollX) + 'px'; tip.style.top = (top + scrollY) + 'px';
+}
+function hideTip(){ tip.hidden = true; }
+let tipEl = null;
+canvas.addEventListener('pointerover', e => {
+  if(drag || press) return;
+  const el = e.target.closest('.b[data-id]'); if(!el || el === tipEl) return;
+  tipEl = el; const b = blocks[el.dataset.id]; if(!b) return;
+  showTip(el, b, (C.errs || []).filter(x => x.id === b.id));
+});
+canvas.addEventListener('pointerleave', () => { tipEl = null; hideTip(); });
+canvas.addEventListener('focusin', e => { const el = e.target.closest('.b[data-id]'); if(el && blocks[el.dataset.id]) showTip(el, blocks[el.dataset.id], (C.errs||[]).filter(x => x.id === el.dataset.id)); });
+canvas.addEventListener('focusout', hideTip);
+
+/* =====================================================================
+   6. COMPILER: checks every block and writes the C++
+   ===================================================================== */
+const NUMERIC = new Set(['int','double','char','bool']);
+const KNOWN_LIBS = ['iostream','string','cmath','cstdlib','ctime','vector','iomanip','fstream','algorithm','array','map','random','sstream','limits'];
+const KEYWORDS = new Set('alignas alignof and asm auto bool break case catch char class const continue default delete do double else enum explicit export extern false float for friend goto if inline int long namespace new not nullptr operator or private protected public return short signed sizeof static struct switch template this throw true try typedef typename union unsigned using virtual void volatile while'.split(' '));
+const RESERVED = new Set(['cout','cin','endl','std','string','main']);
+const BUILTINS = {
+  rand:{ ret:'int', params:[], inc:'cstdlib' }, abs:{ ret:'int', params:['int'], inc:'cstdlib' },
+  sqrt:{ ret:'double', params:['double'], inc:'cmath' }, pow:{ ret:'double', params:['double','double'], inc:'cmath' },
+  to_string:{ ret:'string', params:['double'], inc:'string' }
+};
+const TW = { int:'a whole number (int)', double:'a decimal number (double)', char:'a single letter (char)', bool:'true or false (bool)', string:'text (string)', void:'nothing (void)', endl:'endl' };
+const tw = t => TW[t] || (t && t.endsWith('[]') ? 'a whole list or grid' : 'a ' + t + ' object');
+const isInt = s => /^[+-]?\d+$/.test(s), isNum = s => /^[+-]?(\d+\.?\d*|\.\d+)$/.test(s);
+function lev(a, b){ const m = [...Array(b.length + 1).keys()]; for(let i = 1; i <= a.length; i++){ let p = m[0]; m[0] = i; for(let j = 1; j <= b.length; j++){ const t = m[j]; m[j] = Math.min(m[j] + 1, m[j-1] + 1, p + (a[i-1] === b[j-1] ? 0 : 1)); p = t; } } return m[b.length]; }
+function identErr(s){
+  if(!s) return 'Type a name here.';
+  if(/\s/.test(s)) return 'Names cannot have spaces. Join the words, like currentPlayer.';
+  if(/^\d/.test(s)) return 'Names cannot start with a number.';
+  if(!/^[A-Za-z_][A-Za-z0-9_]*$/.test(s)) return 'Names can only use letters, numbers and _ (no symbols).';
+  if(KEYWORDS.has(s)) return `"${s}" is a C++ word with a special job. Pick a different name.`;
+  return null;
+}
+let X = null;
+function newCtx(B){ return { B, errs:[], warns:[], lines:[], ranges:{}, lit:{}, loose:new Set(), mainHead:null, onceFlags:{},
+  G:{ includes:new Set(), std:false, types:{}, globals:new Map(), funcs:{}, hasMain:false, later:{ funcs:new Set(), vars:new Set(), types:new Set() } } }; }
+function err(id, msg, field, gcc){ X.errs.push({ id, msg, field:field || null, gcc:gcc || msg, line:X.lines.length + 1 }); }
+const out = (ind, s) => X.lines.push('    '.repeat(ind) + s);
+const chainX = id => chainIds(id, X.B);
+const kid = (b, k) => (b.inputs[k] && X.B[b.inputs[k]]) || null;
+const hasVal = (b, k) => !!kid(b, k) || (b.fields['lit_' + k] ?? '') !== '';
+function quoteStr(t){ return '"' + t.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"'; }
+function quoteChar(t){ return "'" + (t === "'" ? "\\'" : t === '\\' ? '\\\\' : t) + "'"; }
+
+function needIO(id){
+  if(!X.G.includes.has('iostream')){ if(!X.onceFlags.io){ X.onceFlags.io = 1; err(id, 'cout and cin live in the iostream library. Add #include <iostream> at the top.', null, "'cout' was not declared in this scope"); } return; }
+  if(!X.G.std && !X.onceFlags.std){ X.onceFlags.std = 1; err(id, 'C++ cannot find cout. Add a "using namespace std" block under your includes.', null, "'cout' was not declared in this scope"); }
+}
+function needString(id){
+  if(!X.G.includes.has('string') && !X.onceFlags.str){ X.onceFlags.str = 1; err(id, 'To use string, add #include <string> near the top.', null, "'string' does not name a type"); }
+}
+function typeOfSlot(b, key, allowVoid, silent){
+  const c = kid(b, key);
+  if(!c){ if(!silent) err(b.id, 'Drag a data type (like int or char) into the tag-shaped gap.', null, 'expected a type'); return '?'; }
+  if(c.type === 'type'){
+    const t = c.fields.t;
+    if(t === 'void' && !allowVoid){ if(!silent) err(c.id, 'void means "nothing", so it cannot store a value. Pick another type.'); return '?'; }
+    if(t === 'string' && !silent) needString(c.id);
+    return t;
+  }
+  const n = nm(c.fields.t);
+  if(silent) return n || '?';
+  const ie = identErr(n); if(ie){ err(c.id, ie, 't'); return '?'; }
+  if(!X.G.types[n]){ err(c.id, X.G.later.types.has(n) ? `${n} is made further down. Move the ${n} block above this line.` : `There is no struct or class called ${n}. Check the spelling.`, 't', `'${n}' does not name a type`); return '?'; }
+  return n;
+}
+function findMember(cls, name){ let c = X.G.types[cls]; while(c){ if(c.members[name]) return { ...c.members[name], owner:c.name }; c = c.base ? X.G.types[c.base] : null; } return null; }
+function isDerived(a, b){ let c = X.G.types[a]; while(c){ if(c.name === b) return true; c = c.base ? X.G.types[c.base] : null; } return false; }
+function canAccess(m, sc){ if(m.access === 'public') return true; if(!sc.cls) return false; if(m.access === 'private') return sc.cls === m.owner; return isDerived(sc.cls, m.owner); }
+function lookupT(n, sc){ for(let i = sc.vars.length - 1; i >= 0; i--) if(sc.vars[i].has(n)) return sc.vars[i].get(n);
+  if(sc.cls){ const m = findMember(sc.cls, n); if(m && !m.method) return m.type; } return X.G.globals.get(n) || null; }
+function noVar(n){ return X.G.later.vars.has(n) ? `${n} is made further down. A variable must be made above the line that uses it.` : `There is no variable called ${n} here. Check the spelling (capital letters matter), or make it first with a New variable block.`; }
+function compat(to, from, id){
+  if(to === '?' || from === '?' || !to || !from || to === from) return;
+  if(NUMERIC.has(to) && NUMERIC.has(from)) return;
+  if(X.G.types[to] && isDerived(from, to)) return;
+  let hint = '';
+  if(to === 'char' && from === 'string') hint = ' Use the single letter block, or type just one character.';
+  if(NUMERIC.has(to) && from === 'string') hint = ' Type a number without any letters.';
+  err(id, `You cannot put ${tw(from)} into ${tw(to)}.${hint}`, null, `cannot convert '${from}' to '${to}'`);
+}
+function lit(o, key, exp){
+  const raw = o.fields['lit_' + key] ?? '', f = 'lit_' + key;
+  const rec = (kind, code, type) => { X.lit[o.id + '.' + key] = { kind, v:raw }; return { code, type }; };
+  if(raw === ''){
+    err(o.id, 'This gap is empty. Type a value, or drag a block in.', f, 'expected an expression'); return { code:'?', type:'?' }; }
+  let e = exp, t = raw;
+  if(e === 'cout' || !e || e === '?') e = isInt(t.trim()) ? 'int' : isNum(t.trim()) ? 'double' : 'string';
+  if(e === 'num') e = isInt(t.trim()) ? 'int' : isNum(t.trim()) ? 'double' : 'badnum';
+  switch(e){
+    case 'int': if(isInt(t.trim())) return rec('int', String(parseInt(t, 10)), 'int');
+      err(o.id, isNum(t.trim()) ? 'An int is a whole number. Take out the decimal point.' : `This needs a whole number, like 5. "${t}" is not a number.`, f, `invalid conversion to 'int'`); break;
+    case 'double': if(isNum(t.trim())) return rec('double', t.trim(), 'double');
+      err(o.id, `This needs a number, like 2.5. "${t}" is not a number.`, f); break;
+    case 'char': if([...t].length === 1) return rec('char', quoteChar(t), 'char');
+      err(o.id, `A char holds exactly one letter, digit or symbol. You typed ${[...t].length}. To store more, use the string type.`, f, 'multi-character character constant'); break;
+    case 'bool': if(t.trim() === 'true' || t.trim() === 'false') return rec('bool', t.trim(), 'bool');
+      err(o.id, 'Type true or false here.', f); break;
+    case 'string': return rec('string', quoteStr(t), 'string');
+    case 'badnum': err(o.id, `Maths needs a number here, like 3. "${t}" is not a number.`, f); break;
+    default: err(o.id, `This gap needs ${tw(e)}, so you cannot type a value here. Drag in a variable instead.`, f);
+  }
+  return { code:'?', type:'?' };
+}
+function identShadow(o, key, sc){
+  const raw = nm(o.fields['lit_' + key]), f = 'lit_' + key;
+  if(!raw){ err(o.id, 'Type the name of a variable here, or drag a variable block in.', f); return { code:'?', type:'?' }; }
+  const ie = identErr(raw); if(ie){ err(o.id, ie, f); return { code:raw, type:'?' }; }
+  const t = lookupT(raw, sc);
+  if(!t){ err(o.id, noVar(raw), f, `'${raw}' was not declared in this scope`); return { code:raw, type:'?' }; }
+  X.lit[o.id + '.' + key] = { kind:'ident', v:raw };
+  return { code:raw, type:t };
+}
+function ex(o, key, exp, sc){ const c = kid(o, key); if(c) return exB(c, exp, sc); return key === 'target' ? identShadow(o, key, sc) : lit(o, key, exp); }
+const wrapIf = (c, r, types) => (c && types.includes(c.type)) ? `(${r.code})` : r.code;
+function exB(b, exp, sc){
+  const Q = { code:'?', type:'?' };
+  switch(b.type){
+    case 'var': { const n = nm(b.fields.name), ie = identErr(n); if(ie){ err(b.id, ie, 'name'); return Q; }
+      const t = lookupT(n, sc); if(!t){ err(b.id, noVar(n), 'name', `'${n}' was not declared in this scope`); return { code:n, type:'?' }; } return { code:n, type:t }; }
+    case 'arrget1': case 'arrget2': {
+      const dims = b.type === 'arrget1' ? 1 : 2, n = nm(b.fields.name), ie = identErr(n);
+      let t = ie ? (err(b.id, ie, 'name'), '?') : lookupT(n, sc);
+      if(!t){ err(b.id, noVar(n), 'name'); t = '?'; }
+      const cnt = t === '?' ? dims : (t.match(/\[\]/g) || []).length;
+      if(t !== '?' && cnt === 0){ err(b.id, `${n} is not a list or grid, so it has no [ ] positions.`, 'name'); t = '?'; }
+      else if(cnt !== dims){ err(b.id, `${n} is a ${cnt === 2 ? 'grid' : 'list'}. Use the ${cnt === 2 ? 'Grid item [ ][ ]' : 'List item [ ]'} block.`, 'name'); t = '?'; }
+      const idx = k => { const r = ex(b, k, 'int', sc); if(r.type !== '?' && !NUMERIC.has(r.type)) err(b.id, 'A position must be a whole number.'); return r.code; };
+      const i = idx('i'), j = dims === 2 ? idx('j') : null;
+      return { code:`${n}[${i}]` + (dims === 2 ? `[${j}]` : ''), type:t === '?' ? '?' : t.replace(/\[\]/g, '') };
+    }
+    case 'member': {
+      const o = nm(b.fields.obj), f = nm(b.fields.field);
+      const oi = identErr(o); if(oi){ err(b.id, oi, 'obj'); return Q; }
+      const ot = lookupT(o, sc); if(!ot){ err(b.id, noVar(o), 'obj'); return Q; }
+      if(!X.G.types[ot]){ err(b.id, `${o} is ${tw(ot)}, not an object, so it has no members.`, 'obj'); return Q; }
+      const m = findMember(ot, f);
+      if(!m){ err(b.id, f ? `${ot} has no member called ${f}.` : 'Type the member name.', 'field', `'${ot}' has no member named '${f}'`); return { code:`${o}.${f}`, type:'?' }; }
+      if(m.method){ err(b.id, `${f} is a function. Use the "Object function answer" block instead.`, 'field'); return Q; }
+      if(!canAccess(m, sc)) err(b.id, `${f} is ${m.access} in ${m.owner}, so only ${m.owner}'s own functions can use it. Put a public: label above it to share it.`, 'field', `'${f}' is ${m.access} within this context`);
+      return { code:`${o}.${f}`, type:m.type };
+    }
+    case 'number': { const v = nm(b.fields.v); if(isInt(v)) return { code:String(parseInt(v,10)), type:'int' }; if(isNum(v)) return { code:v, type:'double' };
+      err(b.id, 'Type a number, like 5 or 2.5.', 'v'); return Q; }
+    case 'text': return { code:quoteStr(b.fields.v || ''), type:'string' };
+    case 'letter': { const v = b.fields.v ?? ''; if([...v].length !== 1){ err(b.id, `A char holds exactly one letter, digit or symbol. You typed ${[...v].length}.`, 'v'); return Q; } return { code:quoteChar(v), type:'char' }; }
+    case 'boolv': return { code:b.fields.v || 'true', type:'bool' };
+    case 'endl': if(exp !== 'cout') err(b.id, 'endl only works inside a cout block.'); return { code:'endl', type:'endl' };
+    case 'math': case 'cmp': return binary(b, sc);
+    case 'logic': {
+      const one = k => { const c = kid(b, k); if(!c){ err(b.id, 'Drag a yes or no question (hexagon) into each gap.'); return '?'; }
+        const r = exB(c, 'bool', sc); if(r.type !== '?' && !NUMERIC.has(r.type)) err(c.id, `This needs a yes or no question, but it is ${tw(r.type)}.`); return wrapIf(c, r, ['logic']); };
+      return { code:`${one('a')} ${b.fields.op || '&&'} ${one('b')}`, type:'bool' };
+    }
+    case 'not': { const c = kid(b, 'a'); if(!c){ err(b.id, 'Drag a yes or no question into the gap.'); return Q; }
+      const r = exB(c, 'bool', sc); return { code:'!' + wrapIf(c, r, ['cmp','logic','math','not']), type:'bool' }; }
+    case 'callv': return callCheck(b, sc, true);
+    case 'mcallv': return methodCheck(b, sc, true);
+  }
+  err(b.id, 'This block does not fit here.'); return Q;
+}
+function binary(b, sc){
+  const isMath = b.type === 'math', op = b.fields.op || (isMath ? '+' : '==');
+  const ca = kid(b, 'a'), cb = kid(b, 'b');
+  let ra = ca ? exB(ca, isMath ? 'num' : null, sc) : null, rb = cb ? exB(cb, isMath ? 'num' : null, sc) : null;
+  const expFor = o => isMath ? ((o && o.type === 'string' && op === '+') ? 'string' : 'num') : (o && o.type !== '?' ? o.type : null);
+  if(!ra) ra = lit(b, 'a', expFor(rb));
+  if(!rb) rb = lit(b, 'b', expFor(ra));
+  const ta = ra.type, tb = rb.type;
+  const code = `${wrapIf(ca, ra, ['math'])} ${op} ${wrapIf(cb, rb, ['math'])}`;
+  if(ta === '?' || tb === '?') return { code, type:isMath ? '?' : 'bool' };
+  if(isMath){
+    if(ta === 'string' || tb === 'string'){
+      if(op === '+' && ta === tb) return { code, type:'string' };
+      err(b.id, op === '+' ? 'You can only join text to text. Use another cout piece instead.' : `You can only use + with text, not ${op}.`); return { code, type:'?' };
+    }
+    if(!NUMERIC.has(ta) || !NUMERIC.has(tb)){ err(b.id, 'Maths only works with numbers.'); return { code, type:'?' }; }
+    if(op === '%' && (ta === 'double' || tb === 'double')) err(b.id, '% (the remainder) only works with whole numbers.');
+    if((op === '/' || op === '%') && !cb && nm(b.fields.lit_b) === '0') err(b.id, 'You cannot divide by zero.', 'lit_b');
+    return { code, type:(ta === 'double' || tb === 'double') ? 'double' : 'int' };
+  }
+  const ok = (ta === 'string' && tb === 'string') || (NUMERIC.has(ta) && NUMERIC.has(tb));
+  if(!ok) err(b.id, `You cannot compare ${tw(ta)} with ${tw(tb)}.`, null, `no match for 'operator${op}'`);
+  return { code, type:'bool' };
+}
+function argsCheck(b, sig, sc, label){
+  const na = num(b, 'na'), a = [];
+  if(sig && na !== sig.params.length) err(b.id, `${label} needs ${sig.params.length} input${sig.params.length === 1 ? '' : 's'}, but this block has ${na}. Use + or − to fix it.`, null, `too ${na > sig.params.length ? 'many' : 'few'} arguments to function '${label}'`);
+  for(let i = 0; i < na; i++){ const pt = sig ? sig.params[i] : null; const r = ex(b, 'a' + i, pt || null, sc); if(pt) compat(pt, r.type, b.id); a.push(r.code); }
+  return a.join(', ');
+}
+function callCheck(b, sc, asValue){
+  const n = nm(b.fields.name), ie = identErr(n);
+  if(ie){ err(b.id, ie, 'name'); return { code:'?', type:'?' }; }
+  if(n === 'main') err(b.id, 'Do not run main yourself. C++ runs it for you when the program starts.', 'name');
+  let sig = null;
+  if(sc.cls){ const m = findMember(sc.cls, n); if(m && m.method) sig = m; }
+  if(!sig) sig = X.G.funcs[n] || BUILTINS[n] || null;
+  if(!sig) err(b.id, X.G.later.funcs.has(n) ? `${n} is written further down. A function must be written above the code that uses it. Move the ${n} block higher up.` : `There is no function called ${n}. Check the spelling (capital letters matter).`, 'name', `'${n}' was not declared in this scope`);
+  else if(sig.inc && !X.G.includes.has(sig.inc)) err(b.id, `${n} lives in the ${sig.inc} library. Add #include <${sig.inc}> at the top.`);
+  const a = argsCheck(b, sig, sc, n);
+  if(sig && asValue && sig.ret === 'void') err(b.id, `${n} is a void function, so it gives back nothing. Use the "Run a function" block instead.`, null, 'void value not ignored as it ought to be');
+  return { code:`${n}(${a})`, type:sig ? sig.ret : '?' };
+}
+function methodCheck(b, sc, asValue){
+  const o = nm(b.fields.obj), m = nm(b.fields.method);
+  const oi = identErr(o); if(oi){ err(b.id, oi, 'obj'); return { code:'?', type:'?' }; }
+  const ot = lookupT(o, sc);
+  if(!ot){ err(b.id, noVar(o), 'obj'); return { code:`${o}.${m}()`, type:'?' }; }
+  if(!X.G.types[ot]){ err(b.id, `${o} is ${tw(ot)}, not an object.`, 'obj'); return { code:'?', type:'?' }; }
+  const mm = findMember(ot, m);
+  if(!mm || !mm.method){ err(b.id, m ? `${ot} has no function called ${m}.` : 'Type the function name.', 'method', `'${ot}' has no member named '${m}'`); argsCheck(b, null, sc, m); return { code:`${o}.${m}()`, type:'?' }; }
+  if(!canAccess(mm, sc)) err(b.id, `${m} is ${mm.access} in ${mm.owner}, so it cannot be used from here. Put a public: label above it.`, 'method');
+  const a = argsCheck(b, mm, sc, m);
+  if(asValue && mm.ret === 'void') err(b.id, `${m} gives back nothing (void). Use the "Run object function" block instead.`);
+  return { code:`${o}.${m}(${a})`, type:mm.ret };
+}
+function nameCheck(b, key){ const n = nm(b.fields[key]), ie = identErr(n); if(ie){ err(b.id, ie, key); return null; }
+  if(RESERVED.has(n)){ err(b.id, `"${n}" is already used by C++. Pick a different name.`, key); return null; } return n; }
+function sizeCheck(b, key){ const v = nm(b.fields[key]); if(!isInt(v) || +v < 1 || +v > 1000){ err(b.id, 'Type a whole number from 1 to 1000 for the size.', key); return '?'; } return String(+v); }
+const child = sc => ({ ...sc, vars:[...sc.vars, new Map()] });
+
+function emitStack(head, ind, sc, fn, ctx){ for(const id of chainX(head)) emitStmt(X.B[id], ind, sc, fn, ctx); }
+function cond(b, sc){
+  const c = kid(b, 'cond');
+  if(!c){ err(b.id, 'Drag a yes or no question (a hexagon block) into the ( ) gap.', null, 'expected primary-expression'); return '?'; }
+  const r = exB(c, 'bool', sc);
+  if(r.type !== '?' && !NUMERIC.has(r.type)) err(c.id, `This needs a yes or no question, but it is ${tw(r.type)}.`);
+  return r.code;
+}
+function emitIf(b, ind, sc, fn, prefix){
+  out(ind, `${prefix}if (${cond(b, sc)}) {`);
+  emitStack(b.stacks.then, ind + 1, child(sc), fn, 'stmt');
+  if(b.type === 'ifelse'){
+    const e = chainX(b.stacks.else);
+    if(e.length === 1 && (X.B[e[0]].type === 'if' || X.B[e[0]].type === 'ifelse')){ const s = X.lines.length; emitIf(X.B[e[0]], ind, child(sc), fn, '} else '); X.ranges[e[0]] = [s, X.lines.length]; return; }
+    out(ind, '} else {');
+    emitStack(b.stacks.else, ind + 1, child(sc), fn, 'stmt');
+  }
+  out(ind, '}');
+}
+function target(b, sc){
+  const r = ex(b, 'target', null, sc);
+  if(r.type !== '?' && r.type.endsWith('[]')){ err(b.id, 'You cannot change a whole list at once. Change one position, using a Grid item or List item block.'); return { ...r, type:'?' }; }
+  return r;
+}
+function emitStmt(b, ind, sc, fn, ctx){
+  const d = DEFS[b.type], start = X.lines.length;
+  if(d.kind !== 'stack' || !d.fits.includes(ctx)){ err(b.id, ctx === 'top' ? 'This line must go inside a function, between its { and }.' : 'This block cannot go here.'); X.ranges[b.id] = [start, start]; return; }
+  switch(b.type){
+    case 'comment': out(ind, '// ' + (b.fields.text || '')); break;
+    case 'declare': case 'arr1': case 'arr2': {
+      const t = typeOfSlot(b, 'type', false), n = nameCheck(b, 'name'), map = sc.vars[sc.vars.length - 1];
+      if(n && map.has(n)) err(b.id, `You already have a variable called ${n} here. Pick a different name.`, 'name', `redeclaration of '${n}'`);
+      let tail = '';
+      if(b.type === 'declare'){
+        if(hasVal(b, 'val')){
+          if(X.G.types[t]) err(b.id, 'Objects start empty. Leave the value gap blank, then set each member with a Set block.', 'lit_val');
+          else { const v = ex(b, 'val', t === '?' ? null : t, sc); compat(t, v.type, b.id); tail = ' = ' + v.code; }
+        }
+        if(n) map.set(n, t);
+      } else {
+        const s1 = sizeCheck(b, 'n1'), s2 = b.type === 'arr2' ? sizeCheck(b, 'n2') : null;
+        tail = `[${s1}]` + (s2 ? `[${s2}]` : '');
+        if(n) map.set(n, t === '?' ? '?' : t + (b.type === 'arr2' ? '[][]' : '[]'));
+        if(X.G.types[t]) err(b.id, 'Lists of objects are not supported in this tutorial. Use a normal data type.');
+      }
+      out(ind, `${t} ${n || '?'}${tail};`);
+      break;
+    }
+    case 'set': { const t = target(b, sc), v = ex(b, 'val', t.type === '?' ? null : t.type, sc); compat(t.type, v.type, b.id);
+      out(ind, `${t.code} = ${v.code};`); break; }
+    case 'change': {
+      const t = target(b, sc), op = b.fields.op || '++';
+      if(t.type !== '?' && !NUMERIC.has(t.type) && !(t.type === 'string' && op === '+=')) err(b.id, `${op} only works with numbers${op === '+=' ? ' and text' : ''}. ${t.code} is ${tw(t.type)}.`);
+      if(op === '+=' || op === '-='){ const v = ex(b, 'val', t.type === 'string' ? 'string' : 'num', sc); out(ind, `${t.code} ${op} ${v.code};`); }
+      else out(ind, `${t.code}${op};`);
+      break;
+    }
+    case 'cout': {
+      needIO(b.id); const parts = [];
+      for(let i = 0; i < Math.max(1, num(b, 'n')); i++){
+        const r = ex(b, 'i' + i, 'cout', sc);
+        if(r.type !== '?' && (r.type.endsWith('[]') || X.G.types[r.type])) err(b.id, `cout cannot print ${tw(r.type)} in one go. Print one part of it instead.`);
+        if(r.type === 'void') err(b.id, 'This function gives back nothing, so there is nothing to print.');
+        parts.push(r.code);
+      }
+      out(ind, 'cout << ' + parts.join(' << ') + ';'); break;
+    }
+    case 'cin': { needIO(b.id); const t = target(b, sc);
+      if(t.type !== '?' && !['int','double','char','string','bool'].includes(t.type)) err(b.id, `cin cannot read straight into ${tw(t.type)}. Read into one of its members instead.`);
+      out(ind, `cin >> ${t.code};`); break; }
+    case 'if': case 'ifelse': emitIf(b, ind, sc, fn, ''); break;
+    case 'while': out(ind, `while (${cond(b, sc)}) {`); emitStack(b.stacks.body, ind + 1, child(sc), { ...fn, loop:fn.loop + 1 }, 'stmt'); out(ind, '}'); break;
+    case 'for': {
+      const v = nameCheck(b, 'var') || '?', f = ex(b, 'from', 'int', sc), t = ex(b, 'to', 'int', sc);
+      if(t.type !== '?' && !NUMERIC.has(t.type)) err(b.id, 'The end of a for loop must be a number.');
+      const inner = child(sc); inner.vars[inner.vars.length - 1].set(v, 'int');
+      out(ind, `for (int ${v} = ${f.code}; ${v} < ${t.code}; ${v}++) {`);
+      emitStack(b.stacks.body, ind + 1, inner, { ...fn, loop:fn.loop + 1 }, 'stmt'); out(ind, '}'); break;
+    }
+    case 'break': if(!fn.loop) err(b.id, 'break only works inside a loop.'); out(ind, 'break;'); break;
+    case 'call': out(ind, callCheck(b, sc, false).code + ';'); break;
+    case 'mcall': out(ind, methodCheck(b, sc, false).code + ';'); break;
+    case 'return': {
+      if(fn.ret === 'void'){ if(hasVal(b, 'val')) err(b.id, 'This function is void, so it gives back nothing. Leave the gap empty.', 'lit_val'); out(ind, 'return;'); }
+      else if(!hasVal(b, 'val')){ err(b.id, `This function must give back ${tw(fn.ret)}. Put a value in the gap.`, 'lit_val'); out(ind, 'return ?;'); }
+      else { const v = ex(b, 'val', fn.ret === '?' ? null : fn.ret, sc); compat(fn.ret, v.type, b.id); out(ind, `return ${v.code};`); }
+      break;
+    }
+    default: err(b.id, 'This block cannot go here.');
+  }
+  X.ranges[b.id] = [start, X.lines.length];
+}
+function paramsOf(b, silent){
+  const ps = [];
+  for(let i = 0; i < num(b, 'np'); i++) ps.push({ t:typeOfSlot(b, 'pt' + i, false, silent), n:silent ? nm(b.fields['pn' + i]) : nameCheck(b, 'pn' + i) });
+  return ps;
+}
+function emitFunc(b, cls, ind){
+  const start = X.lines.length;
+  const ret = typeOfSlot(b, 'ret', true), n = nameCheck(b, 'name') || '?';
+  if(!cls && n === 'main') err(b.id, 'Use the special int main() block for main.', 'name');
+  const ps = paramsOf(b, false), seen = new Set();
+  ps.forEach((p, i) => { if(p.n && seen.has(p.n)) err(b.id, `Two inputs are both called ${p.n}.`, 'pn' + i); if(p.n) seen.add(p.n); });
+  if(!cls){
+    if(X.G.funcs[n]) err(b.id, `You already have a function called ${n}. Pick a different name.`, 'name', `redefinition of '${n}'`);
+    else X.G.funcs[n] = { ret, params:ps.map(p => p.t), id:b.id };
+  }
+  const sc = { vars:[new Map(ps.filter(p => p.n).map(p => [p.n, p.t]))], cls };
+  out(ind, `${ret} ${n}(${ps.map(p => `${p.t} ${p.n || '?'}`).join(', ')}) {`);
+  emitStack(b.stacks.body, ind + 1, sc, { ret, loop:0 }, 'stmt');
+  out(ind, '}');
+  if(ret !== 'void' && ret !== '?' && !subIds(b.id, X.B).some(id => X.B[id].type === 'return'))
+    err(b.id, `${n} promises to give back ${tw(ret)}, but it has no return block. Add one at the end.`, null, 'no return statement in function returning non-void');
+  X.ranges[b.id] = [start, X.lines.length];
+}
+function emitClass(b){
+  const start = X.lines.length, kind = b.type, n = nameCheck(b, 'name') || '?';
+  if(X.G.types[n]) err(b.id, `You already have a type called ${n}.`, 'name');
+  let base = nm(b.fields.base);
+  if(base){
+    const ie = identErr(base);
+    if(ie){ err(b.id, ie, 'base'); base = ''; }
+    else if(base === n){ err(b.id, 'A class cannot be its own parent.', 'base'); base = ''; }
+    else if(!X.G.types[base]){ err(b.id, X.G.later.types.has(base) ? `${base} is made further down. A parent class must be made above its children.` : `There is no class called ${base} to inherit from.`, 'base', `expected class-name before '{' token`); base = ''; }
+  }
+  const T = { name:n, kind, base:base || null, members:{}, id:b.id, inh:b.fields.inh || 'public' };
+  let acc = kind === 'struct' ? 'public' : 'private';
+  for(const id of chainX(b.stacks.body)){
+    const m = X.B[id];
+    if(m.type === 'access') acc = m.fields.acc || 'public';
+    else if(['declare','arr1','arr2'].includes(m.type)){ const t = typeOfSlot(m, 'type', false, true); const mn = nm(m.fields.name);
+      if(mn) T.members[mn] = { type:t + (m.type === 'arr2' ? '[][]' : m.type === 'arr1' ? '[]' : ''), access:acc, method:false }; }
+    else if(m.type === 'func'){ const mn = nm(m.fields.name);
+      if(mn){ if(T.members[mn]) err(m.id, `${n} already has a member called ${mn}.`, 'name'); T.members[mn] = { method:true, ret:typeOfSlot(m, 'ret', true, true), params:paramsOf(m, true).map(p => p.t), access:acc }; } }
+  }
+  if(n !== '?' && !X.G.types[n]) X.G.types[n] = T;
+  out(0, `${kind} ${n}${base ? ` : ${T.inh} ${base}` : ''} {`);
+  const msc = { vars:[new Map()], cls:n };
+  for(const id of chainX(b.stacks.body)){
+    const m = X.B[id], s = X.lines.length;
+    if(m.type === 'access'){ out(0, `${m.fields.acc || 'public'}:`); X.ranges[id] = [s, X.lines.length]; }
+    else if(m.type === 'func') emitFunc(m, n, 1);
+    else emitStmt(m, 1, msc, { ret:null, loop:0 }, 'member');
+  }
+  out(0, '};');
+  X.ranges[b.id] = [start, X.lines.length];
+}
+function groupOf(t){ return (t === 'include' || t === 'using') ? 'head' : (t === 'func' || t === 'main' || t === 'class' || t === 'struct') ? 'big' : 'data'; }
+function compileWith(B, rootList){
+  X = newCtx(B);
+  const rs = rootList.filter(r => B[r.id]);
+  const tops = rs.filter(r => { const d = DEFS[B[r.id].type]; return d.kind === 'stack' && d.fits.includes('top'); });
+  const main = tops.find(r => chainIds(r.id, B).some(id => B[id].type === 'main')) || tops.slice().sort((a,b) => chainIds(b.id, B).length - chainIds(a.id, B).length)[0] || null;
+  X.mainHead = main ? main.id : null;
+  let looseCount = 0;
+  rs.forEach(r => { if(r !== main){ looseCount++; chainIds(r.id, B).forEach(id => subIds(id, B).forEach(x => X.loose.add(x))); } });
+  if(looseCount) X.warns.push(`${looseCount} group${looseCount > 1 ? 's' : ''} of blocks ${looseCount > 1 ? 'are' : 'is'} not joined to your program, so ${looseCount > 1 ? 'they are' : 'it is'} left out. Snap ${looseCount > 1 ? 'them' : 'it'} in, or drag ${looseCount > 1 ? 'them' : 'it'} to the bin.`);
+  if(!main){ X.errs.push({ id:null, msg:Object.keys(B).length ? 'Your program needs a top-level block, like #include, to start the stack.' : 'The canvas is empty. Start with the #include block.', gcc:'no program', line:1 }); X.code = ''; X.errIds = new Set(); return X; }
+  const ids = chainIds(main.id, B);
+  ids.forEach(id => { const b = B[id], n = nm(b.fields.name);
+    if(b.type === 'func') X.G.later.funcs.add(n);
+    if(['declare','arr1','arr2'].includes(b.type)) X.G.later.vars.add(n);
+    if(b.type === 'struct' || b.type === 'class') X.G.later.types.add(n); });
+  let prev = null;
+  const GS = { vars:[X.G.globals], cls:null };
+  for(const id of ids){
+    const b = B[id], g = groupOf(b.type), s = X.lines.length;
+    if(prev && (g !== prev || g === 'big')) X.lines.push('');
+    prev = g;
+    switch(b.type){
+      case 'include': {
+        const lib = nm(b.fields.lib);
+        if(!lib) err(b.id, 'Type the name of a library, like iostream.', 'lib');
+        else if(lib.endsWith('.h')) err(b.id, `Modern C++ leaves off .h. Try ${lib.slice(0, -2)}.`, 'lib');
+        else if(!KNOWN_LIBS.includes(lib)){ const near = KNOWN_LIBS.map(k => [k, lev(lib.toLowerCase(), k)]).sort((a,b) => a[1] - b[1])[0];
+          err(b.id, near[1] <= 3 ? `There is no library called ${lib}. Did you mean ${near[0]}?` : `There is no library called ${lib}. Try iostream.`, 'lib', `${lib}: No such file or directory`); }
+        else X.G.includes.add(lib);
+        out(0, `#include <${lib || '?'}>`); X.ranges[id] = [s, X.lines.length]; break;
+      }
+      case 'using': { const ns = nm(b.fields.ns);
+        if(ns !== 'std') err(b.id, ns ? `The namespace is called std, not ${ns}.` : 'Type std here.', 'ns', `'${ns}' is not a namespace-name`); else X.G.std = true;
+        out(0, `using namespace ${ns || '?'};`); X.ranges[id] = [s, X.lines.length]; break; }
+      case 'func': emitFunc(b, null, 0); break;
+      case 'main': {
+        if(X.G.hasMain) err(b.id, 'There can only be one main.'); X.G.hasMain = true;
+        out(0, 'int main() {'); emitStack(b.stacks.body, 1, { vars:[new Map()], cls:null }, { ret:'int', loop:0 }, 'stmt'); out(0, '}');
+        X.ranges[id] = [s, X.lines.length]; break; }
+      case 'struct': case 'class': emitClass(b); break;
+      default: emitStmt(b, 0, GS, { ret:null, loop:0 }, 'top');
+    }
+  }
+  if(!X.G.hasMain) X.errs.push({ id:null, msg:'Every C++ program needs an int main() block. That is where it starts. Add it at the bottom.', gcc:"undefined reference to `main'", line:X.lines.length });
+  X.code = X.lines.join('\n') + '\n';
+  X.errIds = new Set(X.errs.map(e => e.id).filter(Boolean));
+  return X;
+}
+
+/* =====================================================================
+   7. INTERPRETER: runs YOUR blocks
+   ===================================================================== */
+const STOP = Symbol('stop');
+class RTErr { constructor(id, msg){ this.id = id; this.msg = msg; } }
+let runToken = 0;
+async function runProgram(tok, Cc){
+  const B = blocks, Lm = Cc.lit, T = Cc.G.types, FN = Cc.G.funcs;
+  const globals = new Map(); let steps = 0, depth = 0, inbuf = '';
+  const tick = async id => { steps++; if(steps % 2500 === 0) await sleep(0); if(tok !== runToken) throw STOP;
+    if(steps > 3000000) throw new RTErr(id, 'Your program ran 3 million steps without stopping. A loop may never end. Check its question can become false.'); };
+  const print = (t, cls) => { if(tok !== runToken) throw STOP; term.print(t, cls); };
+  const tn = (b, k) => { const c = b.inputs[k] && B[b.inputs[k]]; return c ? nm(c.fields.t) : '?'; };
+  const toNum = x => x.t === 'char' ? (x.v || '\0').charCodeAt(0) : x.t === 'bool' ? (x.v ? 1 : 0) : x.v;
+  function conv(x, to){
+    if(!x || x.t === to) return x ? x.v : undefined;
+    switch(to){
+      case 'int': return Math.trunc(toNum(x));
+      case 'double': return toNum(x);
+      case 'char': return x.t === 'string' ? (x.v[0] || '\0') : String.fromCharCode(Math.trunc(toNum(x)) & 255);
+      case 'bool': return toNum(x) !== 0;
+      case 'string': return x.t === 'char' ? x.v : String(x.v);
+    }
+    return clone(x.v);
+  }
+  const clone = v => Array.isArray(v) ? v.map(clone) : (v && v.cls) ? { cls:v.cls, f:new Map([...v.f].map(([k, c]) => [k, { t:c.t, v:clone(c.v) }])) } : v;
+  function defVal(t){ if(t === 'int' || t === 'double') return 0; if(t === 'char') return '\0'; if(t === 'bool') return false; if(t === 'string') return ''; if(T[t]) return null; return 0; }
+  async function makeVal(b){
+    const t = tn(b, 'type');
+    if(b.type === 'arr1') return { t:t + '[]', v:Array.from({ length:+b.fields.n1 }, () => defVal(t)) };
+    if(b.type === 'arr2') return { t:t + '[][]', v:Array.from({ length:+b.fields.n1 }, () => Array.from({ length:+b.fields.n2 }, () => defVal(t))) };
+    return null;
+  }
+  async function newObj(cls){
+    const chain = []; for(let c = T[cls]; c; c = c.base ? T[c.base] : null) chain.unshift(c);
+    const obj = { cls, f:new Map() };
+    for(const c of chain){
+      for(const id of chainIds(B[c.id].stacks.body)){
+        const m = B[id];
+        if(m.type === 'arr1' || m.type === 'arr2') obj.f.set(nm(m.fields.name), await makeVal(m));
+        else if(m.type === 'declare'){ const t = tn(m, 'type'); let v;
+          if(T[t]) v = await newObj(t); else if(hasValRT(m, 'val')) v = conv(await ev(m, 'val', { vars:[], self:obj, cls:c.name }), t); else v = defVal(t);
+          obj.f.set(nm(m.fields.name), { t, v }); }
+      }
+    }
+    return obj;
+  }
+  const hasValRT = (b, k) => !!(b.inputs[k] && B[b.inputs[k]]) || !!Lm[b.id + '.' + k];
+  function cell(n, sc, id){
+    for(let i = sc.vars.length - 1; i >= 0; i--) if(sc.vars[i].has(n)) return sc.vars[i].get(n);
+    if(sc.self && sc.self.f.has(n)) return sc.self.f.get(n);
+    if(globals.has(n)) return globals.get(n);
+    throw new RTErr(id, `Could not find ${n}.`);
+  }
+  async function lv(o, key, sc){
+    const c = o.inputs[key] && B[o.inputs[key]];
+    if(!c){ const n = Lm[o.id + '.' + key].v.trim(), x = cell(n, sc, o.id); return { t:x.t, get:() => x.v, set:v => x.v = v, name:n }; }
+    return lvB(c, sc);
+  }
+  async function lvB(b, sc){
+    if(b.type === 'var'){ const n = nm(b.fields.name), x = cell(n, sc, b.id); return { t:x.t, get:() => x.v, set:v => x.v = v, name:n }; }
+    if(b.type === 'member'){ const o = cell(nm(b.fields.obj), sc, b.id).v, f = o.f.get(nm(b.fields.field)); return { t:f.t, get:() => f.v, set:v => f.v = v, name:nm(b.fields.obj) + '.' + nm(b.fields.field) }; }
+    const n = nm(b.fields.name), x = cell(n, sc, b.id);
+    const i = Math.trunc(toNum(await ev(b, 'i', sc)));
+    const chk = (arr, k, label) => { if(k < 0 || k >= arr.length) throw new RTErr(b.id, `${label} does not exist. ${n} only has positions 0 to ${arr.length - 1}.`); };
+    chk(x.v, i, `${n}[${i}]`);
+    if(b.type === 'arrget1') return { t:x.t.replace('[]', ''), get:() => x.v[i], set:v => x.v[i] = v, name:`${n}[${i}]` };
+    const j = Math.trunc(toNum(await ev(b, 'j', sc)));
+    chk(x.v[i], j, `${n}[${i}][${j}]`);
+    return { t:x.t.replace('[][]', ''), get:() => x.v[i][j], set:v => x.v[i][j] = v, name:`${n}[${i}][${j}]` };
+  }
+  async function ev(o, key, sc){
+    const c = o.inputs[key] && B[o.inputs[key]];
+    if(c) return evB(c, sc);
+    const L = Lm[o.id + '.' + key]; if(!L) return { t:'void', v:undefined };
+    switch(L.kind){
+      case 'ident': { const x = cell(L.v.trim(), sc, o.id); return { t:x.t, v:x.v }; }
+      case 'int': return { t:'int', v:parseInt(L.v, 10) };
+      case 'double': return { t:'double', v:parseFloat(L.v) };
+      case 'char': return { t:'char', v:L.v };
+      case 'bool': return { t:'bool', v:L.v.trim() === 'true' };
+      default: return { t:'string', v:L.v };
+    }
+  }
+  async function evB(b, sc){
+    switch(b.type){
+      case 'var': case 'member': case 'arrget1': case 'arrget2': { const l = await lvB(b, sc); return { t:l.t, v:l.get() }; }
+      case 'number': { const v = nm(b.fields.v); return isInt(v) ? { t:'int', v:parseInt(v, 10) } : { t:'double', v:parseFloat(v) }; }
+      case 'text': return { t:'string', v:b.fields.v || '' };
+      case 'letter': return { t:'char', v:b.fields.v };
+      case 'boolv': return { t:'bool', v:b.fields.v !== 'false' };
+      case 'endl': return { t:'endl', v:'\n' };
+      case 'math': {
+        const a = await ev(b, 'a', sc), c = await ev(b, 'b', sc), op = b.fields.op || '+';
+        if(a.t === 'string') return { t:'string', v:a.v + c.v };
+        const x = toNum(a), y = toNum(c), dbl = a.t === 'double' || c.t === 'double';
+        if((op === '/' || op === '%') && y === 0) throw new RTErr(b.id, 'Your program tried to divide by zero. That is impossible, so it stopped.');
+        let r = op === '+' ? x + y : op === '-' ? x - y : op === '*' ? x * y : op === '/' ? x / y : x % y;
+        if(!dbl) r = Math.trunc(r) | 0;
+        return { t:dbl ? 'double' : 'int', v:r };
+      }
+      case 'cmp': {
+        const a = await ev(b, 'a', sc), c = await ev(b, 'b', sc), op = b.fields.op || '==';
+        const x = a.t === 'string' ? a.v : toNum(a), y = c.t === 'string' ? c.v : toNum(c);
+        const r = op === '==' ? x === y : op === '!=' ? x !== y : op === '<' ? x < y : op === '>' ? x > y : op === '<=' ? x <= y : x >= y;
+        return { t:'bool', v:r };
+      }
+      case 'logic': { const a = toNum(await ev(b, 'a', sc)) !== 0;
+        if(b.fields.op === '||'){ if(a) return { t:'bool', v:true }; } else if(!a) return { t:'bool', v:false };
+        return { t:'bool', v:toNum(await ev(b, 'b', sc)) !== 0 }; }
+      case 'not': return { t:'bool', v:toNum(await ev(b, 'a', sc)) === 0 };
+      case 'callv': return callFn(b, sc);
+      case 'mcallv': return callMethod(b, sc);
+    }
+    throw new RTErr(b.id, 'This block cannot be worked out.');
+  }
+  async function argVals(b, sc){ const a = []; for(let i = 0; i < num(b, 'na'); i++) a.push(await ev(b, 'a' + i, sc)); return a; }
+  function findMethod(cls, name){ for(let c = T[cls]; c; c = c.base ? T[c.base] : null){
+    for(const id of chainIds(B[c.id].stacks.body)) if(B[id].type === 'func' && nm(B[id].fields.name) === name) return { fb:B[id], cls:c.name }; } return null; }
+  async function invoke(fb, args, self, cls){
+    if(++depth > 400) throw new RTErr(fb.id, 'Too many functions running inside each other. A function may be calling itself forever.');
+    flashRun(fb.id, nm(fb.fields.name));
+    const vars = new Map();
+    for(let i = 0; i < num(fb, 'np'); i++){ const pt = tn(fb, 'pt' + i); vars.set(nm(fb.fields['pn' + i]), { t:pt, v:conv(args[i], pt) }); }
+    const r = await exStack(fb.stacks.body, { vars:[vars], self, cls });
+    depth--;
+    const ret = tn(fb, 'ret');
+    if(ret === 'void') return { t:'void', v:undefined };
+    if(!r || r.k !== 'ret') return { t:ret, v:defVal(ret) };
+    return { t:ret, v:conv(r.v, ret) };
+  }
+  async function callFn(b, sc){
+    const n = nm(b.fields.name), args = await argVals(b, sc);
+    if(sc.cls){ const m = findMethod(sc.cls, n); if(m) return invoke(m.fb, args, sc.self, m.cls); }
+    if(FN[n]) return invoke(B[FN[n].id], args, null, null);
+    const v = args.map(toNum);
+    switch(n){
+      case 'rand': return { t:'int', v:Math.floor(Math.random() * 32768) };
+      case 'abs': return { t:'int', v:Math.abs(Math.trunc(v[0])) };
+      case 'sqrt': if(v[0] < 0) throw new RTErr(b.id, 'sqrt cannot work with a negative number.'); return { t:'double', v:Math.sqrt(v[0]) };
+      case 'pow': return { t:'double', v:Math.pow(v[0], v[1]) };
+      case 'to_string': return { t:'string', v:args[0].t === 'double' ? args[0].v.toFixed(6) : String(Math.trunc(v[0])) };
+    }
+    throw new RTErr(b.id, `Could not find the function ${n}.`);
+  }
+  async function callMethod(b, sc){
+    const o = cell(nm(b.fields.obj), sc, b.id).v, m = findMethod(o.cls, nm(b.fields.method));
+    return invoke(m.fb, await argVals(b, sc), o, m.cls);
+  }
+  const fmtD = v => { if(!isFinite(v)) return v > 0 ? 'inf' : v < 0 ? '-inf' : 'nan'; const s = Number(v.toPrecision(6)); return String(s); };
+  function fmt(x){ switch(x.t){ case 'double': return fmtD(x.v); case 'char': return x.v === '\0' ? '' : x.v; case 'bool': return x.v ? '1' : '0'; case 'endl': return '\n'; default: return String(x.v); } }
+  async function fill(){
+    while(!/\S/.test(inbuf)){ const line = await term.read(tok); if(tok !== runToken) throw STOP; inbuf += line + '\n'; }
+    inbuf = inbuf.replace(/^\s+/, '');
+  }
+  async function readInto(l){
+    await fill();
+    const take = re => { const m = inbuf.match(re); if(m) inbuf = inbuf.slice(m[0].length); return m ? m[0] : null; };
+    const fail = what => { const bad = take(/^\S+/) || ''; l.set(l.t === 'bool' ? false : 0);
+      print(`(cin could not read "${bad}" as ${what}, so ${l.name} became 0. In real C++ this would break cin.)\n`, 'o-note'); };
+    switch(l.t){
+      case 'int': { const s = take(/^[+-]?\d+/); if(s === null) return fail('a whole number'); l.set(parseInt(s, 10)); break; }
+      case 'double': { const s = take(/^[+-]?(\d+\.?\d*|\.\d+)/); if(s === null) return fail('a number'); l.set(parseFloat(s)); break; }
+      case 'bool': { const s = take(/^[01]/); if(s === null) return fail('0 or 1'); l.set(s === '1'); break; }
+      case 'char': l.set(inbuf[0]); inbuf = inbuf.slice(1); break;
+      default: l.set(take(/^\S+/));
+    }
+  }
+  async function exStack(head, sc){ for(let id = head; id && B[id]; id = B[id].next){ const r = await exS(B[id], sc); if(r) return r; } return null; }
+  const childRT = sc => ({ ...sc, vars:[...sc.vars, new Map()] });
+  async function declareInto(b, map, sc){
+    const n = nm(b.fields.name);
+    if(b.type !== 'declare'){ map.set(n, await makeVal(b)); return; }
+    const t = tn(b, 'type');
+    let v; if(T[t]) v = await newObj(t); else if(hasValRT(b, 'val')) v = conv(await ev(b, 'val', sc), t); else v = defVal(t);
+    map.set(n, { t, v });
+  }
+  async function exS(b, sc){
+    await tick(b.id);
+    switch(b.type){
+      case 'comment': return null;
+      case 'declare': case 'arr1': case 'arr2': await declareInto(b, sc.vars[sc.vars.length - 1], sc); return null;
+      case 'set': { const l = await lv(b, 'target', sc), v = await ev(b, 'val', sc); l.set(conv(v, l.t)); return null; }
+      case 'change': { const l = await lv(b, 'target', sc), op = b.fields.op || '++';
+        if(op === '++' || op === '--'){ const d = op === '++' ? 1 : -1;
+          if(l.t === 'char') l.set(String.fromCharCode(l.get().charCodeAt(0) + d)); else if(l.t === 'bool') l.set(op === '++' ? true : !l.get()); else l.set(l.get() + d); }
+        else { const v = await ev(b, 'val', sc);
+          if(l.t === 'string') l.set(l.get() + fmt(v));
+          else { const cur = { t:l.t, v:l.get() }; const r = toNum(cur) + (op === '+=' ? 1 : -1) * toNum(v); l.set(conv({ t:'double', v:r }, l.t)); } }
+        return null; }
+      case 'cout': for(let i = 0; i < Math.max(1, num(b, 'n')); i++){ const v = await ev(b, 'i' + i, sc);
+        print(fmt(v), v.t === 'char' && (v.v === 'X' || v.v === 'O') ? (v.v === 'X' ? 'o-x' : 'o-o') : null); } return null;
+      case 'cin': await readInto(await lv(b, 'target', sc)); return null;
+      case 'if': if(toNum(await ev(b, 'cond', sc)) !== 0) return exStack(b.stacks.then, childRT(sc)); return null;
+      case 'ifelse': return exStack(toNum(await ev(b, 'cond', sc)) !== 0 ? b.stacks.then : b.stacks.else, childRT(sc));
+      case 'while': while(toNum(await ev(b, 'cond', sc)) !== 0){ const r = await exStack(b.stacks.body, childRT(sc)); if(r && r.k === 'brk') break; if(r) return r; await tick(b.id); } return null;
+      case 'for': {
+        const inner = childRT(sc), c = { t:'int', v:Math.trunc(toNum(await ev(b, 'from', sc))) };
+        inner.vars[inner.vars.length - 1].set(nm(b.fields.var), c);
+        while(c.v < toNum(await ev(b, 'to', inner))){ const r = await exStack(b.stacks.body, childRT(inner)); if(r && r.k === 'brk') break; if(r) return r; c.v++; await tick(b.id); }
+        return null; }
+      case 'break': return { k:'brk' };
+      case 'call': await callFn(b, sc); return null;
+      case 'mcall': await callMethod(b, sc); return null;
+      case 'return': return { k:'ret', v:hasValRT(b, 'val') ? await ev(b, 'val', sc) : null };
+    }
+    return null;
+  }
+  // start: globals in order, then main
+  const top = chainIds(Cc.mainHead).map(id => B[id]);
+  for(const b of top) if(['declare','arr1','arr2'].includes(b.type)) await declareInto(b, globals, { vars:[], self:null, cls:null });
+  const mb = top.find(b => b.type === 'main');
+  flashRun(mb.id, 'main');
+  const r = await exStack(mb.stacks.body, { vars:[new Map()], self:null, cls:null });
+  return r && r.k === 'ret' && r.v ? Math.trunc(toNum(r.v)) : 0;
+}
+
+/* =====================================================================
+   8. REFERENCE GAME (used by "Show me", previews and the example)
+   ===================================================================== */
+const blk = (t, f = {}, sl = {}, st = {}) => { const s = { t, f:{ ...f }, i:{}, s:{} };
+  for(const k in sl){ const v = sl[k]; if(v == null) continue; if(typeof v !== 'object') s.f['lit_' + k] = String(v); else s.i[k] = v; }
+  for(const k in st) s.s[k] = st[k]; return s; };
+const BUILT = ['int','double','char','bool','string','void'];
+const ty = t => BUILT.includes(t) ? blk('type', { t }) : blk('ctype', { t });
+const V = n => blk('var', { name:n });
+const G2 = (n, i, j) => blk('arrget2', { name:n }, { i, j });
+const MB = (o, f) => blk('member', { obj:o, field:f });
+const cmp = (a, op, b) => blk('cmp', { op }, { a, b });
+const AND = (a, b) => blk('logic', { op:'&&' }, { a, b });
+const NOT = a => blk('not', {}, { a });
+const MATH = (a, op, b) => blk('math', { op }, { a, b });
+const ENDL = blk('endl');
+const decl = (t, n, v) => blk('declare', { name:n }, { type:ty(t), val:v });
+const set = (tg, v) => blk('set', {}, { target:tg, val:v });
+const chg = (tg, op, v) => blk('change', { op }, { target:tg, val:v });
+const cout = (...it) => { const sl = {}; it.forEach((v, i) => sl['i' + i] = v); return blk('cout', { n:String(it.length) }, sl); };
+const cin = tg => blk('cin', {}, { target:tg });
+const IF = (c, th) => blk('if', {}, { cond:c }, { then:th });
+const IFE = (c, th, el) => blk('ifelse', {}, { cond:c }, { then:th, else:el });
+const WHILE = (c, body) => blk('while', {}, { cond:c }, { body });
+const FOR = (v, from, to, body) => blk('for', { var:v }, { from, to }, { body });
+const call = n => blk('call', { name:n, na:'0' });
+const callv = n => blk('callv', { name:n, na:'0' });
+const ret = v => blk('return', {}, { val:v });
+const fn = (r, n, body) => blk('func', { name:n, np:'0' }, { ret:ty(r) }, { body });
+const line3 = (a, b, c, w) => AND(cmp(a, '==', b), cmp(b, '==', c));
+const notTaken = (r, c) => AND(cmp(G2('board', r, c), '!=', 'X'), cmp(G2('board', r, c), '!=', 'O'));
+
+const REF = {
+  'include:iostream': () => blk('include', { lib:'iostream' }),
+  'include:string': () => blk('include', { lib:'string' }),
+  'using': () => blk('using', { ns:'std' }),
+  'arr2:board': () => blk('arr2', { name:'board', n1:'3', n2:'3' }, { type:ty('char') }),
+  'declare:currentPlayer': () => decl('char', 'currentPlayer', 'X'),
+  'struct:Score': () => blk('struct', { name:'Score' }, {}, { body:[ decl('int','xWins','0'), decl('int','oWins','0'), decl('int','draws','0') ] }),
+  'declare:score': () => blk('declare', { name:'score' }, { type:ty('Score') }),
+  'class:Player': () => blk('class', { name:'Player', inh:'public', base:'' }, {}, { body:[
+      blk('access', { acc:'public' }), decl('string','name','Player'),
+      fn('void','greet',[ cout('Hello! I am ', V('name'), '.', ENDL) ]) ] }),
+  'class:Host': () => blk('class', { name:'Host', inh:'public', base:'Player' }, {}, { body:[
+      blk('access', { acc:'public' }),
+      fn('void','welcome',[ call('greet'), cout('Welcome to Noughts and Crosses!', ENDL) ]) ] }),
+  'func:resetBoard': () => fn('void','resetBoard',[
+      decl('char','number','1'),
+      FOR('row','0','3',[ FOR('col','0','3',[ set(G2('board',V('row'),V('col')), V('number')), chg('number','++') ]) ]) ]),
+  'func:drawBoard': () => fn('void','drawBoard',[
+      cout(ENDL),
+      FOR('row','0','3',[
+        cout(' ', G2('board',V('row'),'0'), ' | ', G2('board',V('row'),'1'), ' | ', G2('board',V('row'),'2'), ENDL),
+        IF(cmp(V('row'),'<','2'), [ cout('---+---+---', ENDL) ]) ]),
+      cout(ENDL) ]),
+  'func:makeMove': () => fn('void','makeMove',[
+      decl('int','square','0'), decl('int','row','0'), decl('int','col','0'), decl('bool','valid','false'),
+      WHILE(NOT(V('valid')), [
+        cout('Player ', V('currentPlayer'), ', pick a square (1-9): '),
+        cin('square'),
+        set('row', MATH(MATH(V('square'),'-','1'),'/','3')),
+        set('col', MATH(MATH(V('square'),'-','1'),'%','3')),
+        IF(AND(cmp(V('square'),'>=','1'), cmp(V('square'),'<=','9')), [ IF(notTaken(V('row'),V('col')), [ set('valid','true') ]) ]),
+        IF(NOT(V('valid')), [ cout('That square is not free. Try again.', ENDL) ]) ]),
+      set(G2('board',V('row'),V('col')), V('currentPlayer')) ]),
+  'func:checkWin': () => fn('char','checkWin',[
+      FOR('i','0','3',[
+        IF(line3(G2('board',V('i'),'0'), G2('board',V('i'),'1'), G2('board',V('i'),'2')), [ ret(G2('board',V('i'),'0')) ]),
+        IF(line3(G2('board','0',V('i')), G2('board','1',V('i')), G2('board','2',V('i'))), [ ret(G2('board','0',V('i'))) ]) ]),
+      IF(line3(G2('board','0','0'), G2('board','1','1'), G2('board','2','2')), [ ret(G2('board','1','1')) ]),
+      IF(line3(G2('board','0','2'), G2('board','1','1'), G2('board','2','0')), [ ret(G2('board','1','1')) ]),
+      FOR('row','0','3',[ FOR('col','0','3',[ IF(notTaken(V('row'),V('col')), [ ret(' ') ]) ]) ]),
+      ret('D') ]),
+  'func:showMenu': () => fn('void','showMenu',[
+      cout(ENDL, '===== NOUGHTS AND CROSSES =====', ENDL), cout('1. Play', ENDL), cout('2. Rules', ENDL), cout('3. Exit', ENDL), cout('Type a number: ') ]),
+  'func:playGame': () => fn('void','playGame', playBody(false)),
+  'main': () => blk('main', {}, {}, { body:mainBody(false) })
+};
+function playBody(withScore){
+  const b = [
+    decl('char','winner',' '), set('currentPlayer','X'),
+    WHILE(cmp(V('winner'),'==',' '), [
+      call('drawBoard'), call('makeMove'), set('winner', callv('checkWin')),
+      IF(cmp(V('winner'),'==',' '), [ IFE(cmp(V('currentPlayer'),'==','X'), [ set('currentPlayer','O') ], [ set('currentPlayer','X') ]) ]) ]),
+    call('drawBoard'),
+    IFE(cmp(V('winner'),'==','D'), [ cout("It's a draw!", ENDL) ], [ cout('Player ', V('winner'), ' wins!', ENDL) ]) ];
+  return withScore ? b.concat(scoreBody()) : b;
+}
+const scoreBody = () => [
+  IFE(cmp(V('winner'),'==','X'), [ chg(MB('score','xWins'),'++') ], [ IFE(cmp(V('winner'),'==','O'), [ chg(MB('score','oWins'),'++') ], [ chg(MB('score','draws'),'++') ]) ]),
+  cout('Score  X: ', MB('score','xWins'), '  O: ', MB('score','oWins'), '  Draws: ', MB('score','draws'), ENDL) ];
+const hostBody = () => [ blk('declare', { name:'host' }, { type:ty('Host') }), set(MB('host','name'), 'your Host'), blk('mcall', { obj:'host', method:'welcome', na:'0' }) ];
+function mainBody(withHost){
+  const b = [
+    decl('int','choice','0'),
+    WHILE(cmp(V('choice'),'!=','3'), [
+      call('showMenu'), cin('choice'),
+      IFE(cmp(V('choice'),'==','1'), [ call('resetBoard'), call('playGame') ], [
+        IFE(cmp(V('choice'),'==','2'), [
+          cout(ENDL, 'RULES', ENDL), cout('- Two players take turns. X goes first.', ENDL), cout('- Type a number from 1 to 9 to pick a square.', ENDL),
+          cout('- Get 3 in a row to win: across, down or diagonal.', ENDL), cout('- If all 9 squares fill up and nobody wins, it is a draw.', ENDL) ], [
+          IFE(cmp(V('choice'),'==','3'), [ cout('Goodbye! Thanks for playing.', ENDL) ], [ cout('Please type 1, 2 or 3.', ENDL) ]) ]) ]) ]),
+    ret('0') ];
+  return withHost ? hostBody().concat(b) : b;
+}
+const BASE_KEYS = ['include:iostream','using','arr2:board','declare:currentPlayer','func:resetBoard','func:drawBoard','func:makeMove','func:checkWin','func:showMenu','func:playGame','main'];
+const RANK = ['include:iostream','include:string','using','arr2:board','declare:currentPlayer','struct:Score','declare:score','class:Player','class:Host','func:resetBoard','func:drawBoard','func:makeMove','func:checkWin','func:showMenu','func:playGame','main'];
+function keyOf(b){
+  switch(b.type){ case 'include': return 'include:' + nm(b.fields.lib); case 'using': return 'using'; case 'main': return 'main';
+    case 'arr2': case 'declare': case 'func': case 'struct': case 'class': return b.type + ':' + nm(b.fields.name); }
+  return '';
+}
+const PREVIEW = {};
+function buildPreviews(){
+  const make = (keys, extra) => {
+    const RB = {}; const ids = keys.map(k => instantiate(k === 'func:playGame' && extra ? fn('void','playGame', playBody(true)) : k === 'main' && extra ? blk('main', {}, {}, { body:mainBody(true) }) : REF[k](), RB));
+    ids.forEach((x, i) => RB[x].next = ids[i+1] || null);
+    const Xc = compileWith(RB, [{ id:ids[0] }]);
+    const grab = id => { const [s, e] = Xc.ranges[id] || [0, 0]; return Xc.lines.slice(s, e).join('\n').replace(/^\n+/, ''); };
+    keys.forEach((k, i) => { if(!PREVIEW[k] || extra) PREVIEW[(extra ? 'x:' : '') + k] = grab(ids[i]); });
+    GREF[extra ? 'full' : 'base'] = { B:RB, X:Xc, ids:Object.fromEntries(keys.map((k, i) => [k, ids[i]])), order:keys, full:extra };
+    if(extra){
+      const pg = Object.values(RB).find(b => b.type === 'func' && b.fields.name === 'playGame');
+      const pids = chainIds(pg.stacks.body, RB).slice(-2);
+      PREVIEW['x:scoreAdd'] = pids.map(id => { const [s, e] = Xc.ranges[id]; return Xc.lines.slice(s, e).map(l => l.slice(4)).join('\n'); }).join('\n');
+      const mb = Object.values(RB).find(b => b.type === 'main');
+      PREVIEW['x:hostAdd'] = chainIds(mb.stacks.body, RB).slice(0, 3).map(id => { const [s, e] = Xc.ranges[id]; return Xc.lines.slice(s, e).map(l => l.slice(4)).join('\n'); }).join('\n');
+    }
+  };
+  make(BASE_KEYS, false);
+  make(RANK, true);
+  X = null;
+}
+function topList(){ const mr = mainRoot(); return mr ? chainIds(mr.id).map(id => blocks[id]) : []; }
+function insertTop(spec, key){
+  const r = RANK.indexOf(key), mr = mainRoot(), id = instantiate(spec);
+  if(!mr){ roots.push({ id, x:40, y:40 }); return id; }
+  const ids = chainIds(mr.id); let pos = 0;
+  ids.forEach((x, i) => { const k = RANK.indexOf(keyOf(blocks[x])); if(k >= 0 && k < r) pos = i + 1; });
+  ids.splice(pos, 0, id); ids.forEach((x, i) => blocks[x].next = ids[i+1] || null); mr.id = ids[0];
+  return id;
+}
+function showTop(key){
+  const ex = topList().find(b => keyOf(b) === key);
+  if(ex){
+    const body = ex.stacks.body;
+    if(body && (ex.type === 'func' || ex.type === 'main' || ex.type === 'class' || ex.type === 'struct') && !confirm(`Replace the blocks inside ${DEFS[ex.type].name} ${nm(ex.fields.name)} with the example?`)) return null;
+    removeOne(ex.id);
+  }
+  return insertTop(REF[key](), key);
+}
+function appendTo(blockId, mouth, specs, atStart){
+  const b = blocks[blockId], ids = specs.map(s => instantiate(s));
+  ids.forEach((x, i) => blocks[x].next = ids[i+1] || null);
+  if(atStart){ blocks[ids[ids.length-1]].next = b.stacks[mouth] || null; b.stacks[mouth] = ids[0]; }
+  else { const ex = chainIds(b.stacks[mouth]); if(ex.length) blocks[ex[ex.length-1]].next = ids[0]; else b.stacks[mouth] = ids[0]; }
+  return ids[0];
+}
+function loadExample(withBonus){
+  blocks = {}; roots = []; selected = null;
+  const keys = withBonus ? RANK : BASE_KEYS;
+  const ids = keys.map(k => instantiate(withBonus && k === 'func:playGame' ? fn('void','playGame', playBody(true)) : withBonus && k === 'main' ? blk('main', {}, {}, { body:mainBody(true) }) : REF[k]()));
+  ids.forEach((x, i) => blocks[x].next = ids[i+1] || null);
+  roots.push({ id:ids[0], x:40, y:40 });
+}
+
+/* =====================================================================
+   9. TUTORIAL STEPS
+   ===================================================================== */
+let C = { errs:[], warns:[], lit:{}, loose:new Set(), errIds:new Set(), code:'', G:{ types:{}, funcs:{}, globals:new Map() }, mainHead:null };
+const findFn = n => topList().find(b => b.type === 'func' && nm(b.fields.name) === n);
+const findTop = pred => topList().find(pred);
+const has = (b, type, pred = () => true) => !!b && subIds(b.id).some(id => blocks[id].type === type && pred(blocks[id]));
+const clean = b => !!b && subIds(b.id).every(id => !C.errIds.has(id));
+const retOf = b => { const c = b && blocks[b.inputs.ret]; return c ? nm(c.fields.t) : ''; };
+const calls = (b, n) => has(b, 'call', x => nm(x.fields.name) === n) || has(b, 'callv', x => nm(x.fields.name) === n);
+const texts = b => !b ? '' : subIds(b.id).map(id => Object.entries(blocks[id].fields).filter(([k]) => k.startsWith('lit_') || k === 'v').map(([, v]) => v).join(' ')).join(' ');
+const typeIs = (b, t) => { const c = b && blocks[b.inputs.type]; return !!c && nm(c.fields.t) === t; };
+const nested = (b, t) => has(b, t, f => subIds(f.id).slice(1).some(id => blocks[id].type === t));
+const fnChecks = (n, r, extra) => () => { const f = findFn(n); return [
+  [`A Function block named ${n}`, !!f],
+  [`Its return type is ${r}`, retOf(f) === r],
+  ...extra(f),
+  ['No red ! problems inside it', clean(f) && !!f.stacks.body] ]; };
+
+/* ===== LINE-BY-LINE GUIDE (generated from the reference program) ===== */
+const I = n => `<svg class="ic${n === 'play' ? ' fill' : ''}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const GREF = {};
+const PLAY_BASE_LEN = playBody(false).length, HOST_LEN = hostBody().length;
+function guideItems(si){
+  const s = STEPS[si]; if(!s.guide) return [];
+  if(s._items) return s._items;
+  const items = [];
+  for(const src of s.guide){
+    const G = GREF[src.full ? 'full' : 'base'], topId = G.ids[src.key];
+    if(src.from == null && src.to == null) items.push({ G, top:src.key, path:[], refId:topId });
+    const walk = (id, path) => { const n = G.B[id];
+      for(const m of DEFS[n.type].rows(n).filter(r => !Array.isArray(r)))
+        chainIds(n.stacks[m.mouth], G.B).forEach((cid, i) => {
+          if(!path.length && ((src.from != null && i < src.from) || (src.to != null && i >= src.to))) return;
+          const p = [...path, [m.mouth, i]];
+          items.push({ G, top:src.key, path:p, refId:cid }); walk(cid, p); }); };
+    walk(topId, []);
+  }
+  return s._items = items;
+}
+function slotDesc(B, b, key){
+  const c = b.inputs[key] && B[b.inputs[key]];
+  if(c){ if(c.type === 'number' || c.type === 'text' || c.type === 'letter') return { k:'lit', v:c.fields.v ?? '', via:c.type };
+    if(c.type === 'var') return { k:'name', v:nm(c.fields.name), via:'var' }; return { k:'block', id:c.id }; }
+  const raw = b.fields['lit_' + key]; if(raw == null || raw === '') return { k:'none' };
+  return { k:key === 'target' ? 'name' : 'lit', v:raw };
+}
+const looseEq = v => String(v).trim().replace(/\s+/g, ' ').toLowerCase();
+function litEq(u, r){ return [...r].length === 1 ? u === r : looseEq(u) === looseEq(r); }
+function matchNode(u, RB, r){
+  if(!u || !r || u.type !== r.type) return false;
+  if(r.type === 'type' || r.type === 'ctype') return nm(u.fields.t) === nm(r.fields.t);
+  for(const k of ['n','na','np']) if(r.fields[k] != null && num(u, k) !== num(r, k)) return false;
+  for(const row of DEFS[r.type].rows(r)){
+    if(!Array.isArray(row)) continue;
+    for(const p of row){
+      if(p.p === 'field'){ const a = u.fields[p.key] ?? '', b = r.fields[p.key] ?? '';
+        if(p.kind === 'text'){ if(r.type !== 'comment' && !litEq(a, b)) return false; }
+        else if(p.kind === 'char'){ if(a !== b) return false; }
+        else if(nm(a) !== nm(b)) return false; }
+      else if(p.p === 'drop'){ if((u.fields[p.key] ?? p.opts[0]) !== (r.fields[p.key] ?? p.opts[0])) return false; }
+      else if(p.p === 'slot'){
+        const rd = slotDesc(RB, r, p.key), ud = slotDesc(blocks, u, p.key);
+        if(rd.k === 'none'){ if(ud.k !== 'none') return false; }
+        else if(rd.k === 'block'){ if(ud.k !== 'block' || !matchNode(blocks[ud.id], RB, RB[rd.id])) return false; }
+        else if(ud.k !== rd.k || !(rd.k === 'name' ? nm(ud.v) === nm(rd.v) : litEq(ud.v, rd.v))) return false;
+      }
+    }
+  }
+  return true;
+}
+function userTop(key){ return topList().find(b => keyOf(b) === key) || null; }
+function hostLead(main){
+  const GF = GREF.full, refs = chainIds(GF.B[GF.ids.main].stacks.body, GF.B).slice(0, HOST_LEN), ids = chainIds(main.stacks.body);
+  let k = 0; while(k < refs.length && ids[k] && matchNode(blocks[ids[k]], GF.B, GF.B[refs[k]])) k++; return k;
+}
+function mouthOf(item, parent, depth, key){ return { ids:chainIds(parent.stacks[key]), off:(depth === 0 && item.top === 'main' && !item.G.full) ? hostLead(parent) : 0 }; }
+function resolve(item, path){
+  let node = userTop(item.top); if(!node) return null;
+  for(let d = 0; d < path.length; d++){ const [k, i] = path[d], { ids, off } = mouthOf(item, node, d, k); node = blocks[ids[i + off]]; if(!node) return null; }
+  return node;
+}
+function itemDone(item){ const u = resolve(item, item.path); return !!u && matchNode(u, item.G.B, item.G.B[item.refId]); }
+function refParent(G, item){ let n = G.B[G.ids[item.top]]; for(const [k, i] of item.path.slice(0, -1)) n = G.B[chainIds(n.stacks[k], G.B)[i]]; return n; }
+function refLine(G, id){ const r = G.X.ranges[id]; if(!r) return ''; return (G.X.lines[r[0]] || '').trim().replace(/^\}\s*/, '').replace(/\s*\{$/, ''); }
+const hasMouth = b => DEFS[b.type].rows(b).some(r => !Array.isArray(r));
+const nameOfB = b => b.type === 'type' ? b.fields.t : DEFS[b.type].name;
+const vis = v => String(v).replace(/^ +| +$/g, m => '␣'.repeat(m.length));
+const qq = v => `<code>${esc(vis(v))}</code>`;
+function codeOf(G, owner, key){
+  const d = slotDesc(G.B, owner, key);
+  if(d.k === 'none') return '';
+  if(d.k === 'name') return d.v;
+  if(d.k === 'lit'){ const L = G.X.lit[owner.id + '.' + key], kind = d.via || (L ? L.kind : 'int');
+    return (kind === 'char' || kind === 'letter') ? `'${d.v}'` : (kind === 'string' || kind === 'text') ? `"${d.v}"` : d.v; }
+  return codeB(G, G.B[d.id]);
+}
+function codeB(G, c){
+  const s = k => codeOf(G, c, k), w = (k, t) => { const ch = c.inputs[k] && G.B[c.inputs[k]]; return ch && t.includes(ch.type) ? `(${s(k)})` : s(k); };
+  switch(c.type){
+    case 'var': return nm(c.fields.name);
+    case 'arrget1': return `${nm(c.fields.name)}[${s('i')}]`;
+    case 'arrget2': return `${nm(c.fields.name)}[${s('i')}][${s('j')}]`;
+    case 'member': return `${nm(c.fields.obj)}.${nm(c.fields.field)}`;
+    case 'number': return c.fields.v; case 'text': return `"${c.fields.v}"`; case 'letter': return `'${c.fields.v}'`;
+    case 'boolv': return c.fields.v; case 'endl': return 'endl';
+    case 'math': return `${w('a', ['math'])} ${c.fields.op} ${w('b', ['math'])}`;
+    case 'cmp': return `${s('a')} ${c.fields.op} ${s('b')}`;
+    case 'logic': return `${w('a', ['logic'])} ${c.fields.op} ${w('b', ['logic'])}`;
+    case 'not': return '!' + w('a', ['cmp','logic','math']);
+    case 'callv': return `${nm(c.fields.name)}()`;
+    case 'mcallv': return `${nm(c.fields.obj)}.${nm(c.fields.method)}()`;
+    case 'type': case 'ctype': return c.fields.t;
+  }
+  return '';
+}
+function slotLabel(type, key){
+  if(/^(type|ret|pt\d)$/.test(key)) return 'Type gap';
+  if(/^i\d$/.test(key) && type === 'cout') return `Piece ${+key.slice(1) + 1}`;
+  if(/^a\d$/.test(key)) return `Input ${+key.slice(1) + 1}`;
+  return ({ target:'Variable gap', val:type === 'return' ? 'Value to give back' : 'Value gap', cond:'Question gap', from:'Start at', to:'Stop before',
+    a:type === 'not' ? 'Question gap' : 'Left gap', b:'Right gap', i:type === 'arrget2' ? 'Row gap' : 'Position gap', j:'Column gap' })[key] || 'Gap';
+}
+function fieldLabel(type, key){
+  return ({ name:'Name', lib:'Library', ns:'Namespace', var:'Counter', n1:type === 'arr2' ? 'Rows' : 'Size', n2:'Columns', base:'Parent class',
+    obj:'Object', method:'Function', field:'Member', text:'Note', v:'Value', t:'Type name' })[key] || (/^pn/.test(key) ? 'Input name' : key);
+}
+const dropLabel = k => ({ op:'Operator', acc:'Access', inh:'Inheritance', v:'Value' })[k] || k;
+function slotLi(G, r, p){
+  const label = slotLabel(r.type, p.key), d = slotDesc(G.B, r, p.key);
+  let how;
+  if(d.k === 'none') how = 'leave it empty';
+  else if(d.k === 'lit') how = d.via ? `drag in a ${DEFS[d.via].name} block and type ${qq(d.v)}` : (d.v === ' ' ? 'type one space (press the space bar once)' : `type ${qq(d.v)}`);
+  else if(d.k === 'name') how = d.via ? `drag in a <b>Variable</b> block and type ${qq(d.v)}` : `type ${qq(d.v)}`;
+  else { const c = G.B[d.id];
+    if(c.type === 'type') how = `drag in the <b>${esc(c.fields.t)}</b> tag`;
+    else if(c.type === 'ctype') how = `drag in the <b>Your own type</b> tag and type ${qq(c.fields.t)}`;
+    else return `<li><b>${label}:</b> a <b>${esc(nameOfB(c))}</b> block, making <code>${esc(codeB(G, c))}</code>${partsList(G, c)}</li>`; }
+  return `<li><b>${label}:</b> ${how}</li>`;
+}
+function partsList(G, b, top){
+  const lis = [];
+  if(top && b.type === 'cout' && num(b, 'n') > 1) lis.push(`<li>Press <b>+</b> until it has ${num(b, 'n')} pieces.</li>`);
+  if(top && b.type === 'ifelse') lis.push('<li>This block has two mouths: the top one for "if", the bottom one for "else".</li>');
+  for(const row of DEFS[b.type].rows(b)){
+    if(!Array.isArray(row)) continue;
+    for(const p of row){
+      if(p.p === 'field'){ const v = b.fields[p.key] ?? ''; if(b.type === 'class' && p.key === 'base' && !v) lis.push('<li><b>Parent class:</b> leave it empty</li>'); else if(v !== '' || b.type !== 'class') lis.push(`<li><b>${fieldLabel(b.type, p.key)}:</b> type ${qq(v)}</li>`); }
+      else if(p.p === 'drop'){ const v = b.fields[p.key] ?? p.opts[0]; if(!(b.type === 'class' && p.key === 'inh' && !b.fields.base)) lis.push(`<li><b>${dropLabel(p.key)}:</b> choose <code>${esc(v)}</code></li>`); }
+      else if(p.p === 'slot') lis.push(slotLi(G, b, p));
+    }
+  }
+  return lis.length ? `<ul class="g-det">${lis.join('')}</ul>` : '';
+}
+function parentName(G, p){
+  if(p.type === 'func') return `the <b>${esc(nm(p.fields.name))}</b> function`;
+  if(p.type === 'main') return '<b>main</b>';
+  if(p.type === 'class' || p.type === 'struct') return `${p.type} <b>${esc(nm(p.fields.name))}</b>`;
+  return `<code>${esc(refLine(G, p.id))}</code>`;
+}
+function whereHTML(item){
+  const G = item.G, r = G.B[item.refId], nb = `<b>${esc(DEFS[r.type].name)}</b>`;
+  const under = id => hasMouth(G.B[id]) ? `Below the whole <code>${esc(refLine(G, id))}</code> block (after its closing <code>}</code>)` : `Under <code>${esc(refLine(G, id))}</code>`;
+  if(!item.path.length){ const i = G.order.indexOf(item.top); return i > 0 ? `${under(G.ids[G.order[i - 1]])}, snap a ${nb} block.` : `Drag a ${nb} block onto the canvas.`; }
+  const p = refParent(G, item), [k, i] = item.path[item.path.length - 1];
+  if(i === 0) return `Inside ${k === 'else' ? 'the <b>else</b> mouth of ' : ''}${parentName(G, p)}, add a ${nb} block as the first line.`;
+  return `${under(chainIds(p.stacks[k], G.B)[i - 1])}, add a ${nb} block.`;
+}
+const LINE_NOTES = {
+  "char number = '1'": 'number starts as the character 1. Each time it is used, ++ moves it on to the next digit: 2, 3 … 9.',
+  'board[row][col] = number;': 'This line runs 9 times in total: once for every square.',
+  'row = (square - 1) / 3;': 'Rows count from 0, but squares from 1, so take 1 away first. Dividing whole numbers drops the remainder: square 5 gives (5 − 1) / 3 = 1.',
+  'col = (square - 1) % 3;': '% gives the remainder after dividing. Square 5 gives (5 − 1) % 3 = 1. So square 5 is row 1, column 1: the middle.',
+  'while (!valid)': '!valid means "valid is false". So this keeps asking until a good square has been picked.',
+  'winner = checkWin();': 'Use the Function answer block. It runs checkWin and stores the answer it gives back.',
+  'if (row < 2)': 'Only rows 0 and 1 get a line of dashes underneath. Row 2 is the bottom row.',
+  "char winner = ' ';": 'A space means "no winner yet". The loop below keeps going while winner is still a space.',
+  'set:valid': 'This line is only reached when the square is real and free.'
+};
+function noteFor(item){
+  const G = item.G, r = G.B[item.refId], line = refLine(G, item.refId);
+  if(LINE_NOTES[line.replace(/;$/, '')]) return LINE_NOTES[line.replace(/;$/, '')];
+  if(LINE_NOTES[line]) return LINE_NOTES[line];
+  const p = item.path.length ? refParent(G, item) : null, k = item.path.length ? item.path[item.path.length - 1][0] : null;
+  const count = b => { const f = +codeOf(G, b, 'from'), t = +codeOf(G, b, 'to'); return isFinite(f) && isFinite(t) ? t - f : null; };
+  switch(r.type){
+    case 'func': case 'main': case 'struct': case 'class': return item.path.length ? null : 'Just the outside for now. The next lines go inside its mouth.';
+    case 'for': { const v = nm(r.fields.var), n = count(r);
+      if(p && p.type === 'for'){ const o = count(p); return `This loop goes <b>inside</b> the ${esc(nm(p.fields.var))} loop: a <b>nested loop</b>. Every time the outer loop moves on once, this inner loop runs all the way through.${n && o ? ` Its lines run ${o} × ${n} = ${o * n} times.` : ''}`; }
+      return `<code>${esc(v)}</code> counts from ${esc(codeOf(G, r, 'from'))} up to, but not including, ${esc(codeOf(G, r, 'to'))}.${n ? ` The lines inside run ${n} times.` : ''}`; }
+    case 'while': return 'The lines inside repeat for as long as the question is true.';
+    case 'if': return k === 'else' ? 'An if inside an else mouth makes an <b>else if</b>.' : 'The lines inside only run when the question is true.';
+    case 'ifelse': return (k === 'else' && p && p.type === 'ifelse') ? 'An if / else inside an else mouth makes an <b>else if</b>: it is only checked when the question above was false.' : 'If the question is true, the top mouth runs. Otherwise the else mouth runs.';
+    case 'return': return 'return gives back this value and ends the function straight away.';
+    case 'change': return r.fields.op === '++' ? '++ adds 1.' : null;
+    case 'call': return `This runs the ${esc(nm(r.fields.name))} function.`;
+    case 'cin': return 'The program pauses here until the user types something and presses Enter.';
+    case 'access': return 'Members under public: can be used by any code, not just the class itself.';
+  }
+  return null;
+}
+function specFromRef(B, id, withStacks){
+  const b = B[id], s = { t:b.type, f:{ ...b.fields }, i:{}, s:{} };
+  for(const k in b.inputs) if(B[b.inputs[k]]) s.i[k] = specFromRef(B, b.inputs[k], true);
+  if(withStacks) for(const k in b.stacks) s.s[k] = chainIds(b.stacks[k], B).map(x => specFromRef(B, x, true));
+  return s;
+}
+function applyHeader(u, RB, r){
+  Object.assign(u.fields, r.fields);
+  for(const k in u.inputs) if(u.inputs[k]) deleteTree(u.inputs[k], true);
+  u.inputs = {};
+  for(const k in r.inputs) if(RB[r.inputs[k]]) u.inputs[k] = instantiate(specFromRef(RB, r.inputs[k], true));
+}
+const identOf = b => nm(b.fields.name || b.fields.var || b.fields.lit_target || b.fields.obj || '');
+function doItem(item){
+  const G = item.G, r = G.B[item.refId]; let id = null;
+  setTab('blocks'); snapshot();
+  if(!item.path.length){ const ex = userTop(item.top); if(ex){ applyHeader(ex, G.B, r); id = ex.id; } else id = insertTop(specFromRef(G.B, r.id, false), item.top); }
+  else {
+    const parent = resolve(item, item.path.slice(0, -1));
+    if(!parent){ undoStack.pop(); announce('Finish the lines above this one first.'); return; }
+    const [k, i] = item.path[item.path.length - 1], { ids, off } = mouthOf(item, parent, item.path.length - 1, k), at = blocks[ids[i + off]];
+    const later = !!at && chainIds(refParent(G, item).stacks[k], G.B).slice(i + 1).some(x => matchNode(at, G.B, G.B[x]));
+    if(at && at.type === r.type && !later && (!identOf(at) || identOf(at) === identOf(r))){ applyHeader(at, G.B, r); id = at.id; }
+    else { id = instantiate(specFromRef(G.B, r.id, false)); ids.splice(i + off, 0, id); ids.forEach((x, j) => blocks[x].next = ids[j + 1] || null); parent.stacks[k] = ids[0]; }
+  }
+  selected = id; render(); update(); flashBlock(id); clickSound(); announce('Line added. Look at the block to see how it was built.');
+}
+function highlightPal(r){
+  const el = $$('#palette .pal-item').find(x => x.dataset.type === r.type && (r.type !== 'type' || x.dataset.t === r.fields.t));
+  if(!el) return;
+  const det = el.closest('details'); if(det) det.open = true;
+  el.classList.remove('want'); void el.offsetWidth; el.classList.add('want');
+  el.scrollIntoView({ block:'nearest', behavior:'smooth' });
+}
+function selectWhere(item){
+  const r = item.G.B[item.refId]; let target = null;
+  setTab('blocks');
+  if(!item.path.length){ const i = item.G.order.indexOf(item.top); for(let j = i - 1; j >= 0 && !target; j--) target = userTop(item.G.order[j]); if(!target){ const t = topList(); target = t[t.length - 1] || null; } }
+  else {
+    const parent = resolve(item, item.path.slice(0, -1));
+    if(!parent){ announce('Finish the lines above this one first.'); return; }
+    const [k, i] = item.path[item.path.length - 1], { ids, off } = mouthOf(item, parent, item.path.length - 1, k);
+    target = (i + off) === 0 ? parent : blocks[ids[i + off - 1]] || parent;
+  }
+  if(target){ selected = target.id; markSelected(); flashBlock(target.id); const el = blockEl(target.id); if(el) el.focus({ preventScroll:true }); }
+  highlightPal(r);
+  announce(`${target ? 'The right place is selected. ' : ''}Now tap the ${DEFS[r.type].name} block in the palette, or drag it into place.`);
+}
+let lastCur = -1, lastGuideStep = -1;
+function renderGuide(){
+  const s = STEPS[step], box = $('#guide');
+  if(!s.guide){ box.hidden = true; box.innerHTML = ''; return; }
+  const items = guideItems(step), st = items.map(itemDone), cur = st.indexOf(false), done = st.filter(Boolean).length;
+  box.hidden = false;
+  let h = `<div class="g-head"><span class="eyebrow">Build it line by line</span><span class="eyebrow">${done} of ${items.length} done</span></div>`;
+  h += `<p style="margin:0; font-size:.78rem; color:var(--muted)">Each line below is one block. The highlighted line is next. <code>␣</code> means a space.</p><ol class="g-list">`;
+  items.forEach((it, i) => {
+    const cls = st[i] ? 'done' : i === cur ? 'current' : 'todo';
+    h += `<li class="g-item ${cls}"><span class="tick" aria-hidden="true">${st[i] ? '✓' : ''}</span><div class="g-body"><div class="g-code" style="padding-left:${it.path.length * .8}rem">${hl(refLine(it.G, it.refId))}</div>`;
+    if(i === cur){
+      const note = noteFor(it);
+      h += `<p class="g-where">${whereHTML(it)}</p>${partsList(it.G, it.G.B[it.refId], true)}${note ? `<p class="g-note">${note}</p>` : ''}
+        <div class="g-btns"><button class="btn" data-act="where">${I('target')}Show me where</button><button class="btn" data-act="do">${I('wand')}Do this line for me</button><button class="say" data-act="say" aria-label="Read these instructions aloud">${I('speaker')}</button></div>`;
+    }
+    h += `<span class="sr-only">${st[i] ? ' (done)' : ' (not done yet)'}</span></div></li>`;
+  });
+  box.innerHTML = h + '</ol>';
+  box._items = items; box._cur = cur;
+  if(cur !== lastCur || step !== lastGuideStep){ const el = box.querySelector('.g-item.current'); if(el && step === lastGuideStep) el.scrollIntoView({ block:'nearest' }); lastCur = cur; lastGuideStep = step; }
+}
+$('#guide').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if(!b) return;
+  const box = $('#guide'), it = box._items && box._items[box._cur]; if(!it) return;
+  if(b.dataset.act === 'where') selectWhere(it);
+  else if(b.dataset.act === 'do') doItem(it);
+  else { const li = b.closest('.g-item'); const t = [...li.querySelectorAll('.g-where, .g-det, .g-note')].map(x => x.textContent).join('. ');
+    speak(t.replace(/␣/g, ' space '), b); }
+});
+function vizHTML(kind){
+  if(!kind) return '';
+  if(kind === 'lines'){
+    const L = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    return `<div class="viz card"><span class="eyebrow">The 8 winning lines</span><div class="vlines">${L.map(l => `<div class="mini" aria-hidden="true">${[...Array(9)].map((_, i) => `<i class="${l.includes(i) ? 'on' : ''}"></i>`).join('')}</div>`).join('')}</div><span>3 rows, 3 columns and 2 diagonals.</span></div>`;
+  }
+  const cap = { board:'board[row][col] picks one square. Rows and columns both start counting at 0.',
+    order:'The outer loop picks a row; the inner loop then visits each column in it. The big numbers show the order the squares are filled.',
+    squares:'The player types a square number. The maths turns it into a position: row = (square − 1) / 3 and col = (square − 1) % 3.' }[kind];
+  let g = '<div class="vgrid" aria-hidden="true"><span class="h"></span><span class="h">col 0</span><span class="h">col 1</span><span class="h">col 2</span>';
+  for(let r = 0; r < 3; r++){ g += `<span class="h">row ${r}</span>`;
+    for(let c = 0; c < 3; c++){ const n = r * 3 + c + 1;
+      g += `<span class="c">${kind === 'board' ? `[${r}][${c}]` : kind === 'order' ? `<b>${n}</b>[${r}][${c}]` : `<b>${n}</b>→ [${r}][${c}]`}</span>`; } }
+  return `<div class="viz card"><span class="eyebrow">${kind === 'squares' ? 'Square numbers' : 'The board grid'}</span>${g}</div><span>${esc(cap)}</span></div>`;
+}
+
+const STEPS = [
+  { title:'Welcome', legend:true, chunks:[
+      'In this course you will build a Noughts and Crosses game in C++, one line of code at a time.',
+      'Each block is one line of real C++. You snap blocks together to build the program.',
+      'The shape of a block shows where it fits. It will only snap where the code would make sense.',
+      'You never type semicolons, quote marks or arrows. They are added for you. You do type names and values, and they are checked as you type.'],
+    task:'Read the guide to block shapes below, then press Next.', checks:() => [],
+    hint:'Use A+ and A− in the top bar to change the text size. Every step can be read aloud.' },
+  { title:'Include the iostream library', guide:[{ key:'include:iostream' }], cats:['setup'], preview:['include:iostream'], chunks:[
+      'Every C++ program starts by including the libraries it needs.',
+      'A library is a toolbox of code that someone else has already written.',
+      'iostream gives us cout, to show text on screen, and cin, to read what the user types.'],
+    task:'Add #include <iostream> at the top of your program.',
+    hint:'iostream is short for "input output stream". It is spelled i-o-s-t-r-e-a-m.' },
+  { title:'Use the standard namespace', guide:[{ key:'using' }], cats:['setup'], preview:['using'], chunks:[
+      'The tools in iostream belong to a group called std, short for "standard".',
+      'Without this line you would have to write std::cout every time.',
+      'With it, you can simply write cout.'],
+    task:'Add using namespace std; under the include.',
+    hint:'Drag the block close to the bottom of #include. A yellow line shows where it will snap.' },
+  { title:'Create the board', guide:[{ key:'arr2:board' }], cats:['vars','types'], viz:'board', preview:['arr2:board'], chunks:[
+      'A variable is a named place that stores information.',
+      'A 2D array is a grid of variables that share one name. Our board has 3 rows and 3 columns.',
+      'Each square stores one char: a single character, such as X or O.',
+      'Data types are tag-shaped blocks. They only fit tag-shaped gaps.'],
+    task:'Create a 3 by 3 grid of char called board.',
+    hint:'The data types are in the "Data types" section of the palette.' },
+  { title:'Track the current player', guide:[{ key:'declare:currentPlayer' }], cats:['vars','types'], preview:['declare:currentPlayer'], chunks:[
+      'The game needs to remember whose turn it is.',
+      'currentPlayer is a char variable that starts as X.',
+      'Try typing XO as the value. You will see an error, because a char holds exactly one character.'],
+    task:'Create a char variable called currentPlayer with the value X.',
+    hint:'Capital letters matter in C++. currentPlayer has a capital P.' },
+  { title:'Function 1 — resetBoard', guide:[{ key:'func:resetBoard' }], cats:['funcs','loops','vars'], viz:'order', preview:['func:resetBoard'], chunks:[
+      'A function is a named set of instructions that you can run whenever you need it.',
+      'resetBoard writes the digits 1 to 9 into the squares, ready for a new game. Its type is void because it gives nothing back.',
+      'It uses a nested loop: one for loop placed inside another.',
+      'The outer loop picks a row. For each row, the inner loop visits all 3 columns. So the inner lines run 3 × 3 = 9 times, once per square.'],
+    task:'Build the resetBoard function, line by line.',
+    hint:'To put a block inside a loop, drop it in the loop\'s mouth (the gap between the { and the }). To put it after the loop, drop it under the closing }.' },
+  { title:'Function 2 — drawBoard', guide:[{ key:'func:drawBoard' }], cats:['funcs','io','loops','logic'], preview:['func:drawBoard'], chunks:[
+      'drawBoard prints the board on the screen.',
+      'For each row, one cout prints the three squares with a | between them.',
+      'An if block adds a line of dashes under the first two rows only.',
+      'Use the + button on a cout block to add more pieces to it.'],
+    task:'Build the drawBoard function, line by line.',
+    hint:'A Grid item block gives back one square: board[row][0] is the first square in that row.' },
+  { title:'Function 3 — makeMove', guide:[{ key:'func:makeMove' }], cats:['funcs','io','logic','loops','maths'], viz:'squares', preview:['func:makeMove'], chunks:[
+      'makeMove asks the player for a square from 1 to 9.',
+      'Two maths lines turn that number into a row and a column.',
+      'A while loop keeps asking until the square is real and free.',
+      'Finally, it places the player\'s letter in that square.'],
+    task:'Build the makeMove function, line by line.',
+    hint:'Blocks can go inside other blocks. Build the outside block first, then fill its gaps.' },
+  { title:'Function 4 — checkWin', guide:[{ key:'func:checkWin' }], cats:['funcs','logic','loops'], viz:'lines', preview:['func:checkWin'], chunks:[
+      'There are 8 ways to win: 3 rows, 3 columns and 2 diagonals.',
+      'checkWin gives back an answer, so its type is char rather than void.',
+      'It gives back the winner\'s letter, D for a draw, or a space if the game should carry on.',
+      'A line wins when square A equals square B and square B equals square C. && means "and".'],
+    task:'Build the checkWin function, line by line.',
+    hint:'A return block ends the function immediately and gives back its value.' },
+  { title:'Function 5 — showMenu', guide:[{ key:'func:showMenu' }], cats:['funcs','io'], preview:['func:showMenu'], chunks:[
+      'A menu lets the user choose what to do.',
+      'showMenu prints three options: 1. Play, 2. Rules and 3. Exit.',
+      'An endl piece moves the output onto a new line.'],
+    task:'Build the showMenu function, line by line.',
+    hint:'Typing into a gap inside cout creates text. The quote marks are added for you.' },
+  { title:'The game loop — playGame', guide:[{ key:'func:playGame' }], cats:['funcs','logic','loops'], preview:['func:playGame'], chunks:[
+      'playGame connects the other functions together.',
+      'A while loop runs drawBoard, makeMove and checkWin again and again until the game ends.',
+      'After each move it swaps the turn between X and O.',
+      'A function must be written above the code that uses it, so playGame goes below the others.'],
+    task:'Build the playGame function, line by line.',
+    hint:'Use the "Function answer" block to store the result of checkWin.' },
+  { title:'The entry point — main', guide:[{ key:'main' }], cats:['funcs','io','logic','loops'], preview:['main'], chunks:[
+      'int main() is where every C++ program begins.',
+      'It shows the menu and reads the number the user types.',
+      'An if / else chain decides what happens: 1 plays, 2 shows the rules, 3 exits.',
+      'Placing an if / else inside an else part creates an "else if".'],
+    task:'Build main at the very bottom, line by line.',
+    hint:'The while loop continues while choice != 3. != means "is not equal to".' },
+  { title:'Run your program', run:true, chunks:[
+      'The program is complete. Time to test it.',
+      'Run Code Live checks every block, then runs your code in the terminal.',
+      'Type 1 and press Enter to play. Two players share the keyboard.',
+      'Blocks light up while their function is running.'],
+    task:'Run the program, play a full game, then try options 2 and 3.',
+    hint:'If the build fails, read the yellow "In plain English" lines. They say exactly which block to fix.',
+    checks:() => [['The program builds with no errors', C.errs.length === 0], ['You ran it', state.ran], ['You finished a game', state.played]] },
+  { title:'Bonus — a struct for the score', guide:[{ key:'struct:Score', full:1 }, { key:'declare:score', full:1 }, { key:'func:playGame', full:1, from:PLAY_BASE_LEN }],
+    cats:['classes','vars'], preview:['x:struct:Score','x:declare:score','x:scoreAdd'],
+    show:() => { showTop('struct:Score'); showTop('declare:score'); const pg = findFn('playGame'); if(pg && !has(pg, 'member')) appendTo(pg.id, 'body', scoreBody()); }, chunks:[
+      'A struct groups several variables together under one new type name.',
+      'Score holds three whole numbers: xWins, oWins and draws.',
+      'You then create a variable called score that uses your new Score type.',
+      'Object member blocks, such as score.xWins, read and change the values inside it.'],
+    task:'Add a Score struct, a score variable, and update the score at the end of playGame.',
+    hint:'Use the "Your own type" tag and type Score into it.' },
+  { title:'Bonus — classes and inheritance', guide:[{ key:'include:string', full:1 }, { key:'class:Player', full:1 }, { key:'class:Host', full:1 }, { key:'main', full:1, to:HOST_LEN }],
+    cats:['classes','types'], preview:['x:include:string','x:class:Player','x:class:Host','x:hostAdd'],
+    show:() => { showTop('include:string'); showTop('class:Player'); showTop('class:Host'); const m = findTop(b => b.type === 'main'); if(m && !has(m, 'mcall')) appendTo(m.id, 'body', hostBody(), true); }, chunks:[
+      'A class bundles variables and functions together.',
+      'Player has a name and a greet function. The public: label lets other code use them.',
+      'Host inherits from Player: it gets everything Player has, plus its own welcome function.',
+      'In main, you create a Host object and call host.welcome().'],
+    task:'Add #include <string>, a Player class and a Host class, then use them in main.',
+    hint:'Typing Player into the "parent" box of the Host class is what creates the inheritance.' },
+  { title:'Export your code', finish:true, chunks:[
+      'You have built a complete C++ program, line by line.',
+      'The C++ code tab shows the whole program in one place.',
+      'Copy it, or download main.cpp, and build it with any C++ compiler.',
+      'Challenge: typing a letter instead of a number confuses cin. Research cin.clear() and cin.ignore() to make the game handle it.'],
+    task:'Open the C++ code tab, then copy or download your code.', hint:'Online C++ compilers let you paste and run code in a browser.',
+    checks:() => [['You copied or downloaded your code', state.copied]] }
+];
+
+/* =====================================================================
+   10. UI: steps, palette, code view, problems
+   ===================================================================== */
+let step = 0, lastDone = null;
+const state = { ran:false, played:false, copied:false };
+const settings = { font:18, family:'lexend', hc:false, rate:0.85, sound:true };
+function announce(m){ const l = $('#live'); l.textContent = ''; setTimeout(() => l.textContent = m, 30); }
+let actx = null;
+function clickSound(freq = 660){ if(!settings.sound) return;
+  try{ actx = actx || new (window.AudioContext || window.webkitAudioContext)(); const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime;
+    o.type = 'triangle'; o.frequency.setValueAtTime(freq, t); o.frequency.exponentialRampToValueAtTime(freq / 2, t + .08);
+    g.gain.setValueAtTime(.12, t); g.gain.exponentialRampToValueAtTime(.001, t + .13); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + .14); }catch(e){} }
+let speakingBtn = null;
+function speakable(t){ return t.replace(/C\+\+/g, 'C plus plus').replace(/\bcout\b/g, 'see out').replace(/\bcin\b/g, 'see in').replace(/\bstd\b/g, 'standard')
+  .replace(/!=/g, ' not equal to ').replace(/==/g, ' equals ').replace(/&&/g, ' and ').replace(/\+\+/g, ' plus plus ').replace(/A−/g, 'A minus').replace(/A\+/g, 'A plus').replace(/[{}|]/g, ' '); }
+function speak(text, btn){
+  if(!('speechSynthesis' in window)){ announce('Read aloud is not available in this browser.'); return; }
+  if(speechSynthesis.speaking && speakingBtn === btn && btn){ speechSynthesis.cancel(); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(speakable(text)); u.rate = settings.rate; u.lang = 'en-GB';
+  const vs = speechSynthesis.getVoices(), v = vs.find(v => v.lang === 'en-GB') || vs.find(v => /^en/i.test(v.lang)); if(v) u.voice = v;
+  if(speakingBtn) speakingBtn.classList.remove('speaking'); speakingBtn = btn || null; if(btn) btn.classList.add('speaking');
+  u.onend = u.onerror = () => { if(btn) btn.classList.remove('speaking'); };
+  speechSynthesis.speak(u);
+}
+function stepChecks(i){
+  const s = STEPS[i];
+  try {
+    if(s.guide){
+      const c = guideItems(i).map(it => [refLine(it.G, it.refId), itemDone(it)]);
+      const tops = [...new Set(s.guide.map(g => g.key))].map(userTop);
+      c.push(['No red ! problems in these blocks', tops.every(t => t && clean(t))]);
+      return c;
+    }
+    return s.checks ? s.checks() : [];
+  } catch(e){ console.error(e); return [['Checking…', false]]; }
+}
+function isDone(i){ const c = stepChecks(i); return c.every(x => x[1]); }
+
+function renderLegend(){
+  const L = $('#legend'); L.innerHTML = '';
+  const s = STEPS[step]; L.hidden = !s.legend; if(!s.legend) return;
+  L.className = 'legend hint pal';
+  const items = [
+    [blk('include', { lib:'iostream' }), 'Square tab: top level of the program'],
+    [blk('cout', { n:'1', lit_i0:'Hello' }), 'Puzzle tab: one line inside a function'],
+    [blk('access', { acc:'public' }), 'Pointed tab: inside a class or struct'],
+    [blk('var', { name:'score' }), 'Round: a value'],
+    [blk('cmp', { op:'==', lit_a:'1', lit_b:'1' }), 'Hexagon: a yes or no question'],
+    [blk('type', { t:'int' }), 'Tag: a data type']];
+  items.forEach(([spec, text]) => { const row = document.createElement('div');
+    const tmp = { id:'leg', type:spec.t, fields:{ ...(DEFS[spec.t].def || {}), ...spec.f }, inputs:{}, stacks:{} };
+    row.appendChild(renderBlock(tmp, 'pal')); row.appendChild(span('', text)); L.appendChild(row); });
+}
+function renderStep(){
+  const s = STEPS[step];
+  $('#stepNum').textContent = step + 1; $('#stepTitle').textContent = s.title; $('#stepTask').textContent = s.task;
+  const ol = $('#chunks'); ol.innerHTML = '';
+  s.chunks.forEach((c, i) => { const li = document.createElement('li'); li.className = 'chunk';
+    li.innerHTML = `<span class="chunk-n" aria-hidden="true">${i + 1}</span><span>${esc(c)}</span>`;
+    const say = document.createElement('button'); say.className = 'say'; say.type = 'button'; say.innerHTML = I('speaker'); say.setAttribute('aria-label', `Read part ${i + 1} aloud`);
+    say.addEventListener('click', () => speak(c, say)); li.appendChild(say); ol.appendChild(li); });
+  renderLegend();
+  $('#viz').hidden = !s.viz; $('#viz').innerHTML = vizHTML(s.viz);
+  $('#hintText').textContent = s.hint || ''; $('#hintBox').hidden = true; $('#hintBtn').setAttribute('aria-expanded', 'false'); $('#hintBtn span').textContent = 'Show a hint';
+  $('#showMeBtn').hidden = !(s.show || s.guide || s.run || s.finish);
+  $('#showMeBtn span').textContent = s.run ? 'Run it for me' : s.finish ? 'Open the C++ code' : 'Build the whole step for me';
+  const pv = (s.preview || []).map(k => PREVIEW[k] || '').filter(Boolean);
+  $('#previewBox').hidden = !pv.length; $('#previewBox').open = false;
+  if(pv.length) $('#previewCode').innerHTML = hl(s.preview.map(k => (k.endsWith('scoreAdd') ? '// ...at the end of playGame:\n' : k.endsWith('hostAdd') ? '// ...at the start of main:\n' : '') + (PREVIEW[k] || '')).join('\n\n'));
+  $('#prevBtn').disabled = step === 0; $('#nextBtn').disabled = step === STEPS.length - 1;
+  $$('#palette details').forEach(d => { const on = (s.cats || []).includes(d.dataset.cat); d.classList.toggle('focus', on); if(on) d.open = true; });
+  lastDone = isDone(step); updateStep();
+  const left = $('#left'); if(left) left.scrollTop = 0;
+}
+function updateStep(){
+  const s = STEPS[step], checks = stepChecks(step), done = checks.every(x => x[1]);
+  const ul = $('#checks'); ul.innerHTML = ''; ul.hidden = !!s.guide || !checks.length;
+  if(!s.guide) checks.forEach(([label, ok]) => { const li = document.createElement('li'); li.className = ok ? 'ok' : '';
+    li.innerHTML = `<span class="tick" aria-hidden="true">${ok ? '✓' : ''}</span><span>${esc(label)}<span class="sr-only">${ok ? ' (done)' : ' (not done yet)'}</span></span>`; ul.appendChild(li); });
+  renderGuide();
+  const st = $('#stepStatus');
+  st.className = 'status ' + (done ? 'ok' : 'wait');
+  const tops = s.guide ? [...new Set(s.guide.map(g => g.key))].map(userTop).filter(Boolean) : [];
+  const relevant = C.errs.find(e => e.id && !C.loose.has(e.id) && (!tops.length || tops.some(t => subIds(t.id).includes(e.id))));
+  if(done) st.textContent = step === STEPS.length - 1 ? 'Course complete. Well done.' : (checks.length ? '✓ Step complete. Press Next to continue.' : 'Press Next when you are ready.');
+  else if(relevant) st.textContent = '⚠ ' + relevant.msg;
+  else st.textContent = s.guide ? 'Follow the highlighted line in the guide.' : 'Complete each item in the checklist.';
+  $('#nextBtn').classList.toggle('pulse', done && step < STEPS.length - 1);
+  if(lastDone === false && done && checks.length){ clickSound(880); announce('Step complete. Well done.'); }
+  lastDone = done;
+  const ol = $('#dots'); ol.innerHTML = ''; let cnt = 0;
+  STEPS.forEach((x, i) => { const d = isDone(i); if(d) cnt++;
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.className = 'dot' + (d ? ' done' : '') + (i === step ? ' current' : ''); b.textContent = d ? '✓' : (i + 1);
+    b.setAttribute('aria-label', `Step ${i + 1}: ${x.title}${d ? ', done' : ''}`); if(i === step) b.setAttribute('aria-current', 'step');
+    b.addEventListener('click', () => goStep(i)); li.appendChild(b); ol.appendChild(li); });
+  const pct = Math.round(cnt / STEPS.length * 100);
+  $('#barFill').style.width = pct + '%'; $('#barWrap').setAttribute('aria-valuenow', pct);
+  $('#stepPct').textContent = pct + '% complete'; $('#stepCount').textContent = `Step ${step + 1} of ${STEPS.length}`;
+}
+function goStep(i){ step = Math.max(0, Math.min(STEPS.length - 1, i)); if('speechSynthesis' in window) speechSynthesis.cancel(); renderStep(); save(); $('#stepTitle').focus(); }
+
+const PALETTE = [
+  ['setup',  [blk('include'), blk('using'), blk('comment')]],
+  ['types',  ['int','double','char','bool','string','void'].map(t => blk('type', { t })).concat([blk('ctype')])],
+  ['vars',   [blk('declare'), blk('arr1'), blk('arr2'), blk('set'), blk('change'), blk('var'), blk('arrget1'), blk('arrget2')]],
+  ['io',     [blk('cout'), blk('cin'), blk('endl')]],
+  ['values', [blk('text'), blk('letter'), blk('number'), blk('boolv')]],
+  ['logic',  [blk('if'), blk('ifelse'), blk('cmp'), blk('logic'), blk('not')]],
+  ['loops',  [blk('while'), blk('for'), blk('break')]],
+  ['maths',  [blk('math')]],
+  ['funcs',  [blk('func'), blk('main'), blk('call'), blk('callv'), blk('return')]],
+  ['classes',[blk('struct'), blk('class'), blk('access'), blk('member'), blk('mcall'), blk('mcallv')]]
+];
+function buildPalette(){
+  const P = $('#palette');
+  PALETTE.forEach(([cat, items], ci) => {
+    const det = document.createElement('details'); det.dataset.cat = cat; if(ci < 3) det.open = true;
+    const sum = document.createElement('summary'); const sw = span('swatch', ''); sw.style.background = CAT[cat].color; sum.append(sw, span('', CAT[cat].label)); det.appendChild(sum);
+    const list = document.createElement('div'); list.className = 'pal-list';
+    items.forEach(spec => {
+      const tmp = { id:'pal', type:spec.t, fields:{ ...(DEFS[spec.t].def || {}), ...spec.f }, inputs:{}, stacks:{} };
+      const w = document.createElement('div'); w.className = 'pal-item'; w.tabIndex = 0; w.setAttribute('role', 'button'); w.dataset.type = spec.t; w.dataset.t = (spec.f && spec.f.t) || '';
+      const nmText = spec.t === 'type' ? spec.f.t + ' type' : DEFS[spec.t].name;
+      w.setAttribute('aria-label', `Add ${nmText}. ${tipFor(tmp)}`);
+      w.appendChild(renderBlock(tmp, 'pal'));
+      w.addEventListener('pointerdown', e => { if(e.button > 0) return; if(e.pointerType === 'mouse') e.preventDefault(); press = { spec, x:e.clientX, y:e.clientY, pid:e.pointerId }; hideTip(); });
+      w.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); quickAdd(spec); } });
+      w.addEventListener('pointerenter', () => { if(!drag) showTip(w, tmp); });
+      w.addEventListener('pointerleave', hideTip);
+      w.addEventListener('focus', () => showTip(w, tmp)); w.addEventListener('blur', hideTip);
+      list.appendChild(w);
+    });
+    det.appendChild(list); P.appendChild(det);
+  });
+}
+
+function hl(src){
+  const re = /(\/\/[^\n]*)|("(?:\\.|[^"\\\n])*")|('(?:\\.|[^'\\\n])+')|(#\w+(?:\s*<[^>\n]+>)?)|\b(int|char|void|double|bool|string|return|for|while|if|else|using|namespace|std|class|struct|public|private|protected|break|true|false|cout|cin|endl)\b|\b(\d+)\b/g;
+  let o = '', last = 0, m;
+  while((m = re.exec(src))){ o += esc(src.slice(last, m.index));
+    const cls = m[1] ? 'tc' : (m[2] || m[3]) ? 'ts' : m[4] ? 'tp' : m[5] ? (['cout','cin','endl'].includes(m[5]) ? 'tio' : 'tk') : 'tn';
+    o += `<span class="${cls}">${esc(m[0])}</span>`; last = re.lastIndex; }
+  return o + esc(src.slice(last));
+}
+function renderCode(){
+  const notes = $('#codeNotes'); notes.innerHTML = '';
+  const add = (t, ok) => { const d = document.createElement('div'); d.className = 'status ' + (ok ? 'ok' : 'wait'); d.textContent = t; notes.appendChild(d); };
+  C.warns.forEach(w => add('⚠ ' + w));
+  if(C.errs.length) add(`⚠ ${C.errs.length} problem${C.errs.length > 1 ? 's' : ''} to fix. Lines with ? need fixing. Open the problems list on the Blocks tab.`);
+  else if(C.code) add('✓ This code is complete and ready to build.', true);
+  $('#codePre').innerHTML = C.code ? hl(C.code.replace(/\n$/, '')).split('\n').map(l => `<span class="cl">${l || ' '}</span>`).join('') : '<span class="cl">// Your code will appear here when you add blocks.</span>';
+  $('#tabBadge').hidden = !C.errs.length; $('#tabBadge').textContent = C.errs.length;
+}
+function renderProblems(){
+  const n = C.errs.length, btn = $('#probBtn'), list = $('#probList');
+  btn.textContent = n ? `⚠ ${n} problem${n > 1 ? 's' : ''}` : '✓ No problems';
+  btn.classList.toggle('clear', !n);
+  if(!n){ list.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+  list.innerHTML = '';
+  C.errs.slice(0, 40).forEach(e => { const li = document.createElement('li'); li.appendChild(span('', '⚠ ' + e.msg));
+    if(e.id && blocks[e.id]){ const b = document.createElement('button'); b.className = 'btn'; b.style.minHeight = '32px'; b.textContent = 'Find';
+      b.addEventListener('click', () => { selected = e.id; markSelected(); flashBlock(e.id); const el = blockEl(e.id); if(el) el.focus({ preventScroll:true }); }); li.prepend(b); }
+    list.appendChild(li); });
+}
+$('#probBtn').addEventListener('click', () => { if(!C.errs.length) return; const l = $('#probList'); l.hidden = !l.hidden; $('#probBtn').setAttribute('aria-expanded', String(!l.hidden)); });
+
+function decorate(){
+  const byId = new Map(); (C.errs || []).forEach(e => { if(e.id){ if(!byId.has(e.id)) byId.set(e.id, []); byId.get(e.id).push(e); } });
+  $$('#canvas .b[data-id]').forEach(el => {
+    const id = el.dataset.id, es = byId.get(id);
+    el.classList.toggle('err', !!es); el.classList.toggle('loose', C.loose.has(id));
+    const bd = el.querySelector(':scope > .ebadge') || el.querySelector(':scope > .b-row > .ebadge');
+    if(bd) bd.hidden = !es;
+    el.setAttribute('aria-label', DEFS[blocks[id].type].name + ' block' + (es ? '. Problem: ' + es[0].msg : ''));
+  });
+  $$('#canvas .fi[data-fid]').forEach(i => { const [id, f] = i.dataset.fid.split('.');
+    const es = (byId.get(id) || []).filter(e => e.field === f); i.classList.toggle('bad', es.length > 0);
+    i.title = es.length ? es[0].msg : ''; i.setAttribute('aria-invalid', String(es.length > 0)); });
+}
+function refreshLists(){
+  const fill = (id, arr) => { $(id).innerHTML = [...new Set(arr)].filter(Boolean).map(v => `<option value="${esc(v)}">`).join(''); };
+  const all = Object.values(blocks);
+  fill('#dl-funcs', ['showMenu','drawBoard','makeMove','checkWin','resetBoard','playGame', ...all.filter(b => b.type === 'func').map(b => nm(b.fields.name))]);
+  fill('#dl-vars', all.flatMap(b => ['declare','arr1','arr2'].includes(b.type) ? [nm(b.fields.name)] : b.type === 'for' ? [nm(b.fields.var)] : b.type === 'func' ? Array.from({ length:num(b,'np') }, (_, i) => nm(b.fields['pn' + i])) : []));
+  fill('#dl-types', all.filter(b => b.type === 'struct' || b.type === 'class').map(b => nm(b.fields.name)));
+  fill('#dl-libs', KNOWN_LIBS);
+}
+let upT = null;
+function scheduleUpdate(){ clearTimeout(upT); upT = setTimeout(update, 220); }
+function update(){ clearTimeout(upT); C = compileWith(blocks, roots); X = null; decorate(); refreshLists(); renderProblems(); renderCode(); updateStep(); save(); }
+
+/* save / load */
+const KEY = 'blockcpp-lines-v2';
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({ blocks, roots, seq, step, state, settings })); }catch(e){} }
+function load(){ try{ const d = JSON.parse(localStorage.getItem(KEY) || 'null'); if(!d) return;
+  blocks = d.blocks || {}; roots = d.roots || []; seq = d.seq || 1; step = d.step || 0; Object.assign(state, d.state || {}); Object.assign(settings, d.settings || {});
+  for(const id in blocks) if(!DEFS[blocks[id].type]) delete blocks[id]; }catch(e){ blocks = {}; roots = []; } }
+
+/* settings */
+function applySettings(){
+  document.documentElement.style.fontSize = settings.font + 'px'; $('#fontLabel').textContent = settings.font + 'px';
+  document.body.classList.toggle('font-lexend', settings.family === 'lexend'); document.body.classList.toggle('font-atk', settings.family === 'atk');
+  $('#fontToggle').textContent = 'Font: ' + (settings.family === 'lexend' ? 'Lexend' : 'Atkinson');
+  document.documentElement.classList.toggle('hc', settings.hc); $('#hcToggle').setAttribute('aria-pressed', String(settings.hc));
+  $('#speedToggle').textContent = 'Voice: ' + (settings.rate < .8 ? 'Slower' : settings.rate < 1 ? 'Slow' : 'Normal');
+  $('#soundToggle').setAttribute('aria-pressed', String(settings.sound)); $('#soundToggle').textContent = 'Sound: ' + (settings.sound ? 'On' : 'Off');
+  $$('.fi').forEach(sizeInput);
+}
+$('#fontUp').addEventListener('click', () => { settings.font = Math.min(26, settings.font + 2); applySettings(); save(); });
+$('#fontDown').addEventListener('click', () => { settings.font = Math.max(14, settings.font - 2); applySettings(); save(); });
+$('#fontToggle').addEventListener('click', () => { settings.family = settings.family === 'lexend' ? 'atk' : 'lexend'; applySettings(); save(); });
+$('#hcToggle').addEventListener('click', () => { settings.hc = !settings.hc; applySettings(); save(); });
+$('#soundToggle').addEventListener('click', () => { settings.sound = !settings.sound; applySettings(); save(); });
+$('#speedToggle').addEventListener('click', () => { settings.rate = settings.rate < .8 ? .85 : settings.rate < 1 ? 1 : .7; applySettings(); save(); speak('This is how fast I will read.', null); });
+
+/* tabs */
+function setTab(which){
+  const blocksTab = which === 'blocks';
+  $('#tabBlocks').setAttribute('aria-selected', String(blocksTab)); $('#tabCode').setAttribute('aria-selected', String(!blocksTab));
+  $('#viewBlocks').hidden = !blocksTab; $('#viewCode').hidden = blocksTab;
+}
+$('#tabBlocks').addEventListener('click', () => setTab('blocks'));
+$('#tabCode').addEventListener('click', () => setTab('code'));
+
+/* toolbar */
+$('#undoBtn').addEventListener('click', undo);
+$('#delBtn').addEventListener('click', () => { if(!selected || !blocks[selected]) return; snapshot(); const n = DEFS[blocks[selected].type].name; removeOne(selected); selected = null; render(); update(); clickSound(220); announce(n + ' deleted.'); });
+$('#tidyBtn').addEventListener('click', () => { snapshot(); const mr = mainRoot(); let y = 40;
+  const others = roots.filter(r => r !== mr); if(mr){ mr.x = 40; mr.y = 40; }
+  const w = mr && blockEl(mr.id) ? blockEl(mr.id).parentElement.offsetWidth : 300;
+  others.forEach(r => { r.x = 40 + w + 80; r.y = y; const el = blockEl(r.id); y += (el ? el.parentElement.offsetHeight : 60) + 30; });
+  render(); save(); });
+$('#clearBtn').addEventListener('click', () => { if(!roots.length || !confirm('Remove every block from the canvas?')) return; snapshot(); blocks = {}; roots = []; selected = null; render(); update(); announce('Canvas cleared.'); });
+/* copy / download */
+function markCopied(m){ state.copied = true; announce(m); update(); }
+$('#copyBtn').addEventListener('click', async () => {
+  if(!C.code){ announce('There is no code to copy yet.'); return; }
+  try{ await navigator.clipboard.writeText(C.code); }catch(e){ const ta = document.createElement('textarea'); ta.value = C.code; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); }catch(_){} ta.remove(); }
+  $('#copyBtn span').textContent = 'Copied'; setTimeout(() => $('#copyBtn span').textContent = 'Copy code', 1800); markCopied('Code copied.'); });
+$('#dlBtn').addEventListener('click', () => {
+  if(!C.code){ announce('There is no code to download yet.'); return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([C.code], { type:'text/x-c++src' })); a.download = 'main.cpp';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); markCopied('main.cpp downloaded.'); });
+
+/* left panel buttons */
+$('#readStep').addEventListener('click', e => { const s = STEPS[step]; speak(`${s.title}. ${s.chunks.join(' ')} Your task: ${s.task}`, e.currentTarget); });
+$('#hintBtn').addEventListener('click', e => { const b = $('#hintBox'); b.hidden = !b.hidden; e.currentTarget.setAttribute('aria-expanded', String(!b.hidden)); $('#hintBtn span').textContent = b.hidden ? 'Show a hint' : 'Hide the hint'; });
+$('#hintSay').addEventListener('click', e => speak($('#hintText').textContent, e.currentTarget));
+$('#showMeBtn').addEventListener('click', () => {
+  const s = STEPS[step];
+  if(s.run){ runCode(); return; }
+  if(s.finish){ setTab('code'); return; }
+  setTab('blocks'); snapshot(); const id = s.show ? s.show() : showTop(s.guide[0].key); render(); update();
+  if(id && blockEl(id)) flashBlock(id); clickSound(); announce('The whole step has been built. Look through the blocks to see how they fit together.');
+});
+$('#prevBtn').addEventListener('click', () => goStep(step - 1));
+$('#nextBtn').addEventListener('click', () => goStep(step + 1));
+
+/* =====================================================================
+   11. TERMINAL
+   ===================================================================== */
+const term = {
+  out:$('#termOut'), input:$('#termIn'), send:$('#termSend'), pending:null,
+  clear(){ this.out.innerHTML = ''; },
+  print(t, cls){ const last = this.out.lastChild;
+    if(!cls && last && !last.className && last.nodeType === 1){ last.textContent += t; } else { const s = span(cls || '', t); this.out.appendChild(s); }
+    this.out.scrollTop = this.out.scrollHeight; },
+  wait(on){ this.input.disabled = !on; this.send.disabled = !on; $$('#quickKeys button').forEach(b => b.disabled = !on); },
+  read(tok){ return new Promise((res, rej) => { this.pending = { res, rej, tok }; this.wait(true); if(matchMedia('(pointer:fine)').matches) this.input.focus({ preventScroll:true }); }); },
+  submit(v){ if(!this.pending) return; const val = v !== undefined ? v : this.input.value; this.input.value = ''; this.print(val + '\n', 'o-in');
+    const p = this.pending; this.pending = null; this.wait(false); p.res(val); },
+  cancel(){ if(this.pending){ const p = this.pending; this.pending = null; p.rej(STOP); } this.wait(false); }
+};
+for(let i = 1; i <= 9; i++){ const b = document.createElement('button'); b.type = 'button'; b.className = 'term-btn mono'; b.textContent = i; b.disabled = true;
+  b.setAttribute('aria-label', `Type ${i} and press Enter`); b.addEventListener('click', () => term.submit(String(i))); $('#quickKeys').appendChild(b); }
+$('#termForm').addEventListener('submit', e => { e.preventDefault(); term.submit(); });
+function flashRun(id, name){ $('#termNow').textContent = name ? `Now running: ${name}()` : ''; const el = blockEl(id); if(!el) return;
+  el.classList.add('running'); clearTimeout(el._rt); el._rt = setTimeout(() => el.classList.remove('running'), 700); }
+function stopProgram(msg){ runToken++; term.cancel(); $('#termNow').textContent = ''; if(msg) term.print('\n[Program stopped]\n', 'o-note'); }
+$('#termStop').addEventListener('click', () => stopProgram(true));
+$('#termRestart').addEventListener('click', runCode);
+$('#termClose').addEventListener('click', () => { stopProgram(false); $('#terminal').hidden = true; });
+$('#runBtn').addEventListener('click', runCode);
+async function runCode(){
+  stopProgram(false); $('#terminal').hidden = false; setTab('blocks'); term.clear();
+  $$('#canvas .runerr').forEach(e => e.classList.remove('runerr'));
+  const tok = ++runToken; update();
+  term.print('$ g++ main.cpp -o noughts\n', 'o-cmd');
+  await sleep(350); if(tok !== runToken) return;
+  C.warns.forEach(w => term.print('⚠ ' + w + '\n', 'o-plain'));
+  if(C.errs.length){
+    C.errs.slice(0, 5).forEach(e => { term.print(`main.cpp:${e.line}: error: ${e.gcc}\n`, 'o-err'); term.print(`  ↳ In plain English: ${e.msg}\n\n`, 'o-plain'); });
+    if(C.errs.length > 5) term.print(`...and ${C.errs.length - 5} more. See the problems list.\n`, 'o-err');
+    term.print('Build failed. Fix the blocks with a red !, then press Run again.\n', 'o-err');
+    announce('Build failed. Read the plain English messages in the terminal.'); clickSound(200); return;
+  }
+  term.print('✓ Build finished with no errors.\n$ ./noughts\n', 'o-ok');
+  state.ran = true; update();
+  const snap = C;
+  try{
+    const code = await runProgram(tok, snap);
+    if(tok === runToken){ term.print(`\n[Program finished with exit code ${code}]\n`, 'o-note'); }
+  } catch(e){
+    if(e === STOP) return;
+    if(e instanceof RTErr){ term.print(`\nRuntime error: ${e.msg}\n`, 'o-err'); const el = e.id && blockEl(e.id); if(el){ el.classList.add('runerr'); el.scrollIntoView({ block:'nearest', behavior:'smooth' }); } }
+    else { console.error(e); term.print('\n[The simulator hit a problem: ' + e.message + ']\n', 'o-err'); }
+  }
+  if(tok === runToken){ $('#termNow').textContent = ''; term.wait(false); }
+}
+// notice finished games so the Run step can tick
+new MutationObserver(() => { if(!state.played && /wins!|draw!/.test(term.out.textContent)){ state.played = true; update(); } }).observe($('#termOut'), { childList:true, subtree:true, characterData:true });
+
+/* =====================================================================
+   12. START
+   ===================================================================== */
+load();
+buildPalette();
+buildPreviews();
+applySettings();
+render();
+update();
+renderStep();
+})();
+</script>
+</body>
+</html>
