@@ -1,0 +1,102 @@
+{
+  "id": "block-cpp-noughts-and-crosses",
+  "title": "Block C++: Noughts and Crosses (Visual Studio 2022 edition)",
+  "shortTitle": "Block C++",
+  "description": "An inclusive C++ course in a Visual Studio 2022 style workspace. Learners create a Console App project, explore Solution Explorer, then build a Noughts and Crosses game line by line using shaped blocks or real C++ code. Both views stay in sync: typed code is turned back into blocks. Programs run in a built-in simulator, or on a real compiler online.",
+  "version": "2.0.0",
+  "entry": "index.html",
+  "type": "interactive-tutorial",
+  "subject": "Computer Science",
+  "topics": [
+    "2D arrays",
+    "C++",
+    "Classes and inheritance",
+    "Constructors",
+    "Functions",
+    "Input and output",
+    "Libraries: cmath, cstdlib, ctime, iomanip, algorithm, cctype",
+    "Loops and nested loops",
+    "Programming fundamentals",
+    "Selection (if / else)",
+    "String functions",
+    "Structs",
+    "Variables and data types",
+    "Vectors",
+    "Visual Studio projects and solutions",
+    "switch and do-while"
+  ],
+  "tags": [
+    "cpp",
+    "c++",
+    "block-coding",
+    "scratch-style",
+    "tic-tac-toe",
+    "noughts-and-crosses",
+    "beginner",
+    "accessible",
+    "dyslexia-friendly"
+  ],
+  "level": "Beginner",
+  "audience": "Learners new to text-based programming, including learners with dyslexia and learning difficulties",
+  "readingAge": 16,
+  "estimatedTime": "3–4 hours",
+  "steps": 20,
+  "language": "en-GB",
+  "learningOutcomes": [
+    "Use #include and namespaces to set up a C++ program",
+    "Declare variables and 2D arrays with suitable data types",
+    "Write and call void and value-returning functions",
+    "Use for loops, nested for loops and while loops",
+    "Make decisions with if, else and else if",
+    "Read input with cin and print output with cout",
+    "Group data with a struct and model objects with classes and inheritance",
+    "Run, test and export a complete C++ program"
+  ],
+  "features": [
+    "Simulated Visual Studio 2022 project wizard, menus, Solution Explorer, Toolbox, Error List, Output and Debug Console",
+    "Blocks and code tabs for the same file, kept in sync both ways",
+    "Editable C++ code with syntax colouring, squiggles and Visual Studio style error codes",
+    "Shape-checked blocks with live validation and plain-English errors",
+    "Line-by-line guide with auto-ticking checklists for every step",
+    "JavaScript simulator that runs the learner's own program",
+    "Optional real build and run through Compiler Explorer (GCC or Clang)",
+    "Copy or download the .cpp file, undo, keyboard shortcuts and tap-to-place"
+  ],
+  "accessibility": {
+    "textToSpeech": true,
+    "highContrastMode": true,
+    "adjustableTextSize": true,
+    "dyslexiaFriendlyFonts": [
+      "Lexend",
+      "Atkinson Hyperlegible"
+    ],
+    "keyboardNavigable": true,
+    "screenReaderAnnouncements": true,
+    "reducedMotionSupport": true,
+    "themes": [
+      "Dark",
+      "Light",
+      "High contrast"
+    ]
+  },
+  "technology": [
+    "HTML",
+    "Tailwind CSS (CDN)",
+    "Vanilla JavaScript"
+  ],
+  "dependencies": {
+    "external": [
+      "https://cdn.tailwindcss.com",
+      "https://fonts.googleapis.com",
+      "https://godbolt.org (optional real compiler)"
+    ],
+    "build": "none"
+  },
+  "offlineCapable": false,
+  "savesProgress": "localStorage",
+  "responsive": true,
+  "license": "",
+  "author": "",
+  "created": "2026-11-11",
+  "updated": "2026-11-11"
+}
