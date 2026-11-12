@@ -1,0 +1,132 @@
+{
+  "id": "sentinel-lab-php",
+  "title": "Sentinel Lab: Build the Sentinel Security shop in PHP (Visual Studio Code edition)",
+  "shortTitle": "Sentinel Lab PHP",
+  "description": "An inclusive PHP and MySQL course in a Visual Studio Code style workspace. Learners build the Sentinel Security shop site through all ten guide versions, from the starter site to saved items, using shaped blocks or real code. Both views stay in sync. PHP 8.3 runs live in the browser through WebAssembly, with a built-in XAMPP Control Panel, phpMyAdmin, browser preview, developer tools and terminal.",
+  "version": "1.0.0",
+  "entry": "index.html",
+  "type": "interactive-tutorial",
+  "subject": "Computer Science",
+  "topics": [
+    "PHP 8",
+    "MySQL and SQL",
+    "mysqli prepared statements",
+    "Includes and reusable templates",
+    "Forms, GET and POST",
+    "Validation and whitelists",
+    "Pagination, filtering and sorting",
+    "Search with LIKE",
+    "Sessions and log in",
+    "Password hashing",
+    "CSRF tokens",
+    "XSS and htmlspecialchars",
+    "SQL injection",
+    "Transactions",
+    "Foreign keys and UNIQUE",
+    "Shopping basket and checkout",
+    "Reviews and ratings",
+    "Secure coding and testing like an attacker",
+    "Visual Studio Code workflow"
+  ],
+  "tags": [
+    "php",
+    "mysql",
+    "webassembly",
+    "xampp",
+    "phpmyadmin",
+    "vs-code",
+    "block-coding",
+    "scratch-style",
+    "web-security",
+    "beginner",
+    "accessible",
+    "dyslexia-friendly"
+  ],
+  "level": "Beginner to intermediate",
+  "audience": "Learners new to server-side web development, including learners with dyslexia and learning difficulties",
+  "readingAge": 16,
+  "estimatedTime": "15–20 hours across ten versions",
+  "steps": 99,
+  "versions": [
+    { "n": 1, "title": "Starter site", "steps": 14 },
+    { "n": 2, "title": "Better catalogue", "steps": 10 },
+    { "n": 3, "title": "Services and consultations", "steps": 11 },
+    { "n": 4, "title": "Search", "steps": 7 },
+    { "n": 5, "title": "User accounts", "steps": 10 },
+    { "n": 6, "title": "Profile and address book", "steps": 11 },
+    { "n": 7, "title": "Basket", "steps": 10 },
+    { "n": 8, "title": "Checkout and orders", "steps": 9 },
+    { "n": 9, "title": "Reviews and ratings", "steps": 9 },
+    { "n": 10, "title": "Saved items", "steps": 8 }
+  ],
+  "deepLinks": "index.html#v7 opens Version 7. index.html#v7-basket style links (#v<number>-<step id>) open one step.",
+  "language": "en-GB",
+  "learningOutcomes": [
+    "Build a multi-page PHP site from shared includes (header, footer, cards)",
+    "Create a MySQL database with tables, keys and sample data, and import it in phpMyAdmin",
+    "Read data safely with mysqli prepared statements and bind_param",
+    "Filter, sort, search and paginate data from the address bar without SQL injection",
+    "Validate form input on the server and show friendly errors",
+    "Build sign up, log in and log out with sessions and password_hash()",
+    "Protect forms with CSRF tokens and output with htmlspecialchars()",
+    "Build a basket, a checkout that uses a transaction, reviews and saved items",
+    "Test their own site like an attacker and compare it with an insecure example"
+  ],
+  "features": [
+    "Visual Studio Code style workspace: activity bar, Explorer, Search, editor tabs, breadcrumbs, Problems, Output, Terminal, status bar, command palette",
+    "All ten Sentinel Security guides, step by step, with the same files, checks, quick quizzes, 'Stuck?' help, Beginner and Experienced explanations and attacker tests",
+    "Blocks and Code views of the same file, kept in sync both ways: typed code is turned back into blocks",
+    "Guide blocks with shapes and colours by job, blanks to type (file, table and function names, bind_param types) with plain-English hints, 'Show me where', 'Put it in place' and 'Do it for me'",
+    "Free-building toolbox of PHP, HTML, CSS and SQL blocks for files outside the guide",
+    "Real PHP 8.3 (WebAssembly) runs every page, with real PHP syntax checking and error messages",
+    "MySQL emulator over SQLite: mysqli, prepared statements, transactions, foreign keys, UNIQUE, ENUM and MySQL error numbers such as 1062",
+    "Built-in XAMPP Control Panel and dashboard, phpMyAdmin (import, browse, edit, insert, delete, SQL), and a MySQL monitor in the terminal",
+    "Browser preview with tabs, back and forward, a private window, phone size, JavaScript off, and developer tools (Elements form editor, Console, Network, Application cookies, page source)",
+    "Cookie handling with HttpOnly and SameSite=Lax, so the CSRF and session tests in the guides behave as described",
+    "Files and databases saved in the browser, backups, 'load the finished files of a version', and download as a .zip for real XAMPP"
+  ],
+  "accessibility": {
+    "textToSpeech": true,
+    "highContrastMode": true,
+    "adjustableTextSize": true,
+    "dyslexiaFriendlyFonts": [
+      "Lexend",
+      "Atkinson Hyperlegible"
+    ],
+    "extraLineAndLetterSpacing": true,
+    "keyboardNavigable": true,
+    "screenReaderAnnouncements": true,
+    "reducedMotionSupport": true,
+    "chunkedSteps": true,
+    "themes": [
+      "Dark",
+      "Light",
+      "High contrast dark",
+      "High contrast light"
+    ]
+  },
+  "technology": [
+    "HTML",
+    "CSS",
+    "Vanilla JavaScript",
+    "PHP 8.3 compiled to WebAssembly (@php-wasm/web 3.1.59, WordPress Playground project)",
+    "SQLite (inside PHP) for the MySQL emulator"
+  ],
+  "dependencies": {
+    "external": [
+      "https://cdn.jsdelivr.net/npm/@php-wasm/web-8-3@3.1.59 (PHP runtime, about 18 MB, downloaded once and cached; unpkg.com is tried if jsDelivr can't be reached)",
+      "https://cdn.jsdelivr.net/npm/wasm-feature-detect@1.8.0",
+      "https://fonts.googleapis.com (Atkinson Hyperlegible, Lexend, JetBrains Mono)"
+    ],
+    "selfHosting": "To run without the CDN, copy node_modules/@php-wasm/web-8-3 and node_modules/wasm-feature-detect into a vendor/ folder next to index.html and add a 'this site' entry to PHP_WASM_SOURCES at the top of runtime code in index.html.",
+    "build": "none"
+  },
+  "requirements": "A modern browser with WebAssembly (Chrome, Edge, Firefox or Safari from 2023 onwards). The page must be served over https or localhost, as on GitHub Pages.",
+  "offlineCapable": false,
+  "savesProgress": "IndexedDB (files, databases, progress) and localStorage (settings)",
+  "responsive": true,
+  "license": "",
+  "author": "",
+  "created": "2026-11-12",
+  "updated": "2026-11-12"
+}
