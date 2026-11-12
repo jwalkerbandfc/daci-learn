@@ -81,6 +81,7 @@ button { cursor: pointer; }
 .th-hc :focus-visible, .th-hcl :focus-visible { outline: 2px dashed var(--focus) !important; }
 .reduce-motion * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 a { color: var(--accent2); }
+[hidden] { display: none !important; }
 .vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .skip { position: absolute; left: 8px; top: -40px; z-index: 999; background: var(--btn); color: var(--btn-ink); padding: 6px 10px; border-radius: 4px; }
 .skip:focus { top: 6px; }
@@ -384,7 +385,25 @@ body.expert .g-body .more { display: none; }
 .palette .pl .blk { margin: 0; cursor: grab; max-width: 100%; width: auto; }
 .palette .pl .blk .tx { white-space: pre-wrap; word-break: break-word; }
 .palette .pl .blk.next { outline: 2px dashed #ffd23f; outline-offset: 2px; }
-.palette .pl .cat { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink2); margin-top: 6px; }
+.palette .pl .cat { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink); margin-top: 4px; display: flex; gap: 4px; align-items: center; width: 100%; background: var(--bg3); border: 1px solid var(--line); border-radius: 4px; padding: 4px 6px; text-align: left; font-weight: 600; }
+.palette .pl .cat:hover { border-color: var(--accent); }
+.palette .pl .catbody { display: flex; flex-direction: column; gap: 8px; padding: 4px 0 6px 6px; }
+.palette .pl .catbody[hidden] { display: none; }
+.blk .mn.ed { font-size: 13px; font-family: var(--ui-font); opacity: 0; }
+.blk:hover .mn.ed, .blk.sel .mn.ed, .blk:focus-within .mn.ed { opacity: 1; }
+.blk input.lineedit { min-width: 12ch; border-radius: 4px; }
+.reading { outline: 3px solid var(--focus) !important; outline-offset: 2px; background: var(--warn-soft); border-radius: 4px; }
+.tts-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 12px; padding: 8px 10px; border: 2px solid var(--accent); border-radius: 8px; background: var(--card); }
+.tts-bar .btn { font-size: 13px; }
+.tts-bar label { font-size: 12px; color: var(--ink2); display: inline-flex; gap: 4px; align-items: center; }
+.tts-bar .btn[data-tts-main][aria-pressed="true"] { background: #b3261e; }
+.sec-tts { margin-left: 6px; vertical-align: middle; background: transparent; border: 1px solid var(--line2); border-radius: 12px; padding: 0 8px; font-size: 12px; color: var(--accent2); font-weight: 600; text-transform: none; letter-spacing: 0; }
+.sec-tts:hover { border-color: var(--accent); }
+.tts-pill { position: sticky; bottom: 0; z-index: 4; display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--accent); color: #fff; font-weight: 600; font-size: 13px; }
+.tts-pill[hidden] { display: none; }
+.tts-pill .btn { background: #fff; color: #111; border-color: #fff; }
+.th-hc .tts-pill, .th-hcl .tts-pill { background: var(--bg); color: var(--ink); border-top: 2px solid var(--focus); }
+.br-tabs .grow { flex: 1; }
 .palette .pl .more { font-size: 12px; color: var(--ink2); text-align: center; }
 .palette .pl .note { font-size: 12px; color: var(--ink2); }
 .palette .bin { margin: 8px 10px 10px; border: 2px dashed var(--line2); border-radius: 8px; padding: 10px; text-align: center; color: var(--ink2); font-size: 12px; flex: none; }
@@ -793,7 +812,7 @@ const store = {
 const SET = Object.assign({
   theme: 'th-dark', scale: 1, font: 'default', spacious: false, motion: false, level: 'beginner',
   blockSize: 'line', comments: true, autosave: true, rate: 1, voice: '', sidebarW: 420, panelH: 210, paletteW: 330,
-  showBrowser: true, showPanel: true, hints: true, view: 'guide'
+  showBrowser: true, showPanel: true, hints: true, view: 'guide', palOpen: {}
 }, store.get('settings', {}));
 function saveSettings() { store.set('settings', SET); }
 
@@ -1846,19 +1865,22 @@ const BR = {
     const i = this.tabs.findIndex(t => t.id === id); if (i < 0) return;
     const t = this.tabs[i]; if (t.frame) t.frame.remove();
     this.tabs.splice(i, 1);
-    if (!this.tabs.length) this.newTab('http://localhost/starter-site/');
+    const last = !this.tabs.length;
+    if (last) this.newTab('http://localhost/starter-site/', true);
     if (this.cur === id) this.cur = this.tabs[Math.max(0, i - 1)].id;
+    if (last) { this.paintTabs(); this.paint(); showBrowser(false); toast('Browser hidden. Open it again from the globe button or the status bar.'); return; }
     this.paintTabs(); this.paint();
   },
   paintTabs() {
     const box = $('#brTabs');
-    box.innerHTML = this.tabs.map(t => `<div class="tab" role="tab" tabindex="0" data-id="${t.id}" aria-selected="${t.id === this.cur}" title="${esc(t.title)}">${t.jar === 'private' ? '🕶 ' : ''}<span class="ficon web">◎</span><span class="nm">${esc(t.title)}</span><button class="x" type="button" title="Close tab">${icon('x')}<span class="vh">Close tab</span></button></div>`).join('') + `<button class="icon-btn" id="brNewTab" type="button" title="New tab" style="margin:0 6px">${icon('plus')}<span class="vh">New tab</span></button>`;
+    box.innerHTML = this.tabs.map(t => `<div class="tab" role="tab" tabindex="0" data-id="${t.id}" aria-selected="${t.id === this.cur}" title="${esc(t.title)}">${t.jar === 'private' ? '🕶 ' : ''}<span class="ficon web">◎</span><span class="nm">${esc(t.title)}</span><button class="x" type="button" title="Close tab">${icon('x')}<span class="vh">Close tab</span></button></div>`).join('') + `<button class="icon-btn" id="brNewTab" type="button" title="New tab" style="margin:0 6px">${icon('plus')}<span class="vh">New tab</span></button><span class="grow"></span><button class="icon-btn" id="brMin" type="button" title="Minimise the browser (show it again from the globe button or the status bar)" style="margin:0 6px">—<span class="vh">Minimise the browser</span></button>`;
     $$('.tab', box).forEach(el => {
       const id = +el.dataset.id;
       el.onclick = e => { if (e.target.closest('.x')) { this.closeTab(id); return; } this.cur = id; this.paintTabs(); this.paint(); };
       el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); } };
     });
     $('#brNewTab').onclick = () => this.newTab('http://localhost/starter-site/');
+    $('#brMin').onclick = () => { showBrowser(false); toast('Browser minimised. Press the globe button or Browser in the status bar to bring it back.'); };
   },
   /** Open a URL in the current tab (and show the browser). */
   open(url, opts = {}) {
@@ -2299,7 +2321,7 @@ const BlockView = {
       const j = a.al ? a.al.map[i] : -1;
       let body, status = '', stTitle = '';
       const slots = j >= 0 && a.plan.slots[j].length ? a.plan.slots[j] : null;
-      if (slots && (a.al.vals[i] || /⟦/.test(line))) {
+      if (slots) {
         body = this.slotBody(line, j, a, i);
       } else if (/⟦[^⟧]*⟧/.test(line)) {
         body = this.freeSlots(line, i);
@@ -2318,7 +2340,7 @@ const BlockView = {
       const isClose = /^\s*(\}|\)|\]|<\?php\s+end|end(if|foreach|for|while)\b)/.test(line);
       const trimmed = kind === 'com' ? hl[i].replace(/^(\s|&nbsp;)+/, '') : body;
       html += `<div class="blk k-${kind} ${kind === 'com' ? 'c-com' : ''} ${isOpen ? 'open' : ''} ${isClose ? 'close' : ''}" data-i="${i}" tabindex="${i === (this.sel ?? firstCode) ? 0 : -1}" role="listitem" style="--d:${depth}" aria-label="Line ${i + 1}, ${KIND_NAMES[kind] || 'code'}: ${esc(line.trim())}. ${stTitle}">
-        <span class="grip" aria-hidden="true">${icon('grip')}</span><span class="tx">${trimmed.replace(/^\s+/, '')}</span>${st}<button class="mn" type="button" tabindex="-1" title="Block menu" aria-label="Menu for line ${i + 1}">${icon('dots')}</button></div>`;
+        <span class="grip" aria-hidden="true">${icon('grip')}</span><span class="tx">${trimmed.replace(/^\s+/, '')}</span>${st}<button class="mn ed" type="button" tabindex="-1" title="Edit this line (F2 or double-click)" aria-label="Edit line ${i + 1}">✎</button><button class="mn" type="button" tabindex="-1" title="Block menu" aria-label="Menu for line ${i + 1}">${icon('dots')}</button></div>`;
     });
     if (empty || !a.lines.some(l => l.trim())) html = `<div class="empty-canvas">${a.task ? '<b>This file is empty.</b><br>Drag the first block from the palette on the right, or press <kbd>Enter</kbd> on a block in the palette.' : '<b>This file is empty.</b><br>Drag blocks in from the toolbox on the right, or switch to Code and type.'}</div>`;
     stack.innerHTML = html;
@@ -2362,10 +2384,11 @@ const BlockView = {
       });
       b.addEventListener('keydown', e => this.blockKey(e, i));
       b.addEventListener('focus', () => { this.sel = i; this.paintSel(); });
-      const mn = $('.mn', b); if (mn) mn.onclick = e => { e.stopPropagation(); this.menu(i, mn); };
+      const mn = $('.mn:not(.ed)', b); if (mn) mn.onclick = e => { e.stopPropagation(); this.menu(i, mn); };
       b.addEventListener('mouseenter', () => showTip(b, this.tipFor(i)));
       b.addEventListener('mouseleave', hideTip);
-      b.addEventListener('dblclick', e => { if (!e.target.closest('input')) { CodeView.goto = { line: i + 1, col: 1 }; setMode('code'); } });
+      b.addEventListener('dblclick', e => { if (!e.target.closest('input,button')) this.editLine(i); });
+      const ed = $('.ed', b); if (ed) ed.onclick = e => { e.stopPropagation(); this.editLine(i); };
     });
     $$('input.slot', stack).forEach(inp => {
       inp.addEventListener('input', () => this.slotInput(inp));
@@ -2374,7 +2397,7 @@ const BlockView = {
         if (e.key === 'Escape') { inp.closest('.blk').focus(); }
       });
       inp.addEventListener('blur', () => this.slotCheck(inp));
-      inp.addEventListener('focus', () => { this.sel = +inp.dataset.i; this.paintSel(); showTip(inp, this.tipFor(+inp.dataset.i, inp)); });
+      inp.addEventListener('focus', () => { this.sel = +inp.dataset.i; this.paintSel(); this.slotAnchor(inp); showTip(inp, this.tipFor(+inp.dataset.i, inp)); });
     });
   },
   slotInput(inp) {
@@ -2387,18 +2410,43 @@ const BlockView = {
       this.quiet(L.join('\n')); return;
     }
     const j = a.al.map[i]; const k = +inp.dataset.k; const sl = a.plan.slots[j][k];
-    const lead = /^\s*/.exec(a.lines[i])[0]; const tl = a.lines[i].trim();
-    const tp = a.plan.tpl.find(t => t.i === j); const m = new RegExp(tp.re.source, 'd').exec(tl);
-    if (!m) return;
-    const [s, e] = m.indices[k + 1];
-    let nv = val === '' ? '⟦' + sl.kind + '⟧' : val;
-    const L = a.lines.slice(); L[i] = lead + tl.slice(0, s) + nv + tl.slice(e);
-    // a value that breaks the pattern (for example a quote) can't be checked as a blank: keep it simple
+    if (inp._before == null && !this.slotAnchor(inp)) return;
+    const L = a.lines.slice(); L[i] = inp._lead + inp._before + (val === '' ? '⟦' + sl.kind + '⟧' : val) + inp._after;
     this.quiet(L.join('\n'));
     inp.classList.toggle('good', val === sl.value); inp.classList.toggle('bad', !!val && val !== sl.value && !sl.value.startsWith(val));
   },
+  /** Remember the text either side of a blank, so any value can be typed (even quotes). */
+  slotAnchor(inp) {
+    if (inp.dataset.free != null) return true;
+    const i = +inp.dataset.i; const a = analyse(this.path); const j = a.al ? a.al.map[i] : -1; if (j < 0) return false;
+    const k = +inp.dataset.k; const tl = a.lines[i].trim();
+    const tp = a.plan.tpl.find(t => t.i === j); const m = tp && new RegExp(tp.re.source, 'd').exec(tl);
+    if (!m) return false;
+    const [s, en] = m.indices[k + 1];
+    inp._lead = /^\s*/.exec(a.lines[i])[0]; inp._before = tl.slice(0, s); inp._after = tl.slice(en);
+    return true;
+  },
+  /** Edit the whole line of a block as text. Works for every block, filled in or not. */
+  editLine(i) {
+    const b = $(`#bkStack .blk[data-i="${i}"]`); if (!b) return;
+    const a = analyse(this.path); const line = a.lines[i] ?? ''; const lead = /^\s*/.exec(line)[0];
+    const tx = $('.tx', b); hideTip();
+    tx.innerHTML = `<input class="slot lineedit" value="${esc(line.trim())}" aria-label="Edit line ${i + 1}. Press Enter to keep, Escape to cancel." spellcheck="false" autocomplete="off" size="${Math.max(12, line.trim().length + 2)}">`;
+    const inp = $('input', tx); inp.focus(); inp.select();
+    let done = false;
+    const finish = keep => {
+      if (done) return; done = true;
+      const v = inp.value;
+      if (keep && v !== line.trim()) { editLines(this.path, L => { L[i] = lead + v; }); announce('Line ' + (i + 1) + ' changed.'); }
+      this.sel = i; refreshEditor(); setTimeout(() => { const nb = $(`#bkStack .blk[data-i="${i}"]`); if (nb) nb.focus(); }, 20);
+    };
+    inp.addEventListener('input', () => { inp.size = Math.max(12, inp.value.length + 2); });
+    inp.addEventListener('keydown', ev => { ev.stopPropagation(); if (ev.key === 'Enter') { ev.preventDefault(); finish(true); } if (ev.key === 'Escape') { ev.preventDefault(); finish(false); } });
+    inp.addEventListener('blur', () => finish(true));
+  },
   quiet(text) { if (!this.undoArmed) { pushUndo(this.path); this.undoArmed = true; clearTimeout(this.ua); } this.ua = setTimeout(() => this.undoArmed = false, 1500); this.silent = true; setBuffer(this.path, text); this.silent = false; },
   slotCheck(inp, enter) {
+    if (inp.dataset.free == null) inp._before = null;
     if (inp.dataset.free != null) { inp._before = null; if (!this.box.contains(document.activeElement) || enter) setTimeout(() => this.paint(), 0); return; }
     const a = analyse(this.path); const i = +inp.dataset.i; const j = a.al ? a.al.map[i] : -1;
     if (j < 0) { setTimeout(() => this.paint(), 0); return; }
@@ -2442,7 +2490,9 @@ const BlockView = {
     if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && e.altKey) { e.preventDefault(); this.move(i, e.key === 'ArrowDown' ? 1 : -1); return; }
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); const nb = blocks[idx + (e.key === 'ArrowDown' ? 1 : -1)]; if (nb) nb.focus(); return; }
     if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); this.remove(i); return; }
-    if (e.key === 'Enter' || e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) { e.preventDefault(); const inp = $('input.slot', blocks[idx]); if (inp && e.key === 'Enter') inp.focus(); else this.menu(i, $('.mn', blocks[idx])); return; }
+    if (e.key === 'F2') { e.preventDefault(); this.editLine(i); return; }
+    if (e.key === 'Enter') { e.preventDefault(); const inp = $('input.slot', blocks[idx]); if (inp) inp.focus(); else this.editLine(i); return; }
+    if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) { e.preventDefault(); this.menu(i, $('.mn:not(.ed)', blocks[idx])); return; }
   },
   focusLine(i) { setTimeout(() => { const b = $(`#bkStack .blk[data-i="${i}"]`); if (b) { b.focus(); reveal(b); const inp = $('input.slot', b); if (inp && !inp.value) inp.focus(); } }, 20); },
   move(i, d) {
@@ -2458,7 +2508,7 @@ const BlockView = {
   },
   menu(i, anchor) {
     const a = analyse(this.path); const j = a.al ? a.al.map[i] : -1;
-    const items = [['Move up', 'Alt+↑', () => this.move(i, -1)], ['Move down', 'Alt+↓', () => this.move(i, 1)]];
+    const items = [['Edit this line', 'F2', () => this.editLine(i)], ['Move up', 'Alt+↑', () => this.move(i, -1)], ['Move down', 'Alt+↓', () => this.move(i, 1)]];
     if (a.al && a.al.wrong.has(i)) items.push(['Move to the right place', '', () => this.toRightPlace(i)]);
     if (j >= 0 && a.plan.slots[j].length) items.push(['Fill the blanks for me', '', () => { editLines(this.path, L => { L[i] = /^\s*/.exec(L[i])[0] + a.plan.lines[j].trim(); }); refreshEditor(); this.focusLine(i); }]);
     items.push(['Show in Code', '', () => { CodeView.goto = { line: i + 1, col: 1 }; setMode('code'); }]);
@@ -2485,13 +2535,14 @@ const BlockView = {
       const show = expert ? groups.slice(0, 8) : groups.slice(0, 3);
       const order = expert ? shuffleStable(show, a.task.id) : show;
       const toRemove = a.al.extra.length + a.al.wrong.size;
-      list.innerHTML = (toRemove ? `<div class="note" style="color:var(--warn)">${a.al.extra.length ? `${a.al.extra.length} block${a.al.extra.length > 1 ? 's are' : ' is'} not in the guide's code (marked !).` : ''} ${a.al.wrong.size ? `${a.al.wrong.size} ${a.al.wrong.size > 1 ? 'are' : 'is'} in the wrong place (marked ↕).` : ''}${a.task.kind === 'replace' || a.task.kind === 'edit' ? ' This step changes an existing file, so some old lines need deleting.' : ''} <button class="btn small ghost" type="button" id="palClean">Delete the ! blocks</button></div>` : '') +
-        (order.length ? order.map(g => this.palBlock(a, g, !expert && g === groups[0])).join('') + (groups.length > show.length ? `<div class="more">and ${groups.length - show.length} more after these</div>` : '') : `<div class="note">${a.al.done ? '✓ All done. This file matches the guide. Open it in the browser to test it.' : 'No blocks are missing. Check the blocks marked ? or !.'}</div>`);
+      const gOpen = this.catOpen('guide', true);
+      list.innerHTML = this.catHead('guide', `Guide blocks${groups.length ? ' (' + groups.length + ')' : ''}`, gOpen) + `<div class="catbody" ${gOpen ? '' : 'hidden'}>` + (toRemove ? `<div class="note" style="color:var(--warn)">${a.al.extra.length ? `${a.al.extra.length} block${a.al.extra.length > 1 ? 's are' : ' is'} not in the guide's code (marked !).` : ''} ${a.al.wrong.size ? `${a.al.wrong.size} ${a.al.wrong.size > 1 ? 'are' : 'is'} in the wrong place (marked ↕).` : ''}${a.task.kind === 'replace' || a.task.kind === 'edit' ? ' This step changes an existing file, so some old lines need deleting.' : ''} <button class="btn small ghost" type="button" id="palClean">Delete the ! blocks</button></div>` : '') +
+        (order.length ? order.map(g => this.palBlock(a, g, !expert && g === groups[0])).join('') + (groups.length > show.length ? `<div class="more">and ${groups.length - show.length} more after these</div>` : '') : `<div class="note">${a.al.done ? '✓ All done. This file matches the guide. Open it in the browser to test it.' : 'No blocks are missing. Check the blocks marked ? or !.'}</div>`) + '</div>' + this.toolboxHTML(false);
       const nx = $('#palNext'); if (nx) nx.onclick = () => this.insertGroup(groups[0], true);
       const pp = $('#palPara'); if (pp) pp.onclick = () => { SET.blockSize = 'para'; saveSettings(); refreshEditor(); };
       $('#palAll').onclick = () => a.al.done ? showGuideCode(t) : doWholeFile(t);
       const cl = $('#palClean'); if (cl) cl.onclick = () => { const rm = new Set(a.al.extra); editLines(this.path, L => L.filter((x, k) => !rm.has(k))); refreshEditor(); toast(`Deleted ${rm.size} block${rm.size > 1 ? 's' : ''}. Ctrl+Z to undo.`); };
-      $$('.pblk-wrap', list).forEach(w => {
+      $$('.pblk-wrap[data-g]', list).forEach(w => {
         const g = groups.find(x => x.main === +w.dataset.g); const blk = $('.blk', w);
         blk.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; startDrag(e, blk, { from: 'palette', group: g }); });
         blk.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.insertGroup(g, false); } });
@@ -2502,20 +2553,43 @@ const BlockView = {
         $('[data-put]', w).onclick = () => this.insertGroup(g, false);
         $('[data-where]', w).onclick = () => this.showWhere(g);
       });
+      this.bindToolbox(list);
     } else {
-      const lang = langOf(this.path) === 'html' ? 'php' : langOf(this.path);
-      const tb = TOOLBOX[lang] || TOOLBOX.php;
-      head.innerHTML = `<h3>${icon('blocks')} Toolbox</h3><div style="font-size:12px;color:var(--ink2)">${a.task === null && guideTasksFor(this.path).length ? 'This file has no task in the current step. ' : ''}Drag a block into your file, or select a block and press <kbd>Enter</kbd> here to add it underneath. Type in the blanks.</div>`;
-      list.innerHTML = tb.map(([cat, items]) => `<div class="cat">${esc(cat)}</div>` + items.map((t, k) => { const kind = blockKind(t, lang, lang === 'php' && !/^</.test(t)); return `<div class="pblk-wrap" data-t="${esc(t)}"><div class="blk k-${kind} ${kind === 'com' ? 'c-com' : ''}" tabindex="0" role="button" aria-label="Add block: ${esc(t)}"><span class="grip" aria-hidden="true">${icon('grip')}</span><span class="tx">${hlInline(t).replace(/⟦([^⟧]*)⟧/g, '<span class="t-blank">$1</span>')}</span></div></div>`; }).join('')).join('');
-      $$('.pblk-wrap', list).forEach(w => {
-        const t = w.dataset.t; const blk = $('.blk', w);
-        const g = { free: true, text: t };
-        blk.addEventListener('pointerdown', e => startDrag(e, blk, { from: 'palette', group: g }));
-        blk.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.insertFree(t, this.sel == null ? analyse(this.path).lines.length : this.sel + 1); } });
-        blk.addEventListener('mouseenter', () => { const hp = helpFor(t); showTip(blk, `<b>${KIND_NAMES[blockKind(t, lang, true)] || 'Code'}</b>` + hp.map(([k, v]) => `<div style="margin-top:4px"><code>${esc(k)}</code> ${v}</div>`).join('')); });
-        blk.addEventListener('mouseleave', hideTip);
-      });
+      head.innerHTML = `<h3>${icon('blocks')} Toolbox</h3><div style="font-size:12px;color:var(--ink2)">${a.task === null && guideTasksFor(this.path).length ? 'This file has no task in the current step. ' : ''}Drag a block into your file, or select a block and press <kbd>Enter</kbd> here to add it underneath. Open and close the groups to keep the list short.</div><div class="pblk-acts"><button class="btn small ghost" type="button" id="palOpenAll">Open all</button><button class="btn small ghost" type="button" id="palCloseAll">Close all</button></div>`;
+      list.innerHTML = this.toolboxHTML(true);
+      this.bindToolbox(list);
+      $('#palOpenAll').onclick = () => { this.toolCats().forEach(c => SET.palOpen[this.catKey(c)] = true); saveSettings(); this.palette(analyse(this.path)); };
+      $('#palCloseAll').onclick = () => { this.toolCats().forEach(c => SET.palOpen[this.catKey(c)] = false); saveSettings(); this.palette(analyse(this.path)); };
     }
+    $$('.cat[data-cat]', list).forEach(btn => btn.onclick = () => {
+      const k = btn.dataset.cat; const open = btn.getAttribute('aria-expanded') !== 'true';
+      SET.palOpen[k] = open; saveSettings();
+      btn.setAttribute('aria-expanded', open); btn.nextElementSibling.hidden = !open;
+      $('.chev', btn).innerHTML = icon(open ? 'down' : 'right');
+    });
+  },
+  toolLang() { const l = langOf(this.path); return l === 'html' ? 'php' : TOOLBOX[l] ? l : 'php'; },
+  toolCats() { return (TOOLBOX[this.toolLang()] || []).map(c => c[0]); },
+  catKey(cat) { return this.toolLang() + ':' + cat; },
+  catOpen(key, def) { SET.palOpen = SET.palOpen || {}; return key in SET.palOpen ? SET.palOpen[key] : def; },
+  catHead(key, label, open) { return `<button class="cat" type="button" data-cat="${esc(key)}" aria-expanded="${open}"><span class="chev" aria-hidden="true">${icon(open ? 'down' : 'right')}</span>${esc(label)}</button>`; },
+  toolboxHTML(free) {
+    const lang = this.toolLang(); const tb = TOOLBOX[lang] || TOOLBOX.php;
+    return (free ? '' : `<div class="note" style="margin-top:8px">Toolbox: extra blocks for your own changes.</div>`) + tb.map(([cat, items]) => {
+      const key = this.catKey(cat); const open = this.catOpen(free ? key : 'g:' + key, free);
+      return this.catHead(free ? key : 'g:' + key, `${cat} (${items.length})`, open) + `<div class="catbody" ${open ? '' : 'hidden'}>` + items.map(t => { const kind = blockKind(t, lang, lang === 'php' && !/^</.test(t)); return `<div class="pblk-wrap" data-t="${esc(t)}"><div class="blk k-${kind} ${kind === 'com' ? 'c-com' : ''}" tabindex="0" role="button" aria-label="Add block: ${esc(t)}"><span class="grip" aria-hidden="true">${icon('grip')}</span><span class="tx">${hlInline(t).replace(/⟦([^⟧]*)⟧/g, '<span class="t-blank">$1</span>')}</span></div></div>`; }).join('') + '</div>';
+    }).join('');
+  },
+  bindToolbox(list) {
+    const lang = this.toolLang();
+    $$('.pblk-wrap[data-t]', list).forEach(w => {
+      const t = w.dataset.t; const blk = $('.blk', w);
+      const g = { free: true, text: t };
+      blk.addEventListener('pointerdown', e => startDrag(e, blk, { from: 'palette', group: g }));
+      blk.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.insertFree(t, this.sel == null ? analyse(this.path).lines.length : this.sel + 1); } });
+      blk.addEventListener('mouseenter', () => { const hp = helpFor(t); showTip(blk, `<b>${KIND_NAMES[blockKind(t, lang, true)] || 'Code'}</b>` + hp.map(([k, v]) => `<div style="margin-top:4px"><code>${esc(k)}</code> ${v}</div>`).join('')); });
+      blk.addEventListener('mouseleave', hideTip);
+    });
   },
   palBlock(a, g, isNext) {
     const lines = g.lines.filter(j => a.plan.code[j] || (SET.comments && a.plan.lines[j].trim()));
@@ -2733,7 +2807,7 @@ function applySettings() {
   showBrowser(SET.showBrowser, true); showPanel(SET.showPanel, true);
   saveSettings();
 }
-function showBrowser(on, quiet) { SET.showBrowser = on; $('#g2').classList.toggle('hidden', !on); $('#sash2').classList.toggle('hidden', !on); $('#tbBrowser').setAttribute('aria-pressed', on); if (!quiet) saveSettings(); }
+function showBrowser(on, quiet) { SET.showBrowser = on; $('#g2').classList.toggle('hidden', !on); $('#sash2').classList.toggle('hidden', !on); $('#tbBrowser').setAttribute('aria-pressed', on); if (!quiet) saveSettings(); if ($('#statusbar').childElementCount) renderStatus(); }
 function showPanel(on, quiet) { SET.showPanel = on; $('#panel').classList.toggle('hidden', !on); $('#sash3').classList.toggle('hidden', !on); $('#tbPanel').setAttribute('aria-pressed', on); if (!quiet) saveSettings(); }
 function showSidebar(on) { $('#sidebar').classList.toggle('hidden', !on); $('#sash1').style.display = on ? '' : 'none'; $('#tbSide').setAttribute('aria-pressed', on); }
 
@@ -2989,12 +3063,12 @@ function renderA11y() {
   if ($('#aVoice')) {
     $('#aVoice').onchange = e => { SET.voice = e.target.value; saveSettings(); };
     $('#aRate').oninput = e => { SET.rate = +e.target.value; saveSettings(); $('#aRate').previousElementSibling.textContent = 'Speed: ' + SET.rate + '×'; };
-    $('#aRead').onclick = () => readStep(); $('#aStop').onclick = () => speechSynthesis.cancel();
+    $('#aRead').onclick = () => readStep(); $('#aStop').onclick = () => TTS.stop();
   }
   $('#aResetProg').onclick = () => modal({ title: 'Clear your progress?', body: '<p>Your ticks and quiz answers are cleared. Your files stay.</p>', buttons: [['Clear', () => { P.progress = {}; P.quiz = {}; P.acts = {}; persist(); renderGuide(); }], ['Cancel', null]] });
   $('#aResetAll').onclick = () => modal({ title: 'Delete everything?', body: '<p>Your files, backups, databases and progress in this browser are all deleted. This can\'t be undone.</p>', buttons: [['Delete everything', async () => { await IDB.del('project'); await IDB.del('databases'); try { localStorage.removeItem('sl-settings'); } catch (e) {} location.reload(); }, 'danger'], ['Cancel', null]] });
 }
-const KEYS = [['Ctrl+P', 'Go to a file'], ['Ctrl+Shift+P', 'Show all commands'], ['Ctrl+S', 'Save'], ['Alt+B', 'Switch between Blocks and Code'], ['F5', 'Open this page in the browser'], ['F12', 'Developer tools in the browser'], ['Ctrl+B', 'Show or hide the side bar'], ['Ctrl+J', 'Show or hide the panel'], ['Ctrl+`', 'Terminal'], ['Ctrl+Z / Ctrl+Y', 'Undo / redo'], ['Alt+↑ / Alt+↓', 'Move the selected block'], ['Delete', 'Delete the selected block'], ['Enter', 'On a palette block: put it in the right place'], ['Escape, then Tab', 'Leave the code editor'], ['Ctrl+/', 'Comment or uncomment lines'], ['Alt+PageDown / PageUp', 'Next or previous guide step']];
+const KEYS = [['Ctrl+P', 'Go to a file'], ['Ctrl+Shift+P', 'Show all commands'], ['Ctrl+S', 'Save'], ['Alt+B', 'Switch between Blocks and Code'], ['F5', 'Open this page in the browser'], ['F12', 'Developer tools in the browser'], ['Ctrl+B', 'Show or hide the side bar'], ['Ctrl+J', 'Show or hide the panel'], ['Ctrl+`', 'Terminal'], ['Ctrl+Z / Ctrl+Y', 'Undo / redo'], ['Alt+↑ / Alt+↓', 'Move the selected block'], ['Delete', 'Delete the selected block'], ['Enter', 'On a palette block: put it in the right place'], ['Alt+R', 'Read this step aloud, or stop reading'], ['Escape, then Tab', 'Leave the code editor'], ['Ctrl+/', 'Comment or uncomment lines'], ['Alt+PageDown / PageUp', 'Next or previous guide step']];
 function refreshAll() { renderGuide(); refreshEditor(); renderExplorer(); renderStatus(); PROBS.refresh(); }
 
 /* ---------------- editor tabs */
@@ -3265,10 +3339,14 @@ function renderStatus() {
     <button type="button" id="sbMy" title="Apache and MySQL">${P.apache ? 'Apache ●' : 'Apache ○'} ${P.mysql ? 'MySQL ●' : 'MySQL ○'}</button>
     <span class="grow"></span>
     ${t && t.path ? `<span class="it" id="sbCaret">Ln ${CARET.line}, Col ${CARET.col}</span><span class="it">Spaces: 4</span><span class="it">UTF-8</span><span class="it">${{ php: 'PHP', css: 'CSS', sql: 'SQL', svg: 'SVG', html: 'HTML', text: 'Plain Text' }[langOf(t.path)] || 'Plain Text'}</span><button type="button" id="sbMode" title="Switch view (Alt+B)">${t.mode === 'blocks' ? 'Blocks' : 'Code'}</button>${isDirty(t.path) ? '<span class="it">● Unsaved</span>' : ''}` : ''}
+    ${!SET.showBrowser ? `<button type="button" id="sbBrowser" title="Show the browser">${icon('globe')} Browser</button>` : ''}
+    ${TTS.on ? `<button type="button" id="sbTts" title="Stop reading aloud (Alt+R)">${icon('stop')} Stop reading</button>` : `<button type="button" id="sbTts" title="Read this step aloud (Alt+R)">${icon('speak')} Read aloud</button>`}
     <button type="button" id="sbA11y" title="Accessibility">${icon('person')}<span class="vh">Accessibility</span></button>`;
   $('#sbRemote').onclick = aboutBox; $('#sbProb').onclick = () => setPanel('problems'); $('#sbPhp').onclick = () => setView('xampp'); $('#sbMy').onclick = () => setView('xampp');
   const m = $('#sbMode'); if (m) m.onclick = () => setMode('toggle');
   $('#sbA11y').onclick = () => setView('a11y');
+  const sbb = $('#sbBrowser'); if (sbb) sbb.onclick = () => showBrowser(true);
+  $('#sbTts').onclick = () => TTS.toggle();
 }
 function aboutBox() {
   modal({ title: 'About Sentinel Lab', body: `<p>A practice workspace for the Sentinel Security PHP guides (Versions 1 to 10), styled like Visual Studio Code.</p>
@@ -3385,6 +3463,8 @@ function bindKeys() {
     if (k === 'F5') { e.preventDefault(); if (document.activeElement && document.activeElement.closest('#g2')) BR.reload(); else runCurrent(); return; }
     if (k === 'F12') { e.preventDefault(); BR.toggleDev(); return; }
     if (k === 'F1') { e.preventDefault(); palette('>'); return; }
+    if (e.altKey && !ctrl && k.toLowerCase() === 'r') { e.preventDefault(); TTS.toggle(); return; }
+    if (k === 'Escape' && TTS.on && !document.querySelector('.scrim') && !e.target.closest('input,textarea')) { TTS.stop(); return; }
     if (ctrl && !e.shiftKey && k.toLowerCase() === 'z' && t && t.mode === 'blocks' && !e.target.closest('input,textarea')) { e.preventDefault(); undo(t.path); return; }
     if (ctrl && (k.toLowerCase() === 'y' || (e.shiftKey && k.toLowerCase() === 'z')) && t && t.mode === 'blocks' && !e.target.closest('input,textarea')) { e.preventDefault(); undo(t.path, true); return; }
     if (e.altKey && k === 'ArrowLeft' && document.activeElement.closest('#g2')) { e.preventDefault(); BR.go(-1); }
@@ -3429,6 +3509,7 @@ function initIDE() {
 const STEP_OF = {};
 function guideTasksFor(path) { return curVersion().steps.flatMap(s => s.tasks.filter(t => t.path === path)); }
 function goStep(i) {
+  if (TTS.on) TTS.stop(true);
   const v = curVersion(); P.step = Math.max(0, Math.min(v.steps.length - 1, i)); STEP_OF[v.key] = P.step; persist();
   PLANS.clear(); ANALYSIS.clear();
   if (!$('#view-guide').classList.contains('on')) setView('guide'); else renderGuide();
@@ -3463,24 +3544,40 @@ function renderGuide() {
   const list = v.steps.map((x, i) => { let g = ''; if (x.group !== lastG) { lastG = x.group; g = `<li class="grp">${esc(x.group)}</li>`; } return g + `<li class="${stepDone(v, x) ? 'done' : ''}"><button type="button" data-step="${i}" ${i === P.step ? 'aria-current="step"' : ''}><span class="n">${stepDone(v, x) ? '✓' : i + 1}</span><span>${esc(x.title)}</span></button></li>`; }).join('');
   box.innerHTML = `<div class="g-top">
       <div class="g-row"><label class="vh" for="gVer">Guide version</label><select class="tf g-ver" id="gVer">${GUIDES.map(g => `<option value="${g.n}" ${g.n === v.n ? 'selected' : ''}>Version ${g.n}: ${esc(g.label)}</option>`).join('')}</select>
-        <button class="icon-btn" type="button" id="gRead" title="Read this step aloud">${icon('speak')}<span class="vh">Read this step aloud</span></button></div>
+        <button class="btn small" type="button" id="gRead" title="Read this step aloud (Alt+R)" aria-pressed="false">${icon('speak')} Read aloud</button></div>
       <div class="g-row"><div class="seg" role="group" aria-label="Explanations"><button type="button" data-lv="beginner" aria-pressed="${SET.level !== 'expert'}">Beginner</button><button type="button" data-lv="expert" aria-pressed="${SET.level === 'expert'}">Experienced</button></div><span class="grow"></span>
         <div class="prog" role="progressbar" aria-label="Steps done" aria-valuemin="0" aria-valuemax="${v.steps.length}" aria-valuenow="${done}"><span style="width:${done / v.steps.length * 100}%"></span></div><span style="font-size:12px;color:var(--ink2)">${done}/${v.steps.length}</span></div>
       <button class="btn small ghost" type="button" id="gAll" aria-expanded="${STEPS_OPEN}" aria-controls="gSteps">Step ${P.step + 1} of ${v.steps.length}: ${esc(s.title)} ${STEPS_OPEN ? '▴' : '▾'}</button>
       <nav class="g-steps ${STEPS_OPEN ? 'open' : ''}" id="gSteps" aria-label="Steps"><ol>${list}</ol></nav>
     </div>
-    <div class="sb-scroll"><article class="g-body" id="guide-body" tabindex="-1" aria-label="Step ${P.step + 1}: ${esc(s.title)}">${s.html}</article></div>`;
+    <div class="sb-scroll"><article class="g-body" id="guide-body" tabindex="-1" aria-label="Step ${P.step + 1}: ${esc(s.title)}">${s.html}</article></div>
+    <div class="tts-pill" hidden role="status"><span class="lbl">Reading aloud</span><span style="display:flex;gap:6px"><button class="btn small" type="button" data-tts-pause>❚❚ Pause</button><button class="btn small" type="button" data-tts-stop>${icon('stop')} Stop</button></span></div>`;
   $('#gVer').onchange = e => { const n = +e.target.value; e.target.value = v.n; switchVersion(n); };
   $$('[data-lv]', box).forEach(b => b.onclick = () => { SET.level = b.dataset.lv; applySettings(); PLANS.clear(); ANALYSIS.clear(); renderGuide(); refreshEditor(); });
   $('#gAll').onclick = () => { STEPS_OPEN = !STEPS_OPEN; renderGuide(); $('#gAll').focus(); };
   $$('[data-step]', box).forEach(b => b.onclick = () => { STEPS_OPEN = false; goStep(+b.dataset.step); });
-  $('#gRead').onclick = readStep;
+  $('#gRead').onclick = () => TTS.toggle();
   enhanceStep($('#guide-body'), v, s);
+  $$('[data-tts-main]', box).forEach(b => b.onclick = () => TTS.toggle());
+  $$('[data-tts-pause]', box).forEach(b => b.onclick = () => TTS.pause());
+  $$('[data-tts-stop]', box).forEach(b => b.onclick = () => TTS.stop());
+  $$('[data-tts-rate]', box).forEach(sel => sel.onchange = () => { SET.rate = +sel.value; saveSettings(); if (TTS.on) toast('The new speed starts with the next part.'); });
+  TTS.paint();
 }
 
 function enhanceStep(body, v, s) {
   // lab notes at the start of a version
   if (s.i === 0) body.insertBefore(h(labIntro(v)), body.children[1] || null);
+  // read aloud: a clear bar at the top, and a button on every heading
+  if (TTS.ok()) {
+    const bar = h(`<div class="tts-bar" role="group" aria-label="Read aloud"><button class="btn" type="button" data-tts-main aria-pressed="false">${icon('speak')} Read this step aloud</button><button class="btn sec" type="button" data-tts-pause hidden>❚❚ Pause</button><label>Speed <select class="tf" data-tts-rate aria-label="Reading speed">${[0.7, 0.8, 0.9, 1, 1.1, 1.25, 1.5].map(r => `<option value="${r}" ${Math.abs(SET.rate - r) < .01 ? 'selected' : ''}>${r}×</option>`).join('')}</select></label><span style="font-size:12px;color:var(--ink2)">Alt+R starts or stops. Or press 🔊 next to a heading.</span></div>`);
+    body.insertBefore(bar, body.children[1] || null);
+    $$('h2, .box h3, details.stuck summary, .more .more-label', body).forEach(hd => {
+      const b = h(`<button class="sec-tts" type="button" title="Read this part aloud">🔊<span class="vh"> Read this part aloud: ${esc(hd.textContent.trim())}</span></button>`);
+      b.onclick = ev => { ev.preventDefault(); ev.stopPropagation(); readPart(hd); };
+      hd.appendChild(b);
+    });
+  }
   // external links open in a new tab
   $$('a[href]', body).forEach(a => { if (/^https?:/.test(a.getAttribute('href'))) { a.target = '_blank'; a.rel = 'noopener'; } });
   // file cards
@@ -3637,20 +3734,67 @@ function guideNotesFor(line) {
   return '';
 }
 /* ---------------- read aloud */
+const TTS = {
+  on: false, paused: false, left: 0, run: 0,
+  ok() { return 'speechSynthesis' in window; },
+  text(el) {
+    const c = el.cloneNode(true);
+    $$('button, .act, .fcard, .sec-tts, .tts-bar, select, .ustat', c).forEach(x => x.remove());
+    return c.textContent.replace(/\s+/g, ' ').trim().replace(/\.php\b/g, ' dot P H P').replace(/\.sql\b/g, ' dot S Q L').replace(/\.css\b/g, ' dot C S S').replace(/\$_/g, 'dollar underscore ').replace(/\$/g, 'dollar ');
+  },
+  read(els, label) {
+    if (!this.ok()) { toast('Read aloud is not available in this browser.', 'err'); return; }
+    speechSynthesis.cancel(); this.clear();
+    els = els.filter(e => e.offsetParent !== null && this.text(e));
+    if (!els.length) { toast('There is nothing to read here.'); return; }
+    const run = ++this.run;
+    this.on = true; this.paused = false; this.left = els.length; this.label = label || 'this step'; this.paint();
+    const voice = speechSynthesis.getVoices().find(v => v.name === SET.voice);
+    setTimeout(() => {
+      if (run !== this.run) return;
+      els.forEach(e => {
+        const u = new SpeechSynthesisUtterance(this.text(e));
+        u.rate = SET.rate; if (voice) u.voice = voice; u.lang = 'en-GB';
+        u.onstart = () => { if (run !== this.run) return; this.clear(); e.classList.add('reading'); reveal(e); };
+        const end = () => { if (run !== this.run) return; e.classList.remove('reading'); if (--this.left <= 0) this.stop(true); };
+        u.onend = end; u.onerror = end;
+        speechSynthesis.speak(u);
+      });
+    }, 60);
+    announce('Reading ' + this.label + ' aloud. Press Alt+R or Escape to stop.');
+  },
+  clear() { $$('.reading').forEach(x => x.classList.remove('reading')); },
+  stop(finished) { this.run++; if (this.ok()) speechSynthesis.cancel(); this.on = false; this.paused = false; this.clear(); this.paint(); if (!finished) announce('Stopped reading.'); },
+  pause() { if (!this.on) return; if (this.paused) { speechSynthesis.resume(); this.paused = false; } else { speechSynthesis.pause(); this.paused = true; } this.paint(); },
+  toggle() { this.on ? this.stop() : readStep(); },
+  paint() {
+    $$('[data-tts-main]').forEach(b => { b.setAttribute('aria-pressed', this.on); b.innerHTML = this.on ? `${icon('stop')} Stop reading` : `${icon('speak')} Read this step aloud`; });
+    $$('[data-tts-pause]').forEach(b => { b.hidden = !this.on; b.textContent = this.paused ? '▶ Carry on' : '❚❚ Pause'; });
+    $$('.tts-pill').forEach(p => { p.hidden = !this.on; const l = $('.lbl', p); if (l) l.textContent = (this.paused ? 'Paused: ' : 'Reading aloud: ') + this.label; });
+    const g = $('#gRead'); if (g) { g.innerHTML = this.on ? `${icon('stop')} Stop` : `${icon('speak')} Read aloud`; g.setAttribute('aria-pressed', this.on); }
+    if (typeof renderStatus === 'function' && $('#statusbar').childElementCount) renderStatus();
+  }
+};
+const READ_SEL = '.eyebrow, h1, .lede, h2, h3, ol.actions > li, .box p, .box li, .box .q, .opts button, .more p, .more dt, .more dd, details[open] dt, details[open] dd, table tr, .changes > div, .attack > div, .labnote';
 function readStep() {
-  if (!('speechSynthesis' in window)) { toast('Read aloud is not available in this browser.', 'err'); return; }
-  speechSynthesis.cancel();
   if (!$('#view-guide').classList.contains('on')) setView('guide');
   const body = $('#guide-body'); if (!body) return;
-  const els = $$('.eyebrow, h1, .lede, h2, ol.actions > li, .box.check p, .box.check li, .more:not([hidden]) p, .more dd', body).filter(e => e.offsetParent !== null && !e.closest('.fcard'));
-  const voice = speechSynthesis.getVoices().find(v => v.name === SET.voice);
-  els.forEach(e => {
-    const u = new SpeechSynthesisUtterance(e.textContent.replace(/\s+/g, ' ').replace(/\.php/g, ' dot P H P').replace(/\.sql/g, ' dot S Q L').replace(/\.css/g, ' dot C S S'));
-    u.rate = SET.rate; if (voice) u.voice = voice; u.lang = 'en-GB';
-    u.onstart = () => { $$('.reading', body).forEach(x => { x.classList.remove('reading'); x.style.outline = ''; }); e.classList.add('reading'); e.style.outline = '2px solid var(--focus)'; reveal(e); };
-    u.onend = () => { e.classList.remove('reading'); e.style.outline = ''; };
-    speechSynthesis.speak(u);
-  });
+  const els = $$(READ_SEL, body).filter(e => !e.closest('.fcard') && !e.parentElement.closest(READ_SEL.replace(/h3, /, '')));
+  TTS.read(els, 'step ' + (P.step + 1));
+}
+/** Read one part: from a heading to the next heading, or one box. */
+function readPart(start) {
+  const body = $('#guide-body');
+  let els;
+  const box = start.closest('.box, details.stuck, .more, .labnote');
+  if (box) { if (box.tagName === 'DETAILS') box.open = true; els = [start.closest('h3,h2,summary') || start, ...$$(READ_SEL, box).filter(e => e !== start && !e.parentElement.closest(READ_SEL.replace(/h3, /, '')))]; }
+  else {
+    els = [start];
+    for (let n = start.nextElementSibling; n && n.tagName !== 'H2' && !n.classList.contains('stepnav'); n = n.nextElementSibling) {
+      if (n.matches(READ_SEL)) els.push(n); else els.push(...$$(READ_SEL, n).filter(e => !e.closest('.fcard') && !e.parentElement.closest(READ_SEL.replace(/h3, /, ''))));
+    }
+  }
+  TTS.read(els, '“' + TTS.text(start).slice(0, 40) + '”');
 }
 
 /* ---- boot.js ---- */
