@@ -262,6 +262,33 @@ label.aso input{width:1.25rem;height:1.25rem;accent-color:var(--accent);flex:non
 .dr{display:grid;grid-template-columns:minmax(120px,1.2fr) minmax(80px,2fr) auto;gap:.6rem;align-items:center;margin:.3rem 0;font-size:.92rem}
 .rv{border:2px solid var(--line);border-radius:10px;padding:.6rem .9rem;margin:.6rem 0;background:var(--surface)}
 .rv.ok{border-color:var(--good)}.rv.bad{border-color:var(--bad)}.rv p{margin:.2rem 0}
+.hxrow{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;margin:.4rem 0;font-family:var(--f-mono)}
+.hx{display:inline-flex;gap:1px;border:2px solid var(--line);border-radius:8px;padding:.2rem .4rem;background:var(--surface2);font-size:1.25rem;font-weight:700}
+.hx .nb{display:inline-block;min-width:.85em;text-align:center}.hxrow .cl{font-weight:700;color:var(--muted)}
+.hx.hl{outline:3px solid var(--focus);background:var(--warn-bg)}
+.hexgrid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;max-width:640px}
+.hc{display:flex;flex-direction:column;align-items:center;border:2px solid var(--line);border-radius:8px;padding:.2rem .1rem;background:var(--surface2);font-family:var(--f-mono);min-width:0}
+.hc b{font-size:1.3rem}.hc i{font-style:normal;font-size:.78rem}.hc small{color:var(--muted);font-size:.7rem}
+.v6l{margin:.5rem 0}.v6l small{display:block;color:var(--muted);font-weight:700;margin-bottom:.15rem}
+.v6l .mono{display:block;font-size:1.15rem;background:var(--surface2);padding:.4rem .6rem;border-radius:8px;overflow-wrap:anywhere}
+.bm{display:flex;flex-wrap:wrap;gap:6px;font-family:var(--f-mono)}.bm .grp{display:flex;gap:1px}
+.mb{display:inline-block;width:1.15rem;text-align:center;border-radius:4px;font-size:.9rem;padding:.1rem 0;font-weight:700}
+.mb.n{background:var(--net-bg);color:var(--net);border-bottom:3px solid var(--net)}.mb.h{background:var(--host-bg);color:var(--host);border-bottom:3px dashed var(--host)}
+.bytes{display:flex;flex-wrap:wrap;gap:.3rem;font-family:var(--f-mono);font-size:1.2rem;font-weight:700}
+.by{border:2px solid var(--line);border-radius:8px;padding:.15rem .5rem;background:var(--surface2)}.by.ins{background:var(--warn-bg);border-color:var(--host)}
+.er{margin:.6rem 0}.er small{display:block;color:var(--muted);font-weight:700;margin-bottom:.15rem}.er .mono{font-size:1.1rem;overflow-wrap:anywhere}
+.er .bt{display:inline-block;width:.9em;text-align:center}.er .fl{background:var(--warn-bg);outline:2px solid var(--host);border-radius:4px;padding:0 .3rem}
+.cmd{background:#0B1220;color:#E7EDFA;font-family:var(--f-mono);font-size:.9rem;padding:.7rem .9rem;border-radius:10px;overflow-x:auto;white-space:pre;max-width:100%}
+.exh{background:#0B1220;color:#E7EDFA;font-family:var(--f-mono);font-size:.88rem;padding:.7rem .9rem;border-radius:10px;overflow-x:auto;white-space:pre;max-width:100%;margin:.4rem 0}
+.bpbar{display:flex;width:100%;min-height:3.4rem;border:2px solid var(--fg);border-radius:10px;overflow:hidden;margin:.6rem 0}
+.bpbar div{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.2rem;font-size:.78rem;text-align:center;line-height:1.2;color:#0A1530;border-right:2px solid var(--fg);min-width:0;overflow:hidden;cursor:help}
+.bpbar div:last-child{border-right:0}
+.qlist{margin:0;padding:0;list-style:none}.qlist li{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;border:2px solid var(--line);border-radius:10px;padding:.45rem .7rem;margin:.4rem 0;background:var(--surface)}
+.qlist .grow{flex:1;min-width:6rem}
+.ordl{list-style:none;padding:0;margin:.4rem 0}.ordl li{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;border:2px solid var(--line);border-radius:10px;padding:.45rem .7rem;margin:.4rem 0;background:var(--surface)}
+.ordl .grow{flex:1;min-width:8rem}
+.mtr{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;border:2px solid var(--line);border-radius:10px;padding:.45rem .7rem;margin:.4rem 0;background:var(--surface)}
+.mtr .grow{flex:1;min-width:8rem;font-weight:700}.mtr select{max-width:100%}
 :root[data-motion="off"] *{transition:none!important;animation:none!important}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -693,43 +720,192 @@ label.aso input{width:1.25rem;height:1.25rem;accent-color:var(--accent);flex:non
   </div>
 </section>
 
+<!-- ============ IPv6 A ============ -->
+<section class="mod" id="step-v6a" data-title="IPv6: addresses and hex" hidden>
+  <header><p class="eyebrow">Step 12 &middot; About 25 minutes</p><h2>IPv6: addresses and hexadecimal</h2>
+  <p class="goal"><strong>Goal:</strong> read an [[ipv6]] address, turn [[hex]] into binary, and shorten or expand any address with two simple rules.</p></header>
+  <div class="chunk"><h3 data-k="Learn">Why IPv6?</h3>
+    <p>IPv4 has 32 bits, which gives about 4.3 billion addresses (2<sup>32</sup>). That is not enough for every phone, laptop, camera and car. IPv6 has <strong>128 bits</strong>, which gives 2<sup>128</sup> addresses. That is enough for every grain of sand on Earth to have its own street, many times over.</p>
+    <div class="scroll"><table><thead><tr><th>Feature</th><th>IPv4</th><th>IPv6</th></tr></thead><tbody>
+      <tr><td>Address size</td><td class="m">32 bits</td><td class="m">128 bits</td></tr>
+      <tr><td>Written as</td><td>4 decimal octets: 192.168.1.10</td><td>8 groups of hex: 2001:DB8:ACAD:1::10</td></tr>
+      <tr><td>Number of addresses</td><td class="m">about 4.3 billion</td><td class="m">about 3.4 &times; 10<sup>38</sup></td></tr>
+      <tr><td>One-to-all messages</td><td>Broadcast</td><td>No broadcast. Multicast is used.</td></tr>
+      <tr><td>Finding a neighbour&rsquo;s MAC</td><td>ARP</td><td>NDP (ICMPv6)</td></tr>
+      <tr><td>Address setup</td><td>Manual or DHCP</td><td>Manual, SLAAC or DHCPv6</td></tr>
+    </tbody></table></div>
+    <p class="note">IPv4 and IPv6 can run together on the same device. This is called [[dualstack|dual stack]].</p>
+  </div>
+  <div class="chunk"><h3 data-k="See it">Anatomy of an IPv6 address</h3>
+    <p>Press the tour button. The spotlight shows a digit, a group, the whole address and the two halves.</p>
+    <div class="tourbox" id="tr-v6a"></div></div>
+  <div class="chunk"><h3 data-k="Learn">Hexadecimal in three steps</h3>
+    <ol><li><strong>Sixteen digits.</strong> Hex counts 0 to 9, then A, B, C, D, E, F. A is 10 and F is 15.</li>
+      <li><strong>One digit = four bits.</strong> The place values are 8, 4, 2, 1. That is a [[nibble]].</li>
+      <li><strong>Convert one digit at a time.</strong> Example: <code>2001</code> is <code>0010 0000 0000 0001</code>. And <code>DB8</code> is <code>1101 1011 1000</code>.</li></ol>
+    <p>Going back: group the bits in fours from the right and turn each group into one hex digit.</p>
+    <div class="tourbox" id="tr-hex"></div></div>
+  <div class="chunk"><h3 data-k="Learn">Two rules for shortening an address</h3>
+    <ol><li><strong>Rule 1: drop leading zeros</strong> in each group. 0DB8 becomes DB8. Never drop zeros at the end of a group. An all-zero group becomes a single 0.</li>
+      <li><strong>Rule 2: replace the longest run of all-zero groups with <code>::</code></strong>. You may do this only once. If two runs are the same length, shorten the first one. A single zero group is normally just written as 0.</li></ol>
+    <p><strong>Expanding</strong> goes the other way. Count the groups you can see. The <code>::</code> hides enough zero groups to make 8 in total. Then pad every group to 4 digits.</p>
+    <div class="tourbox" id="tr-v6s"></div></div>
+  <div class="chunk"><h3 data-k="I do">Watch me shorten an address</h3><div class="player" id="pl-v6s"></div></div>
+  <div class="chunk"><h3 data-k="We do">Shorten one with me</h3><div id="v6g1"></div>
+    <h4>And convert a group of hex to binary</h4><div id="v6g2"></div></div>
+  <div class="chunk"><h3 data-k="You do">Your turn: hex and shortening</h3><div class="quiz" data-kind="v6a" data-late="1"></div></div>
+</section>
+
+<!-- ============ IPv6 B ============ -->
+<section class="mod" id="step-v6b" data-title="IPv6 address types" hidden>
+  <header><p class="eyebrow">Step 13 &middot; About 20 minutes</p><h2>IPv6 address types and prefixes</h2>
+  <p class="goal"><strong>Goal:</strong> look at an address and say its type from the first few bits.</p></header>
+  <div class="chunk"><h3 data-k="Learn">No broadcast: three kinds of delivery</h3>
+    <div class="cards">
+      <div class="card"><h4>Unicast</h4><p>One sender to one interface. Global, link-local, unique local, loopback and unspecified addresses are all unicast.</p></div>
+      <div class="card"><h4>Multicast</h4><p>One sender to a group. It starts <code>FF00::/8</code> and replaces broadcast.</p></div>
+      <div class="card"><h4>Anycast</h4><p>The same address on several devices. A packet goes to the nearest one.</p></div>
+    </div>
+    <p class="note"><strong>Big change:</strong> IPv6 has no broadcast address. Jobs that used broadcast, such as finding neighbours, now use multicast.</p></div>
+  <div class="chunk"><h3 data-k="See it">The address types table</h3>
+    <p>The first few bits decide the type. The shaded bits in the table are the prefix bits. Press the tour button to move down the rows.</p>
+    <div class="tourbox" id="tr-v6t"></div></div>
+  <div class="chunk"><h3 data-k="Learn">Multicast addresses worth knowing</h3>
+    <div class="scroll"><table><thead><tr><th>Address</th><th>Meaning</th></tr></thead><tbody>
+      <tr><td class="m">FF02::1</td><td>All nodes on the link</td></tr>
+      <tr><td class="m">FF02::2</td><td>All routers on the link</td></tr>
+      <tr><td class="m">FF02::5 and FF02::6</td><td>OSPFv3 routers, and OSPFv3 DR and BDR</td></tr>
+      <tr><td class="m">FF02::1:FFxx:xxxx</td><td>Solicited-node multicast. It uses the last 24 bits of a unicast address and is used by [[ndp]]</td></tr>
+    </tbody></table></div>
+    <p>The digit after FF is flags. The next digit is the <strong>scope</strong>: <code>FF02</code> is link-local scope. <code>FF0E</code> is global scope.</p>
+    <p><strong>NDP</strong> uses four ICMPv6 messages. <em>Router Solicitation</em> and <em>Router Advertisement</em> help a host find routers and prefixes. <em>Neighbor Solicitation</em> and <em>Neighbor Advertisement</em> replace ARP. A host also checks an address is free with [[dad|Duplicate Address Detection]].</p></div>
+  <div class="chunk"><h3 data-k="Learn">What a real host has</h3>
+    <p>One interface usually has <strong>several</strong> IPv6 addresses at once: a link-local address (always), a global unicast address, and a few multicast groups it listens to, such as <code>FF02::1</code>. Routers use link-local addresses as next hops. Hosts use a router&rsquo;s link-local address as the default gateway.</p></div>
+  <div class="chunk"><h3 data-k="I do">Watch me classify an address</h3><div class="player" id="pl-v6c"></div></div>
+  <div class="chunk"><h3 data-k="We do">Classify one with me</h3><div id="v6cg"></div></div>
+  <div class="chunk"><h3 data-k="You do">Your turn: IPv6 address types</h3><div class="quiz" data-kind="v6b" data-late="1"></div></div>
+  <div class="chunk"><h3 data-k="Explore">IPv6 address inspector</h3>
+    <div class="play"><div class="row"><label for="v6i-in">IPv6 address</label><input type="text" id="v6i-in" size="38" value="fe80::21a:2bff:fe3c:4d5e" spellcheck="false" autocomplete="off"></div><div id="v6i-out" aria-live="polite"></div></div></div>
+</section>
+
+<!-- ============ IPv6 C ============ -->
+<section class="mod" id="step-v6c" data-title="IPv6 subnets, EUI-64, setup" hidden>
+  <header><p class="eyebrow">Step 14 &middot; About 30 minutes</p><h2>IPv6 subnets, EUI-64 and setup</h2>
+  <p class="goal"><strong>Goal:</strong> split a site prefix into /64 subnets by counting in hex, build an interface ID with EUI-64, and know how hosts and routers get IPv6 addresses.</p></header>
+  <div class="chunk"><h3 data-k="Learn">Three parts of an address</h3>
+    <p>A typical IPv6 address has a [[grp|global routing prefix]] given to your site (often a /48), a 16-bit [[sid|subnet ID]], and a 64-bit [[iid|interface ID]]. LAN subnets are almost always <strong>/64</strong>.</p>
+    <div class="tourbox" id="tr-v6id"></div></div>
+  <div class="chunk"><h3 data-k="Learn">Subnetting is counting in hex</h3>
+    <p>You do not borrow bits from the host part. You just <strong>count in the subnet ID</strong>. The 4th group goes 0, 1, 2 &hellip; 9, A, B, C, D, E, F, 10, 11&hellip;. Number of /64 subnets: <code>2<sup>(64 &minus; prefix)</sup></code>.</p>
+    <div class="scroll"><table><thead><tr><th>Site prefix</th><th>Subnet bits</th><th>Number of /64 subnets</th></tr></thead><tbody>
+      <tr><td class="m">/48</td><td class="m">16</td><td class="m">2<sup>16</sup> = 65,536</td></tr>
+      <tr><td class="m">/52</td><td class="m">12</td><td class="m">2<sup>12</sup> = 4,096</td></tr>
+      <tr><td class="m">/56</td><td class="m">8</td><td class="m">2<sup>8</sup> = 256</td></tr>
+      <tr><td class="m">/60</td><td class="m">4</td><td class="m">2<sup>4</sup> = 16</td></tr>
+      <tr><td class="m">/64</td><td class="m">0</td><td class="m">1</td></tr></tbody></table></div>
+    <p>Decimal to hex for subnet numbers: <code>10 = A</code>, <code>15 = F</code>, <code>16 = 10</code>, <code>255 = FF</code>, <code>256 = 100</code>.</p></div>
+  <div class="chunk"><h3 data-k="See it">The IPv6 subnet table</h3>
+    <p>The same idea as the CCNA subnet table, for IPv6. The first address of each /64 is reserved, so hosts usually start at <code>::1</code>.</p>
+    <div class="tourbox" id="tr-v6tbl"></div></div>
+  <div class="chunk"><h3 data-k="Learn">EUI-64: a MAC address becomes an interface ID</h3>
+    <ol><li>Split the 48-bit MAC in the middle.</li><li>Insert <code>FF FE</code> between the halves.</li><li><strong>Flip the 7th bit</strong> of the first byte (so 00 becomes 02).</li></ol>
+    <div class="tourbox" id="tr-eui"></div></div>
+  <div class="chunk"><h3 data-k="Learn">How a host gets an address</h3>
+    <div class="scroll"><table><thead><tr><th>Method</th><th>Prefix comes from</th><th>Router advertisement flags</th></tr></thead><tbody>
+      <tr><td>[[slaac|SLAAC]]</td><td>Router advertisement. The host builds its own interface ID (EUI-64 or random).</td><td class="m">A=1, M=0, O=0</td></tr>
+      <tr><td>SLAAC + stateless DHCPv6</td><td>Router advertisement. DHCPv6 gives only extra settings such as DNS.</td><td class="m">A=1, O=1</td></tr>
+      <tr><td>Stateful DHCPv6</td><td>A DHCPv6 server assigns the whole address.</td><td class="m">M=1</td></tr></tbody></table></div>
+    <p class="gl">Router configuration you must recognise</p>
+    <div class="cmd" tabindex="0" aria-label="IPv6 router configuration example">R1(config)# ipv6 unicast-routing
+R1(config)# interface g0/0
+R1(config-if)# ipv6 address 2001:db8:acad:1::1/64
+R1(config-if)# ipv6 address fe80::1 link-local
+R1(config-if)# no shutdown
+R1(config)# ipv6 route 2001:db8:acad:2::/64 2001:db8:acad:12::2
+R1(config)# ipv6 route ::/0 2001:db8:acad:12::2
+R1# show ipv6 interface brief
+R1# show ipv6 route</div>
+    <p><code>ipv6 unicast-routing</code> makes the router route IPv6 and send router advertisements. Without it, the router has IPv6 addresses but does not forward IPv6 packets.</p></div>
+  <div class="chunk"><h3 data-k="I do">Watch me subnet a /48</h3><div class="player" id="pl-v6sub"></div>
+    <h4>And build an EUI-64 address</h4><div class="player" id="pl-eui"></div></div>
+  <div class="chunk"><h3 data-k="We do">Do one with me</h3><div id="v6sg"></div><h4>And an EUI-64 address</h4><div id="v6eg"></div></div>
+  <div class="chunk"><h3 data-k="You do">Your turn: IPv6 subnetting and EUI-64</h3><div class="quiz" data-kind="v6c" data-late="1"></div></div>
+  <div class="chunk"><h3 data-k="You do">Your IPv6 subnet table lab</h3>
+    <div class="row"><label for="v6l-lvl">Site prefix</label><select id="v6l-lvl"><option value="48">/48 site: subnet ID is 4 hex digits</option><option value="56">/56 site: subnet ID is 2 hex digits</option></select></div>
+    <p class="note" id="v6l-brief"></p>
+    <div class="supp" id="v6l-sup"></div>
+    <div class="scroll"><table class="ccna" id="v6l-t"></table></div>
+    <div class="row"><button class="btn" type="button" id="v6l-check">Check all rows</button><button class="btn alt" type="button" id="v6l-hint">Hint</button><button class="btn alt" type="button" id="v6l-show">Show answers</button><button class="btn alt" type="button" id="v6l-new">New scenario</button></div>
+    <div class="fb" id="v6l-fb" aria-live="polite"></div></div>
+  <div class="chunk"><h3 data-k="Explore">EUI-64 explorer</h3>
+    <div class="play"><div class="row"><label for="eui-in">MAC address</label><input type="text" id="eui-in" size="22" value="00-1A-2B-3C-4D-5E" spellcheck="false" autocomplete="off"></div><div id="eui-out" aria-live="polite"></div></div></div>
+</section>
+
 <!-- ============ 10 ============ -->
-<section class="mod" id="step-10" data-title="CCNA exam toolkit" hidden>
-  <header><p class="eyebrow">Step 10 &middot; Revision</p><h2>CCNA exam toolkit</h2>
-  <p class="goal"><strong>Goal:</strong> know the exam objective, the speed method, the common traps, and keep a cheat sheet.</p></header>
-  <div class="chunk"><h3 data-k="Aligned to">Exam objective</h3>
-    <p>This guide covers the IPv4 addressing and subnetting skills in the Cisco CCNA 200-301 blueprint, objective <strong>1.6 &ldquo;Configure and verify IPv4 addressing and subnetting&rdquo;</strong>, plus the private addressing ideas in the same topic area. IPv6 (objective 1.8 and related) is not covered here. Blueprints change, so always check the current exam topics on Cisco&rsquo;s website. This is an independent study aid, not an official Cisco resource.</p>
-  </div>
-  <div class="chunk"><h3 data-k="Method">Five-step speed method</h3>
-    <ol><li><strong>Mask:</strong> convert /prefix to dotted decimal.</li>
-      <li><strong>Interesting octet:</strong> the one that is not 0 or 255 (or the last one).</li>
-      <li><strong>Block size:</strong> 256 &minus; mask octet.</li>
-      <li><strong>Network:</strong> largest multiple of the block size that is &le; your octet.</li>
-      <li><strong>Broadcast:</strong> next network &minus; 1. Hosts sit in between.</li></ol>
-    <p>Practise this until it takes under 30 seconds. The exam gives about 1 to 2 minutes per question.</p>
-  </div>
-  <div class="chunk"><h3 data-k="Cheat sheet">Prefix table</h3><div class="scroll"><table id="cs"></table></div>
+<section class="mod" id="step-10" data-title="CCNA exam toolkit and blueprint" hidden>
+  <header><p class="eyebrow">Step 15 &middot; Revision</p><h2>CCNA exam toolkit and blueprint</h2>
+  <p class="goal"><strong>Goal:</strong> know what the CCNA exam covers, how its questions are asked, and how to spend your time. Then sit a full practice paper in the next step.</p></header>
+  <div class="chunk"><h3 data-k="Aligned to">The exam blueprint</h3>
+    <p>This guide is built around the Cisco CCNA 200-301 exam topics. Cisco publishes six areas with approximate weights (blueprint v1.1). The exam lasts about 120 minutes. Cisco does not publish the pass mark, and the blueprint is updated from time to time, so always check the current version on Cisco&rsquo;s website. This is an independent study aid, not an official Cisco resource.</p>
+    <div class="bpbar" id="bp-bar" role="img" aria-label="Exam areas by weight: Network Fundamentals 20%, Network Access 20%, IP Connectivity 25%, IP Services 10%, Security Fundamentals 15%, Automation and Programmability 10%"></div>
+    <div class="scroll"><table><thead><tr><th>Area</th><th>Weight</th><th>Examples of what is asked</th><th>Practise it here</th></tr></thead><tbody>
+      <tr><td><strong>1 Network Fundamentals</strong></td><td class="m">20%</td><td>Components, topologies, cabling, TCP and UDP, IPv4 and IPv6 addressing, wireless principles, virtualisation</td><td>Steps 2 to 14, then the paper</td></tr>
+      <tr><td><strong>2 Network Access</strong></td><td class="m">20%</td><td>VLANs, trunks, STP, EtherChannel, CDP and LLDP, wireless architectures</td><td>The practice paper</td></tr>
+      <tr><td><strong>3 IP Connectivity</strong></td><td class="m">25%</td><td>Routing table, longest match, administrative distance, static routes, OSPFv2, first-hop redundancy</td><td>The practice paper</td></tr>
+      <tr><td><strong>4 IP Services</strong></td><td class="m">10%</td><td>NAT, NTP, DHCP, DNS, SNMP, syslog, QoS, SSH, TFTP</td><td>The practice paper</td></tr>
+      <tr><td><strong>5 Security Fundamentals</strong></td><td class="m">15%</td><td>Threats, ACLs, port security, DHCP snooping, DAI, AAA, VPNs, wireless security</td><td>The practice paper</td></tr>
+      <tr><td><strong>6 Automation and Programmability</strong></td><td class="m">10%</td><td>Controllers, SDN planes, REST APIs, JSON, configuration management</td><td>The practice paper</td></tr>
+    </tbody></table></div>
+    <p class="note">This course teaches addressing and subnetting in depth. The practice paper also tests the other areas so you can see what still needs revising.</p></div>
+  <div class="chunk"><h3 data-k="Learn">Question types you can expect</h3>
+    <div class="cards">
+      <div class="card"><h4>Single and multiple choice</h4><p>Read &ldquo;Choose TWO&rdquo; carefully. Look for the words NOT and EXCEPT.</p></div>
+      <div class="card"><h4>Drag and drop</h4><p>Ordering steps or matching terms to definitions. In the practice paper you use arrows and drop-down lists.</p></div>
+      <div class="card"><h4>Exhibits</h4><p>A screen of CLI output or a diagram. Read hostnames, interface names and addresses before you read the options.</p></div>
+      <div class="card"><h4>Command entry</h4><p>Type a command yourself. Know the full commands and common abbreviations.</p></div>
+      <div class="card"><h4>Scenarios and labs</h4><p>Several questions about one network, or a simulated device. Practise reading output quickly.</p></div>
+    </div></div>
+  <div class="chunk"><h3 data-k="Method">Time and strategy</h3>
+    <ul><li><strong>About one minute per question.</strong> Answer what you know first. Flag the rest and come back.</li>
+      <li><strong>Eliminate.</strong> Cross out options that are clearly wrong. Two left? Pick the one that matches the exact wording.</li>
+      <li><strong>Read the last line first</strong> on long scenarios, so you know what is being asked.</li></ul>
+    <p class="gl">Five-step subnetting method</p>
+    <ol><li><strong>Mask:</strong> convert /prefix to dotted decimal.</li><li><strong>Interesting octet:</strong> the one that is not 0 or 255 (or the last one).</li><li><strong>Block size:</strong> 256 &minus; mask octet.</li><li><strong>Network:</strong> largest multiple of the block size that is &le; your octet.</li><li><strong>Broadcast:</strong> next network &minus; 1. Hosts sit in between.</li></ol>
+    <p class="gl">IPv6 shortcuts</p>
+    <ul><li>One hex digit is 4 bits. One group is 16 bits. A /64 prefix is the first 4 groups.</li><li>Shorten: drop leading zeros, then one <code>::</code> for the longest run of zero groups.</li><li>Types: <code>2/3</code> global, <code>FC/FD</code> unique local, <code>FE8 to FEB</code> link-local, <code>FF</code> multicast.</li><li>EUI-64: split the MAC, insert <code>FFFE</code>, flip the 7th bit.</li></ul></div>
+  <div class="chunk"><h3 data-k="Cheat sheet">Prefix table and powers of 2</h3><div class="scroll"><table id="cs"></table></div>
     <p class="gl">Powers of 2</p><div class="seq" id="pw"></div>
-  </div>
+    <div class="scroll"><table><thead><tr><th>Number to memorise</th><th>Value</th></tr></thead><tbody>
+      <tr><td>Administrative distance</td><td class="m">Connected 0, static 1, EIGRP 90, OSPF 110, RIP 120</td></tr>
+      <tr><td>Common ports</td><td class="m">FTP 21, SSH 22, Telnet 23, SMTP 25, DNS 53, DHCP 67/68, TFTP 69, HTTP 80, POP3 110, SNMP 161, HTTPS 443</td></tr>
+      <tr><td>OSPF defaults</td><td class="m">Hello 10 s, dead 40 s (broadcast). Cost = 100 Mbps &divide; bandwidth.</td></tr>
+      <tr><td>STP default priority</td><td class="m">32768 (plus the VLAN number)</td></tr>
+      <tr><td>Syslog levels</td><td class="m">0 Emergency, 1 Alert, 2 Critical, 3 Error, 4 Warning, 5 Notice, 6 Info, 7 Debug</td></tr>
+      <tr><td>ACL number ranges</td><td class="m">Standard 1 to 99. Extended 100 to 199.</td></tr>
+      <tr><td>Private IPv4</td><td class="m">10/8, 172.16/12, 192.168/16</td></tr>
+      <tr><td>IPv6 prefixes</td><td class="m">Global 2000::/3, unique local FC00::/7, link-local FE80::/10, multicast FF00::/8</td></tr>
+    </tbody></table></div><div class="supc" id="qc-unused"></div></div>
   <div class="chunk"><h3 data-k="Avoid">Common exam traps</h3>
     <ul>
       <li><strong>Usable vs total.</strong> A /26 has 64 addresses but <strong>62</strong> usable hosts.</li>
-      <li><strong>/31 and /32.</strong> /31 gives 2 addresses and is valid on point-to-point links (RFC 3021). /32 is a single host route. The 2<sup>h</sup>&minus;2 rule does not apply to them.</li>
-      <li><strong>Count every interface.</strong> A router interface (the [[default gateway]]) uses an address too. 8 devices + gateway = 9 hosts.</li>
+      <li><strong>/31 and /32.</strong> /31 gives 2 addresses and works on point-to-point links. /32 is a single host route.</li>
+      <li><strong>Count every interface.</strong> A router interface (the [[default gateway]]) uses an address too.</li>
       <li><strong>Largest first</strong> in VLSM, and each block starts on a multiple of its own size.</li>
-      <li><strong>Network and broadcast cannot be assigned</strong> to hosts on normal subnets.</li>
       <li><strong>Private ranges:</strong> 172.16.0.0 to 172.31.255.255 only. 172.32.x.x is public.</li>
-      <li><strong>[[wildcard|Wildcard mask]]</strong> (used in ACLs and OSPF network statements) = 255.255.255.255 minus the subnet mask. Example: /26 mask 255.255.255.192 gives wildcard 0.0.0.63.</li>
-    </ul>
-  </div>
-  <div class="chunk"><h3 data-k="Next">Where to go from here</h3>
-    <p>Repeat Challenge 2 in <em>Everything</em> mode until you get five in a row correct. Then do the VLSM practice lab in Step 10 and finish with the end assessment in Step 13. Well done for getting this far.</p>
-  </div>
+      <li><strong>[[wildcard|Wildcard mask]]</strong> = 255.255.255.255 minus the subnet mask. /26 gives 0.0.0.63.</li>
+      <li><strong>Longest prefix wins</strong> before administrative distance or metric.</li>
+      <li><strong>Standard ACLs near the destination, extended ACLs near the source.</strong> Every ACL ends with an implicit deny.</li>
+      <li><strong>IPv6 has no broadcast</strong>, and <code>::</code> can be used only once in an address.</li>
+      <li><strong>Link-local next hops:</strong> routers use FE80:: addresses as next hops.</li>
+    </ul></div>
+  <div class="chunk"><h3 data-k="Next">Sit the practice paper</h3>
+    <p>The next step is a <strong>CCNA practice paper</strong>. It uses the six exam areas and their weights, mixes question types, supports a timed 120-minute full paper, and shows a breakdown by area afterwards. Aim to score consistently at 85% or higher before booking. That is a revision target, not an official score.</p>
+    <div class="row"><button class="btn" type="button" data-goto="step-assess">Go to the practice paper</button></div></div>
 </section>
 
-<section class="mod" id="step-assess" data-title="End assessment: CCNA 1 theory" hidden>
-  <header><p class="eyebrow">Step 13 &middot; About 30 minutes</p><h2>End assessment: CCNA 1 theory</h2>
-  <p class="goal"><strong>Goal:</strong> check the theory side of CCNA 1 (Introduction to Networks): models, media, Ethernet, IPv4 and IPv6, transport and application protocols, IOS basics, security and subnetting. Every attempt is different.</p></header>
+<section class="mod" id="step-assess" data-title="CCNA practice paper" hidden>
+  <header><p class="eyebrow">Step 16 &middot; About 2 hours for the full paper</p><h2>CCNA practice paper</h2>
+  <p class="goal"><strong>Goal:</strong> rehearse the real thing: mixed question types, exhibits, a timer, a review screen and a score by exam area. Every paper is built fresh.</p></header>
   <div id="as-root"></div>
 </section>
   </main>
@@ -774,6 +950,7 @@ label.aso input{width:1.25rem;height:1.25rem;accent-color:var(--accent);flex:non
       <button type="button" role="tab" id="kt-bits" aria-selected="false" aria-controls="kp-bits" data-tab="bits">Bit values</button>
       <button type="button" role="tab" id="kt-mask" aria-selected="false" aria-controls="kp-mask" data-tab="mask">Mask values</button>
       <button type="button" role="tab" id="kt-hosts" aria-selected="false" aria-controls="kp-hosts" data-tab="hosts">Hosts needed</button>
+      <button type="button" role="tab" id="kt-v6" aria-selected="false" aria-controls="kp-v6" data-tab="v6">IPv6</button>
     </div>
     <div id="kp-pow" role="tabpanel" aria-labelledby="kt-pow">
       <div class="row"><label for="kp-n">Exponent n</label><input type="number" id="kp-n" min="0" max="32" value="8" style="width:6rem"><input type="range" id="kp-r" min="0" max="32" value="8" aria-label="Exponent slider"><button type="button" class="btn alt tiny" data-say="kp-out">Listen</button></div>
@@ -797,6 +974,17 @@ label.aso input{width:1.25rem;height:1.25rem;accent-color:var(--accent);flex:non
     <div id="kp-hosts" role="tabpanel" aria-labelledby="kt-hosts" hidden>
       <div class="row"><label for="kh-n">Devices needed</label><input type="number" id="kh-n" min="1" max="1000000" value="72" style="width:7rem"><label class="lab" for="kh-gw"><input type="checkbox" id="kh-gw"> Add 1 for the router (gateway)</label><button type="button" class="btn alt tiny" data-say="kh-out">Listen</button></div>
       <div id="kh-out" aria-live="polite"></div>
+    </div>
+    <div id="kp-v6" role="tabpanel" aria-labelledby="kt-v6" hidden>
+      <h3>Shorten, expand and classify</h3>
+      <div class="row"><label for="kv-a">IPv6 address</label><input type="text" id="kv-a" size="36" value="2001:0DB8:0000:0042:0000:0000:0000:0001" spellcheck="false"></div>
+      <div id="kv-o1" aria-live="polite"></div>
+      <h3>Hex to binary</h3>
+      <div class="row"><label for="kv-h">Hex digits</label><input type="text" id="kv-h" size="10" maxlength="8" value="2A7F" spellcheck="false"></div>
+      <div id="kv-o2" aria-live="polite"></div>
+      <h3>MAC address to EUI-64 link-local</h3>
+      <div class="row"><label for="kv-m">MAC address</label><input type="text" id="kv-m" size="20" value="00-1A-2B-3C-4D-5E" spellcheck="false"></div>
+      <div id="kv-o3" aria-live="polite"></div>
     </div>
   </div>
 </div>
@@ -880,12 +1068,12 @@ tipify($("#main"));
 /* auto glossary: first use of each term in each chunk becomes a tooltip */
 const AUTOR=[["host bits?","host bits","i"],["network address","network address","i"],["broadcast(?: address)?","broadcast","i"],["block size","block size","i"],["subnet masks?","mask","i"],["wildcard(?: mask)?","wildcard","i"],["RFC ?1918","rfc1918","i"],["RFC ?3021","rfc3021","i"],["default gateway","default gateway","i"],["point-to-point","ptp","i"],["dotted[- ]decimal","dotted","i"],["place values?","place value","i"],["powers? of 2","power","i"],["subnetting","subnet","i"],["subnets?","subnet","i"],["octets?","octet","i"],["binary","binary","i"],["decimal","decimal","i"],["bits?","bit","i"],["usable hosts?","usable","i"],["prefix(?: length)?","prefix","i"],["CIDR","cidr",""],["VLSM","vlsm",""],["DHCP","dhcp",""],["ACLs?","acl",""],["OSPF","ospf",""],["router","router","i"],["loopback","loopback","i"],["APIPA","apipa",""],["LAN","lan",""],["IPv4","ipv4",""],["AND","and",""],["hosts?","host","i"],["network","network","i"],["mask","mask","i"],["interface","interface","i"],["exponents?","exponent","i"]].map(a=>({k:a[1],re:new RegExp("\\b(?:"+a[0]+")\\b",a[2]+"g")}));
 const SKIP="code,button,h1,h2,h3,h4,label,a,.tip,th,td.m,option,select,input,textarea,script,style,.mono,summary,.eyebrow,legend,.sw,.sb,.bit,[data-tip],.step,.seq,header.top,nav,#tt,#toast,.pbar,.ag,.topo,svg,.dbl,.lad,.ruler";
-function autoTip(root){
+function autoTip(root,extra){
   const used=new Set($$(".tip",root).map(b=>b.dataset.k)),nodes=[],w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;
   while((n=w.nextNode()))nodes.push(n);
   nodes.forEach(node=>{if(!node.parentElement||node.parentElement.closest(SKIP))return;let cur=node;
     while(cur){const txt=cur.nodeValue;let best=null;
-      for(const a of AUTOR){if(used.has(a.k))continue;a.re.lastIndex=0;const m=a.re.exec(txt);if(m&&(!best||m.index<best.m.index))best={a,m}}
+      for(const a of (Array.isArray(extra)?AUTOR.concat(extra):AUTOR)){if(used.has(a.k))continue;a.re.lastIndex=0;const m=a.re.exec(txt);if(m&&(!best||m.index<best.m.index))best={a,m}}
       if(!best)break;used.add(best.a.k);
       const m=best.m,after=cur.splitText(m.index+m[0].length),mid=cur.splitText(m.index),b=document.createElement("button");
       b.type="button";b.className="tip";b.dataset.k=best.a.k;b.textContent=mid.nodeValue;mid.replaceWith(b);cur=after}});
@@ -1114,7 +1302,7 @@ function makeQuiz(el,kind){
   a.addEventListener("keydown",e=>{if(e.key==="Enter")check()});
   el.fresh=(k)=>{kind=k;fresh()};fresh();return el;
 }
-$$(".quiz").forEach(el=>{const q=makeQuiz(el,el.dataset.kind);if(el.id==="mx")$("#mx-k").onchange=e=>q.fresh(e.target.value)});
+$$(".quiz:not([data-late])").forEach(el=>{const q=makeQuiz(el,el.dataset.kind);if(el.id==="mx")$("#mx-k").onchange=e=>q.fresh(e.target.value)});
 
 /* ---------- challenge 1 ---------- */
 let chS=null;
@@ -1464,7 +1652,7 @@ function closeModal(){if(!openM)return;openM.hidden=true;openM=null;document.bod
 document.addEventListener("keydown",e=>{if(!openM)return;if(e.key==="Escape"){e.preventDefault();closeModal();return}
   if(e.key==="Tab"){const f=$$("button,input,select,a[href]",openM).filter(x=>!x.disabled&&x.offsetParent!==null);if(!f.length)return;const a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
 $$(".modal").forEach(m=>m.addEventListener("mousedown",e=>{if(e.target===m)closeModal()}));
-function selTab(n){["pow","bits","mask","hosts"].forEach(t=>{const on=t===n;$("#kt-"+t).setAttribute("aria-selected",on);$("#kp-"+t).hidden=!on})}
+function selTab(n){["pow","bits","mask","hosts","v6"].forEach(t=>{const on=t===n;$("#kt-"+t).setAttribute("aria-selected",on);$("#kp-"+t).hidden=!on})}
 function openCalc(t){selTab(t||"pow");openModal("dlg-calc")}
 $$("[data-tab]").forEach(b=>b.onclick=()=>selTab(b.dataset.tab));
 document.addEventListener("click",e=>{
@@ -1740,8 +1928,11 @@ decorate();
 /* ---------- end assessment: CCNA 1 theory ---------- */
 const AD={NF:"Network fundamentals",MOD:"Models and protocols",PHY:"Media and devices",ETH:"Ethernet and switching",IP4:"IPv4 addressing",IP6:"IPv6 addressing",TRA:"Transport and applications",IOS:"Diagnostics and IOS basics",SEC:"Security basics",SUB:"Binary and subnetting"};
 const SB=[];
-function S(d,q,ok,bad,why){SB.push({d,q,type:"single",opts:[{t:ok,ok:1}].concat(bad.map(t=>({t,ok:0}))),why})}
-function M(d,q,oks,bad,why){SB.push({d,q,type:"multi",opts:oks.map(t=>({t,ok:1})).concat(bad.map(t=>({t,ok:0}))),why})}
+function S(d,q,ok,bad,why,ex){SB.push({d,q,type:"single",opts:[{t:ok,ok:1}].concat(bad.map(t=>({t,ok:0}))),why,ex:ex||""})}
+function M(d,q,oks,bad,why,ex){SB.push({d,q,type:"multi",opts:oks.map(t=>({t,ok:1})).concat(bad.map(t=>({t,ok:0}))),why,ex:ex||""})}
+function O(d,q,items,why,ex){SB.push({d,q,type:"order",items,why,ex:ex||""})}
+function X(d,q,pairs,why,ex,extra){SB.push({d,q,type:"match",pairs,extra:extra||[],why,ex:ex||""})}
+function T(d,q,acc,why,ex){SB.push({d,q,type:"text",acc,why,ex:ex||""})}
 /* Network fundamentals */
 S("NF","Which type of network covers a single building or campus?","LAN",["WAN","The internet","A VPN"],"A local area network (LAN) covers a small area such as a building or campus. A WAN spans large geographic areas.");
 S("NF","Which term describes the capacity of a medium to carry data, measured in bits per second?","Bandwidth",["Latency","Throughput","Jitter"],"Bandwidth is the capacity. Throughput is what is actually achieved. Latency is delay.");
@@ -1813,12 +2004,12 @@ S("IP6","What does SLAAC allow a host to do?","Create its own IPv6 address using
 S("TRA","Which protocol is connection-oriented and provides reliable delivery?","TCP",["UDP","ICMP","ARP"],"TCP uses sequence numbers, acknowledgements and retransmission.");
 S("TRA","What is the order of the TCP three-way handshake?","SYN, SYN-ACK, ACK",["SYN, ACK, SYN-ACK","ACK, SYN, SYN-ACK","SYN-ACK, SYN, ACK"],"The client sends SYN, the server replies SYN-ACK, then the client sends ACK.");
 S("TRA","Which transport protocol suits live voice or video, where speed matters more than resending lost data?","UDP",["TCP","FTP","HTTP"],"UDP is connectionless with low overhead.");
-S("TRA","What does DNS do?","Resolves domain names to IP addresses",["Assigns IP addresses to hosts","Maps IP addresses to MAC addresses","Encrypts web traffic"],"DNS turns names such as www.example.com into addresses.");
-S("TRA","What are the four steps of the DHCP process, in order?","Discover, Offer, Request, Acknowledge",["Request, Discover, Offer, Acknowledge","Offer, Discover, Acknowledge, Request","Discover, Request, Offer, Acknowledge"],"DORA: Discover, Offer, Request, Acknowledge.");
+S("SVC","What does DNS do?","Resolves domain names to IP addresses",["Assigns IP addresses to hosts","Maps IP addresses to MAC addresses","Encrypts web traffic"],"DNS turns names such as www.example.com into addresses.");
+S("SVC","What are the four steps of the DHCP process, in order?","Discover, Offer, Request, Acknowledge",["Request, Discover, Offer, Acknowledge","Offer, Discover, Acknowledge, Request","Discover, Request, Offer, Acknowledge"],"DORA: Discover, Offer, Request, Acknowledge.");
 S("TRA","What is the range of well-known port numbers?","0 to 1023",["1024 to 49151","49152 to 65535","0 to 255"],"Well-known ports are 0 to 1023, registered ports 1024 to 49151, and dynamic ports 49152 to 65535.");
 S("TRA","What is a socket?","The combination of an IP address and a port number",["A MAC address and an IP address","A switch port","A DNS record"],"A socket identifies one end of a connection, such as 192.168.1.10:443.");
-S("TRA","Which protocol is used to send email from a client to a mail server?","SMTP",["POP3","IMAP","SNMP"],"SMTP sends mail. POP3 and IMAP retrieve it.");
-S("TRA","Which protocol gives secure remote command-line access?","SSH",["Telnet","TFTP","HTTP"],"Telnet sends everything in plain text. SSH encrypts it.");
+S("SVC","Which protocol is used to send email from a client to a mail server?","SMTP",["POP3","IMAP","SNMP"],"SMTP sends mail. POP3 and IMAP retrieve it.");
+S("SVC","Which protocol gives secure remote command-line access?","SSH",["Telnet","TFTP","HTTP"],"Telnet sends everything in plain text. SSH encrypts it.");
 S("TRA","What is TCP windowing used for?","Flow control: how much data can be sent before an acknowledgement is needed",["Finding the MAC address","Assigning port numbers","Encrypting segments"],"The window size adjusts to the receiver's capacity.");
 /* Diagnostics and IOS */
 S("IOS","Which command tests connectivity to a remote host using ICMP echo?","ping",["traceroute","show ip route","arp"],"ping sends ICMP echo requests and waits for replies.");
@@ -1850,6 +2041,199 @@ M("ETH","Which TWO statements about a switch are correct?",["It learns MAC addre
 M("SEC","Which TWO are examples of malware?",["Worm","Trojan horse"],["Firewall","VLAN"],"A firewall and a VLAN are network tools, not malware.");
 M("MOD","Which TWO layers are part of OSI layers 5 to 7?",["Session","Presentation"],["Transport","Network"],"OSI layers 5, 6 and 7 are Session, Presentation and Application.");
 M("IP6","Which TWO are valid IPv6 address types?",["Multicast","Unicast"],["Broadcast","Directed broadcast"],"IPv6 has unicast, multicast and anycast. It has no broadcast.");
+/* ---- CCNA practice paper question bank: Network Fundamentals ---- */
+S("NF","In the three-tier campus design, which layer aggregates access switches and applies policy?","Distribution",["Access","Core","Physical"],"Access connects end devices. Distribution aggregates access switches and applies policy. Core is the fast backbone.");
+S("NF","Which design merges the core and distribution layers for a smaller campus?","Collapsed core (two-tier)",["Spine-leaf","Full mesh","Hub and spoke"],"A two-tier design is also called a collapsed core.");
+S("NF","Which cloud model rents virtual machines, storage and networks but not the physical hardware?","IaaS",["SaaS","PaaS","On-premises"],"Infrastructure as a Service rents the infrastructure. PaaS adds a platform. SaaS delivers a finished application.");
+S("NF","A company uses web-based email that the provider manages completely. Which cloud model is this?","SaaS",["IaaS","PaaS","Private cloud"],"Software as a Service delivers a complete application over the internet.");
+S("NF","What software creates and runs virtual machines on one physical server?","A hypervisor",["A load balancer","A firewall","A controller"],"The hypervisor shares CPU, memory and storage between virtual machines.");
+S("NF","Which technology sends electrical power to a device such as an access point over the Ethernet cable?","Power over Ethernet (PoE)",["Link aggregation","Spanning tree","Port security"],"PoE (IEEE 802.3af, at, bt) powers access points, phones and cameras.");
+S("NF","Which three 2.4 GHz channels do not overlap?","1, 6 and 11",["1, 2 and 3","3, 7 and 11","2, 4 and 6"],"Channels 1, 6 and 11 are the standard non-overlapping channels in the 2.4 GHz band.");
+S("NF","How does the 5 GHz band compare with 2.4 GHz?","More non-overlapping channels but a shorter range",["Longer range","Fewer channels","It is used only by Bluetooth"],"5 GHz is less crowded and faster, but its signal does not travel as far.");
+S("NF","What does the SSID identify?","The name of the wireless network",["The encryption key","The IP address of the AP","The VLAN number"],"The Service Set Identifier is the WLAN name.");
+S("NF","In a full mesh topology…","Every device has a direct link to every other device",["Every device connects to one switch","Only two devices share each link","Devices form a single ring"],"Full mesh gives the best redundancy at the highest cost.");
+/* IPv6 */
+S("IP6","Which command enables a Cisco router to forward IPv6 packets?","ipv6 unicast-routing",["ipv6 enable","ip routing","ipv6 address autoconfig"],"Without ipv6 unicast-routing the router can have IPv6 addresses but will not route IPv6 or send router advertisements.");
+S("IP6","What replaces ARP in IPv6?","Neighbor Discovery Protocol (NDP) using ICMPv6",["DHCPv6","DNS","IGMP"],"NDP uses Neighbor Solicitation and Neighbor Advertisement messages.");
+S("IP6","What is the purpose of Duplicate Address Detection (DAD)?","To check that an IPv6 address is not already in use on the link",["To find the default gateway","To translate IPv6 to IPv4","To give a host a prefix"],"A host sends a Neighbor Solicitation for its own tentative address before using it.");
+S("IP6","A device has the MAC address 00:1A:2B:3C:4D:5E. What is its EUI-64 interface ID?","021A:2BFF:FE3C:4D5E",["001A:2BFF:FE3C:4D5E","021A:2B3C:4D5E:FFFE","001A:2B3C:4D5E:0000"],"Split the MAC, insert FFFE, then flip the 7th bit of the first byte: 00 becomes 02.");
+S("IP6","A site has a /48 prefix and uses /64 LAN subnets. How many subnet ID bits are available?","16",["8","32","64"],"64 minus 48 is 16, so there can be 65,536 subnets.");
+S("IP6","Which IPv6 address type is not forwarded by routers beyond the local link?","Link-local",["Global unicast","Unique local","Multicast FF0E::/16"],"Link-local addresses (FE80::/10) are only valid on one link.");
+S("IP6","What does :: represent in an IPv6 address?","One or more consecutive groups of all zeros",["A broadcast address","An empty interface ID","A missing network prefix"],"It can appear only once in an address.");
+S("IP6","Which type of address do IPv6 routers normally use as the next hop for IPv6 routes?","Link-local",["Global unicast","Loopback","Anycast"],"Neighbours learn each other's link-local addresses, and these are commonly used as next hops.");
+S("IP6","Which router advertisement flags mean SLAAC for the address plus stateless DHCPv6 for extra settings such as DNS?","A flag 1, O flag 1, M flag 0",["M flag 1","A flag 0 and M flag 0","M flag 1 and O flag 1"],"With the O flag the host builds its own address and asks DHCPv6 only for other settings.");
+M("IP6","Which TWO are IPv6 multicast addresses?",["FF02::1","FF02::2"],["FE80::1","2001:DB8::1"],"FF00::/8 is multicast. FF02::1 is all nodes and FF02::2 is all routers.");
+O("IP6","Put the steps for shortening 2001:0DB8:0000:0000:0000:0000:0000:0001 in order.",["Write the full address","Remove leading zeros from each group","Find the longest run of all-zero groups","Replace that run with ::"],"Rule 1 comes before rule 2.");
+T("IP6","Enter the command that shows a short summary of IPv6 addresses on all interfaces.",["show ipv6 interface brief","sh ipv6 interface brief","sh ipv6 int brief","show ipv6 int brief","show ipv6 int br","sh ipv6 int br"],"show ipv6 interface brief lists each interface with its status and IPv6 addresses.");
+X("IP6","Match each IPv6 prefix to its address type.",[["2000::/3","Global unicast"],["FE80::/10","Link-local"],["FC00::/7","Unique local"],["FF00::/8","Multicast"]],"Learn the four prefixes and their first digits.");
+/* Network Access */
+S("NA","Which VLAN do all ports belong to by default on a Cisco switch?","VLAN 1",["VLAN 0","VLAN 10","VLAN 1002"],"Until you assign ports to other VLANs, every port is in VLAN 1.");
+S("NA","Which kind of port carries traffic for several VLANs between switches?","A trunk port",["An access port","A console port","A management port"],"Trunks carry tagged frames for many VLANs.");
+S("NA","Which IEEE standard defines VLAN tagging on trunks?","802.1Q",["802.1D","802.3ad","802.11ac"],"802.1Q inserts a 4-byte tag into the Ethernet frame.");
+S("NA","How many bytes does an 802.1Q tag add to a frame?","4",["2","6","8"],"The tag holds the TPID, priority bits and the 12-bit VLAN ID.");
+S("NA","What is the native VLAN on an 802.1Q trunk?","The VLAN whose frames are sent untagged",["The VLAN used for management only","The VLAN with the highest number","The voice VLAN"],"Both ends of a trunk should use the same native VLAN.");
+S("NA","Which command assigns an access port to VLAN 20?","switchport access vlan 20",["switchport trunk allowed vlan 20","vlan 20 access","switchport mode vlan 20"],"Use switchport mode access and switchport access vlan 20.");
+S("NA","What routes traffic between VLANs?","A router or a Layer 3 switch",["A Layer 2 switch alone","A hub","A repeater"],"Different VLANs are different subnets, so they need a Layer 3 device.");
+S("NA","In router-on-a-stick, what is configured on the router's physical interface?","One subinterface per VLAN with 802.1Q encapsulation",["One IP address shared by all VLANs","A VLAN database","An EtherChannel"],"Each subinterface is the default gateway for one VLAN.");
+S("NA","How does STP choose the root bridge?","The lowest bridge ID (priority, then MAC address)",["The highest MAC address","The fastest switch","The switch with the most ports"],"If priorities tie, the lowest MAC address wins.");
+S("NA","What is the default STP bridge priority on a Cisco switch?","32768",["0","4096","65535"],"The default is 32768, plus the VLAN number.");
+S("NA","Which STP port role faces the root bridge on a non-root switch?","Root port",["Designated port","Alternate port","Backup port"],"Each non-root switch has one root port.");
+S("NA","What does PortFast do?","Lets an access port go straight to forwarding without the STP delay",["Combines links into one","Blocks all BPDUs","Elects the root bridge"],"PortFast is for ports that connect end devices.");
+S("NA","What is the purpose of EtherChannel?","To bundle several physical links into one logical link",["To separate VLANs","To elect a root bridge","To stop MAC flooding"],"It adds bandwidth and redundancy and STP sees one link.");
+S("NA","Which protocol is the open-standard way to negotiate an EtherChannel?","LACP",["PAgP","DTP","CDP"],"LACP is IEEE 802.3ad. PAgP is Cisco proprietary.");
+S("NA","Which protocol is Cisco proprietary and discovers directly connected Cisco devices?","CDP",["LLDP","STP","LACP"],"LLDP is the open-standard equivalent.");
+S("NA","Which WLAN design uses a controller to manage lightweight access points?","Controller-based (WLC with lightweight APs)",["Autonomous APs","Ad hoc mode","Peer-to-peer mode"],"Lightweight APs are configured and managed centrally by the wireless LAN controller.");
+S("NA","Which protocol do lightweight APs use to tunnel to a WLC?","CAPWAP",["RADIUS","SNMP","GRE only"],"CAPWAP carries control and data between the AP and the controller.");
+O("NA","Put the STP root bridge election steps in order.",["Switches send BPDUs advertising their own bridge ID","Switches compare the bridge IDs they receive","The switch with the lowest bridge ID becomes the root","The other switches choose a root port toward the root"],"The root is elected first. Port roles follow.");
+X("NA","Match each STP port role to its description.",[["Root port","Best path toward the root bridge on a non-root switch"],["Designated port","Forwards traffic away from the root on a segment"],["Alternate port","Blocked backup path to the root"]],"Root and designated ports forward. Alternate ports block.");
+T("NA","Enter the command that puts the current switch interface into trunking mode.",["switchport mode trunk"],"This is entered in interface configuration mode.");
+S("NA","Refer to the exhibit. Which VLAN is port Fa0/7 in?","VLAN 20",["VLAN 1","VLAN 10","VLAN 1002"],"Fa0/7 appears in the Ports column of VLAN 20.",`Switch# show vlan brief
+VLAN Name          Status    Ports
+---- ------------- --------- ---------------------------
+1    default       active    Fa0/1, Fa0/2, Fa0/3, Fa0/4
+10   Sales         active    Fa0/5, Fa0/6
+20   Engineering   active    Fa0/7, Fa0/8
+1002 fddi-default  act/unsup`);
+S("NA","Refer to the exhibit. What is the native VLAN on Gi0/1?","99",["1","10","802"],"The Native vlan column shows 99.",`Switch# show interfaces trunk
+Port   Mode  Encapsulation  Status    Native vlan
+Gi0/1  on    802.1q         trunking  99
+Port   Vlans allowed on trunk
+Gi0/1  1-4094`);
+/* IP Connectivity */
+S("RT","Which route source has the lowest (best) administrative distance?","A directly connected network (0)",["A static route (1)","OSPF (110)","RIP (120)"],"Lower administrative distance is more trusted. Connected 0, static 1, EIGRP 90, OSPF 110, RIP 120.");
+S("RT","What is the administrative distance of OSPF?","110",["90","120","1"],"OSPF is 110. EIGRP internal is 90 and RIP is 120.");
+S("RT","What is the default administrative distance of a static route?","1",["0","5","110"],"A static route to a next hop has an administrative distance of 1.");
+S("RT","A router has routes to 10.0.0.0/8 and 10.1.1.0/24. A packet is for 10.1.1.9. Which route is used?","10.1.1.0/24 because it is the longest prefix match",["10.0.0.0/8 because it appears first","Neither: the packet is dropped","Whichever has the lowest metric"],"Longest prefix match is used before administrative distance and metric.");
+S("RT","Which route matches every destination when no more specific route exists?","A default route, 0.0.0.0/0",["A host route, /32","A connected route","A broadcast route"],"0.0.0.0/0 has the shortest possible prefix.");
+T("RT","Enter the command that configures a default route using next hop 192.0.2.1.",["ip route 0.0.0.0 0.0.0.0 192.0.2.1"],"A default route uses network 0.0.0.0 and mask 0.0.0.0.");
+S("RT","Which command creates a static route to 172.16.20.0/24 through next hop 10.0.0.2?","ip route 172.16.20.0 255.255.255.0 10.0.0.2",["ip route 10.0.0.2 172.16.20.0 255.255.255.0","route add 172.16.20.0/24 10.0.0.2","ip route 172.16.20.0 0.0.0.255 10.0.0.2"],"Syntax: ip route network mask next-hop. Static routes use a subnet mask, not a wildcard mask.");
+S("RT","What makes a static route a floating static route?","It has a higher administrative distance so it is used only if the primary route fails",["It uses an exit interface","It points to a loopback","It is learned from OSPF"],"A backup route is configured with a distance higher than the main route's.");
+S("RT","Which routing protocol in the CCNA blueprint is a link-state protocol?","OSPF",["RIP","Static routing","ARP"],"OSPF routers share link states and each builds a map of the area.");
+O("RT","Put the OSPF neighbor states in order.",["Down","Init","2-Way","ExStart","Exchange","Loading","Full"],"Neighbours move from Down to Full as they discover each other and exchange databases.");
+S("RT","On a multi-access segment, which OSPF routers reach the Full state with all other routers?","The DR and the BDR",["Only the router with the highest cost","All routers equally","Only routers in area 1"],"Other routers (DROTHERs) stay at 2-Way with each other.");
+S("RT","How is the OSPF router ID chosen when no router-id is set and no loopback exists?","The highest active IPv4 interface address",["The lowest MAC address","The lowest interface address","The address of the DR"],"Order: manual router-id, highest loopback address, then highest active interface address.");
+S("RT","What are the default OSPF hello and dead timers on broadcast networks?","10 and 40 seconds",["5 and 20 seconds","30 and 120 seconds","60 and 180 seconds"],"The dead timer is four times the hello timer.");
+S("RT","By default, what is the OSPF cost based on?","The bandwidth of the interface",["Hop count","Delay only","Administrative distance"],"Cost = reference bandwidth (100 Mbps by default) divided by interface bandwidth.");
+S("RT","Which command advertises 192.168.1.0/24 into OSPF process 1 in area 0?","network 192.168.1.0 0.0.0.255 area 0",["network 192.168.1.0 255.255.255.0 area 0","ip ospf 192.168.1.0 area 0","router ospf 192.168.1.0"],"The OSPF network command uses a wildcard mask.");
+S("RT","What does passive-interface do in OSPF?","Stops hello packets being sent out that interface while still advertising its network",["Shuts the interface down","Removes the network from the routing table","Makes the interface the DR"],"It is used on LAN interfaces where no neighbours exist.");
+S("RT","What is the purpose of a First Hop Redundancy Protocol such as HSRP?","To give hosts a virtual default gateway that survives a router failure",["To encrypt routing updates","To assign IP addresses","To prevent Layer 2 loops"],"Hosts point at a virtual IP that moves to the standby router if the active router fails.");
+S("RT","In show ip route output, what does the code S* mean?","A static route that is the candidate default route",["A connected route","An OSPF external route","A summary route"],"S is static. The star marks the candidate default route.");
+S("RT","In show ip route output, what does the code L mean?","A local route: the router's own interface address as a /32",["A link-state route","A learned default route","A loopback summary"],"Local routes appear for each configured interface address.");
+S("RT","Refer to the exhibit. Which route does R1 use for a packet to 10.1.5.77?","10.1.5.0/24 learned from OSPF",["0.0.0.0/0, the default route","10.1.0.0/16 learned from OSPF","10.0.12.0/30, directly connected"],"The longest prefix that matches 10.1.5.77 is 10.1.5.0/24.",`R1# show ip route
+Gateway of last resort is 10.0.12.2 to network 0.0.0.0
+S*   0.0.0.0/0 [1/0] via 10.0.12.2
+     10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks
+C       10.0.12.0/30 is directly connected, GigabitEthernet0/1
+L       10.0.12.1/32 is directly connected, GigabitEthernet0/1
+O       10.1.0.0/16 [110/20] via 10.0.12.2, 00:04:10, GigabitEthernet0/1
+O       10.1.5.0/24 [110/30] via 10.0.12.2, 00:04:10, GigabitEthernet0/1`);
+S("RT","Refer to the exhibit. How will R1 forward a packet to 8.8.8.8?","To 10.0.12.2 using the default route",["It is dropped: there is no matching route","To 10.1.5.1 using OSPF","Out of every interface"],"No specific route matches 8.8.8.8, so the default route 0.0.0.0/0 is used.",`R1# show ip route
+Gateway of last resort is 10.0.12.2 to network 0.0.0.0
+S*   0.0.0.0/0 [1/0] via 10.0.12.2
+O    10.1.5.0/24 [110/30] via 10.0.12.2, 00:04:10, GigabitEthernet0/1
+C    10.0.12.0/30 is directly connected, GigabitEthernet0/1`);
+S("RT","Which command shows OSPF neighbors and their states?","show ip ospf neighbor",["show ip ospf database","show ip protocols brief","show ospf adjacencies"],"The Neighbor ID, state (such as FULL/DR), dead time and interface are listed.");
+S("RT","A router has no matching route and no default route for a packet. What does it do?","Drops the packet and sends ICMP destination unreachable",["Broadcasts the packet","Forwards it to the nearest switch","Holds it until a route appears"],"Without any match, the packet is discarded.");
+S("RT","What is the next-hop address in a static route?","The address of the next router toward the destination",["The destination host address","The local interface MAC address","The default gateway of the destination"],"The next hop must be reachable through a directly connected network.");
+T("RT","Enter the command that creates an IPv6 static route to 2001:db8:2::/64 through next hop 2001:db8:12::2.",["ipv6 route 2001:db8:2::/64 2001:db8:12::2"],"IPv6 static routes use ipv6 route prefix/length next-hop.");
+S("RT","What does an administrative distance of 255 mean?","The source is not trusted and its routes are not used",["The route is the best possible","The route is directly connected","The route is a default route"],"255 is the highest value and means unreachable by trust.");
+M("RT","Which TWO values are compared when a router chooses between routes to the same prefix length?",["Administrative distance","Metric"],["Hostname","VLAN ID"],"Different sources are compared by administrative distance. Routes from the same protocol are compared by metric.");
+/* IP Services */
+S("SVC","Which NAT type maps many private addresses to one public address using different port numbers?","PAT (NAT overload)",["Static NAT","Dynamic NAT with a pool","NAT64"],"Port Address Translation is the most common form of NAT.");
+S("SVC","In NAT terms, what is the inside global address?","The public address that represents an inside host on the internet",["The private address of the inside host","The address of the outside server","The router's loopback"],"Inside local is the private address. Inside global is the public address it is translated to.");
+S("SVC","What does ip nat inside source static do?","Maps one inside local address to one inside global address permanently",["Creates a pool of public addresses","Enables PAT","Blocks outside traffic"],"Static NAT is a one-to-one fixed mapping.");
+S("SVC","What is the role of NTP?","To synchronise the clocks of network devices",["To translate addresses","To assign IP addresses","To monitor bandwidth"],"Accurate time makes logs useful.");
+S("SVC","What does an NTP stratum number show?","How far the device is from the authoritative time source; lower is closer",["The number of NTP clients","The accuracy in milliseconds","The NTP version"],"Stratum 0 is the reference clock, stratum 1 is connected to it, and so on.");
+S("SVC","Which command makes a router forward DHCP broadcasts from a client LAN to a DHCP server on another network?","ip helper-address",["ip dhcp pool","ip forward-protocol","ip dhcp relay"],"The command is entered on the interface facing the clients.");
+S("SVC","Which DNS record type maps a hostname to an IPv4 address?","A record",["MX record","CNAME record","PTR record"],"AAAA records map names to IPv6 addresses.");
+S("SVC","Which SNMP version adds authentication and encryption?","SNMPv3",["SNMPv1","SNMPv2c","SNMPv2"],"SNMPv1 and v2c use community strings sent in plain text.");
+S("SVC","In SNMP, what does an agent send to the manager when an event occurs, without being polled?","A trap",["A get request","A set request","A community string"],"A trap is an unsolicited notification.");
+S("SVC","Which syslog severity level is Emergency?","0",["1","3","7"],"Levels run from 0 Emergency to 7 Debugging.");
+O("SVC","Put these syslog severity levels in order from most severe to least severe.",["Emergency","Alert","Critical","Error","Warning","Notification","Informational","Debugging"],"Levels 0 to 7.");
+S("SVC","Which DSCP value is normally used for voice traffic?","EF (46)",["AF11","CS0 (0)","AF41"],"Expedited Forwarding gives low delay and low loss.");
+S("SVC","Which QoS tool drops or re-marks traffic above a rate instead of delaying it?","Policing",["Shaping","Queuing","Classification"],"Shaping buffers the excess instead.");
+S("SVC","Which QoS tool buffers excess traffic to smooth it to a set rate?","Shaping",["Policing","Marking","Dropping"],"Shaping delays packets. Policing drops or re-marks them.");
+S("SVC","Which protocol uses UDP port 69 and is often used to copy IOS images without authentication?","TFTP",["FTP","SCP","HTTP"],"FTP uses TCP ports 20 and 21.");
+T("SVC","Enter the command that generates the RSA keys needed for SSH.",["crypto key generate rsa"],"A hostname and domain name must be set first.");
+X("SVC","Match each protocol to its purpose.",[["NTP","Synchronises clocks"],["SNMP","Monitors and manages devices"],["Syslog","Sends log messages to a server"],["DHCP","Assigns IP settings automatically"]],"Know what each service does.");
+S("SVC","Refer to the exhibit. Which type of NAT is in use?","PAT: several inside hosts share one public address using different ports",["Static NAT","Dynamic NAT with a pool of public addresses","NAT64"],"Both entries share the inside global address 203.0.113.5 with different port numbers.",`R1# show ip nat translations
+Pro Inside global       Inside local        Outside local     Outside global
+tcp 203.0.113.5:1025    192.168.1.10:1025   198.51.100.9:80   198.51.100.9:80
+tcp 203.0.113.5:1026    192.168.1.11:1026   198.51.100.9:80   198.51.100.9:80`);
+/* Security Fundamentals */
+S("SC","Which term describes a weakness in a system that could be used by an attacker?","Vulnerability",["Threat","Exploit","Mitigation"],"A threat uses a vulnerability. An exploit is the method used.");
+S("SC","Which attack targets a particular person with a convincing fake email?","Spear phishing",["DDoS","Man-in-the-middle","Port scanning"],"Phishing sent to everyone is generic. Spear phishing is targeted.");
+S("SC","Which number range is used for standard numbered ACLs?","1 to 99",["100 to 199","200 to 299","1 to 10"],"Extended numbered ACLs use 100 to 199.");
+S("SC","Where should a standard ACL normally be placed?","Close to the destination",["Close to the source","On the console line only","On a loopback"],"Standard ACLs match only the source address, so they go near the destination.");
+S("SC","Where should an extended ACL normally be placed?","Close to the source",["Close to the destination","Only on VTY lines","In the core only"],"Extended ACLs are specific, so they can block traffic early.");
+S("SC","What is at the end of every ACL?","An implicit deny any",["An implicit permit any","A log entry","A remark"],"Traffic that matches no rule is dropped.");
+S("SC","Which wildcard mask matches only the single host 192.168.1.10?","0.0.0.0",["255.255.255.255","0.0.0.255","255.0.0.0"],"A 0 bit means the bit must match.");
+S("SC","Which wildcard mask matches every address in 192.168.1.0/24?","0.0.0.255",["255.255.255.0","0.0.0.0","0.0.255.255"],"The wildcard mask is the inverse of the subnet mask.");
+S("SC","Which port security violation mode puts the port into the err-disabled state?","shutdown",["protect","restrict","disable"],"Shutdown is the default violation mode.");
+S("SC","Which switch feature stops rogue DHCP servers by accepting DHCP offers only on trusted ports?","DHCP snooping",["Port security","Dynamic ARP Inspection","BPDU guard"],"Only trusted ports can send DHCP server messages.");
+S("SC","Which feature uses the DHCP snooping table to stop ARP spoofing?","Dynamic ARP Inspection",["Port security","PortFast","VTP"],"DAI checks ARP messages against the binding table.");
+S("SC","Which AAA protocol encrypts the whole packet body and separates authentication from authorisation?","TACACS+",["RADIUS","LDAP","NTP"],"RADIUS only encrypts the password.");
+S("SC","Which AAA protocol is an open standard that uses UDP?","RADIUS",["TACACS+","SSH","Kerberos only"],"TACACS+ is Cisco proprietary and uses TCP.");
+S("SC","Which wireless security protocol uses AES-CCMP and is the long-standing standard for personal and enterprise networks?","WPA2",["WEP","Open authentication","WPA with TKIP only"],"WPA3 adds SAE for stronger personal-mode protection.");
+S("SC","What is the main purpose of a site-to-site VPN?","To connect two networks securely across an untrusted network such as the internet",["To give one user remote access","To filter web content","To assign VLANs"],"IPsec is commonly used for site-to-site VPNs.");
+T("SC","Enter the command that creates a standard named ACL called STAFF.",["ip access-list standard staff"],"Names are case sensitive on a router, but the keyword part is what is tested here.");
+S("SC","What does multi-factor authentication require?","Two or more different kinds of proof of identity",["A longer password only","A password that changes hourly","A hidden username"],"For example, a password plus a code from a phone.");
+S("SC","Refer to the exhibit. Host 192.168.10.5 pings 8.8.8.8 and ACL 101 is applied inbound on its gateway interface. What happens?","The ping is dropped by the implicit deny",["The ping is permitted because the source is in the subnet","The ping is permitted because ICMP is not mentioned","The router resets the connection"],"The ACL permits only TCP 80 and 443. ICMP matches no rule so the implicit deny any applies.",`access-list 101 permit tcp 192.168.10.0 0.0.0.255 any eq 80
+access-list 101 permit tcp 192.168.10.0 0.0.0.255 any eq 443
+!
+interface GigabitEthernet0/0
+ ip access-group 101 in`);
+/* Automation and Programmability */
+S("AU","What is a main reason to automate network configuration?","Fewer manual errors and faster, consistent changes",["Lower cable costs","It removes the need for security","It increases link bandwidth"],"Automation brings consistency, speed and repeatability.");
+S("AU","In SDN, which plane makes forwarding decisions such as building the routing table?","Control plane",["Data plane","Management plane","Physical plane"],"The control plane decides. The data plane forwards.");
+S("AU","Which plane forwards user traffic using the decisions of the control plane?","Data plane",["Control plane","Management plane","Application plane"],"The data plane moves frames and packets.");
+S("AU","What does a controller's northbound API do?","It lets applications talk to the controller",["It talks to the network devices","It carries user data","It manages cabling"],"Southbound APIs face the devices.");
+S("AU","Which of these is a southbound protocol or interface?","NETCONF",["A REST call from an app","A web browser","A mobile app"],"Southbound protocols such as NETCONF, OpenFlow and RESTCONF are used between the controller and devices.");
+S("AU","Which HTTP method normally retrieves data in a REST API?","GET",["POST","PUT","DELETE"],"GET reads. POST creates. PUT updates. DELETE removes.");
+X("AU","Match each HTTP method to its CRUD action.",[["POST","Create"],["GET","Read"],["PUT","Update"],["DELETE","Delete"]],"POST creates, GET reads, PUT or PATCH updates, DELETE deletes.");
+S("AU","Refer to the exhibit. What is the value of the key name?","GigabitEthernet0/1",["true","10.0.0.1","An object"],"The key name holds the string GigabitEthernet0/1.",`{
+  "interface": {
+    "name": "GigabitEthernet0/1",
+    "enabled": true,
+    "ipv4": { "address": "10.0.0.1", "mask": "255.255.255.0" }
+  }
+}`);
+S("AU","Refer to the exhibit. How many key-value pairs sit directly inside the interface object?","3",["2","4","5"],"name, enabled and ipv4. The address and mask belong to the nested ipv4 object.",`{
+  "interface": {
+    "name": "GigabitEthernet0/1",
+    "enabled": true,
+    "ipv4": { "address": "10.0.0.1", "mask": "255.255.255.0" }
+  }
+}`);
+S("AU","Which data format uses indentation and is commonly used for Ansible playbooks?","YAML",["JSON","XML","CSV"],"YAML is human-friendly and uses indentation instead of braces.");
+S("AU","Which configuration management tool is agentless and uses SSH to push configuration?","Ansible",["Puppet","Chef","SNMP"],"Puppet and Chef normally use agents that pull from a server.");
+S("AU","What is the main idea of intent-based networking?","The administrator states the desired outcome and the system works out and verifies the configuration",["Every device is configured by hand","Traffic is never filtered","Only IPv6 is used"],"Intent is translated into policy and checked by assurance.");
+S("AU","Which Cisco platform is a controller for campus automation and assurance?","Cisco DNA Center (Catalyst Center)",["Cisco Packet Tracer","A console cable","Cisco IOS XE alone"],"It is a controller-based management platform.");
+S("AU","In a spine-leaf fabric, what is the underlay?","The physical network and routing that provides IP reachability",["The virtual tunnels carrying tenant traffic","The user applications","The management VLAN"],"The overlay runs on top of the underlay.");
+M("AU","Which TWO describe REST APIs?",["Requests are stateless","They use standard HTTP methods"],["They can only be used from the CLI","They require a hardware token"],"REST is built on HTTP and each request stands alone.");
+S("AU","Which tools are agent-based and typically pull configuration from a master server?","Puppet and Chef",["Ansible","Postman","Wireshark"],"Ansible is agentless and pushes changes.");
+/* ---- more exam-style question types ---- */
+X("MOD","Match each layer to its PDU.",[["Transport layer (TCP)","Segment"],["Network layer","Packet"],["Data Link layer","Frame"],["Physical layer","Bits"]],"Data, segment, packet, frame, bits.");
+O("MOD","Put these encapsulation steps in order as data leaves a host.",["Application data is created","The transport layer adds a header to make a segment","The network layer adds an IP header to make a packet","The data link layer adds a header and trailer to make a frame","The frame is sent as bits"],"Each layer wraps the data from the layer above.");
+X("IP4","Match each address to its type.",[["169.254.12.9","APIPA (link-local)"],["127.0.0.1","Loopback"],["224.0.0.5","Multicast"],["172.20.1.1","Private (RFC 1918)"]],"169.254/16 is link-local, 127/8 is loopback, 224/4 is multicast and 172.16 to 172.31 is private.");
+M("IP4","Which TWO addresses are private IPv4 addresses?",["172.20.5.5","192.168.200.1"],["172.32.0.1","192.169.0.1"],"172.16.0.0 to 172.31.255.255 and 192.168.0.0/16 are private.");
+O("NF","Put the layers of the three-tier campus design in order from the end devices upward.",["Access","Distribution","Core"],"End devices connect at the access layer.");
+X("NF","Match each wireless term to its meaning.",[["SSID","The name of the wireless network"],["Channel","A slice of the radio band used by an AP"],["Access point","Connects wireless clients to the wired network"]],"These three terms appear in every WLAN.");
+T("ETH","Enter the command that displays the switch MAC address table.",["show mac address-table","sh mac address-table","show mac-address-table","sh mac-address-table","sh mac address-table dynamic"],"The table shows learned MAC addresses with their VLAN and port.");
+M("NA","Which TWO statements about trunk ports are true?",["They carry traffic for multiple VLANs","802.1Q adds a 4-byte tag to frames"],["They carry only VLAN 1","They never use tagging"],"Trunks tag frames so the other switch knows the VLAN.");
+X("NA","Match each protocol to its description.",[["LACP","Open-standard EtherChannel negotiation"],["PAgP","Cisco-proprietary EtherChannel negotiation"],["CDP","Cisco-proprietary neighbour discovery"],["LLDP","Open-standard neighbour discovery"]],"LACP and LLDP are open standards. PAgP and CDP are Cisco proprietary.");
+T("IOS","Enter the command that shows the IPv4 routing table.",["show ip route","sh ip route","sh ip ro"],"The table lists codes such as C, L, S and O.");
+O("RT","Put these route-selection checks in order when a router chooses a route.",["Find all routes that match the destination","Choose the longest prefix match","If routes of the same prefix length come from different sources, choose the lowest administrative distance","If they come from the same source, choose the lowest metric"],"Prefix length comes first, then administrative distance, then metric.");
+X("RT","Match each administrative distance to its route source.",[["0","Directly connected"],["1","Static route"],["110","OSPF"],["120","RIP"]],"Lower is more trusted.");
+M("RT","Which TWO commands are part of configuring OSPFv2 on a router?",["router ospf 1","network 10.0.0.0 0.255.255.255 area 0"],["ip ospf 10.0.0.0","ospf enable"],"Start the process with router ospf, then advertise networks with network and a wildcard mask.");
+X("SC","Match each security term to its meaning.",[["Vulnerability","A weakness that can be exploited"],["Threat","A potential danger"],["Exploit","A method that takes advantage of a weakness"],["Mitigation","A step that reduces risk"]],"These four terms are used together.");
+O("SC","Put the steps to enable SSH access in a sensible order.",["Set a hostname and domain name","Generate RSA keys","Create a local user","Configure the VTY lines to use SSH and local login"],"Keys need a hostname and domain name first.");
+M("SC","Which TWO features help protect a switch from rogue devices?",["Port security","DHCP snooping"],["Enabling Telnet","Putting every port in VLAN 1"],"Port security limits MAC addresses. DHCP snooping blocks rogue DHCP servers.");
+X("SVC","Match each NAT address term to its meaning.",[["Inside local","Private address of an inside host"],["Inside global","Public address of an inside host"],["Outside global","Public address of an outside host"]],"Local is the view from inside. Global is the view from outside.");
+M("SVC","Which TWO protocols are used to monitor or log network devices?",["SNMP","Syslog"],["DHCP","TFTP"],"SNMP polls and sends traps. Syslog collects log messages.");
+M("AU","Which TWO are configuration management tools?",["Ansible","Puppet"],["Wireshark","Postman"],"Postman tests APIs and Wireshark captures packets.");
+T("AU","Enter the HTTP method used to create a new resource in a REST API.",["post","http post"],"POST creates, GET reads, PUT updates and DELETE deletes.");
+/* ---------- end of bank ---------- */
 /* parametrised generators: new numbers every attempt */
 function mk(d,q,ok,cands,why,sup){const seen=new Set([String(ok)]),w=[];shuf(cands).forEach(c=>{c=String(c);if(!seen.has(c)&&w.length<3){seen.add(c);w.push(c)}});
   return{d,q,type:"single",opts:[{t:String(ok),ok:1}].concat(w.map(t=>({t,ok:0}))),why,sup:sup||""}}
@@ -1874,100 +2258,403 @@ const GENS=[
  ["MOD",()=>{const p=pick(PDUS);return mk("MOD",`What is the PDU at the ${p[0]} called?`,p[1],PDUS.map(x=>x[1]),`${p[0]}: ${p[1]}.`)}],
  ["MOD",()=>{const l=pick(LAYERS);return mk("MOD",`Which OSI layer ${l[0]}?`,"Layer "+l[1],[1,2,3,4,5,6,7].map(x=>"Layer "+x),`Layer ${l[1]} is the ${LNAME[l[1]]} layer.`)}]
 ];
-function asBuild(cfg){
-  const doms=cfg.domains,pool=SB.filter(q=>doms.includes(q.d)),gens=GENS.filter(g=>doms.includes(g[0]));
-  let gT=gens.length?Math.round(cfg.count*.35):0;if(!pool.length)gT=cfg.count;else if(gens.length&&pool.length<cfg.count-gT)gT=Math.min(cfg.count,cfg.count-pool.length);
-  const out=[],seen=new Set(),by={};doms.forEach(d=>{by[d]=shuf(pool.filter(q=>q.d===d))});
-  let need=cfg.count-gT,guard=0;
-  while(need>0&&guard++<3000){let took=false;shuf(doms).forEach(d=>{if(need<=0)return;const q=by[d]&&by[d].pop();if(q){out.push(Object.assign({},q));need--;took=true}});if(!took)break}
-  const gl=shuf(gens);let gi=0,tries=0;
-  while(out.length<cfg.count&&gens.length&&tries++<600){const g=gl[gi++%gl.length],q=g[1]();if(seen.has(q.q))continue;seen.add(q.q);out.push(q)}
-  const qs=shuf(out);qs.forEach(q=>{q.o=shuf(q.opts);q.sel=new Set();q.flag=false;q.checked=false});return qs}
+/* ---------- CCNA practice paper ---------- */
+const DOM=[["1","Network Fundamentals",20],["2","Network Access",20],["3","IP Connectivity",25],["4","IP Services",10],["5","Security Fundamentals",15],["6","Automation and Programmability",10]];
+const DOMW={};DOM.forEach(d=>{DOMW[d[0]]=d[2]});
+const DOMN={};DOM.forEach(d=>{DOMN[d[0]]=d[1]});
+const MAP={NF:["1","Network fundamentals"],MOD:["1","Models and protocols"],PHY:["1","Media and devices"],IP4:["1","IPv4 addressing"],IP6:["1","IPv6"],TRA:["1","TCP and UDP"],SUB:["1","Binary and subnetting"],ETH:["2","Ethernet and switching"],NA:["2","VLANs, STP, EtherChannel and WLAN"],IOS:["3","Verification and IOS basics"],RT:["3","Routing"],SVC:["4","IP services"],SEC:["5","Security basics"],SC:["5","ACLs, Layer 2 security and AAA"],AU:["6","Automation and programmability"]};
+/* extra generators for the exam areas */
+const SYSLOG=["Emergency","Alert","Critical","Error","Warning","Notification","Informational","Debugging"];
+const ADS=[["a directly connected network",0],["a static route",1],["EIGRP (internal)",90],["OSPF",110],["RIP",120]];
+GENS.push(
+ ["RT",()=>{const d=ip2n("10."+rnd(1,200)+"."+rnd(1,200)+"."+rnd(1,250)),a=n2ip(d).split("."),cand=[[8,a[0]+".0.0.0"],[16,a[0]+"."+a[1]+".0.0"],[24,a[0]+"."+a[1]+"."+a[2]+".0"]],use=shuf(cand.slice(0,2)).concat([cand[2]]).filter(()=>true);
+   const inc=cand.filter((c,i)=>i===0||Math.random()<.6),dec=[[24,a[0]+"."+a[1]+"."+((+a[2]+1)%256)+".0"],[16,a[0]+"."+((+a[1]+1)%256)+".0.0"]].slice(0,rnd(1,2)),all=shuf(inc.concat(dec)),best=inc.reduce((x,y)=>y[0]>x[0]?y:x);
+   const ex="R1# show ip route\n"+all.map(r=>{const p=pick(["O","O","S","D"]),ad=p==="O"?110:p==="S"?1:90;return p+"    "+r[1]+"/"+r[0]+" ["+ad+"/"+rnd(2,40)+"] via 192.168.1."+rnd(2,9)}).join("\n");
+   return Object.assign(mk("RT","Refer to the exhibit. Which route does R1 use to forward a packet to "+n2ip(d)+"?",best[1]+"/"+best[0],all.map(r=>r[1]+"/"+r[0]),"The longest prefix that matches "+n2ip(d)+" is "+best[1]+"/"+best[0]+".",""),{ex})}],
+ ["RT",()=>{const pair=shuf(ADS).slice(0,2),best=pair[0][1]<pair[1][1]?pair[0]:pair[1];return mk("RT","A router learns the same prefix, with the same prefix length, from "+pair[0][0]+" and "+pair[1][0]+". Which source is used?",best[0],[pair[0][0],pair[1][0]].filter(x=>x!==best[0]).concat(["Both, sharing the load","Neither"]),"Lower administrative distance wins: "+pair.map(p=>p[0]+" = "+p[1]).join(", ")+".")}],
+ ["RT",()=>{const bw=pick([1,2,4,5,10,20,25,50,100]),c=Math.max(1,Math.floor(100/bw));return mk("RT","The OSPF reference bandwidth is the default 100 Mbps. What is the cost of a "+bw+" Mbps interface?",c,[c*2,Math.max(1,Math.floor(c/2)),c+10,1,100,64].filter(x=>x!==c),"Cost = 100 Mbps divided by "+bw+" Mbps = "+c+".")}],
+ ["SC",()=>{const c=pick([24,25,26,27,28,29]),ip=randIp(),r=calc(ip2n(ip),c),w=n2ip((~r.mask)>>>0);return mk("SC","Which wildcard mask matches every host in "+n2ip(r.net)+"/"+c+"?",w,[n2ip(r.mask),n2ip((~maskOf(c+1))>>>0),n2ip((~maskOf(c-1))>>>0),"0.0.0.0"],"The wildcard mask is the inverse of the subnet mask: "+n2ip(r.mask)+" becomes "+w+".")}],
+ ["SVC",()=>{const k=rnd(0,7);return Math.random()<.5?mk("SVC","Which syslog severity level is number "+k+"?",SYSLOG[k],SYSLOG,"Level "+k+" is "+SYSLOG[k]+". Lower numbers are more severe."):mk("SVC","What is the number of the syslog level "+SYSLOG[k]+"?",k,[0,1,2,3,4,5,6,7],SYSLOG[k]+" is level "+k+".")}]
+);
+
 (function(){
   const rt=$("#as-root");if(!rt)return;
   let AS=null,hist=[];try{hist=JSON.parse(store.get("sn-hist")||"[]")}catch(e){hist=[]}
-  const fmt=t=>{t=Math.max(0,t);return Math.floor(t/60)+":"+String(t%60).padStart(2,"0")};
-  const okSet=q=>q.o.map((o,k)=>o.ok?k:-1).filter(k=>k>=0);
-  const isRight=q=>{const a=okSet(q);return a.length===q.sel.size&&a.every(k=>q.sel.has(k))};
-  function setup(msg){
-    const last=hist.slice(-5).reverse();
-    rt.innerHTML=`<div class="play"><h3>Set up your attempt</h3>
-     <p>Every attempt is built fresh. Questions are drawn at random from a bank of about 100 theory questions, the answers are shuffled, and the subnetting questions use new numbers each time.</p>
-     <div class="row"><label for="as-n">Number of questions</label><select id="as-n">${[10,20,30,40].map(n=>`<option${n===20?" selected":""}>${n}</option>`).join("")}</select></div>
-     <div class="row"><label for="as-mode">Mode</label><select id="as-mode"><option value="exam">Exam mode: see all results at the end</option><option value="learn">Practice mode: feedback after each question</option></select></div>
-     <div class="row"><label for="as-time">Timer</label><select id="as-time"><option value="0">No timer</option><option value="1">Standard: 1 minute per question</option><option value="1.25">Extra time: 25% more</option><option value="1.5">Extra time: 50% more</option><option value="2">Double time</option></select></div>
-     <fieldset><legend>Topics</legend>${Object.keys(AD).map(k=>`<label class="lab"><input type="checkbox" class="asd" value="${k}"${msg&&msg.domains?(msg.domains.includes(k)?" checked":""):" checked"}> ${AD[k]}</label>`).join("")}
-     <div class="row"><button class="btn alt tiny" type="button" data-as="all">Select all</button><button class="btn alt tiny" type="button" data-as="none">Select none</button></div></fieldset>
-     <div class="row"><label class="lab" for="as-help"><input type="checkbox" id="as-help"> Show helper strips (place values, mask ladder, number line) on subnetting questions</label></div>
-     <div class="row"><button class="btn" type="button" data-as="start">Start the assessment</button></div>
-     <p class="fb" id="as-msg" aria-live="polite"></p>
-     ${last.length?`<p class="gl">Your recent attempts on this device</p><ul>${last.map(h=>`<li>${new Date(h.t).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}: ${h.s} of ${h.n} (${h.p}%)</li>`).join("")}</ul>`:""}
-     <p><small>This is an independent study aid for the theory side of CCNA 1 (Introduction to Networks). The 80% target is a revision goal, not an official Cisco pass mark.</small></p></div>`;
+  const fmt=t=>{t=Math.max(0,Math.round(t));const h=Math.floor(t/3600),m=Math.floor(t%3600/60);return(h?h+":"+String(m).padStart(2,"0"):m)+":"+String(t%60).padStart(2,"0")};
+  const norm=x=>String(x).toLowerCase().replace(/\s+/g," ").trim();
+  const TYN={single:"Single choice",multi:"Multiple answer",order:"Ordering (drag and drop)",match:"Matching (drag and drop)",text:"Command entry",exh:"Exhibit questions"};
+  function prep(q){
+    const r={d:q.d,type:q.type,q:q.q,why:q.why,ex:q.ex||"",sup:q.sup||"",flag:false,checked:false,secs:0},m=MAP[q.d]||["1","General"];r.dom=m[0];r.topic=m[1];
+    if(q.type==="single"||q.type==="multi"){r.o=shuf(q.opts);r.sel=new Set()}
+    else if(q.type==="order"){r.items=q.items.slice();let o;do{o=shuf(q.items.map((_,i)=>i))}while(o.every((v,i)=>v===i));r.ord=o;r.touched=false}
+    else if(q.type==="match"){r.pairs=q.pairs;r.defs=shuf(q.pairs.map(p=>p[1]).concat(q.extra||[]));r.mt=q.pairs.map(()=>-1)}
+    else{r.acc=q.acc;r.txt=""}
+    return r}
+  const answered=q=>q.type==="order"?q.touched:q.type==="match"?q.mt.every(v=>v>=0):q.type==="text"?q.txt.trim()!=="":q.sel.size>0;
+  function isRight(q){
+    if(q.type==="single"||q.type==="multi"){const ok=q.o.map((o,k)=>o.ok?k:-1).filter(k=>k>=0);return ok.length===q.sel.size&&ok.every(k=>q.sel.has(k))}
+    if(q.type==="order")return q.ord.every((v,i)=>v===i);
+    if(q.type==="match")return q.mt.every((v,k)=>v>=0&&q.defs[v]===q.pairs[k][1]);
+    return q.acc.some(a=>norm(a)===norm(q.txt))}
+  const yours=q=>q.type==="single"||q.type==="multi"?[...q.sel].map(k=>q.o[k].t).join("; ")||"no answer":q.type==="order"?(q.touched?q.ord.map(i=>q.items[i]).join(" → "):"no answer"):q.type==="match"?q.pairs.map((p,k)=>p[0]+" → "+(q.mt[k]>=0?q.defs[q.mt[k]]:"?")).join("; "):q.txt||"no answer";
+  const right=q=>q.type==="single"||q.type==="multi"?q.o.filter(o=>o.ok).map(o=>o.t).join("; "):q.type==="order"?q.items.join(" → "):q.type==="match"?q.pairs.map(p=>p[0]+" → "+p[1]).join("; "):q.acc[0];
+  function build(cfg){
+    const doms=cfg.domains,wsum=doms.reduce((a,d)=>a+DOMW[d],0),cnt={};let left=cfg.count;
+    doms.forEach(d=>{cnt[d]=Math.floor(cfg.count*DOMW[d]/wsum);left-=cnt[d]});
+    const fr=doms.map(d=>[d,cfg.count*DOMW[d]/wsum-Math.floor(cfg.count*DOMW[d]/wsum)]).sort((a,b)=>b[1]-a[1]);let i=0;while(left>0){cnt[fr[i%fr.length][0]]++;left--;i++}
+    const out=[];
+    doms.forEach(d=>{
+      const codes=Object.keys(MAP).filter(c=>MAP[c][0]===d),pool=shuf(SB.filter(q=>codes.includes(q.d))),gens=GENS.filter(g=>codes.includes(g[0])),want=cnt[d];
+      let gT=gens.length?Math.round(want*.3):0;if(pool.length<want-gT)gT=Math.min(want,want-pool.length);
+      const need=want-gT,spec=pool.filter(q=>q.type!=="single"),sing=pool.filter(q=>q.type==="single"),ts=Math.min(spec.length,Math.round(need*.3)),chosen=spec.slice(0,ts).concat(sing.slice(0,need-ts));
+      if(chosen.length<need)spec.slice(ts).concat(sing.slice(need-ts)).slice(0,need-chosen.length).forEach(q=>chosen.push(q));
+      const sub=chosen.map(prep),seen=new Set(),gl=shuf(gens);let gi=0,t=0;
+      while(sub.length<want&&gens.length&&t++<600){const g=gl[gi++%gl.length],q=g[1]();if(seen.has(q.q))continue;seen.add(q.q);sub.push(prep(q))}
+      sub.forEach(x=>out.push(x))});
+    return shuf(out)}
+  function setup(){
+    const last=hist.slice(-5).reverse(),best=hist.length?Math.max(...hist.map(h=>h.p)):null;
+    rt.innerHTML=`<div class="play"><h3>Set up your practice paper</h3>
+     <p>This paper copies the <strong>structure</strong> of the CCNA exam: six areas in the published proportions, mixed question types (single choice, multiple answer, ordering, matching, command entry and exhibits), a countdown timer, flags and a review screen. The questions are written for practice. They are not real exam questions.</p>
+     <div class="bpbar" aria-hidden="true">${DOM.map((d,k)=>`<div class="c${k%6}" style="flex:${d[2]} 1 0" data-tip="${esa(d[1]+"::"+d[2]+"% of a full paper.")}"><strong>${d[2]}%</strong>${esc(d[1].split(" ")[0]+" "+(d[1].split(" ")[1]||""))}</div>`).join("")}</div>
+     <div class="row"><label for="as-size">Paper</label><select id="as-size"><option value="100">Full paper: 100 questions, 120 minutes</option><option value="50">Half paper: 50 questions, 60 minutes</option><option value="20" selected>Quick check: 20 questions, 24 minutes</option><option value="custom">Custom number of questions</option></select><label class="sr" for="as-n">Custom number of questions</label><input type="number" id="as-n" min="5" max="100" value="30" style="width:5.5rem" hidden></div>
+     <div class="row"><label for="as-time">Timer</label><select id="as-time"><option value="1">Standard timing (72 seconds per question)</option><option value="1.25">Extra time: 25% more</option><option value="1.5">Extra time: 50% more</option><option value="2">Double time</option><option value="0">No timer</option></select></div>
+     <div class="row"><label for="as-nav">Navigation</label><select id="as-nav"><option value="open">Open: move back and forward, with a review screen</option><option value="fwd">Forward only: practise exam discipline</option></select></div>
+     <div class="row"><label for="as-mode">Feedback</label><select id="as-mode"><option value="exam">At the end only</option><option value="learn">After each question (open navigation)</option></select></div>
+     <fieldset><legend>Exam areas (leave all ticked for the real mix)</legend>${DOM.map(d=>`<label class="lab"><input type="checkbox" class="asd" value="${d[0]}" checked> ${d[0]}. ${d[1]} (${d[2]}%)</label>`).join("")}</fieldset>
+     <div class="row"><label class="lab" for="as-help"><input type="checkbox" id="as-help"> Show helper strips on subnetting questions</label></div>
+     <div class="row"><button class="btn" type="button" data-as="start">Start the paper</button></div><p class="fb" id="as-msg" aria-live="polite"></p>
+     ${hist.length?`<p class="gl">Your attempts on this device${best!==null?" (best "+best+"%)":""}</p><ul>${last.map(h=>`<li>${new Date(h.t).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}: ${h.s} of ${h.n} (${h.p}%)</li>`).join("")}</ul>`:""}
+     <p><small>Independent study aid. Cisco does not publish the pass mark. A score of 85% or more on practice papers is a revision target, not an official result.</small></p></div>`;
+    $("#as-size").onchange=e=>{$("#as-n").hidden=e.target.value!=="custom"};
   }
   function start(cfg){
-    const qs=asBuild(cfg);if(!qs.length){$("#as-msg").className="fb no";$("#as-msg").textContent="No questions are available for those topics.";return}
-    AS={cfg,qs,i:0,mode:cfg.mode,help:cfg.help,left:cfg.factor>0?Math.round(qs.length*60*cfg.factor):null,paused:false,confirm:false,t0:Date.now(),tid:null};
+    const qs=build(cfg);if(!qs.length){$("#as-msg").className="fb no";$("#as-msg").textContent="No questions are available for those areas.";return}
+    AS={cfg,qs,i:0,mode:cfg.nav==="fwd"?"exam":cfg.mode,fwd:cfg.nav==="fwd",help:cfg.help,left:cfg.factor>0?Math.round(qs.length*72*cfg.factor):null,paused:false,confirm:false,review:false,t0:Date.now(),mark:Date.now(),tid:null};
     if(AS.left!=null)AS.tid=setInterval(tick,1000);draw(true)}
-  function tick(){if(!AS||AS.paused||AS.left==null)return;AS.left--;const e=$("#as-tm");if(e)e.textContent=fmt(AS.left);if(AS.left===60)toast("One minute left");if(AS.left<=0)finish(true)}
-  function top(){const n=AS.qs.length,ans=AS.qs.filter(x=>x.sel.size).length;const a=$("#as-ans");if(a)a.textContent="Answered "+ans+" of "+n;const b=$("#as-bar");if(b)b.style.width=(ans/n*100)+"%";
-    $$(".asn",rt).forEach((bt,k)=>{const x=AS.qs[k];bt.classList.toggle("ans",x.sel.size>0);bt.classList.toggle("flg",x.flag);bt.setAttribute("aria-label","Question "+(k+1)+(x.sel.size?", answered":", not answered")+(x.flag?", flagged":""))})}
+  function commit(){if(!AS||AS.paused||AS.review)return;const q=AS.qs[AS.i];q.secs+=(Date.now()-AS.mark)/1000;AS.mark=Date.now()}
+  function tick(){if(!AS||AS.paused||AS.left==null)return;AS.left--;const e=$("#as-tm");if(e)e.textContent=fmt(AS.left);if(AS.left===300)toast("Five minutes left");if(AS.left===60)toast("One minute left");if(AS.left<=0)finish(true)}
+  function top(){const n=AS.qs.length,ans=AS.qs.filter(answered).length;const a=$("#as-ans");if(a)a.textContent="Answered "+ans+" of "+n;const b=$("#as-bar");if(b)b.style.width=(ans/n*100)+"%";
+    $$(".asn",rt).forEach((bt,k)=>{const x=AS.qs[k];bt.classList.toggle("ans",answered(x));bt.classList.toggle("flg",x.flag);bt.setAttribute("aria-label","Question "+(k+1)+(answered(x)?", answered":", not answered")+(x.flag?", flagged":""))})}
+  function body(q){
+    if(q.type==="single"||q.type==="multi"){const multi=q.type==="multi",need=q.o.filter(o=>o.ok).length;
+      return`<p class="gl">${multi?"Choose "+need+" answers":"Choose one answer"}</p>`+q.o.map((o,k)=>`<label class="aso${q.checked?(o.ok?" good":q.sel.has(k)?" bad":""):""}"><input type="${multi?"checkbox":"radio"}" name="asq" value="${k}"${q.sel.has(k)?" checked":""}${q.checked?" disabled":""}> <span>${esc(o.t)}${q.checked&&o.ok?" (correct)":q.checked&&q.sel.has(k)?" (your answer)":""}</span></label>`).join("")}
+    if(q.type==="order")return`<p class="gl">Put these in the correct order. Use the buttons to move each item (this replaces dragging).</p><ol class="ordl">${q.ord.map((idx,pos)=>`<li><span class="mono">${pos+1}.</span><span class="grow">${esc(q.items[idx])}</span><button class="btn alt tiny" type="button" data-ord="up" data-pos="${pos}"${pos===0||q.checked?" disabled":""} aria-label="Move ${esc(q.items[idx])} up">Move up</button><button class="btn alt tiny" type="button" data-ord="down" data-pos="${pos}"${pos===q.ord.length-1||q.checked?" disabled":""} aria-label="Move ${esc(q.items[idx])} down">Move down</button></li>`).join("")}</ol>`;
+    if(q.type==="match")return`<p class="gl">Match each item with its description. Use the drop-down lists (this replaces dragging).</p>`+q.pairs.map((p,k)=>`<div class="mtr"><span class="grow">${esc(p[0])}</span><label class="sr" for="mt-${k}">Match for ${esc(p[0])}</label><select id="mt-${k}" data-mt="${k}"${q.checked?" disabled":""}><option value="-1">Choose&hellip;</option>${q.defs.map((d,j)=>`<option value="${j}"${q.mt[k]===j?" selected":""}>${esc(d)}</option>`).join("")}</select></div>`).join("");
+    return`<p class="gl">Type your answer exactly as you would enter it on the device.</p><label class="sr" for="as-txt">Your answer</label><input type="text" id="as-txt" size="44" value="${esc(q.txt)}" autocomplete="off" autocapitalize="off" spellcheck="false"${q.checked?" disabled":""}>`}
   function draw(focus){
-    const q=AS.qs[AS.i],n=AS.qs.length,multi=q.type==="multi",need=q.o.filter(o=>o.ok).length,learn=AS.mode==="learn",last=AS.i===n-1;
-    const unans=AS.qs.filter(x=>!x.sel.size).length;
+    if(AS.review){reviewScreen();return}
+    const q=AS.qs[AS.i],n=AS.qs.length,learn=AS.mode==="learn"&&!AS.fwd,last=AS.i===n-1;
+    const unans=AS.qs.filter(x=>!answered(x)).length;
     rt.innerHTML=`<div class="as-top"><div class="row"><span class="mono">Question ${AS.i+1} of ${n}</span><span class="mono" id="as-ans"></span>${AS.left!=null?`<span class="mono" id="as-tm" role="timer" aria-label="Time left">${fmt(AS.left)}</span><button class="btn alt tiny" type="button" data-as="pause">${AS.paused?"Resume timer":"Pause timer"}</button>`:""}</div><div class="fbar" aria-hidden="true"><i id="as-bar" style="width:0;background:var(--accent)"></i></div></div>
-     <div class="asnav" role="group" aria-label="Question navigator">${AS.qs.map((x,k)=>`<button type="button" class="asn${k===AS.i?" cur":""}" data-go="${k}"${k===AS.i?' aria-current="true"':""}>${k+1}</button>`).join("")}</div>
-     <fieldset class="asq" id="asq" tabindex="-1"><legend>${esc(q.q)}</legend><p class="gl">${multi?"Choose "+need+" answers":"Choose one answer"}</p>
-      ${q.o.map((o,k)=>`<label class="aso${q.checked?(o.ok?" good":q.sel.has(k)?" bad":""):""}"><input type="${multi?"checkbox":"radio"}" name="asq" value="${k}"${q.sel.has(k)?" checked":""}${q.checked?" disabled":""}> <span>${esc(o.t)}${q.checked&&o.ok?" (correct)":q.checked&&q.sel.has(k)?" (your answer)":""}</span></label>`).join("")}</fieldset>
+     ${AS.fwd?"":`<div class="asnav" role="group" aria-label="Question navigator">${AS.qs.map((x,k)=>`<button type="button" class="asn${k===AS.i?" cur":""}" data-go="${k}"${k===AS.i?' aria-current="true"':""}>${k+1}</button>`).join("")}</div>`}
+     ${q.ex?`<p class="gl">Exhibit</p><pre class="exh" tabindex="0" aria-label="Exhibit">${esc(q.ex)}</pre>`:""}
+     <fieldset class="asq" id="asq" tabindex="-1"><legend>${esc(q.q)}</legend>${body(q)}</fieldset>
      ${AS.help&&q.sup?`<div class="supp">${q.sup}</div>`:""}
      <div class="fb${q.checked?(isRight(q)?" ok":" no"):""}" id="as-fb" aria-live="polite">${q.checked?(isRight(q)?"Correct. ":"Not quite. ")+esc(q.why):""}</div>
-     <div class="row"><button class="btn alt" type="button" data-as="prev"${AS.i===0?" disabled":""}>Back</button>${learn&&!q.checked?'<button class="btn" type="button" data-as="check">Check answer</button>':""}<button class="btn" type="button" data-as="next"${last?" disabled":""}>Next</button>
-       <button class="btn alt" type="button" data-as="flag" aria-pressed="${q.flag}">${q.flag?"Remove flag":"Flag for review"}</button><button class="btn alt" type="button" data-as="say">Listen</button><button class="btn alt" type="button" data-as="finish">Finish and see results</button></div>
-     ${AS.confirm?`<div class="fb info" role="alert">${unans?"You have "+unans+" unanswered question"+(unans>1?"s":"")+". ":""}Submit now?<div class="row"><button class="btn" type="button" data-as="submit">Yes, submit</button><button class="btn alt" type="button" data-as="keep">Keep working</button></div></div>`:""}`;
-    top();if(focus){const f=$("#asq");if(f)f.focus({preventScroll:false})}
-  }
+     <div class="row">${AS.fwd?"":`<button class="btn alt" type="button" data-as="prev"${AS.i===0?" disabled":""}>Back</button>`}${learn&&!q.checked?'<button class="btn" type="button" data-as="check">Check answer</button>':""}<button class="btn" type="button" data-as="next"${last?" disabled":""}>Next</button>
+       ${AS.fwd?"":`<button class="btn alt" type="button" data-as="flag" aria-pressed="${q.flag}">${q.flag?"Remove flag":"Flag for review"}</button>`}<button class="btn alt" type="button" data-as="say">Listen</button>${AS.fwd?'<button class="btn alt" type="button" data-as="finish">End the paper</button>':'<button class="btn alt" type="button" data-as="review">Review screen</button>'}</div>
+     ${AS.confirm?`<div class="fb info" role="alert">${unans?"You have "+unans+" unanswered question"+(unans>1?"s":"")+". ":""}${AS.fwd?"You cannot go back. ":""}Submit now?<div class="row"><button class="btn" type="button" data-as="submit">Yes, submit</button><button class="btn alt" type="button" data-as="keep">Keep working</button></div></div>`:""}`;
+    top();if(focus){const f=$("#asq");if(f)f.focus()}}
+  function reviewScreen(){
+    const n=AS.qs.length,un=AS.qs.filter(x=>!answered(x)).length,fl=AS.qs.filter(x=>x.flag).length;
+    rt.innerHTML=`<div class="play"><h3>Review screen</h3><div class="row">${AS.left!=null?`<span class="mono" id="as-tm" role="timer" aria-label="Time left">${fmt(AS.left)}</span>`:""}<span class="mono">${n-un} answered, ${un} not answered, ${fl} flagged</span></div>
+     <ul class="qlist">${AS.qs.map((x,k)=>`<li><span class="mono">Q${k+1}</span><span class="grow">${esc(x.q.length>90?x.q.slice(0,90)+"…":x.q)}</span><span class="mono">${answered(x)?"Answered":"Not answered"}${x.flag?" &middot; Flagged":""}</span><button class="btn alt tiny" type="button" data-go="${k}">Go to question</button></li>`).join("")}</ul>
+     <div class="row"><button class="btn alt" type="button" data-as="back">Return to the paper</button><button class="btn" type="button" data-as="submit">End the paper and see results</button></div></div>`}
   function finish(auto){
-    if(AS.tid)clearInterval(AS.tid);AS.tid=null;let score=0;const per={};
-    AS.qs.forEach(q=>{const r=isRight(q);if(r)score++;const p=per[q.d]||(per[q.d]={c:0,t:0});p.t++;if(r)p.c++});
-    const n=AS.qs.length,pct=Math.round(score/n*100);AS.res={score,n,pct,per,auto,secs:Math.round((Date.now()-AS.t0)/1000)};
-    hist.push({t:Date.now(),s:score,n,p:pct});hist=hist.slice(-12);store.set("sn-hist",JSON.stringify(hist));if(pct>=80)addScore();AS.rv="all";result()}
+    commit();if(AS.tid)clearInterval(AS.tid);AS.tid=null;let score=0;const per={},top={},ty={};
+    AS.qs.forEach(q=>{const r=isRight(q);if(r)score++;const p=per[q.dom]||(per[q.dom]={c:0,t:0});p.t++;if(r)p.c++;const tp=top[q.topic]||(top[q.topic]={c:0,t:0});tp.t++;if(r)tp.c++;
+      const kinds=[q.type];if(q.ex)kinds.push("exh");kinds.forEach(k=>{const y=ty[k]||(ty[k]={c:0,t:0});y.t++;if(r)y.c++})});
+    const n=AS.qs.length,pct=Math.round(score/n*100);AS.res={score,n,pct,per,top,ty,auto,secs:Math.round((Date.now()-AS.t0)/1000)};
+    hist.push({t:Date.now(),s:score,n,p:pct});hist=hist.slice(-12);store.set("sn-hist",JSON.stringify(hist));if(pct>=80)addScore();AS.rv="all";AS.review=false;result()}
   function result(){
-    const R=AS.res,weak=Object.keys(R.per).filter(d=>R.per[d].c/R.per[d].t<.8);
-    const col=p=>p>=80?"var(--good)":p>=60?"#C98A00":"var(--bad)";
-    const show=AS.qs.map((q,k)=>({q,k})).filter(x=>AS.rv==="bad"?!isRight(x.q):AS.rv==="flag"?x.q.flag:true);
+    const R=AS.res,col=p=>p>=85?"var(--good)":p>=65?"#C98A00":"var(--bad)",tag=p=>p>=85?"strong":p>=65?"getting there":"revise";
+    const weakD=Object.keys(R.per).filter(d=>R.per[d].c/R.per[d].t<.85),weakT=Object.keys(R.top).filter(t=>R.top[t].c/R.top[t].t<.7);
+    const show=AS.qs.map((q,k)=>({q,k})).filter(x=>AS.rv==="bad"?!isRight(x.q):AS.rv==="flag"?x.q.flag:true),avg=Math.round(R.secs/R.n);
+    const slow=AS.qs.map((q,k)=>({k,s:q.secs})).sort((a,b)=>b.s-a.s).slice(0,3).filter(x=>x.s>0);
     rt.innerHTML=`<div class="play"><h3>Your results</h3>${R.auto?'<p class="fb info" style="display:block">Time ran out, so your answers were submitted automatically.</p>':""}
-     <div class="res"><div><small>Score</small><strong>${R.score} of ${R.n}</strong></div><div><small>Percentage</small><strong>${R.pct}%</strong></div><div><small>Time taken</small><strong>${fmt(R.secs)}</strong></div></div>
-     <p class="fb ${R.pct>=80?"ok":"info"}" style="display:block">${R.pct>=80?"You reached the 80% revision target. Well done.":"Below the 80% revision target. Use the review below, then try again with new questions."}</p>
-     <p class="gl">Score by topic</p>${Object.keys(AD).filter(d=>R.per[d]).map(d=>{const p=R.per[d],pc=Math.round(p.c/p.t*100);return`<div class="dr"><span>${AD[d]}</span><div class="fbar" aria-hidden="true"><i style="width:${pc}%;background:${col(pc)}"></i></div><span class="mono">${p.c} of ${p.t} (${pc}%)${pc>=80?" strong":pc>=60?" getting there":" revise"}</span></div>`}).join("")}
-     ${weak.length?`<p>Topics to revise: <strong>${weak.map(d=>AD[d]).join(", ")}</strong>.${weak.includes("SUB")||weak.includes("IP4")?" Steps 2 to 10 of this course cover binary, masks, CIDR and VLSM.":""}</p>`:""}
-     <div class="row"><button class="btn" type="button" data-as="again">New attempt, new questions</button>${weak.length?'<button class="btn alt" type="button" data-as="weak">Practise my weak topics</button>':""}<button class="btn alt" type="button" data-as="setup">Change settings</button></div></div>
+     <div class="res"><div><small>Score</small><strong>${R.score} of ${R.n}</strong></div><div><small>Percentage</small><strong>${R.pct}%</strong></div><div><small>Time taken</small><strong>${fmt(R.secs)}</strong></div><div><small>Average per question</small><strong>${avg} s</strong></div></div>
+     <p class="fb ${R.pct>=85?"ok":"info"}" style="display:block">${R.pct>=85?"You reached the 85% revision target. Aim to do this consistently across several papers.":"Below the 85% revision target. Use the breakdown to choose what to revise, then try a new paper."}</p>
+     <p class="gl">Score by exam area (weight in brackets)</p>${DOM.filter(d=>R.per[d[0]]).map(d=>{const p=R.per[d[0]],pc=Math.round(p.c/p.t*100);return`<div class="dr"><span>${d[0]}. ${d[1]} (${d[2]}%)</span><div class="fbar" aria-hidden="true"><i style="width:${pc}%;background:${col(pc)}"></i></div><span class="mono">${p.c} of ${p.t} (${pc}%) ${tag(pc)}</span></div>`}).join("")}
+     <p class="gl">Score by topic</p>${Object.keys(R.top).map(t=>{const p=R.top[t],pc=Math.round(p.c/p.t*100);return`<div class="dr"><span>${esc(t)}</span><div class="fbar" aria-hidden="true"><i style="width:${pc}%;background:${col(pc)}"></i></div><span class="mono">${p.c} of ${p.t} (${pc}%)</span></div>`}).join("")}
+     <p class="gl">Score by question type</p>${Object.keys(TYN).filter(k=>R.ty[k]).map(k=>{const p=R.ty[k],pc=Math.round(p.c/p.t*100);return`<div class="dr"><span>${TYN[k]}</span><div class="fbar" aria-hidden="true"><i style="width:${pc}%;background:${col(pc)}"></i></div><span class="mono">${p.c} of ${p.t}</span></div>`}).join("")}
+     ${weakT.length?`<p><strong>Revise first:</strong> ${weakT.map(esc).join(", ")}.${weakT.some(t=>/IPv6/.test(t))?" IPv6 is in Steps 12 to 14.":""}${weakT.some(t=>/subnetting|IPv4/.test(t))?" Addressing and VLSM are in Steps 2 to 11.":""}</p>`:""}
+     ${slow.length?`<p><small>Slowest questions: ${slow.map(x=>"Q"+(x.k+1)+" ("+Math.round(x.s)+" s)").join(", ")}. On the real exam, flag and move on.</small></p>`:""}
+     <div class="row"><button class="btn" type="button" data-as="again">New paper, new questions</button>${weakD.length&&weakD.length<DOM.length?'<button class="btn alt" type="button" data-as="weak">Practise my weaker areas</button>':""}<button class="btn alt" type="button" data-as="setup">Change settings</button></div></div>
      <h3>Review your answers</h3><div class="row"><button class="btn alt tiny" type="button" data-as="rv-all" aria-pressed="${AS.rv==="all"}">All</button><button class="btn alt tiny" type="button" data-as="rv-bad" aria-pressed="${AS.rv==="bad"}">Incorrect</button><button class="btn alt tiny" type="button" data-as="rv-flag" aria-pressed="${AS.rv==="flag"}">Flagged</button></div>
-     ${show.length?show.map(x=>{const q=x.q,r=isRight(q),yours=[...q.sel].map(k=>q.o[k].t),right=q.o.filter(o=>o.ok).map(o=>o.t);
-       return`<div class="rv ${r?"ok":"bad"}"><p><strong>Question ${x.k+1} &middot; ${AD[q.d]} &middot; ${r?"Correct":"Incorrect"}${q.flag?" &middot; flagged":""}</strong></p><p>${esc(q.q)}</p><ul><li>Your answer: ${yours.length?esc(yours.join("; ")):"no answer"}</li>${r?"":`<li>Correct answer: ${esc(right.join("; "))}</li>`}</ul><p class="note">${esc(q.why)}</p></div>`}).join(""):'<p class="fb info" style="display:block">Nothing to show in this view.</p>'}`;
+     ${show.length?show.map(x=>{const q=x.q,r=isRight(q);return`<div class="rv ${r?"ok":"bad"}"><p><strong>Question ${x.k+1} &middot; ${esc(DOMN[q.dom])} &middot; ${esc(q.topic)} &middot; ${r?"Correct":"Incorrect"}${q.flag?" &middot; flagged":""}</strong></p>${q.ex?`<pre class="exh">${esc(q.ex)}</pre>`:""}<p>${esc(q.q)}</p><ul><li>Your answer: ${esc(yours(q))}</li>${r?"":`<li>Correct answer: ${esc(right(q))}</li>`}</ul><p class="note">${esc(q.why)}</p></div>`}).join(""):'<p class="fb info" style="display:block">Nothing to show in this view.</p>'}`;
     rt.scrollIntoView({block:"start"})}
-  rt.addEventListener("change",e=>{const i=e.target.closest("input[name=asq]");if(!AS||!i)return;const q=AS.qs[AS.i],k=+i.value;
-    if(q.type==="multi"){if(i.checked)q.sel.add(k);else q.sel.delete(k)}else{q.sel=new Set([k])}AS.confirm=false;top()});
+  rt.addEventListener("change",e=>{if(!AS)return;const q=AS.qs[AS.i];
+    const i=e.target.closest("input[name=asq]");if(i){const k=+i.value;if(q.type==="multi"){if(i.checked)q.sel.add(k);else q.sel.delete(k)}else q.sel=new Set([k]);AS.confirm=false;top();return}
+    const m=e.target.closest("select[data-mt]");if(m){q.mt[+m.dataset.mt]=+m.value;top()}});
+  rt.addEventListener("input",e=>{if(AS&&e.target.id==="as-txt"){AS.qs[AS.i].txt=e.target.value;top()}});
   rt.addEventListener("click",e=>{
-    const g=e.target.closest("[data-go]");if(g&&AS){AS.i=+g.dataset.go;AS.confirm=false;draw(true);return}
+    const g=e.target.closest("[data-go]");if(g&&AS){commit();AS.review=false;AS.i=+g.dataset.go;AS.mark=Date.now();AS.confirm=false;draw(true);return}
+    const od=e.target.closest("[data-ord]");if(od&&AS){const q=AS.qs[AS.i],p=+od.dataset.pos,d=od.dataset.ord==="up"?-1:1,t=q.ord[p];q.ord[p]=q.ord[p+d];q.ord[p+d]=t;q.touched=true;draw(false);const nb=$(`[data-ord="${od.dataset.ord}"][data-pos="${p+d}"]`);if(nb)nb.focus();return}
     const b=e.target.closest("[data-as]");if(!b)return;const k=b.dataset.as;
-    if(k==="all"||k==="none"){$$(".asd",rt).forEach(c=>{c.checked=k==="all"});return}
-    if(k==="start"){const domains=$$(".asd:checked",rt).map(c=>c.value);if(!domains.length){$("#as-msg").className="fb no";$("#as-msg").textContent="Choose at least one topic.";return}
-      start({count:+$("#as-n").value,mode:$("#as-mode").value,factor:+$("#as-time").value,domains,help:$("#as-help").checked});return}
-    if(k==="setup"){AS&&AS.tid&&clearInterval(AS.tid);setup();return}
+    if(k==="start"){const domains=$$(".asd:checked",rt).map(c=>c.value);if(!domains.length){$("#as-msg").className="fb no";$("#as-msg").textContent="Choose at least one exam area.";return}
+      const sz=$("#as-size").value;start({count:sz==="custom"?Math.max(5,Math.min(100,+$("#as-n").value||30)):+sz,mode:$("#as-mode").value,nav:$("#as-nav").value,factor:+$("#as-time").value,domains,help:$("#as-help").checked});return}
+    if(k==="setup"){if(AS&&AS.tid)clearInterval(AS.tid);setup();return}
     if(k==="again"){start(AS.cfg);return}
-    if(k==="weak"){const weak=Object.keys(AS.res.per).filter(d=>AS.res.per[d].c/AS.res.per[d].t<.8);start(Object.assign({},AS.cfg,{domains:weak}));return}
+    if(k==="weak"){const weak=Object.keys(AS.res.per).filter(d=>AS.res.per[d].c/AS.res.per[d].t<.85);start(Object.assign({},AS.cfg,{domains:weak}));return}
     if(k.startsWith("rv-")){AS.rv=k.slice(3);result();return}
     if(!AS)return;const q=AS.qs[AS.i];
-    if(k==="prev"){AS.i=Math.max(0,AS.i-1);AS.confirm=false;draw(true)}
-    else if(k==="next"){AS.i=Math.min(AS.qs.length-1,AS.i+1);AS.confirm=false;draw(true)}
-    else if(k==="check"){if(!q.sel.size){const f=$("#as-fb");f.className="fb info";f.textContent="Choose an answer first.";return}q.checked=true;draw(false)}
+    if(k==="prev"){commit();AS.i=Math.max(0,AS.i-1);AS.confirm=false;draw(true)}
+    else if(k==="next"){commit();AS.i=Math.min(AS.qs.length-1,AS.i+1);AS.confirm=false;draw(true)}
+    else if(k==="check"){if(!answered(q)){const f=$("#as-fb");f.className="fb info";f.textContent="Answer the question first.";return}q.checked=true;draw(false)}
     else if(k==="flag"){q.flag=!q.flag;draw(false)}
     else if(k==="say"){speakEls([$("#asq")],"Question")}
-    else if(k==="pause"){AS.paused=!AS.paused;b.textContent=AS.paused?"Resume timer":"Pause timer"}
+    else if(k==="pause"){AS.paused=!AS.paused;if(!AS.paused)AS.mark=Date.now();else commit();b.textContent=AS.paused?"Resume timer":"Pause timer"}
     else if(k==="finish"){AS.confirm=true;draw(false)}
+    else if(k==="review"){commit();AS.review=true;reviewScreen()}
+    else if(k==="back"){AS.review=false;AS.mark=Date.now();draw(true)}
     else if(k==="keep"){AS.confirm=false;draw(false)}
     else if(k==="submit"){finish(false)}});
+  document.addEventListener("click",e=>{const g=e.target.closest("[data-goto]");if(!g)return;const i=mods.findIndex(m=>m.id===g.dataset.goto);if(i>=0)go(i,true)});
   setup();
 })();
+decorate();
+
+/* ---------- IPv6 ---------- */
+const hex4=x=>x.toString(16).toUpperCase().padStart(4,"0");
+function v6parse(str){
+  let t=String(str).trim().toLowerCase().split("/")[0];if(!t||/[^0-9a-f:]/.test(t))return null;
+  const d=t.split("::");if(d.length>2)return null;const tg=p=>p===""?[]:p.split(":");let g;
+  if(d.length===2){const a=tg(d[0]),b=tg(d[1]);if(a.length+b.length>7)return null;g=a.concat(Array(8-a.length-b.length).fill("0"),b)}else{g=tg(t);if(g.length!==8)return null}
+  if(g.some(x=>!/^[0-9a-f]{1,4}$/.test(x)))return null;
+  return g.reduce((a,x)=>(a<<16n)+BigInt(parseInt(x,16)),0n)}
+function v6groups(n){const g=[];for(let i=7;i>=0;i--)g.push(Number((n>>BigInt(i*16))&0xFFFFn));return g}
+function v6make(g){return g.reduce((a,x)=>(a<<16n)+BigInt(x),0n)}
+function v6full(n){return v6groups(n).map(hex4).join(":")}
+function v6lead(n){return v6groups(n).map(x=>x.toString(16).toUpperCase()).join(":")}
+function v6runs(g){const r=[];let i=0;while(i<8){if(g[i]===0){let j=i;while(j<8&&g[j]===0)j++;r.push([i,j-i]);i=j}else i++}return r}
+function v6short(n){const g=v6groups(n),hx=g.map(x=>x.toString(16).toUpperCase()),runs=v6runs(g).filter(r=>r[1]>=2);
+  if(!runs.length)return hx.join(":");const L=runs.reduce((a,b)=>b[1]>a[1]?b:a);return hx.slice(0,L[0]).join(":")+"::"+hx.slice(L[0]+L[1]).join(":")}
+function v6same(a,b){return String(a).trim().toLowerCase()===String(b).trim().toLowerCase()}
+function genV6(){for(;;){const g=Array.from({length:8},()=>Math.random()<.5?rnd(1,0xFF):rnd(1,0xFFFF)),L=rnd(2,5),st=rnd(0,8-L);for(let i=st;i<st+L;i++)g[i]=0;
+  if(Math.random()<.5){const c=[];for(let i=0;i<8;i++)if(i<st-1||i>st+L)c.push(i);if(c.length)g[pick(c)]=0}
+  const r=v6runs(g).filter(x=>x[1]>=2);if(r.length===1&&r[0][1]===L){g[0]=pick([0x2001,0x2001,0xFD12,0x2A00,g[0]]);return g}}}
+function v6type(n){const h=Number(n>>112n);
+  if(n===0n)return{k:"unspec",name:"Unspecified",prefix:"::/128",bits:16,desc:"No address yet. It is used as a source address before a host has one.",routable:false};
+  if(n===1n)return{k:"loop",name:"Loopback",prefix:"::1/128",bits:16,desc:"The device itself, like 127.0.0.1 in IPv4.",routable:false};
+  if(h>>13===1)return{k:"gua",name:"Global unicast",prefix:"2000::/3",bits:3,desc:"A public address that can be routed on the internet.",routable:true};
+  if(h>>9===0x7E)return{k:"ula",name:"Unique local",prefix:"FC00::/7",bits:7,desc:"A private-style address for use inside a site. It is not routed on the internet.",routable:false};
+  if(h>>6===0x3FA)return{k:"lla",name:"Link-local",prefix:"FE80::/10",bits:10,desc:"Works on one link only. Every IPv6 interface creates one automatically.",routable:false};
+  if(h>>8===0xFF)return{k:"mc",name:"Multicast",prefix:"FF00::/8",bits:8,desc:"One-to-many delivery. It replaces broadcast.",routable:false};
+  return{k:"other",name:"Other or reserved",prefix:"-",bits:0,desc:"Not one of the common types.",routable:false}}
+function mcInfo(n){const h=Number(n>>112n),sc=h&15,scn={1:"interface-local",2:"link-local",4:"admin-local",5:"site-local",8:"organisation-local",14:"global"}[sc]||"scope "+sc,t=v6short(n),
+  wk={"FF02::1":"All nodes on the link","FF02::2":"All routers on the link","FF02::5":"OSPFv3 routers","FF02::6":"OSPFv3 DR and BDR routers"}[t],
+  sn=(n>>24n)===((0xFF02n<<88n)|(1n<<8n)|0xFFn);
+  return "Multicast scope: "+scn+". "+(wk?"Well known: "+wk+".":sn?"Solicited-node multicast: it ends with the last 24 bits of a unicast address.":"")}
+function bitMini(h,k){let b=h.toString(2).padStart(16,"0"),o='<div class="bm" role="img" aria-label="First group in binary: '+b.replace(/(.{4})/g,"$1 ").trim()+'">';
+  for(let q=0;q<4;q++){o+='<span class="grp">';for(let i=q*4;i<q*4+4;i++)o+=`<span class="mb ${i<k?"n":"h"}" data-tip="Bit ${i+1}::${i<k?"Prefix bit: it decides the type.":"Not part of the type prefix."}">${b[i]}</span>`;o+="</span>"}return o+"</div>"}
+function inspectHtml(str){const n=v6parse(str);
+  if(n===null)return'<div class="fb no" style="display:block">That is not a valid IPv6 address. Use up to eight groups of 1 to 4 hex digits separated by colons, with :: used at most once.</div>';
+  const t=v6type(n),h=Number(n>>112n);
+  return`<div class="res"><div><small>Full form</small><strong>${v6full(n)}</strong></div><div><small>Shortest form</small><strong>${v6short(n)}</strong></div><div><small>Type</small><strong>${t.name}</strong></div><div><small>Prefix</small><strong>${t.prefix}</strong></div></div>
+   <p class="gl">First group in binary. Shaded bits decide the type.</p>${bitMini(h,t.bits)}<p>${t.desc}</p>`+(t.k==="mc"?`<div class="note">${mcInfo(n)}</div>`:"")+((n>>96n)===0x20010DB8n?'<div class="note">2001:DB8::/32 is reserved for documentation and examples.</div>':"")}
+function eui64(mac){const m=String(mac).replace(/[^0-9a-fA-F]/g,"");if(m.length!==12)return null;const b=[0,2,4,6,8,10].map(i=>parseInt(m.substr(i,2),16)),f=b.slice(0,3).concat([255,254],b.slice(3)),e=f.slice();e[0]^=2;return{bytes:b,ext:f,eui:e}}
+function euiIid(e){return[0,2,4,6].map(i=>((e.eui[i]<<8)|e.eui[i+1])).map(x=>x.toString(16).toUpperCase().padStart(4,"0")).join(":")}
+function euiLL(e){return v6make([0xFE80,0,0,0,(e.eui[0]<<8)|e.eui[1],(e.eui[2]<<8)|e.eui[3],(e.eui[4]<<8)|e.eui[5],(e.eui[6]<<8)|e.eui[7]])}
+const by2=a=>a.map(x=>x.toString(16).toUpperCase().padStart(2,"0"));
+function euiHtml(mac){const e=eui64(mac);if(!e)return'<div class="fb no" style="display:block">Enter a MAC address with 12 hex digits, such as 00-1A-2B-3C-4D-5E.</div>';
+  const b0=e.bytes[0].toString(2).padStart(8,"0"),b1=e.eui[0].toString(2).padStart(8,"0");
+  return`<div class="step"><em>1</em><span>MAC address: ${by2(e.bytes).join("-")}</span></div><div class="step"><em>2</em><span>Split and insert FF FE: ${by2(e.ext).join(" ")}</span></div><div class="step"><em>3</em><span>First byte ${by2(e.bytes)[0]} = ${b0.slice(0,4)} ${b0.slice(4)}. Flip the 7th bit: ${b1.slice(0,4)} ${b1.slice(4)} = ${by2(e.eui)[0]}</span></div><div class="step"><em>4</em><span>Interface ID: <strong>${euiIid(e)}</strong></span></div><div class="step"><em>5</em><span>Link-local address: <strong>${v6short(euiLL(e))}</strong></span></div>`}
+function v6row(base,k){const net=((base>>80n)<<80n)|(BigInt(k)<<64n);return{k,net,first:net+1n,last:net+(1n<<64n)-1n}}
+function v6tbl(base,ks){return'<div class="scroll"><table class="ccna"><thead><tr><th data-col="num">Subnet #</th><th data-col="sid">Subnet ID (hex)</th><th data-col="pfx">Network prefix</th><th data-col="first">First host</th><th data-col="last">Last address</th></tr></thead><tbody>'+ks.map(k=>{const r=v6row(base,k);return`<tr><td class="m" data-col="num">${k}</td><td class="m" data-col="sid">${k.toString(16).toUpperCase()}</td><td class="m" data-col="pfx">${v6short(r.net)}/64</td><td class="m" data-col="first">${v6short(r.first)}</td><td class="m" data-col="last">${v6short(r.last)}</td></tr>`}).join("")+"</tbody></table></div>"}
+function hexBoxes(g,hl){hl=hl||[];return'<div class="hxrow" aria-hidden="true">'+g.map((x,i)=>`<span class="hx${hl.includes(i)?" hl":""}">${x}</span>`).join('<span class="cl">:</span>')+"</div>"}
+/* glossary for IPv6 */
+Object.assign(D,{
+ "ipv6":["IPv6","The newer version of IP. It uses 128-bit addresses written as eight groups of hex digits."],
+ "hex":["Hexadecimal","Base 16. The digits are 0 to 9 then A to F (A = 10 up to F = 15). Each hex digit is 4 bits."],
+ "hextet":["Hextet","One group of four hex digits in an IPv6 address. It is 16 bits."],
+ "nibble":["Nibble","Four bits. Exactly one hex digit."],
+ "eui64":["EUI-64","Builds a 64-bit interface ID from a 48-bit MAC: split it, insert FFFE, flip the 7th bit."],
+ "slaac":["SLAAC","Stateless Address Autoconfiguration. A host builds its own IPv6 address from the prefix in a router advertisement."],
+ "ndp":["Neighbor Discovery (NDP)","ICMPv6 messages (RS, RA, NS, NA) that find routers and neighbours. It replaces ARP."],
+ "lla":["Link-local address","FE80::/10. Valid on one link only. Created automatically on every IPv6 interface."],
+ "gua":["Global unicast address","2000::/3. A public, internet-routable IPv6 address."],
+ "ula":["Unique local address","FC00::/7 (FD00::/8 in practice). A private-style address that is not routed on the internet."],
+ "multicast":["Multicast","One-to-many delivery. In IPv6 it starts FF00::/8 and replaces broadcast."],
+ "anycast":["Anycast","One address shared by several devices. Traffic goes to the nearest one."],
+ "dad":["Duplicate Address Detection","A host checks that an address is not already in use on the link before it uses it."],
+ "iid":["Interface ID","The last 64 bits of a typical IPv6 address. It identifies the device on the link."],
+ "grp":["Global routing prefix","The first part of an IPv6 address given to a site by an ISP or registry, such as a /48."],
+ "sid":["Subnet ID","The bits between the site prefix and the interface ID. A /48 site has 16 subnet bits."],
+ "dualstack":["Dual stack","Running IPv4 and IPv6 at the same time on a device."]});
+const AUTOR6=[["hexadecimal","hex","i"],["hextets?","hextet","i"],["nibbles?","nibble","i"],["EUI-64","eui64",""],["SLAAC","slaac",""],["NDP","ndp",""],["link-local","lla","i"],["multicast","multicast","i"],["anycast","anycast","i"],["DAD","dad",""],["interface ID","iid","i"],["subnet ID","sid","i"],["dual stack","dualstack","i"],["IPv6","ipv6",""],["global unicast","gua","i"],["unique local","ula","i"]].map(a=>({k:a[1],re:new RegExp("\\b(?:"+a[0]+")\\b",a[2]+"g")}));
+$$("#step-v6a .chunk,#step-v6b .chunk,#step-v6c .chunk,#step-v6a>header,#step-v6b>header,#step-v6c>header").forEach(c=>autoTip(c,AUTOR6));
+/* support strips */
+function supHex(){return'<div class="supc"><p class="gl">Hex helper: each digit is 4 bits (8 4 2 1)</p><div class="hexgrid">'+Array.from({length:16},(_,v)=>`<div class="hc"><b>${v.toString(16).toUpperCase()}</b><i>${v.toString(2).padStart(4,"0")}</i><small>${v}</small></div>`).join("")+"</div></div>"}
+function supV6rules(){return'<div class="supc"><p class="gl">Shortening rules</p><ol><li>Drop leading zeros in each group (0DB8 becomes DB8; 0000 becomes 0).</li><li>Replace the longest run of all-zero groups with <code>::</code>. Once only.</li><li>Check: groups written plus hidden zero groups must make 8.</li></ol></div>'}
+function supV6types(){return'<div class="supc"><p class="gl">Prefix helper</p><div class="scroll"><table><thead><tr><th>Starts with</th><th>Type</th></tr></thead><tbody><tr><td class="m">2000::/3 (2 or 3)</td><td>Global unicast</td></tr><tr><td class="m">FC00::/7 (FC or FD)</td><td>Unique local</td></tr><tr><td class="m">FE80::/10 (FE8 to FEB)</td><td>Link-local</td></tr><tr><td class="m">FF00::/8 (FF)</td><td>Multicast</td></tr><tr><td class="m">::1 and ::</td><td>Loopback and unspecified</td></tr></tbody></table></div></div>'}
+function supEui(){return'<div class="supc"><p class="gl">EUI-64 helper</p><ol><li>Split the MAC in the middle: 3 bytes, then 3 bytes.</li><li>Insert <code>FF FE</code> between them.</li><li>Flip the 7th bit of the first byte: 00 becomes 02, 02 becomes 00, 1A becomes 18, 1C becomes 1E.</li></ol></div>'}
+function supV6sub(){return'<div class="supc"><p class="gl">Subnet ID helper: counting in hex</p><div class="seq"><span>9</span><span>A = 10</span><span>B = 11</span><span>C = 12</span><span>D = 13</span><span>E = 14</span><span>F = 15</span><span>10 = 16</span><span>FF = 255</span><span>100 = 256</span></div><p><small>Divide by 16: the quotient is the left digit and the remainder is the right digit. Example: 74 = 4 &times; 16 + 10, so 4A.</small></p></div>'}
+/* quiz generators */
+const mkq=(q,ok,show,hint,sup,calc)=>({q,ok,show,hint,sup,calc:calc||"v6"});
+Object.assign(G,{
+ v6short(){const n=v6make(genV6());return mkq("Write <code>"+v6full(n)+"</code> in its shortest form.",s=>v6same(s,v6short(n)),v6short(n),"Rule 1: drop leading zeros. Rule 2: replace the longest run of all-zero groups with ::.",supV6rules())},
+ v6long(){const n=v6make(genV6());return mkq("Write <code>"+v6short(n)+"</code> in full: eight groups of four hex digits.",s=>v6same(s,v6full(n)),v6full(n),"Count the groups you can see. :: hides enough zero groups to make 8. Then pad each group to 4 digits.",supV6rules())},
+ v6zeros(){const n=v6make(genV6()),sh=v6short(n),shown=sh.split("::").join(":").split(":").filter(x=>x!=="").length;return mkq("How many all-zero groups does the <code>::</code> stand for in <code>"+sh+"</code>?",s=>+s.trim()===8-shown,String(8-shown),"Count the groups written. 8 minus that number is the number of hidden zero groups.",supV6rules())},
+ hex2bin(){const h=hex4(rnd(0x1000,0xFFFF));return mkq("Convert the hex group <code>"+h+"</code> to 16 bits.",s=>s.replace(/\s/g,"")===parseInt(h,16).toString(2).padStart(16,"0"),parseInt(h,16).toString(2).padStart(16,"0").replace(/(.{4})/g,"$1 ").trim(),"Turn each hex digit into 4 bits: "+h.split("").map(c=>c+" = "+parseInt(c,16).toString(2).padStart(4,"0")).join(", ")+".",supHex(),"bits")},
+ bin2hex(){const v=rnd(0x1000,0xFFFF),b=v.toString(2).padStart(16,"0").replace(/(.{4})/g,"$1 ").trim();return mkq("Convert <code>"+b+"</code> to a 4-digit hex group.",s=>s.trim().toLowerCase()===hex4(v).toLowerCase(),hex4(v),"Convert each group of 4 bits to one hex digit.",supHex(),"bits")},
+ v6type(){const k=pick(["gua","ula","lla","mc","loop"]),h={gua:rnd(0x2000,0x3FFF),ula:pick([0xFC00,0xFD00])+rnd(0,0xFF),lla:rnd(0xFE80,0xFEBF),mc:0xFF00+rnd(0,0xFF),loop:0}[k],g=[h,rnd(0,0xFFFF),rnd(0,0xFFFF),rnd(0,0xFFFF),rnd(0,0xFFFF),rnd(0,0xFFFF),rnd(0,0xFFFF),rnd(1,0xFFFF)];
+   if(k==="loop")g.fill(0,0,7),g[7]=1;if(k==="lla"){g[1]=0;g[2]=0;g[3]=0}const n=v6make(g),t=v6type(n),names=["Global unicast","Unique local","Link-local","Multicast","Loopback","Unspecified"];
+   return mkq("What type of IPv6 address is <code>"+v6short(n)+"</code>?",s=>s.trim().toLowerCase().replace(/[-\s]/g,"")===t.name.toLowerCase().replace(/[-\s]/g,""),t.name,"Look at the first group. "+t.prefix+" is "+t.name+". "+(t.k==="gua"?"Global unicast starts with 2 or 3.":t.k==="lla"?"Link-local starts FE8 to FEB.":""),supV6types())},
+ v6prefix(){const P=[["global unicast","2000::/3"],["link-local","FE80::/10"],["unique local","FC00::/7"],["multicast","FF00::/8"]],p=pick(P);return mkq("Which prefix is used for IPv6 <strong>"+p[0]+"</strong> addresses?",s=>s.trim().toLowerCase().replace(/\s/g,"")===p[1].toLowerCase(),p[1],"Global unicast 2000::/3. Link-local FE80::/10. Unique local FC00::/7. Multicast FF00::/8.",supV6types())},
+ v6eui(){const mac=Array.from({length:6},()=>rnd(0,255));mac[0]=pick([0x00,0x02,0x1A,0x3C,0xA4,0xD8,0x00]);const m=by2(mac).join("-"),e=eui64(m),iid=euiIid(e);
+   return mkq("A device has the MAC address <code>"+m+"</code>. What is its EUI-64 interface ID? (four groups, like 021A:2BFF:FE3C:4D5E)",s=>{const t=v6parse("0:0:0:0:"+s.trim());return t!==null&&t===v6parse("0:0:0:0:"+iid)},iid,"Split the MAC, insert FF FE, then flip the 7th bit of the first byte ("+by2(e.bytes)[0]+" becomes "+by2(e.eui)[0]+").",supEui())},
+ v6sub(){const base=v6make([0x2001,0xDB8,rnd(1,0xFFFF),0,0,0,0,0]),k=rnd(10,300),r=v6row(base,k);return mkq("The site prefix is <code>"+v6short(base)+"/48</code>. What is the network prefix of subnet number <strong>"+k+"</strong> (decimal) when using /64? Write it with /64.",s=>{const m=s.trim().split("/");return m.length===2&&m[1].trim()==="64"&&v6parse(m[0])===r.net},v6short(r.net)+"/64","Convert "+k+" to hex for the 4th group: "+k+" = "+k.toString(16).toUpperCase()+". Then write the prefix.",supV6sub())},
+ v6count(){const L=pick([48,52,56,60]),b=64-L;return Math.random()<.5?mkq("A site is given a /"+L+". How many /64 subnets can it create?",s=>+s.trim().replace(/,/g,"")===2**b,String(2**b),"Subnet bits = 64 minus "+L+" = "+b+". Then 2 to the power of "+b+".",supV6sub()):mkq("A site is given a /"+L+". How many bits are available for the subnet ID?",s=>+s.trim()===b,String(b),"64 minus "+L+".",supV6sub())}
+});
+Object.assign(GROUP,{v6a:["v6short","v6long","v6zeros","hex2bin","bin2hex"],v6b:["v6type","v6prefix"],v6c:["v6eui","v6sub","v6count"]});
+$$(".quiz[data-late]").forEach(el=>makeQuiz(el,el.dataset.kind));
+/* frames */
+function framesV6short(str){const n=v6parse(str),g=v6groups(n),runs=v6runs(g),full=g.map(hex4),lead=g.map(x=>x.toString(16).toUpperCase()),L=runs.filter(r=>r[1]>=2).reduce((a,b)=>b[1]>a[1]?b:a,[0,0]);
+  const zi=[];runs.forEach(r=>{for(let i=r[0];i<r[0]+r[1];i++)zi.push(i)});const li=[];lead.forEach((x,i)=>{if(x!==full[i])li.push(i)});
+  return[{say:"An IPv6 address is <strong>8 groups</strong> (hextets) of 4 hex digits. Here it is in full: <code>"+full.join(":")+"</code>.",visual:hexBoxes(full)},
+   {say:"<strong>Rule 1: drop leading zeros</strong> from each group. The highlighted groups change. Zeros at the end of a group must stay.",visual:hexBoxes(full,li)},
+   {say:"After rule 1 the address is <code>"+lead.join(":")+"</code>. An all-zero group is now just <strong>0</strong>.",visual:hexBoxes(lead)},
+   {say:"Now look for <strong>runs of all-zero groups</strong>. "+runs.map(r=>"Groups "+(r[0]+1)+(r[1]>1?" to "+(r[0]+r[1]):"")+": "+r[1]+" long").join(". ")+". The longest run is <strong>"+L[1]+"</strong> groups.",visual:hexBoxes(lead,zi)},
+   {say:"<strong>Rule 2:</strong> replace the longest run with <strong>::</strong>. Only once. Result: <code>"+v6short(n)+"</code>.",visual:hexBoxes(lead,Array.from({length:L[1]},(_,i)=>L[0]+i))},
+   {say:"Check by counting: "+(8-L[1])+" groups written plus "+L[1]+" hidden zero groups = 8. The shortest form is <strong>"+v6short(n)+"</strong>."}]}
+function framesV6c(){const A=["2001:db8:acad:1::1","fe80::1","fd12:3456:789a:1::1","ff02::1"],f=[{say:"To classify an address, look at the <strong>first group</strong> and write it in binary. The first few bits decide the type."}];
+  A.forEach(a=>{const n=v6parse(a),t=v6type(n),h=Number(n>>112n);f.push({say:"<code>"+a+"</code>: the first group is "+hex4(h)+" = "+h.toString(2).padStart(16,"0").replace(/(.{4})/g,"$1 ").trim()+". The first "+t.bits+" bits match <strong>"+t.prefix+"</strong>, so it is <strong>"+t.name+"</strong>. "+t.desc,visual:bitMini(h,t.bits)})});
+  f.push({say:"Memory aid: <strong>2 or 3</strong> = global. <strong>FC or FD</strong> = unique local. <strong>FE8 to FEB</strong> = link-local. <strong>FF</strong> = multicast."});return f}
+function framesV6sub(){const base=v6make([0x2001,0xDB8,0xACAD,0,0,0,0,0]);
+  return[{say:"The site has <strong>2001:DB8:ACAD::/48</strong>. We want /64 subnets. 64 &minus; 48 = <strong>16 subnet bits</strong>, which is the 4th group. That gives 2<sup>16</sup> = 65,536 subnets.",visual:hexBoxes(["2001","DB8","ACAD","0000","0","0","0","0"],[3])},
+   {say:"To make subnets, just <strong>count in hex in the 4th group</strong>: 0, 1, 2, 3 &hellip;",visual:v6tbl(base,[0,1,2,3])},
+   {say:"Bigger numbers need conversion. <strong>10 = A</strong>, <strong>16 = 10</strong>, <strong>255 = FF</strong>. Subnet 74 is 4 &times; 16 + 10 = <strong>4A</strong>.",visual:v6tbl(base,[10,16,74,255])},
+   {say:"Every subnet has the same shape: the first address is reserved, hosts usually start at <code>::1</code>, and the last address ends <code>FFFF:FFFF:FFFF:FFFF</code>."}]}
+function framesEui(mac){const e=eui64(mac),b0=e.bytes[0].toString(2).padStart(8,"0"),b1=e.eui[0].toString(2).padStart(8,"0");
+  return[{say:"The MAC address is <code>"+by2(e.bytes).join("-")+"</code>: 6 bytes, 48 bits.",visual:'<div class="bytes">'+by2(e.bytes).map(x=>`<span class="by">${x}</span>`).join("")+"</div>"},
+   {say:"<strong>Split in the middle and insert FF FE.</strong> That makes 8 bytes, 64 bits.",visual:'<div class="bytes">'+by2(e.ext).map((x,i)=>`<span class="by${i===3||i===4?" ins":""}">${x}</span>`).join("")+"</div>"},
+   {say:"<strong>Flip the 7th bit</strong> of the first byte. "+by2(e.bytes)[0]+" = "+b0.slice(0,4)+" "+b0.slice(4)+", which becomes "+b1.slice(0,4)+" "+b1.slice(4)+" = <strong>"+by2(e.eui)[0]+"</strong>."},
+   {say:"The interface ID is <strong>"+euiIid(e)+"</strong>."},
+   {say:"Put <strong>FE80::</strong> in front for a link-local address: <strong>"+v6short(euiLL(e))+"</strong>."}]}
+player($("#pl-v6s"),framesV6short("2001:0DB8:0000:0042:0000:0000:0000:0001"));player($("#pl-v6c"),framesV6c());player($("#pl-v6sub"),framesV6sub());player($("#pl-eui"),framesEui("00-1A-2B-3C-4D-5E"));
+/* guided */
+function mkV6g1(){const n=v6make(genV6()),g=v6groups(n),L=v6runs(g).filter(r=>r[1]>=2)[0];
+  return{intro:"Shorten <code>"+v6full(n)+"</code> with me, one rule at a time.",steps:[
+   {label:"Rule 1",q:"Drop the leading zeros in every group. Write the result with colons between the groups (no :: yet).",ok:t=>v6same(t,v6lead(n)),show:v6lead(n),hint:"0DB8 becomes DB8, 0042 becomes 42, 0000 becomes 0.",why:"Leading zeros only."},
+   {label:"Longest run",q:"How many all-zero groups are in the longest run?",ok:t=>+t.trim()===L[1],show:String(L[1]),hint:"Look for groups that are just 0 next to each other.",why:"This run will become ::."},
+   {label:"Rule 2",q:"Now write the shortest form of the address.",ok:t=>v6same(t,v6short(n)),show:v6short(n),hint:"Replace the longest run of 0 groups with :: once.",why:"Shortest form."}],
+   outro:"Shortest form: <code>"+v6short(n)+"</code>."}}
+function mkV6g2(){const h=hex4(rnd(0x1000,0xFFFF)),b=h.split("").map(c=>parseInt(c,16).toString(2).padStart(4,"0"));
+  return{intro:"Convert the hex group <code>"+h+"</code> to 16 bits, one digit at a time.",steps:h.split("").map((c,i)=>({label:"Digit "+(i+1)+": "+c,q:"What is <code>"+c+"</code> in 4 bits?",ok:t=>t.replace(/\s/g,"")===b[i],show:b[i],hint:c+" = "+parseInt(c,16)+". Which of 8, 4, 2, 1 add up to "+parseInt(c,16)+"?",why:c+" = "+parseInt(c,16)+" = "+b[i]+"."})).concat([{label:"All 16 bits",q:"Join all four groups of bits.",ok:t=>t.replace(/\s/g,"")===b.join(""),show:b.join(" "),hint:"Put the four groups side by side.",why:"16 bits."}]),outro:h+" = "+b.join(" ")+"."}}
+function mkV6c(){const k=pick(["gua","ula","lla","mc"]),h={gua:rnd(0x2000,0x3FFF),ula:0xFD00+rnd(0,0xFF),lla:rnd(0xFE80,0xFEBF),mc:0xFF00+rnd(0,0xFF)}[k],g=[h,rnd(0,0xFFFF),rnd(0,0xFFFF),rnd(0,0xFFFF),0,0,0,rnd(1,0xFFFF)];if(k==="lla"){g[1]=0;g[2]=0;g[3]=0}if(k==="mc"){g[1]=0;g[2]=0;g[3]=0;g[7]=1}
+  const n=v6make(g),t=v6type(n),bin=h.toString(2).padStart(16,"0");
+  return{intro:"Classify <code>"+v6short(n)+"</code> with me.",steps:[
+   {label:"First group in binary",q:"Write the first group <code>"+hex4(h)+"</code> as 16 bits.",ok:x=>x.replace(/\s/g,"")===bin,show:bin.replace(/(.{4})/g,"$1 ").trim(),hint:"Turn each hex digit into 4 bits.",why:"Now read the first few bits."},
+   {label:"Prefix",q:"Which prefix matches? (2000::/3, FC00::/7, FE80::/10 or FF00::/8)",ok:x=>x.trim().toLowerCase().replace(/\s/g,"")===t.prefix.toLowerCase(),show:t.prefix,hint:"2 or 3 = 2000::/3. FC or FD = FC00::/7. FE8 to FEB = FE80::/10. FF = FF00::/8.",why:t.prefix},
+   {label:"Type",q:"What type of address is it?",ok:x=>x.trim().toLowerCase().replace(/[-\s]/g,"")===t.name.toLowerCase().replace(/[-\s]/g,""),show:t.name,hint:"Match the prefix to its name.",why:t.desc},
+   {label:"Internet routable?",q:"Can this address be routed on the public internet? (yes or no)",ok:x=>x.trim().toLowerCase()===(t.routable?"yes":"no"),show:t.routable?"yes":"no",hint:"Only global unicast addresses are public.",why:t.routable?"Global unicast is public.":"This type stays inside a site or link."}],
+   outro:v6short(n)+" is "+t.name+" ("+t.prefix+")."}}
+function mkV6s(){const base=v6make([0x2001,0xDB8,rnd(1,0xFFFF),0,0,0,0,0]),k=rnd(11,400),r=v6row(base,k),hx=k.toString(16).toUpperCase();
+  return{intro:"The site prefix is <code>"+v6short(base)+"/48</code>. Find the details of subnet number <strong>"+k+"</strong> (decimal).",steps:[
+   {label:"Subnet ID in hex",q:"Convert "+k+" to hex.",ok:t=>t.trim().toLowerCase().replace(/^0+(?=.)/,"")===hx.toLowerCase(),show:hx,hint:Math.floor(k/16)+" lots of 16, remainder "+(k%16)+". Write each as a hex digit.",why:k+" = "+hx+"."},
+   {label:"Network prefix",q:"Write the /64 network prefix of subnet "+k+".",ok:t=>{const m=t.trim().split("/");return m.length===2&&m[1].trim()==="64"&&v6parse(m[0])===r.net},show:v6short(r.net)+"/64",hint:"Put "+hx+" in the 4th group of the site prefix. The rest is zeros. Add /64.",why:"Counting in the 4th group."},
+   {label:"First host",q:"Hosts usually start at ::1. Write the first host address.",ok:t=>!t.includes("/")&&v6parse(t)===r.first,show:v6short(r.first),hint:"The network prefix with 1 as the last group.",why:"Network + 1."},
+   {label:"Last address",q:"Write the last address in this /64.",ok:t=>!t.includes("/")&&v6parse(t)===r.last,show:v6short(r.last),hint:"The last 64 bits are all F: FFFF:FFFF:FFFF:FFFF.",why:"All interface ID bits set to 1."}],
+   outro:"Subnet "+k+": "+v6short(r.net)+"/64."+v6tbl(base,[k])}}
+function mkV6e(){const mac=by2(Array.from({length:6},(_,i)=>i===0?pick([0x00,0x02,0x1A,0x3C,0xA4,0xD8]):rnd(0,255))).join("-"),e=eui64(mac),ll=euiLL(e),b=by2(e.eui);
+  return{intro:"A router interface has the MAC address <code>"+mac+"</code>. Build its EUI-64 link-local address with me.",steps:[
+   {label:"Insert FF FE",q:"Split the MAC in the middle and insert FF FE. Write all 8 bytes.",ok:t=>t.replace(/[^0-9a-f]/gi,"").toUpperCase()===by2(e.ext).join(""),show:by2(e.ext).join(" "),hint:"First three bytes, then FF FE, then the last three bytes.",why:"64 bits."},
+   {label:"Flip the 7th bit",q:"The first byte is <code>"+by2(e.bytes)[0]+"</code>. What is it after flipping the 7th bit?",ok:t=>t.trim().toUpperCase()===b[0],show:b[0],hint:"Write it in binary: "+e.bytes[0].toString(2).padStart(8,"0")+". The 7th bit from the left is worth 2. Flip it.",why:"XOR with 02."},
+   {label:"Interface ID",q:"Write the interface ID as four groups.",ok:t=>{const x=v6parse("0:0:0:0:"+t.trim());return x!==null&&x===v6parse("0:0:0:0:"+euiIid(e))},show:euiIid(e),hint:"Pair up the bytes: "+b.slice(0,2).join("")+", "+b.slice(2,4).join("")+", and so on.",why:"Four groups."},
+   {label:"Link-local address",q:"Write the full link-local address in its shortest form.",ok:t=>v6parse(t)===ll,show:v6short(ll),hint:"FE80:: followed by the interface ID.",why:"FE80::/10 prefix."}],
+   outro:"Link-local address: <code>"+v6short(ll)+"</code>."}}
+guided($("#v6g1"),mkV6g1);guided($("#v6g2"),mkV6g2);guided($("#v6cg"),mkV6c);guided($("#v6sg"),mkV6s);guided($("#v6eg"),mkV6e);
+/* tours */
+(function(){
+  const g=[0x2001,0x0DB8,0xACAD,0x0001,0,0,0,1];
+  $("#tr-v6a").innerHTML='<div class="hxrow">'+g.map(x=>'<span class="hx">'+hex4(x).split("").map(c=>'<span class="nb">'+c+"</span>").join("")+"</span>").join('<span class="cl">:</span>')+"</div>";
+  tour($("#tr-v6a"),[
+   {t:()=>$$("#tr-v6a .nb").slice(0,1),say:"One <strong>hex digit</strong> is 4 bits. That is called a <em>nibble</em>."},
+   {t:()=>$$("#tr-v6a .hx").slice(0,1),say:"A group of four hex digits is a <strong>hextet</strong>: 4 &times; 4 = <strong>16 bits</strong>."},
+   {t:()=>$$("#tr-v6a .hxrow"),say:"Eight hextets make the whole address: 8 &times; 16 = <strong>128 bits</strong>. That is 32 hex digits."},
+   {t:()=>$$("#tr-v6a .hx").slice(0,4),say:"The first four hextets (64 bits) are the <strong>network prefix</strong> of a typical /64 subnet."},
+   {t:()=>$$("#tr-v6a .hx").slice(4),say:"The last four hextets (64 bits) are the <strong>interface ID</strong>. It identifies the device on its subnet."}]);
+  $("#tr-hex").innerHTML='<div class="hexgrid">'+Array.from({length:16},(_,v)=>{const h=v.toString(16).toUpperCase();return`<div class="hc" data-h="${h}"><b>${h}</b><i>${v.toString(2).padStart(4,"0")}</i><small>${v}</small></div>`}).join("")+"</div>";
+  tour($("#tr-hex"),[
+   {t:()=>$$("#tr-hex .hc").slice(0,10),say:"Digits <strong>0 to 9</strong> look and count like normal numbers. The small number is the value and the bits underneath are its 4-bit form."},
+   {t:()=>$$("#tr-hex .hc").slice(10),say:"The letters <strong>A to F</strong> are the values 10 to 15."},
+   {t:'[data-h="B"]',say:"<strong>B = 11.</strong> 8 + 2 + 1 = 11, so the bits are <strong>1011</strong>."},
+   {t:'[data-h="F"]',say:"<strong>F = 15.</strong> All four bits are on: 8 + 4 + 2 + 1 = 15, so <strong>1111</strong>."},
+   {t:()=>$$('#tr-hex [data-h="2"],#tr-hex [data-h="0"],#tr-hex [data-h="1"]'),say:"So <strong>2001</strong> is 0010, 0000, 0000, 0001: the digits 2, 0, 0 and 1 side by side."}]);
+  $("#tr-v6s").innerHTML='<div class="v6l" data-l="a"><small>1. Full address</small><span class="mono">2001:<span class="ld">0</span>DB8:<span class="z1">0000</span>:<span class="ld">00</span>42:<span class="z3">0000:0000:0000</span>:<span class="ld">000</span>1</span></div><div class="v6l" data-l="b"><small>2. After rule 1: leading zeros dropped</small><span class="mono">2001:DB8:<span class="z1">0</span>:42:<span class="z3">0:0:0</span>:1</span></div><div class="v6l" data-l="c"><small>3. After rule 2: longest zero run becomes ::</small><span class="mono">2001:DB8:0:42<span class="z3">::</span>1</span></div>';
+  tour($("#tr-v6s"),[
+   {t:'[data-l="a"]',say:"The <strong>full address</strong>: eight groups of four hex digits."},
+   {t:'[data-l="a"] .ld',say:"<strong>Rule 1:</strong> these leading zeros can be dropped. Never drop zeros at the end of a group."},
+   {t:'[data-l="b"] .z1',say:"A group that is all zeros becomes a single <strong>0</strong>. This one is alone, so it stays as 0."},
+   {t:'[data-l="b"] .z3',say:"Three all-zero groups in a row: the <strong>longest run</strong>."},
+   {t:'[data-l="c"] .z3',say:"<strong>Rule 2:</strong> the longest run becomes <strong>::</strong>. You can only do this once in an address."},
+   {t:'[data-l="c"]',say:"Check: 5 groups written + 3 hidden zero groups = <strong>8</strong>. The shortest form is 2001:DB8:0:42::1."}]);
+  /* address types table */
+  const T=[["gua","Global unicast","2000::/3",0x2001,3,"Public and routable on the internet","2001:DB8:ACAD:1::1"],["ula","Unique local","FC00::/7",0xFD12,7,"Private use inside a site. Not routed on the internet. FD00::/8 is used in practice.","FD12:3456:789A:1::1"],["lla","Link-local","FE80::/10",0xFE80,10,"One link only. Created automatically. Used for next hops and NDP.","FE80::1"],["mc","Multicast","FF00::/8",0xFF02,8,"One-to-many. Replaces broadcast.","FF02::1"]];
+  $("#tr-v6t").innerHTML='<div class="scroll"><table><thead><tr><th>Type</th><th>Prefix</th><th>First group in binary</th><th>Use</th><th>Example</th></tr></thead><tbody>'+T.map(r=>`<tr data-r="${r[0]}"><td><strong>${r[1]}</strong></td><td class="m">${r[2]}</td><td>${bitMini(r[3],r[4])}</td><td>${r[5]}</td><td class="m">${r[6]}</td></tr>`).join("")+'<tr data-r="spec"><td><strong>Loopback and unspecified</strong></td><td class="m">::1/128 and ::/128</td><td>All zeros (loopback ends in 1)</td><td>The device itself, and &ldquo;no address yet&rdquo;</td><td class="m">::1 and ::</td></tr></tbody></table></div>';
+  tour($("#tr-v6t"),[
+   {t:'[data-r="gua"]',say:"<strong>Global unicast, 2000::/3.</strong> The first <strong>3 bits are 001</strong>, so the first digit is 2 or 3. These are the public addresses."},
+   {t:'[data-r="ula"]',say:"<strong>Unique local, FC00::/7.</strong> The first <strong>7 bits are 1111 110</strong>, so the address starts FC or FD. It is for private use inside a site."},
+   {t:'[data-r="lla"]',say:"<strong>Link-local, FE80::/10.</strong> The first <strong>10 bits</strong> are 1111 1110 10, so it starts FE8, FE9, FEA or FEB. Every interface has one."},
+   {t:'[data-r="mc"]',say:"<strong>Multicast, FF00::/8.</strong> The first <strong>8 bits are all 1</strong>, so it starts FF. It replaces broadcast."},
+   {t:'[data-r="spec"]',say:"<strong>Loopback (::1)</strong> is the device itself. <strong>The unspecified address (::)</strong> means no address yet."}]);
+  /* inspector */
+  const vi=()=>{$("#v6i-out").innerHTML=inspectHtml($("#v6i-in").value)};$("#v6i-in").oninput=vi;vi();
+  /* structure */
+  $("#tr-v6id").innerHTML='<div class="hxrow">'+[0x2001,0x0DB8,0xACAD,0x0001,0,0,0,1].map((x,i)=>`<span class="hx" data-p="${i<3?"g":i===3?"s":"i"}">${hex4(x)}</span>`).join('<span class="cl">:</span>')+"</div>";
+  tour($("#tr-v6id"),[
+   {t:'[data-p="g"]',say:"<strong>Global routing prefix (/48).</strong> The first 3 groups, 48 bits. Your ISP or registry gives this to your site."},
+   {t:'[data-p="s"]',say:"<strong>Subnet ID (16 bits).</strong> The 4th group. You count in it to make up to 2<sup>16</sup> = 65,536 subnets."},
+   {t:'[data-p="i"]',say:"<strong>Interface ID (64 bits).</strong> The last 4 groups. They identify the device. EUI-64 or a random value fills them."},
+   {t:()=>$$('#tr-v6id [data-p="g"],#tr-v6id [data-p="s"]'),say:"The first 4 groups together are the <strong>/64 network prefix</strong>: what a LAN subnet is called."}]);
+  /* v6 table */
+  const base=v6make([0x2001,0xDB8,0xACAD,0,0,0,0,0]);$("#tr-v6tbl").innerHTML=v6tbl(base,[0,1,10,16,255]);
+  tour($("#tr-v6tbl"),[
+   {t:'#tr-v6tbl [data-col="num"]',say:"<strong>Subnet number</strong> in ordinary decimal."},
+   {t:'#tr-v6tbl [data-col="sid"]',say:"<strong>Subnet ID in hex.</strong> 10 is A, 16 is 10, 255 is FF."},
+   {t:'#tr-v6tbl [data-col="pfx"]',say:"<strong>Network prefix.</strong> The site prefix with the subnet ID in the 4th group, then /64."},
+   {t:'#tr-v6tbl [data-col="first"]',say:"<strong>First host.</strong> The first address is reserved, so hosts usually start at ::1."},
+   {t:'#tr-v6tbl [data-col="last"]',say:"<strong>Last address.</strong> The interface ID bits are all 1: FFFF:FFFF:FFFF:FFFF."}]);
+  /* EUI-64 */
+  $("#tr-eui").innerHTML='<div class="er" data-r="1"><small>1. The MAC address: 6 bytes</small><div class="bytes"><span class="by">00</span><span class="by">1A</span><span class="by">2B</span><span class="by">3C</span><span class="by">4D</span><span class="by">5E</span></div></div><div class="er" data-r="2"><small>2. Split in the middle and insert FF FE</small><div class="bytes"><span class="by">00</span><span class="by">1A</span><span class="by">2B</span><span class="by ins">FF</span><span class="by ins">FE</span><span class="by">3C</span><span class="by">4D</span><span class="by">5E</span></div></div><div class="er" data-r="3"><small>3. Flip the 7th bit of the first byte</small><div class="mono">00 = <span class="bt">0</span><span class="bt">0</span><span class="bt">0</span><span class="bt">0</span> <span class="bt">0</span><span class="bt">0</span><span class="bt fl">0</span><span class="bt">0</span> &rarr; <span class="bt">0</span><span class="bt">0</span><span class="bt">0</span><span class="bt">0</span> <span class="bt">0</span><span class="bt">0</span><span class="bt fl">1</span><span class="bt">0</span> = 02</div></div><div class="er" data-r="4"><small>4. The interface ID</small><div class="mono">021A:2BFF:FE3C:4D5E</div></div><div class="er" data-r="5"><small>5. Add FE80:: for the link-local address</small><div class="mono">FE80::21A:2BFF:FE3C:4D5E</div></div>';
+  tour($("#tr-eui"),[
+   {t:'#tr-eui [data-r="1"]',say:"A MAC address is <strong>48 bits: 6 bytes</strong>."},
+   {t:'#tr-eui .ins',say:"Split the MAC in the middle and put <strong>FF FE</strong> in the gap. Now we have 64 bits."},
+   {t:'#tr-eui .bt.fl',say:"<strong>Flip the 7th bit</strong> of the first byte. 0000 0000 becomes 0000 0010, so 00 becomes <strong>02</strong>."},
+   {t:'#tr-eui [data-r="4"]',say:"Group the 8 bytes in pairs: the <strong>interface ID</strong> 021A:2BFF:FE3C:4D5E."},
+   {t:'#tr-eui [data-r="5"]',say:"With the FE80:: prefix it is a <strong>link-local address</strong>. Leading zeros are dropped, so 021A becomes 21A."}]);
+  const eo=()=>{$("#eui-out").innerHTML=euiHtml($("#eui-in").value)};$("#eui-in").oninput=eo;eo();
+})();
+/* IPv6 subnet table lab */
+let V6L=null;
+function v6labNew(){const len=+$("#v6l-lvl").value,bits=len===48?16:8,max=(1<<bits)-1;let base=v6make([0x2001,0xDB8,rnd(1,0xFFFF),0,0,0,0,0]);if(len===56)base=base|(BigInt(rnd(0,255))<<72n);
+  const ks=[...new Set([rnd(1,9),rnd(10,15),rnd(16,40),rnd(41,Math.min(max,300))])].sort((a,b)=>a-b);V6L={len,base,ks,solved:new Set(),scored:false};v6labRender()}
+function v6labRender(){
+  $("#v6l-brief").innerHTML="Site prefix: <strong>"+v6short(V6L.base)+"/"+V6L.len+"</strong>. Fill in the table for each /64 subnet. The subnet ID is "+(V6L.len===48?"the whole 4th group":"the last 2 digits of the 4th group")+". Write prefixes with /64. Any correct form is accepted, upper or lower case.";
+  const inp=(id,ph,sz)=>`<input type="text" id="${id}" size="${sz}" placeholder="${ph}" autocomplete="off" autocapitalize="off" spellcheck="false">`;
+  $("#v6l-t").innerHTML='<thead><tr><th>Subnet #</th><th>Subnet ID (hex)</th><th>Network prefix</th><th>First host</th><th>Last address</th><th>Check</th></tr></thead><tbody>'+V6L.ks.map((k,i)=>`<tr id="v6l-row-${i}"><td class="m given">${k}</td><td><label class="sr" for="v6l-sid-${i}">Subnet ID for subnet ${k}</label>${inp("v6l-sid-"+i,"hex",6)}</td><td><label class="sr" for="v6l-pfx-${i}">Network prefix for subnet ${k}</label>${inp("v6l-pfx-"+i,"2001:db8:...::/64",26)}</td><td><label class="sr" for="v6l-fst-${i}">First host for subnet ${k}</label>${inp("v6l-fst-"+i,"address",26)}</td><td><label class="sr" for="v6l-lst-${i}">Last address for subnet ${k}</label>${inp("v6l-lst-"+i,"address",34)}</td><td class="m"><span id="v6l-st-${i}"></span><div class="lab-btns"><button class="btn alt tiny" type="button" data-vr="check" data-i="${i}">Check</button><button class="btn alt tiny" type="button" data-vr="hint" data-i="${i}">Hint</button><button class="btn alt tiny" type="button" data-vr="show" data-i="${i}">Show</button></div></td></tr>`).join("")+"</tbody>";
+  $("#v6l-fb").className="fb";$("#v6l-fb").textContent="";
+}
+function v6labRow(i){const k=V6L.ks[i],net=V6L.base|(BigInt(k)<<64n),v=["sid","pfx","fst","lst"].map(c=>$("#v6l-"+c+"-"+i).value.trim()),
+  r=[/^[0-9a-f]{1,4}$/i.test(v[0])&&parseInt(v[0],16)===k,(()=>{const m=v[1].split("/");return m.length===2&&m[1].trim()==="64"&&v6parse(m[0])===net})(),!v[2].includes("/")&&v6parse(v[2])===net+1n,!v[3].includes("/")&&v6parse(v[3])===net+(1n<<64n)-1n];
+  ["sid","pfx","fst","lst"].forEach((c,j)=>{const e=$("#v6l-"+c+"-"+i);e.style.borderColor=v[j]===""?"":r[j]?"var(--good)":"var(--bad)";e.setAttribute("aria-invalid",v[j]===""||r[j]?"false":"true")});
+  const n=r.filter(Boolean).length,st=$("#v6l-st-"+i);st.textContent=n===4?"✓ correct":n+" of 4";st.style.color=n===4?"var(--good)":"var(--bad)";
+  if(n===4){V6L.solved.add(i);$("#v6l-row-"+i).classList.add("rowok")}else{V6L.solved.delete(i);$("#v6l-row-"+i).classList.remove("rowok")}return n===4}
+function v6labShow(i){const k=V6L.ks[i],net=V6L.base|(BigInt(k)<<64n);$("#v6l-sid-"+i).value=k.toString(16).toUpperCase();$("#v6l-pfx-"+i).value=v6short(net)+"/64";$("#v6l-fst-"+i).value=v6short(net+1n);$("#v6l-lst-"+i).value=v6short(net+(1n<<64n)-1n)}
+function v6labHint(i){const k=V6L.ks[i];return"Subnet "+k+": "+Math.floor(k/16)+" &times; 16 + "+(k%16)+" = "+k.toString(16).toUpperCase()+" in hex. Put that in the 4th group of the site prefix"+(V6L.len===56?" (the last two digits of it)":"")+" and add /64. The first host is the prefix with ::1. The last address ends FFFF:FFFF:FFFF:FFFF."}
+$("#v6l-t").addEventListener("click",e=>{const b=e.target.closest("button[data-vr]");if(!b)return;const i=+b.dataset.i,k=b.dataset.vr,f=$("#v6l-fb");
+  if(k==="check")v6labRow(i);else if(k==="hint"){f.className="fb info";f.innerHTML="Hint: "+v6labHint(i)}else{v6labShow(i);v6labRow(i)}});
+$("#v6l-check").onclick=()=>{let n=0;V6L.ks.forEach((k,i)=>{if(v6labRow(i))n++});const f=$("#v6l-fb");if(n===V6L.ks.length){f.className="fb ok";f.textContent="Every row is correct. Well done.";if(!V6L.scored){V6L.scored=true;addScore()}}else{f.className="fb info";f.textContent=n+" of "+V6L.ks.length+" rows correct. Red boxes need another look."}};
+$("#v6l-hint").onclick=()=>{const i=V6L.ks.findIndex((k,j)=>!V6L.solved.has(j)),f=$("#v6l-fb");f.className="fb info";f.innerHTML=i<0?"All rows are correct.":"Hint for row "+(i+1)+": "+v6labHint(i)};
+$("#v6l-show").onclick=()=>{V6L.ks.forEach((k,i)=>{v6labShow(i);v6labRow(i)});const f=$("#v6l-fb");f.className="fb info";f.textContent="Answers filled in. Study the pattern and try a new scenario."};
+$("#v6l-new").onclick=v6labNew;$("#v6l-lvl").onchange=v6labNew;
+$("#v6l-sup").innerHTML=supV6sub()+supV6rules();v6labNew();
+/* calculator IPv6 tab */
+$("#kv-a").oninput=()=>{$("#kv-o1").innerHTML=inspectHtml($("#kv-a").value)};$("#kv-a").oninput();
+$("#kv-h").oninput=()=>{const t=$("#kv-h").value.trim().toUpperCase(),o=$("#kv-o2");if(!/^[0-9A-F]{1,8}$/.test(t)){o.innerHTML='<div class="fb no" style="display:block">Enter 1 to 8 hex digits (0 to 9 and A to F).</div>';return}
+  o.innerHTML='<div class="step"><em>Bits</em><span>'+t.split("").map(c=>c+" = "+parseInt(c,16).toString(2).padStart(4,"0")).join(" &nbsp; ")+'</span></div><div class="step"><em>Joined</em><span>'+t.split("").map(c=>parseInt(c,16).toString(2).padStart(4,"0")).join(" ")+'</span></div><div class="step"><em>Decimal</em><span>'+parseInt(t,16).toLocaleString("en-GB")+"</span></div>"};$("#kv-h").oninput();
+$("#kv-m").oninput=()=>{$("#kv-o3").innerHTML=euiHtml($("#kv-m").value)};$("#kv-m").oninput();
 decorate();
 
 /* ---------- nav, progress, settings ---------- */
