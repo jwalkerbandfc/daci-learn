@@ -119,6 +119,16 @@ function finishExam(part,mode,st,res){
   const bonus=Math.min(60,res.total);award('ex:'+part+':'+mode+':marks',Math.round(bonus/2),'your marks');
   say('Submitted. You scored '+res.total+' out of '+res.max+'.');
 }
+
+function showPartBChoice(){
+  closeFs();document.title='Part B practice | Access practice';
+  const el=main();el.replaceChildren();
+  const card=(P,t,sub,hint)=>h('section',{class:'card'},h('h2',{},t),h('p',{},sub),h('p',{class:'a-hint'},hint),h('div',{class:'m-row'},h('a',{class:'btn big',href:'#part'+P.toLowerCase()+'-practice'},'Practice'),h('a',{class:'btn alt',href:'#part'+P.toLowerCase()+'-challenge'},'Challenge')));
+  el.append(h('div',{class:'wrap'},h('div',{class:'crumbs'},h('a',{class:'btn alt sm',href:'#home'},'← Home')),h('h1',{},'Part B practice'),h('p',{class:'lead'},'Part B is building and testing forms in Access. Choose the paper you want to practise.'),
+    h('div',{class:'hero'},
+      card('B25','June 2025: Narisha’s running club','Build a runner entry form with validation and an evaluation form with calculated fields.','Activities 6, 7 and 8. 26 marks.'),
+      card('B','Set task 2201: Washerpool College','Build a subject entry form and a test results form, then test and evaluate them.','Activities 6, 7 and 8. 26 marks.'))));
+}
 /* ===== Part B (Washerpool College, 2201): brief, highlighting, Access, evidence, files, marking ===== */
 const BRIEF_WP=[
  {k:'h',t:'Part B Set Task Brief'},
@@ -904,6 +914,15 @@ function paModel(db){
 }
 const paFld=(t,k)=>t&&t.fields.find(f=>paKey(f.n)===k);
 const paSame=(t,keys)=>{if(!t)return false;const ks=t.fields.map(f=>paKey(f.n));return keys.every(k=>ks.includes(k))&&ks.every(k=>keys.includes(k))&&new Set(ks).size===ks.length};
+const paSurr=t=>t&&t.fields.find(f=>f.pk&&f.t==='AutoNumber'&&!paKey(f.n));
+function paLinkOK(t){
+  if(!t)return false;const sg=paSurr(t);
+  const ks=t.fields.filter(f=>f!==sg).map(f=>paKey(f.n));
+  const keys=['runid','volid','posid','attended'];
+  if(!(keys.every(k=>ks.includes(k))&&ks.every(k=>keys.includes(k))&&new Set(ks).size===ks.length))return false;
+  const pk=t.fields.filter(f=>f.pk);
+  return sg?(pk.length===1):paPkOK(t,['runid','volid']);
+}
 const paPkOK=(t,keys)=>{if(!t)return false;const pk=t.fields.filter(f=>f.pk).map(f=>paKey(f.n)).sort().join(',');return pk===keys.slice().sort().join(',')};
 function paRowsVal(t,k,r){const f=paFld(t,k);return f?r[f.n]:undefined}
 const yn=v=>v===true||/^(yes|true|-1|1)$/i.test(String(v));
@@ -1030,7 +1049,7 @@ function paEvidA2(M){
   const tbls=Object.keys(L.tables);
   const all=tbls.length>0&&tbls.every(n=>paShots('a2','tables').some(s=>s.kind==='table'&&s.view==='design'&&s.tbl===n));
   const sl=(slot,pred)=>paShots('a2',slot).some(s=>s.kind==='table'&&s.view==='design'&&s.fld&&pred(s.fld,s));
-  const pres=sl('presence',f=>!!f.req),len=sl('length',f=>f.t==='Short Text'&&+f.size>0&&+f.size<255),
+  const pres=sl('presence',f=>!!f.req),len=sl('length',f=>(f.t==='Short Text'&&+f.size>0&&+f.size<255)||/len\s*\(/i.test(f.rule||'')),
    rng=sl('range',f=>(/between|<|>/i.test(f.rule||''))||(f.lookup&&f.lookup.type==='Value List')),
    tl=sl('tlookup',f=>f.lookup&&f.lookup.display==='Combo Box'&&Object.keys(L.tables).some(n=>n.toLowerCase()===String(f.lookup.rowSource||'').trim().toLowerCase())),
    fm=sl('format',f=>!!(f.mask||/like/i.test(f.rule||'')));
@@ -1043,14 +1062,14 @@ function pbScoreA(){
   const relShot=(PBX.st.docs.a1.slots.rel.shots||[]).map(id=>PBX.st.ev.shots.find(x=>x.id===id)).filter(Boolean).some(s=>s.kind==='rel');
   const noRel=relShot?'':'Put a screenshot of the Relationships window in the Activity 1 document first.';
   const gate=v=>(relShot&&v)?1:0;
-  const allKeys=new Set();let extra=0;Object.values(L.tables).forEach(t=>t.fields.forEach(f=>{const k=paKey(f.n);if(k)allKeys.add(k);else extra++}));
+  const allKeys=new Set();let extra=0;let sgUsed=false;Object.values(L.tables).forEach(t=>t.fields.forEach(f=>{const k=paKey(f.n);if(k)allKeys.add(k);else if(t===M.link&&f===paSurr(t)&&!sgUsed)sgUsed=true;else extra++}));
   add('p1_fields','a1','All and only the fields in Figure 1',gate(PA_ALLK.every(k=>allKeys.has(k))&&extra===0),1,noRel||(extra?'You have '+extra+' extra field(s). Use only the fields in Figure 1.':'Some fields from Figure 1 are missing: '+PA_ALLK.filter(k=>!allKeys.has(k)).join(', ')+'.'));
   add('p1_run','a1','A run table (RunID, run date, meet up) with RunID as the primary key',gate(paSame(M.run,['runid','rundate','meet'])&&paPkOK(M.run,['runid'])),1,noRel||'One table with only RunID (key), the run date and the meet up field.');
   add('p1_vol','a1','A volunteer table (ID, last name, telephone, date of birth) with the primary key',gate(paSame(M.vol,['volid','lastname','tel','dob'])&&paPkOK(M.vol,['volid'])),1,noRel||'One table with only VolunteerID (key), last name, telephone and date of birth.');
   add('p1_pos','a1','A position table (ID, position, volunteers needed) with the primary key',gate(paSame(M.pos,['posid','posname','needed'])&&paPkOK(M.pos,['posid'])),1,noRel||'One table with only PositionID (key), the position name and the number of volunteers needed.');
-  add('p1_link','a1','A linking table for each volunteer at each run, with a combined primary key',gate(paSame(M.link,['runid','volid','posid','attended'])&&paPkOK(M.link,['runid','volid'])),1,noRel||'The linking table has RunID, VolunteerID, PositionID and VolunteerAttended. The primary key is RunID and VolunteerID together.');
+  add('p1_link','a1','A linking table for each volunteer at each run, with a combined primary key',gate(paLinkOK(M.link)),1,noRel||'The linking table has RunID, VolunteerID, PositionID and VolunteerAttended. The primary key is RunID and VolunteerID together (or one AutoNumber ID of your own).');
   const names=Object.values(L.tables);
-  const nameOK=names.length>=4&&names.every(t=>/^tbl[A-Z][A-Za-z0-9]*$/.test(t.name)&&t.fields.every(f=>/^[A-Za-z][A-Za-z0-9]*$/.test(f.n)));
+  const okc=n=>/^[A-Za-z][A-Za-z0-9_]*$/.test(n);const pref=names.every(t=>/^tbl_?[A-Z]/.test(t.name))||names.every(t=>/^t_[A-Za-z]/.test(t.name))||names.every(t=>/^[A-Z][A-Za-z0-9]*$/.test(t.name));const nameOK=names.length>=4&&pref&&names.every(t=>okc(t.name)&&t.fields.every(f=>okc(f.n)));
   add('p1_name','a1','Recognised naming conventions (tbl prefix, no spaces)',gate(nameOK),1,noRel||'Name tables like tblVolunteer and fields like VolunteerLastName. No spaces or odd characters.');
   const relOK=(oneT,manyT,k)=>L.rels.find(r=>r.oneT===(oneT&&oneT.name)&&r.manyT===(manyT&&manyT.name)&&paKey(r.oneF)===k&&paKey(r.manyF)===k);
   const r1=relOK(M.run,M.link,'runid'),r2=relOK(M.vol,M.link,'volid'),r3=relOK(M.pos,M.link,'posid');
@@ -1245,7 +1264,7 @@ function paNormPage(page){
       body.append(h('h3',{},'Step 6: Keys and links'),h('p',{},'Choose the primary key of each table and the ONE side of each relationship.'));
       const rows=[['tblRun primary key',['','RunID','RunDate'],'RunID'],['tblVolunteer primary key',['','VolunteerID','VolunteerLastName'],'VolunteerID'],['tblPosition primary key',['','PositionID','Position'],'PositionID'],['tblRunVolunteer primary key',['','RunID + VolunteerID','An extra ID field','VolunteerAttended'],'RunID + VolunteerID'],
         ['RunID: the ONE side is',['','tblRun','tblRunVolunteer'],'tblRun'],['VolunteerID: the ONE side is',['','tblVolunteer','tblRunVolunteer'],'tblVolunteer'],['PositionID: the ONE side is',['','tblPosition','tblRunVolunteer'],'tblPosition']];
-      const why={'An extra ID field':'Figure 1 says use “all and only” the fields shown, so the linking table uses the two keys together instead of a new ID.'};
+      const why={'An extra ID field':'Figure 1 says use “all and only” the fields shown, so the cleanest linking table uses the two keys together. One extra AutoNumber ID is also accepted here, but it is an extra field.'};
       body.append(...rows.map(([l,o,a])=>{const sel=h('select',{class:'sel','aria-label':l},...o.map(x=>h('option',{value:x},x||'Choose…')));sel.value=st.keys[l]||'';sel.addEventListener('change',()=>{st.keys[l]=sel.value;save();draw()});return h('div',{class:'m-row norm-q'},h('label',{style:'min-width:15rem;font-weight:700'},l),sel,fb&&st.keys[l]?h('span',{},ok(st.keys[l]===a),' ',h('span',{class:'a-hint'},why[st.keys[l]]||'')):null)}),
         h('p',{class:'note',html:'The ONE side is the table where the value is unique (the primary key). The MANY side holds the copy (the <b>foreign key</b>). For example one run has many volunteer rows, so tblRun is the ONE side. Turn on <b>Enforce Referential Integrity</b> so the database refuses an ID that does not exist.'}),nav());
     }else{

@@ -1,4 +1,9 @@
-<title>Access Quest</title>
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Access practice | BTEC Unit 2</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Comic+Neue:wght@400;700&family=Lexend:wght@400;600;700&display=swap">
@@ -6,7 +11,7 @@
 /* Layout concept: a level map (two tracks of missions) leading into one-step-at-a-time lessons with a practice Access screen. */
 :root{
   --bg:#F3F5FA;--surface:#FFFFFF;--surface2:#E8ECF5;--ink:#141C33;--muted:#44506E;--line:#B9C2D8;
-  --accent:#8C1B33;--on-accent:#FFFFFF;
+  --accent:#010ED0;--on-accent:#FFFFFF;
   --good:#0A6247;--good-bg:#DCF3E9;--warn:#7A4B00;--warn-bg:#FFF0CC;--info:#12408F;--info-bg:#E0EBFD;
   --focus:#0B57D0;
   --font:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
@@ -15,12 +20,12 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-pal]){
   --bg:#12141D;--surface:#1C1F2B;--surface2:#272B3B;--ink:#EEF0F8;--muted:#B2B9D0;--line:#3C435C;
-  --accent:#F59DB0;--on-accent:#1B0A10;--good:#6EDDB0;--good-bg:#12362B;--warn:#FFCF70;--warn-bg:#3A2E0D;--info:#9BC0FF;--info-bg:#172642;--focus:#7DB1FF;color-scheme:dark}}
+  --accent:#A9B1FF;--on-accent:#0A0E3D;--good:#6EDDB0;--good-bg:#12362B;--warn:#FFCF70;--warn-bg:#3A2E0D;--info:#9BC0FF;--info-bg:#172642;--focus:#7DB1FF;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#12141D;--surface:#1C1F2B;--surface2:#272B3B;--ink:#EEF0F8;--muted:#B2B9D0;--line:#3C435C;
-  --accent:#F59DB0;--on-accent:#1B0A10;--good:#6EDDB0;--good-bg:#12362B;--warn:#FFCF70;--warn-bg:#3A2E0D;--info:#9BC0FF;--info-bg:#172642;--focus:#7DB1FF;color-scheme:dark}
+  --accent:#A9B1FF;--on-accent:#0A0E3D;--good:#6EDDB0;--good-bg:#12362B;--warn:#FFCF70;--warn-bg:#3A2E0D;--info:#9BC0FF;--info-bg:#172642;--focus:#7DB1FF;color-scheme:dark}
 /* user-chosen colour sets (after the viewer theme blocks so they win) */
-:root[data-pal="light"]{--bg:#F3F5FA;--surface:#FFFFFF;--surface2:#E8ECF5;--ink:#141C33;--muted:#44506E;--line:#B9C2D8;--accent:#8C1B33;--on-accent:#FFFFFF;--good:#0A6247;--good-bg:#DCF3E9;--warn:#7A4B00;--warn-bg:#FFF0CC;--info:#12408F;--info-bg:#E0EBFD;--focus:#0B57D0;color-scheme:light}
-:root[data-pal="dark"]{--bg:#12141D;--surface:#1C1F2B;--surface2:#272B3B;--ink:#EEF0F8;--muted:#B2B9D0;--line:#3C435C;--accent:#F59DB0;--on-accent:#1B0A10;--good:#6EDDB0;--good-bg:#12362B;--warn:#FFCF70;--warn-bg:#3A2E0D;--info:#9BC0FF;--info-bg:#172642;--focus:#7DB1FF;color-scheme:dark}
+:root[data-pal="light"]{--bg:#F3F5FA;--surface:#FFFFFF;--surface2:#E8ECF5;--ink:#141C33;--muted:#44506E;--line:#B9C2D8;--accent:#010ED0;--on-accent:#FFFFFF;--good:#0A6247;--good-bg:#DCF3E9;--warn:#7A4B00;--warn-bg:#FFF0CC;--info:#12408F;--info-bg:#E0EBFD;--focus:#0B57D0;color-scheme:light}
+:root[data-pal="dark"]{--bg:#12141D;--surface:#1C1F2B;--surface2:#272B3B;--ink:#EEF0F8;--muted:#B2B9D0;--line:#3C435C;--accent:#A9B1FF;--on-accent:#0A0E3D;--good:#6EDDB0;--good-bg:#12362B;--warn:#FFCF70;--warn-bg:#3A2E0D;--info:#9BC0FF;--info-bg:#172642;--focus:#7DB1FF;color-scheme:dark}
 :root[data-pal="contrast"]{--bg:#000000;--surface:#000000;--surface2:#1A1A1A;--ink:#FFFF4D;--muted:#FFFFFF;--line:#FFFF4D;--accent:#FFFF4D;--on-accent:#000000;--good:#4DFFB0;--good-bg:#00261A;--warn:#FFB84D;--warn-bg:#2B1B00;--info:#6EE7FF;--info-bg:#00222B;--focus:#FFFFFF;color-scheme:dark}
 :root[data-pal="cream"]{--bg:#FBF1D2;--surface:#FFFAE6;--surface2:#F3E5B8;--ink:#2A2310;--muted:#54491F;--line:#C9B777;--accent:#7A1830;--on-accent:#FFFFFF;--good:#0A5A40;--good-bg:#D9EEDD;--warn:#6E4300;--warn-bg:#FBE3A6;--info:#123C85;--info-bg:#DCE7F7;--focus:#0B57D0;color-scheme:light}
 :root[data-pal="blue"]{--bg:#D6E7F8;--surface:#EAF3FC;--surface2:#C3DAF1;--ink:#0C2036;--muted:#2E4764;--line:#7FA3C9;--accent:#0B4A96;--on-accent:#FFFFFF;--good:#0A5A40;--good-bg:#CDEBDD;--warn:#6E4300;--warn-bg:#FBE3A6;--info:#0B4A96;--info-bg:#D2E2F5;--focus:#7A1830;color-scheme:light}
@@ -185,6 +190,10 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 footer.foot{margin-top:3rem;color:var(--muted);font-size:.9rem;display:flex;flex-direction:column;gap:.6rem}
 @media (max-width:30rem){.xpbar{width:4.5rem}}
 </style>
+
+<link rel="stylesheet" href="access.css?v=e6d2f99f">
+</head>
+<body>
 <style>
 .brandbtn{font:inherit;background:none;border:0;padding:.2rem;text-align:left;cursor:pointer;color:inherit;border-radius:.5rem}
 .dhead{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:1rem}
@@ -198,7 +207,7 @@ blockquote.note{margin:0}
 </style>
 <a class="skip" href="#main">Skip to the main content</a>
 <header class="top"><div class="wrap">
-  <button type="button" class="brandbtn" id="btnHome" aria-label="Access Quest. Go to the mission map"><span class="brand"><b>Access Quest</b><span>BTEC Unit 2 · Part A and Part B</span></span></button>
+  <button type="button" class="brandbtn" id="btnHome" aria-label="Access Quest. Go to the mission map"><img class="bfc-logo" src="bfc-logo.svg" alt="BFC Group logo" width="48" height="43"><span class="brand"><b>Access practice</b><span>BTEC Unit 2 · Part A and Part B</span></span></button>
   <div class="tools">
     <div class="xp gamey" id="xpbox" aria-label="Your level and experience points"></div>
         <button type="button" class="btn alt sm" id="btnWords">Key words</button>
@@ -209,8 +218,10 @@ blockquote.note{margin:0}
 <main id="main" tabindex="-1"></main>
 <dialog id="dlgSet" aria-labelledby="setH"><div class="dhead"><h2 id="setH">Display settings</h2><button type="button" class="btn quiet sm closeDlg">Close</button></div><div id="setbody"></div></dialog>
 <dialog id="dlgWords" aria-labelledby="wH"><div class="dhead"><h2 id="wH">Key words</h2><button type="button" class="btn quiet sm closeDlg">Close</button></div><div class="glbody"></div></dialog>
-<link rel="stylesheet" href="access.css?v=2166362f">
-<script src="data.js?v=2166362f"></script>
-<script src="core.js?v=2166362f"></script>
-<script src="access.js?v=2166362f"></script>
-<script src="papers.js?v=2166362f"></script>
+
+<script src="data.js?v=e6d2f99f" charset="utf-8"></script>
+<script src="core.js?v=e6d2f99f" charset="utf-8"></script>
+<script src="access.js?v=e6d2f99f" charset="utf-8"></script>
+<script src="papers.js?v=e6d2f99f" charset="utf-8"></script>
+</body>
+</html>

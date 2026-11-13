@@ -936,6 +936,7 @@ function go(hash){if(location.hash==='#'+hash)route();else location.hash=hash}
 function route(){
   const hsh=location.hash.replace('#','');
   closeFs();
+  if(hsh==='partb'){showPartBChoice();return}
   const pm=/^part(a|b25|b)-(practice|challenge)$/.exec(hsh);
   if(pm){showSetup(pm[1].toUpperCase(),pm[2]);return}
   if(hsh.startsWith('m-')){const m=missionById(hsh.slice(2));if(m){const saved=S.at&&S.at[m.id];showMission(m,saved||0);return}}
@@ -962,12 +963,22 @@ function showHome(){
       (bp!==null||bc!==null)?h('p',{class:'gamey'},bp!==null?h('span',{class:'chip good'},'Practice best '+bp+'%'):null,' ',bc!==null?h('span',{class:'chip info'},'Challenge best '+bc+'%'):null):null);
   };
   wrap.append(
-    h('h1',{},'Access Quest'),
-    h('p',{class:'lead',style:'margin-top:.5rem'},'Practise for your Unit 2 exam. Part A (June 2025) is building the database structure, queries and a report. There are two Part B papers: June 2025 and the 2201 set task. Each opens as a full-screen copy of Access. Choose Practice to learn with help, or Challenge to try it like the real thing.'),
-    h('div',{class:'hero'},partCard('A'),partCard('B25'),partCard('B'),
-      h('div',{class:'card'},h('h2',{},'Make it work for you'),h('p',{},'Change text size, font, spacing and colours. You can also have steps read aloud in the skills guide.'),
-        h('button',{type:'button',class:'btn',onclick:()=>openSettings()},'Open display settings'),
-        h('p',{style:'margin-top:.8rem;margin-bottom:0;font-size:.9rem;color:var(--muted)'},'Works with keyboards and screen readers. Drag and drop always has a button alternative.'))));
+    h('section',{class:'home-hero','aria-labelledby':'hh'},
+      h('h1',{id:'hh'},'Practise Microsoft Access for your BTEC Unit 2 exam'),
+      h('p',{class:'lead'},'A practice copy of Access that works like the real thing. Do the Edexcel Part A and Part B tasks here first, then repeat the same steps in real Access in your exam.'),
+      h('div',{class:'home-btns'},h('a',{class:'btn big',href:'#parta-practice'},'Part A practice'),h('a',{class:'btn big',href:'#partb'},'Part B practice')),
+      h('p',{class:'a-hint home-sub'},'Want a timed attempt? ',h('a',{href:'#parta-challenge'},'Part A challenge'),' · ',h('a',{href:'#partb25-challenge'},'Part B 2025 challenge'),' · ',h('a',{href:'#partb-challenge'},'Part B 2201 challenge'),' · ',h('a',{href:'normalise/'},'Normalisation guide'))),
+    h('div',{class:'home-info'},
+      h('section',{class:'card','aria-labelledby':'hi1'},h('h2',{id:'hi1'},'Access'),
+        h('p',{},'This is a safe practice copy of Microsoft Access 2016. The Ribbon, tabs, menus, dialog boxes and Property Sheets look and behave like the real program.'),
+        h('p',{},'Buttons you need for the exam work. Buttons you do not need tell you so. If there are two ways to do a task, both ways work.')),
+      h('section',{class:'card','aria-labelledby':'hi2'},h('h2',{id:'hi2'},'About Access'),
+        h('p',{},'Microsoft Access is a program for building databases. Everything lives in one file that ends in .accdb. You build objects:'),
+        h('ul',{class:'checks'},h('li',{html:'<b>Tables</b> store the data'}),h('li',{html:'<b>Queries</b> ask questions and calculate'}),h('li',{html:'<b>Forms</b> make typing data in easy and safe'}),h('li',{html:'<b>Reports</b> show results ready to print or save as a PDF'}),h('li',{html:'<b>Macros</b> do a list of actions for you'}))),
+      h('section',{class:'card','aria-labelledby':'hi3'},h('h2',{id:'hi3'},'About databases'),
+        h('p',{},'A database stores information in an organised way so it can be searched, sorted and checked.'),
+        h('ul',{class:'checks'},h('li',{html:'A <b>table</b> has rows (<b>records</b>) and columns (<b>fields</b>)'}),h('li',{html:'A <b>primary key</b> makes every record different'}),h('li',{html:'<b>Relationships</b> link tables so each fact is stored once'}),h('li',{html:'<b>Validation</b> stops wrong data going in'})),
+        h('p',{},h('a',{href:'normalise/'},'Read the normalisation guide'),' to see how one big flat table becomes linked tables.'))));
   const start=missionById('start');
   wrap.append(h('section',{class:'track','aria-labelledby':'t0'},
     h('header',{},h('h2',{id:'t0'},'Skills guide: start here'),h('p',{class:'sub'},'Do this one first. It takes about 15 minutes.')),
