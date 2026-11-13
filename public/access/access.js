@@ -467,7 +467,6 @@ function openObj(kind,name,view,draft,isNew){
 }
 function setView(it,v){
   if(it.view===v)return;
-  if(v==='dsv'){notReq('Datasheet View for a form');return}
   if(it.kind==='table'&&it.view==='design'&&it.dirty&&!L.lock)return confirmBox('Do you want to save changes to the design of table “'+(it.name||'Table1')+'”?',()=>saveObject(it,()=>{it.d=null;setView(it,v)}),()=>{it.dirty=false;it.d=null;setView(it,v)},true);
   if(it.kind==='table'&&it.view==='design'&&v==='data')it.d=null;
   if(v==='design')prepDesign(it);
@@ -624,10 +623,11 @@ function showBackstage(){
     'Save As':()=>h('div',{class:'stack'},h('h2',{},'Save As'),
       h('p',{},'Save the database into your exam folder. Use the file name you are told to use.'),
       h('div',{class:'m-row'},h('button',{type:'button',class:'btn',onclick:()=>{back.remove();if(accHooks.saveDb)accHooks.saveDb();else msgBox('Saving files is not available here.')}},'Save Database As…'),h('button',{type:'button',class:'btn alt',onclick:()=>{back.remove();if(accHooks.backup)accHooks.backup();else msgBox('Backups are not available here.')}},'Back Up Database…'))),
+    Print:()=>h('div',{class:'stack'},h('h2',{},'Print'),h('p',{html:'<b>Print</b>, <b>Quick Print</b> and <b>Print Preview</b> are not required for this task. You save PDFs instead.'})),
     'Close Database':()=>{back.remove();UI.open=[];UI.act=-1;renderAll();setStatus('All objects closed.');return null}};
-  const show=k=>{main.replaceChildren();const c=(pages[k]||(()=>h('p',{},'Not used in this exam.')))();if(c)main.append(c)};
+  const show=k=>{main.replaceChildren();const c=(pages[k]||(()=>h('div',{class:'stack'},h('h2',{},k),h('p',{html:'<b>“'+k+'”</b> is not required for this task.'}),h('p',{class:'note',html:'In the exam you only use <b>Save As</b> (to save your database and back it up) and, sometimes, <b>Close</b>. Go back to the database window to carry on.'}))))();if(c)main.append(c)};
   const back=h('div',{class:'a-back',role:'dialog','aria-label':'Backstage view'},
-    h('div',{class:'a-backnav'},h('button',{type:'button',class:'a-mi',onclick:()=>back.remove(),'aria-label':'Back to the database window'},'← Back'),...['Info','Save','Save As','Close Database'].map(k=>h('button',{type:'button',class:'a-mi',onclick:()=>show(k)},k))),main);
+    h('div',{class:'a-backnav'},h('button',{type:'button',class:'a-mi',onclick:()=>back.remove(),'aria-label':'Back to the database window'},'← Back'),...['Info','New','Open','Save','Save As','Print','Close Database','Account','Feedback','Options'].map(k=>h('button',{type:'button',class:'a-mi',onclick:()=>show(k)},k))),main);
   labRef.acc.append(back);show('Info');$('button',back).focus();
   back.addEventListener('keydown',e=>{if(e.key==='Escape')back.remove()});
 }
@@ -676,7 +676,7 @@ function renderWork(){
   }));
   const it=UI.open[UI.act];
   if(!it){d.append(h('div',{class:'a-welcome'},h('h3',{},L.title||'Washerpool College database'),h('p',{},'Double-click an object in the Navigation Pane on the left to open it. Use the Create tab to make new objects.')));return}
-  const R={report:{view:rptView,print:rptPrint,layout:rptLayout,design:rptDesign},table:{data:tblData,design:tblDesign},query:{run:qryRun,sql:qrySql,design:qryDesign},form:{view:frmView,layout:frmLayout,design:frmDesign},macro:{design:macDesign},rel:{rel:relView}};
+  const R={report:{view:rptView,print:rptPrint,layout:rptLayout,design:rptDesign},table:{data:tblData,design:tblDesign},query:{run:qryRun,sql:qrySql,design:qryDesign},form:{view:frmView,layout:frmLayout,dsv:frmDatasheet,design:frmDesign},macro:{design:macDesign},rel:{rel:relView}};
   const box=h('div',{class:'a-objin'});d.append(box);
   (R[it.kind][it.view])(it,box,rec);
 }
@@ -2265,7 +2265,8 @@ function showRelTable(it){
 function relView(it,box){
   const hidden=L.relHidden||(L.relHidden=[]);
   const names=Object.keys(L.tables).filter(n=>!hidden.includes(n));const lock=!!L.lock;
-  const wrap=h('div',{class:'relc'});
+  const wrap=h('div',{class:'relc free'});
+  const pos=L.relPos||(L.relPos={});
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','rel-svg');svg.setAttribute('aria-hidden','true');
   const sel=it.relSel;
   if(!names.length)wrap.append(h('p',{class:'m-empty'},Object.keys(L.tables).length?'All tables are hidden. Use Show Table on the Design tab.':'There are no tables yet. Create tables first.'));
@@ -2278,8 +2279,10 @@ function relView(it,box){
   };
   names.forEach(n=>{
     const t=L.tables[n];
-    const head=h('div',{class:'rbox-h'+(it.relTbl===n?' on':''),tabindex:'0',role:'button','aria-label':'Table '+n+(it.relTbl===n?', selected':''),onclick:()=>{it.relTbl=it.relTbl===n?null:n;renderWork()}},n);
-    wrap.append(h('div',{class:'rbox',role:'group','aria-label':'Table '+n},head,h('div',{class:'rbox-b'},...t.fields.map(f=>{
+    const head=h('div',{class:'rbox-h'+(it.relTbl===n?' on':''),tabindex:'0',role:'button','aria-label':'Table '+n+(it.relTbl===n?', selected':'')+'. Drag to move.',onclick:()=>{if(it.boxMoved){it.boxMoved=false;return}it.relTbl=it.relTbl===n?null:n;renderWork()}},n);
+    const k=Object.keys(L.tables).indexOf(n);
+    if(!pos[n])pos[n]={x:20+(k%3)*250,y:20+Math.floor(k/3)*200};
+    const boxEl=h('div',{class:'rbox',role:'group','aria-label':'Table '+n,style:'left:'+pos[n].x+'px;top:'+pos[n].y+'px'},head,h('div',{class:'rbox-b'},...t.fields.map(f=>{
       const b=h('button',{type:'button',class:'rf'+(sel&&sel.t===n&&sel.f===f.n?' on':'')+(lock?' plain':''),'data-bt':n,'data-bf':f.n,'aria-label':'Field '+f.n+' in '+n+(f.pk?', primary key':'')+(sel&&sel.t===n&&sel.f===f.n?', selected':'')},(f.pk?'🔑 ':'')+f.n);
       if(!lock){
         b.addEventListener('click',()=>{
@@ -2296,8 +2299,18 @@ function relView(it,box){
         });
       }
       return b;
-    }))));
+    })));
+    head.addEventListener('pointerdown',e=>{
+      if(e.button!==0)return;const sx=e.clientX,sy=e.clientY,ox=pos[n].x,oy=pos[n].y;let moved=false;
+      const mv=ev=>{if(!moved&&Math.hypot(ev.clientX-sx,ev.clientY-sy)<5)return;moved=true;pos[n].x=Math.max(0,ox+ev.clientX-sx);pos[n].y=Math.max(0,oy+ev.clientY-sy);boxEl.style.left=pos[n].x+'px';boxEl.style.top=pos[n].y+'px';fit();redraw()};
+      const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);if(moved){it.boxMoved=true;setTimeout(()=>it.boxMoved=false,60);labSave()}};
+      document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);
+    });
+    head.addEventListener('keydown',e=>{const st=e.shiftKey?40:10;const m={ArrowLeft:[-st,0],ArrowRight:[st,0],ArrowUp:[0,-st],ArrowDown:[0,st]}[e.key];if(!m||!e.altKey)return;e.preventDefault();pos[n].x=Math.max(0,pos[n].x+m[0]);pos[n].y=Math.max(0,pos[n].y+m[1]);boxEl.style.left=pos[n].x+'px';boxEl.style.top=pos[n].y+'px';fit();redraw();labSave()});
+    wrap.append(boxEl);
   });
+  const fit=()=>{const xs=names.map(n=>pos[n].x+230),ys=names.map(n=>pos[n].y+(L.tables[n].fields.length*24+40));wrap.style.minWidth=Math.max(0,...xs)+'px';wrap.style.height=Math.max(260,...ys)+'px'};
+  fit();
   wrap.append(svg);
   box.append(h('p',{class:'note',html:lock?'<b>Relationships.</b> The tables are already linked. A line with <b>1</b> and <b>∞</b> means referential integrity is enforced (the ONE side and the MANY side).':'<b>How to link tables:</b> drag the primary key field of one table onto the matching field of the other. (Or click one field, then the other.) Click a line to select it, double-click it to edit it. Right-click a line to delete it.'}),wrap);
   const list=h('ul',{class:'checks'});
@@ -2414,3 +2427,12 @@ function layoutBanner(what){return h('div',{class:'layout-note',role:'note'},h('
 function frmLayout(it,box,rec){box.append(layoutBanner('Form View'));frmView(it,box,rec)}
 function rptLayout(it,box,rec){box.append(layoutBanner('Report View'));rptView(it,box,rec)}
 function rptPrint(it,box,rec){box.classList.add('printprev');rptView(it,box,rec)}
+
+/* Datasheet View of a form shows its Record Source as a datasheet */
+function frmDatasheet(it,box,rec){
+  const d=defn(it)||it.d;const rs=((d&&d.recordSource)||'').trim();
+  const tn=Object.keys(L.tables).find(n=>lc(n)===lc(rs)),qn=Object.keys(L.queries).find(n=>lc(n)===lc(rs));
+  if(tn){const tmp=it.dsItem&&it.dsItem.name===tn?it.dsItem:(it.dsItem={kind:'table',name:tn,view:'data',sel:-1,edit:-1,d:null});tblData(tmp,box,rec);return}
+  if(qn){const tmp=it.dsItem&&it.dsItem.name===qn?it.dsItem:(it.dsItem={kind:'query',name:qn,view:'run',sel:-1,edit:-1,d:null});qryRun(tmp,box,rec);return}
+  box.append(h('p',{class:'m-empty',style:'padding:1rem'},'This form has no Record Source, so there is no datasheet to show. Set the Record Source in the Property Sheet first.'));
+}

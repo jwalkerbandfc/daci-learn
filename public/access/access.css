@@ -608,3 +608,7 @@ mark.hl-p{background:#FFB3D1;color:#1B1B1B}
 .printprev{background:#7a7a7a;padding:.5rem}
 .rpt-wrap.withps{grid-template-columns:14rem 1fr 15rem}
 .rpt-ps{max-height:34rem;overflow:auto}
+
+.relc.free{display:block;overflow:visible}
+.relc.free .rbox{position:absolute;width:13.5rem}
+.rbox-h{cursor:move;touch-action:none}
