@@ -373,8 +373,8 @@ label.aso input{width:1.25rem;height:1.25rem;accent-color:var(--accent);flex:non
   <div class="chunk"><h3 data-k="Learn">Computers only count with ON and OFF</h3>
     <p>A computer has no fingers. It has switches. A switch is OFF (<code>0</code>) or ON (<code>1</code>). One switch is a [[bit]]. Eight switches in a row are one [[octet]] (also called a byte).</p>
     <p>Each switch is worth a number. Starting from the right, each one is <strong>double</strong> the last: 1, 2, 4, 8, 16, 32, 64, 128. When a switch is ON, you <strong>add</strong> its value. When it is OFF, you add nothing.</p>
-    <div class="dbl" id="dbl" role="img" aria-label="Bars showing place values doubling: 1, 2, 4, 8, 16, 32, 64, 128"></div>
-    <p><small>Each bar is double the one before it. Hover a bar to see why.</small></p>
+    <div class="dbl" id="dbl" role="img" aria-label="Bars showing the place values from left to right: 128, 64, 32, 16, 8, 4, 2, 1"></div>
+    <p><small>The bars are in the same order as the switches, biggest on the left. Read right to left and each bar is double the one before it. Hover a bar to see why.</small></p>
     <p class="note">Biggest number in one octet: all eight switches ON = 128+64+32+16+8+4+2+1 = <strong>255</strong>. Smallest: all OFF = <strong>0</strong>. That is why each IP octet is between 0 and 255.</p>
   </div>
   <div class="chunk"><h3 data-k="See it">Reading one octet: a guided look</h3>
@@ -1514,7 +1514,7 @@ $$(".rd").forEach(cb=>cb.onchange=()=>{const n=$$(".rd:checked").length;$("#rd-f
 
 /* ---------- extra visuals ---------- */
 (function(){
-  const dbl=$("#dbl");if(dbl)dbl.innerHTML=[1,2,4,8,16,32,64,128].map((v,k)=>`<div class="db" data-tip="${v}::${k===0?"The first place value.":"Double the one before it ("+v/2+" × 2)."} It is switch ${8-k} from the left."><div class="bar" style="height:${Math.max(10,Math.round(v*.85))}px"></div><b>${v}</b></div>`).join("");
+  const dbl=$("#dbl");if(dbl)dbl.innerHTML=[128,64,32,16,8,4,2,1].map((v,k)=>`<div class="db" data-tip="${v}::${v===1?"The smallest place value, on the far right.":"Double the one to its right ("+v/2+" × 2)."} It is switch ${k+1} from the left, the same order as the switches below."><div class="bar" style="height:${Math.max(10,Math.round(v*.85))}px"></div><b>${v}</b></div>`).join("");
   $("#lad").innerHTML=ladHtml();
   $("#ruler").innerHTML=[0,1,2,3].map(o=>`<div class="rg"><div class="rcs">${Array.from({length:8},(_,b)=>{const i=o*8+b+1;return `<span class="rc" data-tip="Bit ${i}::Octet ${o+1}. A network bit when the prefix is ${i} or more. A host bit when the prefix is ${i-1} or less.">${i}</span>`}).join("")}</div><small>Octet ${o+1} &middot; ends at /${(o+1)*8}</small></div>`).join("");
   function drawPz(){const n=+$("#pz-r").value,S=2**n,sz=256/S;$("#pz-o").textContent=n+" bit"+(n===1?"":"s");$("#pz-svg").innerHTML=pizza(n);
