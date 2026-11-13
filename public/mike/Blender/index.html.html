@@ -1,0 +1,2432 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blender Shortcut Trainer</title>
+<meta name="description" content="An interactive resource for learning and practising commonly used Blender keyboard shortcuts.">
+<style>
+:root{
+  --bg:#1c1c1c; --bg-2:#222; --panel:#282828; --panel-2:#303030; --panel-3:#3a3a3a;
+  --line:#474747; --line-soft:#383838;
+  --text:#ececec; --muted:#b8b8b8;
+  --accent:#4772b3; --accent-hi:#6f9be3; --accent-soft:rgba(71,114,179,.22);
+  --orange:#ffab52; --orange-soft:rgba(255,171,82,.14);
+  --green:#74d494; --green-soft:rgba(116,212,148,.13);
+  --red:#ff8585; --red-soft:rgba(255,133,133,.12);
+  --focus:#ffc46b;
+  --radius:10px;
+  --mono:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 "Inter","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;overflow-x:hidden}
+a{color:var(--accent-hi)}
+h1,h2,h3,h4{line-height:1.25;margin:0 0 .5em}
+h2{font-size:clamp(1.45rem,1.1rem + 1.4vw,1.9rem)}
+h3{font-size:1.2rem}
+p{margin:0 0 1em}
+[hidden]{display:none!important}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+.skip{position:absolute;left:-999px;top:8px;background:var(--orange);color:#111;padding:8px 14px;border-radius:6px;z-index:100;font-weight:600}
+.skip:focus{left:8px}
+input[type=text],select,textarea{background:#181818;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font:inherit}
+input[type=text]:focus,select:focus,textarea:focus{outline:3px solid var(--focus);outline-offset:1px;border-color:var(--accent-hi)}
+textarea{width:100%;min-height:110px;resize:vertical}
+
+/* ---------- Top bar ---------- */
+.topbar{position:sticky;top:0;z-index:50;background:#232323;border-bottom:1px solid #111;box-shadow:0 2px 10px rgba(0,0,0,.35)}
+.topbar-inner{max-width:1180px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;font-weight:700;white-space:nowrap}
+.brand svg{flex:none}
+.nav-wrap{order:4;flex-basis:100%;min-width:0}
+.nav{list-style:none;margin:0;padding:2px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin}
+.nav a{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:.9rem;white-space:nowrap;border:1px solid transparent}
+.nav a:hover{background:var(--panel-2);color:var(--text)}
+.nav a.current{background:var(--accent-soft);color:var(--text);border-color:var(--accent)}
+.nav .badge{font-size:.72rem;background:var(--panel-3);color:var(--text);padding:1px 6px;border-radius:99px}
+.nav .badge.done{background:var(--green);color:#10291a}
+.prog{order:3;position:relative;margin-left:auto}
+.prog summary{list-style:none;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:.9rem;white-space:nowrap}
+.prog summary::-webkit-details-marker{display:none}
+.prog summary:hover{border-color:var(--accent-hi)}
+.prog[open] summary{border-color:var(--accent-hi);background:var(--panel-2)}
+.prog-track{width:70px;height:8px;border-radius:99px;background:#151515;overflow:hidden;display:inline-block}
+.prog-track span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent-hi),var(--orange));transition:width .4s}
+.prog-pop{position:absolute;right:0;top:calc(100% + 6px);width:min(330px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.prog-pop ul{list-style:none;margin:0 0 12px;padding:0}
+.prog-pop li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line-soft);font-size:.9rem}
+.prog-pop li .v{font-weight:600}
+.prog-pop li.done .v{color:var(--green)}
+.prog-bar{height:3px;background:#151515}
+.prog-bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent-hi),var(--orange));transition:width .4s}
+
+/* ---------- Layout ---------- */
+main{max-width:1180px;margin:0 auto;padding:0 16px 60px}
+section.block{padding:48px 0 16px;scroll-margin-top:120px}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.eyebrow{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--orange);font-weight:700;margin:0 0 4px}
+.lead{color:var(--muted);max-width:72ch}
+.panel{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--radius);padding:20px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:7px;border:1px solid var(--line);background:var(--panel-2);font-weight:600;font-size:.95rem;text-decoration:none;color:var(--text)}
+.btn:hover:not(:disabled){background:var(--panel-3);border-color:var(--accent-hi)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover:not(:disabled){background:#5583c9;border-color:var(--accent-hi)}
+.btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent-hi);color:#fff}
+.btn.small{padding:6px 11px;font-size:.85rem}
+.btn:disabled{opacity:.45}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:.95rem}
+.switch input{width:20px;height:20px;accent-color:var(--accent-hi)}
+.radio-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+.radio-row label{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);cursor:pointer;font-size:.93rem}
+.radio-row label:hover{border-color:var(--accent-hi)}
+.radio-row label:has(input:checked){border-color:var(--accent-hi);background:var(--accent-soft)}
+.radio-row input{accent-color:var(--accent-hi);width:18px;height:18px}
+.all-done{padding:12px 14px;border-radius:var(--radius);background:var(--green-soft);border:1px solid var(--green);margin-bottom:12px}
+
+/* ---------- Keys ---------- */
+.keyseq{display:inline-flex;flex-wrap:wrap;align-items:center;gap:5px;vertical-align:middle}
+.kwrap{display:inline-flex;align-items:center;gap:4px}
+kbd.k{display:inline-flex;align-items:center;justify-content:center;min-width:2em;height:2em;padding:0 .55em;font:700 .8rem/1 var(--mono);color:#f5f5f5;background:linear-gradient(#4d4d4d,#353535);border:1px solid #626262;border-bottom-color:#1d1d1d;border-radius:6px;box-shadow:0 2px 0 #121212,inset 0 1px 0 rgba(255,255,255,.14);white-space:nowrap}
+kbd.k.mouse{background:linear-gradient(#41506b,#2f3a50);border-color:#61759b;border-bottom-color:#1a2130}
+.op{font-size:.75rem;color:var(--muted);font-weight:500}
+.legend{display:flex;flex-wrap:wrap;gap:12px 22px;margin-top:10px}
+.legend > div{display:flex;align-items:center;gap:8px;font-size:.92rem;color:var(--muted)}
+
+/* ---------- Intro ---------- */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center;padding-top:36px}
+.hero h1{font-size:clamp(1.9rem,1.3rem + 2.6vw,3rem);margin-bottom:.35em}
+.hero h1 span{color:var(--orange)}
+.hero-keys{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:340px;justify-self:center}
+.hero-keys kbd.k{width:100%;height:64px;font-size:1.25rem;border-radius:10px}
+.hero-keys kbd.k.hl{background:linear-gradient(#5b86c9,#3d649f);border-color:#7ea6e6}
+@media (max-width:760px){.hero{grid-template-columns:1fr}.hero-keys{max-width:280px}.hero-keys kbd.k{height:52px}}
+.benefit h3{display:flex;align-items:center;gap:10px;font-size:1.05rem}
+.benefit .ic{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent-hi);font-size:1.1rem;flex:none}
+.benefit p{margin:0;color:var(--muted);font-size:.95rem}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}
+.steps li{counter-increment:s;background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--radius);padding:14px 14px 14px 54px;position:relative}
+.steps li::before{content:counter(s);position:absolute;left:14px;top:14px;width:28px;height:28px;border-radius:50%;background:var(--orange);color:#1d1d1d;font-weight:800;display:grid;place-items:center;font-size:.9rem}
+.steps a{font-weight:700}
+.steps p{margin:.2em 0 0;color:var(--muted);font-size:.93rem}
+.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.tip{border-left:4px solid var(--orange);background:var(--orange-soft);border-radius:0 var(--radius) var(--radius) 0;padding:14px 16px}
+.tip h3{font-size:1rem;margin-bottom:.3em}
+.tip p{margin:0 0 .5em;font-size:.94rem}
+.outcomes{margin:0;padding-left:1.3em}
+.outcomes li{margin:.3em 0}
+.outcomes li::marker{color:var(--orange)}
+.gloss{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:8px;align-items:start}
+
+/* ---------- Accordions ---------- */
+.acc{border:1px solid var(--line-soft);border-radius:var(--radius);background:var(--panel);margin-bottom:8px}
+.gloss .acc{margin:0}
+.acc summary{cursor:pointer;padding:12px 16px;font-weight:650;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;border-radius:var(--radius)}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary::after{content:"▾";color:var(--muted);transition:transform .2s;flex:none}
+.acc[open] summary::after{transform:rotate(180deg);color:var(--orange)}
+.acc summary:hover{background:var(--panel-2)}
+.acc[open] summary{border-radius:var(--radius) var(--radius) 0 0;box-shadow:inset 3px 0 0 var(--orange)}
+.acc-body{padding:4px 16px 14px}
+.acc-body p{margin:.5em 0 0;font-size:.95rem}
+.acc .why{color:var(--muted)}
+.acc .fix{background:var(--green-soft);border-left:4px solid var(--green);padding:9px 12px;border-radius:0 8px 8px 0;color:var(--text)}
+.table-wrap{overflow-x:auto;border:1px solid var(--line-soft);border-radius:var(--radius)}
+table.ctx{width:100%;border-collapse:collapse;font-size:.94rem;min-width:520px}
+table.ctx th,table.ctx td{padding:10px 12px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:top}
+table.ctx th{background:var(--panel-2);font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+table.ctx tr:nth-child(even) td{background:#2b2b2b}
+table.ctx td{background:var(--panel)}
+
+/* ---------- Tabs & cards ---------- */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+@media (max-width:700px){.tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}}
+.tab{display:flex;align-items:center;gap:8px;padding:8px 13px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:.92rem;white-space:nowrap}
+.tab:hover{border-color:var(--accent-hi);background:var(--panel-2)}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent-hi);color:#fff}
+.tab .tab-num{font:700 .75rem var(--mono);background:rgba(0,0,0,.28);border-radius:4px;padding:2px 6px}
+.tab .tab-done{color:var(--green);font-weight:800;display:none}
+.tab.seen .tab-done{display:inline}
+.tab[aria-selected="true"] .tab-done{color:#d8ffe4}
+.tab.checked .tab-num{background:var(--green);color:#10291a}
+.cat-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.cat-head p{margin:.2em 0 0;color:var(--muted);max-width:72ch}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:12px;align-items:start}
+.card{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:var(--radius);overflow:hidden}
+.card-head{width:100%;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:13px 14px;background:transparent;border:0;text-align:left}
+.card-head:hover{background:var(--panel-3)}
+.card-head[aria-expanded="true"]{background:var(--panel-3);box-shadow:inset 3px 0 0 var(--orange)}
+.card-head .nm{font-weight:650}
+.card-head .chev{width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:var(--panel);transition:transform .2s;color:var(--muted)}
+.card-head[aria-expanded="true"] .chev{transform:rotate(180deg);color:var(--orange)}
+.mode{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:2px 7px;border-radius:4px;margin-top:3px;background:rgba(255,255,255,.07);color:var(--muted)}
+.mode.edit{background:var(--orange-soft);color:var(--orange)}
+.card-body{padding:4px 16px 16px;border-top:1px solid var(--line-soft)}
+.card-body p{margin:.7em 0 0;font-size:.95rem}
+.card-body .btn-row{margin-top:12px}
+.eg{background:var(--accent-soft);border-radius:8px;padding:9px 12px;color:var(--text)}
+.eg strong{color:var(--accent-hi)}
+.pager{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+
+/* ---------- Questions ---------- */
+.kc{margin-top:20px;border:1px dashed #5d5d5d;border-radius:var(--radius);padding:16px;background:var(--bg-2)}
+.kc-label{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;font-weight:800;color:var(--orange);margin:0 0 6px}
+.kc-q{font-weight:650;margin-bottom:12px}
+.mq-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:12px}
+.mq-grid .kc{margin-top:0}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:10px}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:12px 14px;min-height:54px;border-radius:9px;border:2px solid var(--line);background:var(--panel-2)}
+.opt:hover:not(:disabled){border-color:var(--accent-hi);background:var(--panel-3)}
+.opt .lbl{font-size:.95rem}
+.opt .mark{font-weight:800;font-size:1.05rem}
+.opt.correct{border-color:var(--green);background:var(--green-soft)}
+.opt.correct .mark::after{content:"✓";color:var(--green)}
+.opt.wrong{border-color:var(--red);background:var(--red-soft)}
+.opt.wrong .mark::after{content:"✕";color:var(--red)}
+.opt:disabled:not(.correct):not(.wrong){opacity:.55}
+.opts.text-opts{grid-template-columns:1fr}
+.fb{margin-top:12px;border-radius:8px;font-size:.95rem}
+.fb:empty{display:none}
+.fb > div{padding:11px 14px;border-left:4px solid}
+.fb .ok{background:var(--green-soft);border-color:var(--green)}
+.fb .bad{background:var(--red-soft);border-color:var(--red)}
+.fb .hint{background:var(--orange-soft);border-color:var(--orange)}
+.fb strong{display:block;margin-bottom:2px}
+.fb p{margin:.2em 0 0}
+
+/* ---------- Key capture ---------- */
+.capture{border:2px dashed #5d5d5d;border-radius:10px;padding:16px;min-height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#181818;cursor:pointer;text-align:center}
+.capture:hover{border-color:var(--accent-hi)}
+.capture:focus{outline:none;border-style:solid;border-color:var(--orange);background:#221c15}
+.capture:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.capture.ok{border-color:var(--green);border-style:solid;background:var(--green-soft)}
+.capture.bad{border-color:var(--red);border-style:solid}
+.cap-prompt{color:var(--muted);font-size:.92rem}
+.capture:focus .cap-prompt::after{content:" — listening…";color:var(--orange);font-weight:700}
+.cap-status{min-height:1.4em;font-size:.92rem;margin:8px 0}
+
+/* ---------- Reference ---------- */
+.ref-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.search{flex:1 1 280px;position:relative}
+.search input{width:100%;padding:12px 14px 12px 42px;border-radius:9px;border:1px solid var(--line);background:#181818;color:var(--text);font:inherit}
+.search input:focus{border-color:var(--accent-hi);outline:3px solid var(--focus);outline-offset:1px}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.btn.rec[aria-pressed="true"]{background:var(--orange);border-color:var(--orange);color:#1d1d1d}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chip{padding:5px 11px;border-radius:99px;border:1px solid var(--line);background:var(--panel);font-size:.85rem}
+.chip:hover{border-color:var(--accent-hi)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent-hi);color:#fff}
+.ref-count{color:var(--muted);font-size:.9rem;margin-bottom:8px}
+.ref-list{list-style:none;margin:0;padding:0;border:1px solid var(--line-soft);border-radius:var(--radius);overflow:hidden;max-height:620px;overflow-y:auto}
+.ref-row{display:grid;grid-template-columns:minmax(150px,230px) minmax(150px,220px) 1fr;gap:14px;padding:12px 16px;border-bottom:1px solid var(--line-soft);background:var(--panel);align-items:start}
+.ref-row:nth-child(even){background:#2b2b2b}
+.ref-name{font-weight:650}
+.ref-meta{font-size:.8rem;color:var(--muted)}
+.ref-desc{font-size:.93rem}
+.ref-eg{font-size:.85rem;color:var(--muted);margin-top:3px}
+mark{background:rgba(255,171,82,.35);color:inherit;border-radius:3px;padding:0 1px}
+.empty{padding:26px;text-align:center;color:var(--muted)}
+@media (max-width:760px){.ref-row{grid-template-columns:1fr;gap:6px}}
+
+/* ---------- Quiz ---------- */
+.quiz-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.dots{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0}
+.dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);background:var(--panel-2);font-size:.78rem;font-weight:700}
+.dot:hover{border-color:var(--accent-hi)}
+.dot[aria-current="step"]{border-color:var(--orange);box-shadow:0 0 0 2px rgba(255,171,82,.3)}
+.dot.first{background:var(--green);border-color:var(--green);color:#10291a}
+.dot.later{background:#6a5a33;border-color:var(--orange)}
+.scen{font-size:1.15rem;font-weight:600;margin:4px 0 4px}
+.qsub{color:var(--muted);margin-bottom:14px}
+.hintbox{margin-top:10px;padding:10px 14px;border-radius:8px;background:var(--orange-soft);border-left:4px solid var(--orange)}
+.score-pill{background:var(--panel-2);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:.88rem}
+
+/* ---------- Sandbox ---------- */
+.practice-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:980px){.practice-grid{grid-template-columns:1fr}}
+.vp-shell{border:1px solid #111;border-radius:var(--radius);overflow:hidden;background:#2a2a2a;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.vp-header{display:flex;align-items:center;gap:8px;padding:6px 8px;background:#303030;border-bottom:1px solid #1a1a1a;flex-wrap:wrap;font-size:.85rem}
+.vp-modebox{padding:4px 10px;border-radius:5px;background:#3f3f3f;border:1px solid #545454;font-weight:600}
+.vp-modebox.edit{background:#5a4220;border-color:var(--orange);color:#ffe2bf}
+.selmode{display:flex;gap:2px}
+.selmode span{padding:4px 8px;background:#3f3f3f;border:1px solid #545454;font-size:.78rem}
+.selmode span:first-child{border-radius:5px 0 0 5px}.selmode span:last-child{border-radius:0 5px 5px 0}
+.selmode span.on{background:var(--accent);border-color:var(--accent-hi);color:#fff}
+.selmode[hidden]{display:none}
+.vp-header .spacer{flex:1}
+.vp-wrap{position:relative}
+.vp{position:relative;outline:none;cursor:crosshair;touch-action:manipulation}
+.vp:focus-visible{outline:3px solid var(--focus);outline-offset:-3px;border-radius:0}
+.vp svg{display:block;width:100%;height:auto;background:radial-gradient(ellipse at 50% 40%,#424242,#333 75%)}
+.vp-label{position:absolute;left:10px;top:8px;font-size:.8rem;line-height:1.35;color:#e8e8e8;text-shadow:0 1px 2px #000;pointer-events:none}
+.vp-op{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:rgba(20,20,20,.88);border:1px solid #555;border-radius:6px;padding:5px 12px;font:600 .82rem var(--mono);white-space:nowrap;pointer-events:none;max-width:95%;overflow:hidden;text-overflow:ellipsis}
+.vp-op:empty{display:none}
+.vp-hint{position:absolute;right:10px;top:8px;background:rgba(20,20,20,.85);border:1px solid #555;border-radius:6px;padding:5px 10px;font-size:.8rem;pointer-events:none;transition:opacity .2s}
+.vp:focus .vp-hint{opacity:0}
+.vp-focusflag{position:absolute;right:10px;top:8px;background:var(--green);color:#10291a;border-radius:6px;padding:4px 9px;font-size:.75rem;font-weight:800;opacity:0;pointer-events:none}
+.vp:focus .vp-focusflag{opacity:1}
+.vp-status{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;background:#232323;border-top:1px solid #111;min-height:48px;font-size:.88rem;flex-wrap:wrap}
+.vp-status .msg{flex:1 1 260px}
+.vp-status .msg.ok{color:var(--green)}
+.vp-status .msg.warn{color:var(--orange)}
+.vp-keys{display:flex;gap:4px;flex-wrap:wrap}
+.vp-keys kbd.k{height:1.7em;font-size:.7rem;opacity:.95}
+.pie{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.35)}
+.pie[hidden]{display:none}
+.pie-grid{display:grid;grid-template-columns:repeat(3,minmax(0,120px));gap:8px;padding:10px}
+.pie-grid button{padding:9px 8px;border-radius:99px;border:1px solid #5c5c5c;background:#2c2c2c;font-size:.85rem;box-shadow:0 3px 10px rgba(0,0,0,.5)}
+.pie-grid button:hover{background:var(--accent);border-color:var(--accent-hi)}
+.pie-center{display:grid;place-items:center;font-weight:700;color:var(--muted);font-size:.85rem}
+.keypad{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+.kp-group{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.kp-group > span{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);min-width:78px;font-weight:700}
+.kp{min-width:44px;height:40px;padding:0 10px;border-radius:7px;font:700 .8rem var(--mono);color:#f5f5f5;background:linear-gradient(#4d4d4d,#353535);border:1px solid #626262;border-bottom-color:#1d1d1d;box-shadow:0 2px 0 #121212,inset 0 1px 0 rgba(255,255,255,.14)}
+.kp:hover{border-color:var(--accent-hi)}
+.kp:active{transform:translateY(2px);box-shadow:0 0 0 #121212}
+.kp.num,.kp.mouse{background:linear-gradient(#41506b,#2f3a50);border-color:#61759b}
+.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.task{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--radius);padding:13px 14px}
+.task.done{border-color:rgba(116,212,148,.6);background:linear-gradient(90deg,var(--green-soft),var(--panel) 60%)}
+.task-top{display:flex;gap:10px;align-items:flex-start}
+.task-st{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;font-weight:800;color:var(--muted)}
+.task.done .task-st{background:var(--green);border-color:var(--green);color:#10291a}
+.task h4{margin:0 0 2px;font-size:1rem}
+.task p{margin:0;font-size:.92rem;color:var(--muted)}
+.task .btn-row{margin-top:9px}
+.reveal{margin-top:9px;padding:9px 12px;border-radius:8px;font-size:.92rem}
+.reveal.h{background:var(--orange-soft);border-left:4px solid var(--orange)}
+.reveal.a{background:var(--accent-soft);border-left:4px solid var(--accent-hi)}
+.speed{margin-top:16px;padding:16px;border-radius:var(--radius);border:1px solid var(--line);background:var(--bg-2)}
+.speed h3{font-size:1.05rem}
+.speed .clock{font:800 1.7rem var(--mono);color:var(--orange)}
+.speed .step{font-size:1.1rem;font-weight:650;margin:6px 0}
+
+/* ---------- Worked examples (mesh diagrams) ---------- */
+.worked{margin-top:26px}
+.worked > p{color:var(--muted);max-width:72ch}
+.wk{background:var(--bg-2);border:1px solid var(--line-soft);border-radius:var(--radius);padding:16px;margin-top:12px}
+.wk h4{margin:0 0 4px;font-size:1.05rem}
+.wk > p{margin:0;color:var(--muted);font-size:.93rem}
+.wk .wk-tip{margin-top:10px;font-size:.9rem;color:var(--text)}
+.stages{display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px 12px;margin-top:12px}
+.fig{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px;width:146px}
+.fig svg{display:block;width:146px;height:122px;padding:10px;background:radial-gradient(ellipse at 50% 40%,#454545,#2c2c2c 80%);border-radius:8px;border:1px solid var(--line-soft)}
+.fig figcaption{font-size:.8rem;line-height:1.35;color:var(--muted);text-align:center}
+.fig-arrow{display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:30px;font-size:.78rem;color:var(--muted);width:104px;text-align:center}
+.fig-arrow .ar{font-size:1.5rem;line-height:1;color:var(--orange)}
+.card .stages,.acc .stages{margin-top:12px;gap:8px}
+.card .fig,.card .fig svg,.acc .fig,.acc .fig svg{width:120px}
+.card .fig svg,.acc .fig svg{height:100px}
+.card .fig-arrow{width:70px}
+.spot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px;margin-top:12px}
+.spot{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--radius);padding:14px}
+.spot .stages{margin:0 0 12px;justify-content:center}
+.spot .opts{grid-template-columns:repeat(3,1fr)}
+@media (max-width:420px){.fig,.fig svg{width:124px}.fig svg{height:104px}.fig-arrow{width:84px}}
+
+/* ---------- Project ---------- */
+.proj{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.proj li{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--radius);padding:14px 16px;display:grid;grid-template-columns:auto 1fr;gap:14px}
+.proj li.done{border-color:rgba(116,212,148,.6);background:linear-gradient(90deg,var(--green-soft),var(--panel) 50%)}
+.proj input[type=checkbox]{width:24px;height:24px;accent-color:var(--green);margin-top:2px;cursor:pointer}
+.proj h4{margin:0 0 3px;font-size:1.02rem}
+.proj p{margin:0;color:var(--muted);font-size:.94rem}
+.proj .keys-list{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:9px}
+
+/* ---------- Review deck ---------- */
+.deck-stats{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}
+.box-stat{flex:1 1 100px;background:var(--panel-2);border-radius:8px;padding:10px;text-align:center;font-size:.82rem;color:var(--muted)}
+.box-stat b{display:block;font-size:1.5rem;color:var(--text)}
+.box-stat.m b{color:var(--green)}
+.flash{max-width:660px;margin:0 auto;text-align:center}
+.flash h3{font-size:1.5rem;margin-top:6px}
+.flash .back{margin-top:16px;padding:16px;border-radius:10px;background:var(--accent-soft)}
+.flash .back kbd.k{font-size:.95rem;height:2.3em}
+.flash .capwrap{text-align:left}
+.rate{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.rate button{padding:12px 8px;border-radius:9px;border:2px solid var(--line);background:var(--panel-2);font-weight:650}
+.rate .r-no:hover{border-color:var(--red)}.rate .r-unsure:hover{border-color:var(--orange)}.rate .r-yes:hover{border-color:var(--green)}
+
+/* ---------- Final & summary ---------- */
+.final-card{max-width:820px;margin:0 auto}
+.fc-top{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.timer{height:8px;border-radius:99px;background:#151515;overflow:hidden;margin-bottom:14px}
+.timer span{display:block;height:100%;background:var(--orange);width:100%}
+.timer.low span{background:var(--red)}
+.fc-q{font-size:1.15rem;font-weight:650;margin-bottom:4px}
+.fc-q .keyseq{margin:0 4px}
+.big-score{font-size:clamp(2.6rem,2rem + 3vw,4rem);font-weight:800;line-height:1;color:var(--orange)}
+.review{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-direction:column;gap:8px}
+.review li{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--panel-2);border-radius:8px;padding:10px 12px;font-size:.93rem}
+.cat-tag{font-size:.75rem;color:var(--muted)}
+.sum-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+@media (max-width:860px){.sum-grid{grid-template-columns:1fr}}
+.sum-table{width:100%;border-collapse:collapse;font-size:.95rem}
+.sum-table td{padding:9px 4px;border-bottom:1px solid var(--line-soft)}
+.sum-table td:last-child{text-align:right;font-weight:650}
+.sum-table tr.done td:last-child{color:var(--green)}
+footer{border-top:1px solid var(--line-soft);margin-top:40px;padding:22px 16px;color:var(--muted);font-size:.88rem;text-align:center}
+.toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,calc(100% + 40px));visibility:hidden;transition:transform .3s,visibility .3s;background:var(--green);color:#10291a;font-weight:700;padding:10px 18px;border-radius:99px;box-shadow:0 8px 24px rgba(0,0,0,.45);transition:transform .3s;z-index:80;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{transform:translate(-50%,0);visibility:visible}
+
+/* ---------- Print (cheat sheet & summary) ---------- */
+#print-area{display:none}
+@media print{
+  html,body{background:#fff!important;color:#000!important}
+  body > *:not(#print-area){display:none!important}
+  #print-area{display:block!important;font:10pt/1.4 Arial,Helvetica,sans-serif;color:#000}
+  #print-area h1{font-size:17pt;margin:0 0 3pt}
+  #print-area h2{font-size:10.5pt;margin:7pt 0 3pt;padding-bottom:2pt;border-bottom:1.2pt solid #000}
+  #print-area kbd.k{background:#fff!important;color:#000!important;border:1px solid #333!important;box-shadow:none!important;height:auto;min-width:0;padding:0 3pt;font-size:7.5pt;border-radius:3px}
+  #print-area .op{color:#333;font-size:7pt}
+  #print-area .keyseq{gap:2pt}
+  .cheat{columns:3;column-gap:14pt;font-size:8pt}
+  .cheat section{break-inside:avoid;margin-bottom:5pt}
+  .cheat .row{display:flex;justify-content:space-between;align-items:center;gap:6pt;border-bottom:1px dotted #aaa;padding:1.5pt 0}
+  .pa-table{width:100%;border-collapse:collapse;margin-top:6pt}
+  .pa-table td{border-bottom:1px solid #bbb;padding:5pt 3pt}
+  .pa-table td:last-child{text-align:right;font-weight:bold}
+  .pa-box{border:1px solid #999;padding:8pt;margin-top:6pt;white-space:pre-wrap}
+  @page{margin:12mm}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#intro">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="2" y="4" width="26" height="22" rx="5" fill="#3d3d3d" stroke="#6a6a6a"/><rect x="2" y="21" width="26" height="5" rx="2" fill="#1d1d1d"/><text x="15" y="18" text-anchor="middle" font-family="monospace" font-weight="700" font-size="12" fill="#ffab52">G</text></svg>
+      <span>Blender Shortcut Trainer</span>
+    </a>
+    <details class="prog" id="prog">
+      <summary aria-label="Your progress"><span>Progress</span> <strong id="prog-pct">0%</strong> <span class="prog-track" aria-hidden="true"><span id="prog-fill"></span></span></summary>
+      <div class="prog-pop">
+        <h3 style="font-size:1rem">Your progress</h3>
+        <ul id="prog-list"></ul>
+        <p style="font-size:.82rem;color:var(--muted)">Progress is saved in this browser on this device. Use the <a href="#summary">summary</a> to print or share it.</p>
+        <button class="btn small" id="reset-btn" type="button">Reset all progress</button>
+      </div>
+    </details>
+    <nav class="nav-wrap" aria-label="Sections">
+      <ul class="nav">
+        <li><a href="#intro" data-sec="intro">Intro</a></li>
+        <li><a href="#learn" data-sec="learn">Learn <span class="badge" id="nb-learn">0/10</span></a></li>
+        <li><a href="#reference" data-sec="reference">Reference</a></li>
+        <li><a href="#mistakes" data-sec="mistakes">Mistakes <span class="badge" id="nb-mist">0/5</span></a></li>
+        <li><a href="#quiz" data-sec="quiz">Scenario quiz <span class="badge" id="nb-quiz">0/12</span></a></li>
+        <li><a href="#practice" data-sec="practice">Practise <span class="badge" id="nb-practice">0/12</span></a></li>
+        <li><a href="#project" data-sec="project">Project <span class="badge" id="nb-proj">0/9</span></a></li>
+        <li><a href="#review" data-sec="review">Review deck <span class="badge" id="nb-review">0</span></a></li>
+        <li><a href="#final" data-sec="final">Final challenge <span class="badge" id="nb-final">–</span></a></li>
+        <li><a href="#summary" data-sec="summary">Summary</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="prog-bar" role="progressbar" aria-label="Overall progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="prog-bar-fill"></span></div>
+</header>
+
+<main id="main">
+
+<!-- ================= INTRO ================= -->
+<section class="block" id="intro" aria-labelledby="intro-h">
+  <div class="hero">
+    <div>
+      <p class="eyebrow">Interactive learning activity · Blender 4.x</p>
+      <h1 id="intro-h">Model faster with <span>Blender shortcuts</span></h1>
+      <p class="lead">Blender is designed to be driven from the keyboard. This resource helps you learn the shortcuts used most often, then practise, recall and apply them in realistic modelling tasks.</p>
+      <div class="btn-row">
+        <a class="btn primary" href="#learn">Start learning</a>
+        <a class="btn" href="#practice">Jump to practice</a>
+      </div>
+    </div>
+    <div class="hero-keys" aria-hidden="true">
+      <kbd class="k">Tab</kbd><kbd class="k hl">G</kbd><kbd class="k">R</kbd><kbd class="k">S</kbd>
+      <kbd class="k">X</kbd><kbd class="k">Y</kbd><kbd class="k">Z</kbd><kbd class="k hl">E</kbd>
+      <kbd class="k">Shift</kbd><kbd class="k hl">D</kbd><kbd class="k">F12</kbd><kbd class="k">A</kbd>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:32px">
+    <h2 style="font-size:1.3rem">Learning outcomes</h2>
+    <p style="color:var(--muted)">By the end of this resource you will be able to:</p>
+    <ul class="outcomes">
+      <li>navigate the 3D viewport and switch between standard views using the keyboard;</li>
+      <li>select, move, rotate and scale objects precisely using axis locks and typed values;</li>
+      <li>switch between Object and Edit Mode and choose vertex, edge or face selection;</li>
+      <li>use Extrude, Inset, Bevel and Loop Cut to change the shape of a mesh;</li>
+      <li>add, delete and duplicate objects, and explain the difference between Shift+D and Alt+D;</li>
+      <li>recognise and fix common shortcut mistakes;</li>
+      <li>render an image and save your work safely.</li>
+    </ul>
+  </div>
+
+  <h2 style="margin-top:36px">Why learn keyboard shortcuts?</h2>
+  <div class="grid-3">
+    <div class="panel benefit"><h3><span class="ic" aria-hidden="true">⚡</span>Work faster</h3><p>Pressing <kbd class="k">G</kbd> is quicker than finding the Move tool in a menu. Small savings add up across hundreds of actions in every project.</p></div>
+    <div class="panel benefit"><h3><span class="ic" aria-hidden="true">◎</span>Stay focused</h3><p>Your eyes stay on the model instead of searching menus, so you keep your creative flow and spot problems sooner.</p></div>
+    <div class="panel benefit"><h3><span class="ic" aria-hidden="true">⌖</span>Be precise</h3><p>Shortcuts let you lock axes and type exact values, such as <span class="keyseq"><kbd class="k">G</kbd><kbd class="k">X</kbd><kbd class="k">2</kbd></span> to move exactly 2 units.</p></div>
+    <div class="panel benefit"><h3><span class="ic" aria-hidden="true">★</span>Follow tutorials</h3><p>Most tutorials and professionals talk in shortcuts. Knowing them makes learning new techniques much easier.</p></div>
+  </div>
+
+  <h2 style="margin-top:36px">How to use this resource</h2>
+  <ol class="steps">
+    <li><a href="#learn">Learn</a><p>Explore 10 categories. Open cards for examples, then answer a quick check.</p></li>
+    <li><a href="#reference">Reference</a><p>Search any command, press a key combination, or print a cheat sheet.</p></li>
+    <li><a href="#mistakes">Common mistakes</a><p>Find out why shortcuts “don’t work” and how to fix the usual problems.</p></li>
+    <li><a href="#quiz">Scenario quiz</a><p>Pick the right shortcut for a real modelling situation. Hints come before answers.</p></li>
+    <li><a href="#practice">Practise</a><p>Use real keys in a mini 3D viewport, then try a timed speed run.</p></li>
+    <li><a href="#project">Mini project</a><p>Model a simple house in Blender, using shortcuts at every step.</p></li>
+    <li><a href="#review">Review deck</a><p>Flashcards of the shortcuts you find hardest. Little and often works best.</p></li>
+    <li><a href="#final">Final challenge</a><p>A scored, randomised test. Press the real keys or choose from options.</p></li>
+    <li><a href="#summary">Summary</a><p>See everything you have achieved and print it or copy it for your tutor.</p></li>
+  </ol>
+
+  <h2 style="margin-top:36px">Before you start</h2>
+  <div class="tips">
+    <div class="tip"><h3>Mouse position matters</h3><p>Blender shortcuts act on the area under your mouse pointer. If a shortcut “doesn’t work”, check the pointer is over the 3D viewport.</p></div>
+    <div class="tip"><h3>No number pad or middle mouse?</h3><p>In <em>Edit › Preferences › Input</em>, turn on <strong>Emulate Numpad</strong> and <strong>Emulate 3 Button Mouse</strong>. You can also use the <kbd class="k">`</kbd> View pie menu.</p></div>
+    <div class="tip"><h3>Using a Mac?</h3><p>Some commands, such as save and undo, use <kbd class="k">Cmd</kbd> instead of <kbd class="k">Ctrl</kbd>, and <kbd class="k">Alt</kbd> is labelled <kbd class="k">Option</kbd>. Most modelling shortcuts (like <kbd class="k">Ctrl</kbd>+<kbd class="k">B</kbd>) still use Ctrl.</p><button class="btn small mac-toggle" type="button" aria-pressed="false">Show Mac keys</button></div>
+    <div class="tip"><h3>Which keymap?</h3><p>Shortcuts here use Blender 4.x’s default keymap with left-click select. Other keymaps (e.g. Industry Compatible) differ.</p></div>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <h3 style="font-size:1rem">How to read the keys</h3>
+    <div class="legend">
+      <div><span class="keyseq"><kbd class="k">Shift</kbd><span class="op">+</span><kbd class="k">D</kbd></span> hold the keys together</div>
+      <div><span class="keyseq"><kbd class="k">G</kbd><span class="op">then</span><kbd class="k">X</kbd></span> press one after the other</div>
+      <div><span class="keyseq"><kbd class="k">Numpad 1</kbd></span> number pad key</div>
+      <div><span class="keyseq"><kbd class="k mouse">MMB drag</kbd></span> mouse action</div>
+    </div>
+  </div>
+
+  <h2 style="margin-top:36px">Key terms</h2>
+  <p class="lead">New to 3D? Open a term to see what it means. These words appear throughout the resource.</p>
+  <div class="gloss" id="gloss"></div>
+</section>
+
+<!-- ================= LEARN ================= -->
+<section class="block" id="learn" aria-labelledby="learn-h">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Step 1 · Explore</p>
+      <h2 id="learn-h">Learn the shortcuts</h2>
+      <p class="lead">Choose a category. Select a card to see what the shortcut does and when you might use it. Finish each category with a quick check. Add tricky shortcuts to your review deck with ☆.</p>
+    </div>
+  </div>
+  <div class="tabs" role="tablist" aria-label="Shortcut categories" id="tabs"></div>
+  <div class="panel" role="tabpanel" id="learn-panel" tabindex="0"></div>
+</section>
+
+<!-- ================= REFERENCE ================= -->
+<section class="block" id="reference" aria-labelledby="ref-h">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Step 2 · Look it up</p>
+      <h2 id="ref-h">Searchable shortcut reference</h2>
+      <p class="lead">Type a command (e.g. <em>bevel</em>), a key (e.g. <em>shift d</em>), or use <strong>Press a shortcut</strong> to find out what a key combination does.</p>
+    </div>
+    <div class="btn-row">
+      <button class="btn mac-toggle" type="button" aria-pressed="false">Show Mac keys</button>
+      <button class="btn" id="print-cheat" type="button">🖨 Print cheat sheet</button>
+    </div>
+  </div>
+  <div class="ref-tools">
+    <label class="search">
+      <span class="sr-only">Search shortcuts</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="ref-q" placeholder="Search commands or keys…" autocomplete="off">
+    </label>
+    <button class="btn rec" id="ref-rec" type="button" aria-pressed="false">⌨ Press a shortcut</button>
+    <button class="btn" id="ref-clear" type="button">Clear</button>
+  </div>
+  <div class="chips" id="ref-chips" role="group" aria-label="Filter by category"></div>
+  <p class="ref-count" id="ref-count" aria-live="polite"></p>
+  <ul class="ref-list" id="ref-list"></ul>
+</section>
+
+<!-- ================= MISTAKES ================= -->
+<section class="block" id="mistakes" aria-labelledby="mist-h">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Step 3 · Troubleshoot</p>
+      <h2 id="mist-h">Common mistakes: “Why didn’t that work?”</h2>
+      <p class="lead">Everyone hits these problems when learning Blender. Knowing the cause saves a lot of frustration.</p>
+    </div>
+  </div>
+  <div id="mist-box"></div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section class="block" id="quiz" aria-labelledby="quiz-h">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Step 4 · Recall</p>
+      <h2 id="quiz-h">Scenario quiz: what’s the shortcut?</h2>
+      <p class="lead">Read the modelling situation and choose the correct shortcut. Get it wrong and you’ll get a hint before the answer is revealed. Missed shortcuts are added to your review deck.</p>
+    </div>
+  </div>
+  <div class="panel" id="quiz-box"></div>
+</section>
+
+<!-- ================= PRACTICE ================= -->
+<section class="block" id="practice" aria-labelledby="prac-h">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Step 5 · Apply</p>
+      <h2 id="prac-h">Practical challenge</h2>
+      <p class="lead">Select the practice viewport, then use real shortcuts to complete each task. No keyboard? Tap the on-screen keys. Tasks tick off automatically. When you’re confident, try the timed speed run.</p>
+    </div>
+  </div>
+  <div class="practice-grid">
+    <div>
+      <div class="vp-shell">
+        <div class="vp-header">
+          <span class="vp-modebox" id="vp-mode">Object Mode</span>
+          <span class="selmode" id="vp-sel" hidden aria-label="Selection mode"><span data-m="vert">1 Vertex</span><span data-m="edge">2 Edge</span><span data-m="face">3 Face</span></span>
+          <span class="spacer"></span>
+          <button class="btn small" id="vp-reset" type="button">Reset scene</button>
+        </div>
+        <div class="vp-wrap">
+          <div class="vp" id="vp" tabindex="0" role="application" aria-roledescription="practice 3D viewport" aria-label="Practice 3D viewport. Press Blender shortcuts to control it. Press Escape to leave." aria-describedby="vp-desc">
+            <svg id="vp-svg" viewBox="0 0 720 420" aria-hidden="true"></svg>
+            <div class="vp-label" id="vp-label"></div>
+            <div class="vp-op" id="vp-op"></div>
+            <div class="vp-hint">Click here, then press keys</div>
+            <div class="vp-focusflag">● Keyboard active</div>
+          </div>
+          <div class="pie" id="pie" hidden>
+            <div class="pie-grid" role="group" aria-label="View pie menu">
+              <button type="button" data-pie="back">Back</button>
+              <button type="button" data-pie="top">Top</button>
+              <button type="button" data-pie="front">Front</button>
+              <button type="button" data-pie="left">Left</button>
+              <div class="pie-center">View</div>
+              <button type="button" data-pie="right">Right</button>
+              <button type="button" data-pie="camera">Camera</button>
+              <button type="button" data-pie="bottom">Bottom</button>
+              <button type="button" data-pie="frame">View Selected</button>
+            </div>
+          </div>
+        </div>
+        <div class="vp-status">
+          <span class="msg" id="vp-msg" role="status" aria-live="polite">Click the viewport (or tap a key below) to begin.</span>
+          <span class="vp-keys" id="vp-keys" aria-hidden="true"></span>
+        </div>
+      </div>
+      <p id="vp-desc" class="sr-only">Supported keys include Tab, 1 2 3, G, S, X Y Z, numbers, Enter, Escape, E, I, Control B and scroll, Shift D, Shift A, Delete, Control Z, Home, Numpad 1 3 5 7 and full stop, and grave accent for the view pie.</p>
+      <p class="sr-only" id="vp-scene" aria-live="polite"></p>
+
+      <div class="keypad" aria-label="On-screen keys" role="group">
+        <div class="kp-group"><span>Modes</span>
+          <button class="kp" data-k="Tab|Tab">Tab</button><button class="kp" data-k="1|Digit1">1</button><button class="kp" data-k="2|Digit2">2</button><button class="kp" data-k="3|Digit3">3</button>
+        </div>
+        <div class="kp-group"><span>Mesh</span>
+          <button class="kp" data-k="e|KeyE">E</button><button class="kp" data-k="i|KeyI">I</button><button class="kp" data-k="b|KeyB|ctrl" aria-label="Control plus B">Ctrl+B</button><button class="kp mouse" data-wheel="1" aria-label="Scroll wheel up, add bevel segments">Scroll ↑</button>
+        </div>
+        <div class="kp-group"><span>Transform</span>
+          <button class="kp" data-k="g|KeyG">G</button><button class="kp" data-k="s|KeyS">S</button><button class="kp" data-k="x|KeyX">X</button><button class="kp" data-k="y|KeyY">Y</button><button class="kp" data-k="z|KeyZ">Z</button><button class="kp" data-k="-|Minus">−</button><button class="kp" data-k="Enter|Enter">Enter</button><button class="kp" data-k="Escape|Escape">Esc</button>
+        </div>
+        <div class="kp-group"><span>Objects</span>
+          <button class="kp" data-k="D|KeyD|shift" aria-label="Shift plus D">Shift+D</button><button class="kp" data-k="A|KeyA|shift" aria-label="Shift plus A">Shift+A</button><button class="kp" data-k="Delete|Delete">Delete</button><button class="kp" data-k="z|KeyZ|ctrl" aria-label="Control plus Z">Ctrl+Z</button>
+        </div>
+        <div class="kp-group"><span>View</span>
+          <button class="kp num" data-k="1|Numpad1" aria-label="Numpad 1">Num 1</button><button class="kp num" data-k="3|Numpad3" aria-label="Numpad 3">Num 3</button><button class="kp num" data-k="7|Numpad7" aria-label="Numpad 7">Num 7</button><button class="kp num" data-k="5|Numpad5" aria-label="Numpad 5">Num 5</button><button class="kp num" data-k=".|NumpadDecimal" aria-label="Numpad full stop">Num .</button><button class="kp" data-k="Home|Home">Home</button><button class="kp" data-k="`|Backquote" aria-label="Grave accent, view pie">`</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 id="tasks-h" tabindex="-1">Your tasks</h3>
+      <div id="tasks-alldone"></div>
+      <ol class="tasks" id="tasks"></ol>
+      <p style="font-size:.88rem;color:var(--muted);margin-top:12px">Tip: the tasks follow a natural modelling order, but you can do them in any order. Use <span class="keyseq"><kbd class="k">Ctrl</kbd><span class="op">+</span><kbd class="k">Z</kbd></span> to undo or <em>Reset scene</em> to start again.</p>
+      <div class="speed" id="speed"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROJECT ================= -->
+<section class="block" id="project" aria-labelledby="proj-h">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Step 6 · Make something</p>
+      <h2 id="proj-h">Mini project: model a simple house</h2>
+      <p class="lead">Open Blender and follow these steps using only shortcuts. Tick each step when you have done it. It should take about 20–30 minutes.</p>
+    </div>
+  </div>
+  <div id="proj-box"></div>
+</section>
+
+<!-- ================= REVIEW ================= -->
+<section class="block" id="review" aria-labelledby="rev-h">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Step 7 · Remember</p>
+      <h2 id="rev-h">Review deck</h2>
+      <p class="lead">Flashcards help shortcuts stick. Shortcuts you miss in quizzes are added here automatically. Cards you know move up a box and appear less often; cards you forget go back to the start. Five minutes at the start of each session works well.</p>
+    </div>
+  </div>
+  <div class="panel" id="review-box"></div>
+</section>
+
+<!-- ================= FINAL ================= -->
+<section class="block" id="final" aria-labelledby="final-h">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Step 8 · Test yourself</p>
+      <h2 id="final-h">Final shortcut challenge</h2>
+      <p class="lead">12 random questions from every category. Choose how you answer: press the real keys (best for memory), pick from options, or a mix.</p>
+    </div>
+  </div>
+  <div class="panel final-card" id="final-box"></div>
+</section>
+
+<!-- ================= SUMMARY ================= -->
+<section class="block" id="summary" aria-labelledby="sum-h">
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">Step 9 · Show what you know</p>
+      <h2 id="sum-h">Your learning summary</h2>
+      <p class="lead">Add your name, then print it, save it as a PDF (choose “Save as PDF” in the print window) or copy it to paste into your learning platform.</p>
+    </div>
+  </div>
+  <div class="sum-grid">
+    <div class="panel">
+      <p><label for="sum-name"><strong>Your name</strong></label><br><input type="text" id="sum-name" autocomplete="name" placeholder="Type your name"></p>
+      <table class="sum-table" id="sum-table"></table>
+    </div>
+    <div class="panel">
+      <h3 style="font-size:1rem">Your reflection</h3>
+      <p id="sum-reflect" style="color:var(--muted);white-space:pre-wrap"></p>
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn primary" id="sum-print" type="button">🖨 Print / save as PDF</button>
+        <button class="btn" id="sum-copy" type="button">Copy as text</button>
+      </div>
+      <p style="font-size:.85rem;color:var(--muted);margin-top:12px">Write your reflection at the end of the <a href="#project">mini project</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TUTORS ================= -->
+<section class="block" id="tutors" aria-labelledby="tut-h">
+  <p class="eyebrow">For tutors</p>
+  <h2 id="tut-h">Teacher notes</h2>
+  <details class="acc"><summary>Purpose and audience</summary><div class="acc-body">
+    <p>A self-paced, interactive resource for FE and HE students who are new to Blender or building confidence. It moves from explanation (Learn) through recall (quizzes, flashcards) to application (practice viewport, mini project), which supports long-term retention better than reading a list of shortcuts.</p>
+    <p>The learning outcomes are listed at the top of the page and can be copied into a scheme of work or session plan.</p></div></details>
+  <details class="acc"><summary>Suggested session plan (about 2 hours, or split over several sessions)</summary><div class="acc-body">
+    <p><strong>Starter (10 min):</strong> students read the intro and key terms, then explore the Navigation and Selection categories.</p>
+    <p><strong>Main 1 (30 min):</strong> work through the remaining Learn categories and quick checks. Pair students to quiz each other using the reference.</p>
+    <p><strong>Main 2 (20 min):</strong> Common mistakes and the scenario quiz. Discuss the “same key, different mode” table as a class.</p>
+    <p><strong>Main 3 (40 min):</strong> practice viewport tasks, then the house mini project in Blender.</p>
+    <p><strong>Plenary (15 min):</strong> final challenge (press-the-keys mode), then students print or copy their summary.</p>
+    <p><strong>Following sessions:</strong> start with 5 minutes of the review deck to refresh memory.</p></div></details>
+  <details class="acc"><summary>Differentiation and stretch</summary><div class="acc-body">
+    <p><strong>Support:</strong> use the on-screen keys, hints before answers, multiple-choice mode in the final challenge, and the printed cheat sheet.</p>
+    <p><strong>Stretch:</strong> press-the-keys mode with the timer, the speed run (record best times), and the project extension tasks.</p></div></details>
+  <details class="acc"><summary>Evidence and assessment</summary><div class="acc-body">
+    <p>The Summary section shows categories explored, quiz scores, tasks and project steps completed, best final score, speed run time and the student’s reflection. Students can print it, save it as a PDF or copy it as text to submit through your learning platform.</p>
+    <p>Results are self-reported and stored only on the student’s device, so treat them as formative evidence rather than a secure assessment.</p></div></details>
+  <details class="acc"><summary>Practical notes</summary><div class="acc-body">
+    <p>The resource is a single HTML file with no external libraries, so it works offline and can be shared through a VLE or shared drive.</p>
+    <p>Progress is saved in the browser’s local storage. It will not follow students between computers, and some locked-down or private browsing setups clear it when the window closes.</p>
+    <p>Shortcuts are based on Blender 4.x with the default keymap. Check your classroom machines use the default keymap and left-click select.</p>
+    <p>Accessibility: keyboard navigation and visible focus throughout, screen-reader labels for keys and the practice viewport, reduced-motion support and high-contrast colours.</p></div></details>
+</section>
+</main>
+
+<footer>
+  <p>Shortcuts are based on Blender 4.x with the default keymap (left-click select). Check <em>Edit › Preferences › Keymap</em> if a shortcut behaves differently on your computer.</p>
+  <p>Blender is a trademark of the Blender Foundation. This is an independent learning resource. · <a href="#tutors">Teacher notes</a></p>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="print-area"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* =========================================================
+   DATA
+   ========================================================= */
+const CATS = [
+  {id:'nav', name:'Navigation & Viewport', intro:'Getting around the 3D viewport quickly is the first skill to master. Remember: shortcuts affect the area under your mouse pointer.'},
+  {id:'select', name:'Object Selection', intro:'Most actions work on whatever is selected, so selecting quickly and accurately saves time. The last item you select becomes the active one (highlighted in a lighter orange).'},
+  {id:'transform', name:'Move, Rotate & Scale', intro:'G, R and S are the most used keys in Blender. Combine them with an axis key and a typed number for precise results.'},
+  {id:'modes', name:'Object & Edit Mode', intro:'Object Mode is for arranging whole objects. Edit Mode is for shaping the mesh itself — its vertices, edges and faces.'},
+  {id:'mesh', name:'Mesh Editing', intro:'These Edit Mode tools turn simple shapes into detailed models. Select the right components first, then apply the tool.'},
+  {id:'add', name:'Adding & Deleting', intro:'Building a scene means adding objects — and removing mistakes. New objects appear at the 3D cursor.'},
+  {id:'dup', name:'Duplicating', intro:'Duplicating saves you modelling the same thing twice. Choose between independent copies and linked copies.'},
+  {id:'snap', name:'Snapping & Precision', intro:'Snapping and precision tools help you line things up neatly and place objects exactly where you want them.'},
+  {id:'view', name:'Camera & View', intro:'The number pad gives instant access to standard views. No number pad? Use the ` View pie menu or turn on Emulate Numpad in Preferences.'},
+  {id:'render', name:'Rendering & Saving', intro:'Get your work out of Blender and keep it safe. Save early, save often!'}
+];
+const CATMAP = Object.fromEntries(CATS.map(c=>[c.id,c]));
+
+// [category, keys, name, description, example, mode]
+const RAW = [
+ ['nav','MMB drag','Orbit','Rotates the view around the scene. Hold the middle mouse button (the scroll wheel) and drag.','Turning around a character model to check the back of the head.'],
+ ['nav','Shift+MMB drag','Pan','Slides the view sideways or up and down without rotating it.','Shifting your view from a table over to the chair next to it.'],
+ ['nav','Scroll / Ctrl+MMB drag','Zoom','Moves the view closer to, or further from, what you are looking at.','Zooming in to tidy up the small details of a door handle.'],
+ ['nav','Home','Frame All','Zooms and pans so everything in the scene fits in the viewport.','You have got lost in empty space and want to see the whole scene again.'],
+ ['nav','`','View pie menu','Opens a pie menu of standard views (front, top, side, camera). The key is the grave accent (backtick), usually below Esc.','Switching views on a laptop that has no number pad.'],
+ ['nav','Z','Shading pie menu','Switches between Wireframe, Solid, Material Preview and Rendered shading.','Checking how your materials look before rendering.'],
+ ['nav','Alt+Z','Toggle X-Ray','Makes objects see-through so you can see and select things hidden behind surfaces.','Box-selecting vertices on both the front and back of a model at once.'],
+ ['nav','N','Sidebar','Shows or hides the sidebar with exact Location, Rotation, Scale and Dimensions values.','Typing an exact height of 2 m for a door.'],
+ ['nav','T','Toolbar','Shows or hides the toolbar on the left of the viewport.','Freeing up screen space on a small laptop display.'],
+ ['nav','Ctrl+Space','Maximise area','Expands the area under your mouse to fill the window. Press again to restore it.','Giving the 3D viewport the full screen while you model.'],
+ ['nav','F3','Search','Opens a search box so you can find any command by name.','You remember the name “Subdivide” but not where it is in the menus.'],
+
+ ['select','Left click','Select','Selects the object or element under the pointer and deselects everything else.','Picking the lamp you want to edit in a busy room scene.'],
+ ['select','Shift+Left click','Extend selection','Adds to (or removes from) the selection. The last item clicked becomes the active one.','Selecting all four table legs so you can move them together.'],
+ ['select','A','Select All','Selects everything in the current mode.','Selecting every vertex of a mesh before recalculating normals.'],
+ ['select','Alt+A','Deselect All','Clears the selection.','Starting a fresh selection after a mistaken click.'],
+ ['select','Ctrl+I','Invert selection','Selects everything that was not selected, and deselects what was.','Selecting everything except the floor plane.'],
+ ['select','B','Box select','Drag a rectangle to select everything inside it.','Selecting a whole row of windows on a building at once.'],
+ ['select','C','Circle select','Paint a selection with a circle brush. Scroll to resize; right-click or Enter to finish.','Selecting an uneven group of vertices on a character’s cheek.'],
+ ['select','L','Select linked','Selects all connected geometry under the mouse pointer.','Selecting one separate part, like an ear, inside a joined mesh.','Edit Mode'],
+
+ ['transform','G','Move (Grab)','Moves the selection with the mouse. Click or press Enter to confirm.','Placing a chair next to a table.'],
+ ['transform','R','Rotate','Rotates the selection. Click or press Enter to confirm.','Turning a picture frame so it sits straight on a wall.'],
+ ['transform','S','Scale','Makes the selection bigger or smaller. Click or press Enter to confirm.','Shrinking a mug that was modelled too large.'],
+ ['transform','G then X','Lock to an axis','After G, R or S, press X, Y or Z to lock the change to one axis. Press it twice to use the object’s own (local) axis.','Sliding a drawer straight out along the Y axis.'],
+ ['transform','S then Shift+Z','Exclude an axis','Hold Shift with an axis key to lock that axis and work on the other two.','Making a table top wider and deeper without making it thicker.'],
+ ['transform','G then X then 2 then Enter','Type an exact value','While transforming, type a number to set an exact distance, angle or scale factor.','Moving a shelf exactly 2 metres along X.'],
+ ['transform','Alt+G / Alt+R / Alt+S','Clear location, rotation or scale','Resets the object’s location, rotation or scale to the default.','Sending an object back to the centre of the world.','Object Mode'],
+ ['transform','Ctrl+A','Apply menu','Applies the current rotation or scale so it becomes the new default (1.0).','Applying scale so a Bevel looks even on all sides.','Object Mode'],
+ ['transform','Esc / Right click','Cancel a transform','Cancels a move, rotate or scale while you are doing it, putting the selection back.','You pressed G by accident and want to stop the move.'],
+
+ ['modes','Tab','Toggle Edit Mode','Switches between Object Mode (whole objects) and Edit Mode (vertices, edges and faces).','Going into a cube to start shaping it into a house.'],
+ ['modes','Ctrl+Tab','Mode pie menu','Opens a pie menu to switch to any mode, such as Sculpt or Weight Paint.','Jumping to Sculpt Mode to add detail to a rock.'],
+ ['modes','1','Vertex select','Switches to selecting points (vertices).','Picking a single corner to pull out.','Edit Mode'],
+ ['modes','2','Edge select','Switches to selecting edges.','Selecting the edges you want to bevel.','Edit Mode'],
+ ['modes','3','Face select','Switches to selecting faces.','Selecting the top of a cube to extrude a chimney.','Edit Mode'],
+ ['modes','H / Alt+H','Hide / Reveal','H hides the selection and Alt+H brings everything hidden back. Shift+H hides everything except the selection.','Hiding the walls of a room so you can work on the furniture inside.'],
+
+ ['mesh','E','Extrude','Pulls out new geometry from the selected faces, edges or vertices.','Pulling a face up to make a chimney on a house.','Edit Mode'],
+ ['mesh','I','Inset faces','Creates a smaller face inside each selected face.','Making a window frame before extruding the glass inwards.','Edit Mode'],
+ ['mesh','Ctrl+R','Loop cut','Adds a new loop of edges around the mesh. Scroll to add more cuts, then click to place.','Adding edges to a cylinder so it bends smoothly.','Edit Mode'],
+ ['mesh','Ctrl+B','Bevel','Rounds off or chamfers the selected edges. Scroll to add segments.','Softening the sharp edges of a table top so it looks realistic.','Edit Mode'],
+ ['mesh','K','Knife','Cuts new edges across faces by clicking points. Press Enter to confirm.','Cutting a door outline into a wall.','Edit Mode'],
+ ['mesh','M','Merge','Merges selected vertices together, for example at the centre or by distance.','Closing the gap at the tip of a cone, or removing doubled-up vertices.','Edit Mode'],
+ ['mesh','F','Fill / New face','Creates a face (or an edge) between the selected vertices or edges.','Filling a hole left after deleting a face.','Edit Mode'],
+ ['mesh','Alt+Left click','Select edge loop','Selects a whole ring of connected edges around the mesh.','Selecting the rim of a cup to bevel it.','Edit Mode'],
+ ['mesh','P','Separate','Splits the selected geometry into a new, separate object.','Turning a car door into its own object so it can be animated.','Edit Mode'],
+ ['mesh','Shift+N','Recalculate normals','Makes the face normals point outwards consistently.','Fixing faces that look dark or strange after extruding.','Edit Mode'],
+
+ ['add','Shift+A','Add menu','Opens the Add menu to create meshes, lights, cameras and more at the 3D cursor.','Adding a UV sphere to start modelling a ball.'],
+ ['add','X','Delete (with menu)','Deletes the selection. In Edit Mode a menu asks whether to delete vertices, edges or faces.','Removing the top face of a cube to make an open box.'],
+ ['add','Delete','Delete instantly','Deletes the selected objects without a confirmation menu.','Quickly removing the default cube at the start of a project.','Object Mode'],
+ ['add','F9','Adjust Last Operation','Reopens the settings of the last action, such as the size or number of segments of a new object.','Changing the number of vertices on a cylinder you just added.'],
+ ['add','Ctrl+Z','Undo','Steps back through your recent actions.','Undoing an extrude that went in the wrong direction.'],
+ ['add','Ctrl+Shift+Z','Redo','Re-applies an action you just undid.','You pressed undo one time too many.'],
+
+ ['dup','Shift+D','Duplicate','Makes an independent copy and starts moving it. Right-click or Esc leaves the copy in the same place as the original.','Making a second chair to place on the other side of a table.'],
+ ['dup','Alt+D','Linked duplicate','Makes a copy that shares the same mesh data, so editing one changes them all.','Creating a row of fence posts that all update when you edit one.','Object Mode'],
+ ['dup','Shift+R','Repeat last','Repeats the last action. Very useful straight after duplicating and moving.','Duplicating and moving one step, then pressing Shift+R to build a staircase.'],
+ ['dup','Ctrl+J','Join','Joins the selected objects into the active object.','Combining the seat, legs and back of a chair into one object.','Object Mode'],
+ ['dup','Ctrl+L','Link / Transfer data','Copies data such as materials or modifiers from the active object to the other selected objects.','Giving every fence post the same wood material in one go.','Object Mode'],
+
+ ['snap','Shift+Tab','Toggle snapping','Turns snapping on or off for all transforms.','Turning on snapping to line up wall pieces with the grid.'],
+ ['snap','Ctrl (hold)','Snap while transforming','Hold Ctrl during a move, rotate or scale to temporarily switch snapping on (or off).','Rotating a door in neat 5° steps.'],
+ ['snap','Shift (hold)','Precision mode','Hold Shift while transforming to make movement much slower and finer.','Nudging a picture frame a tiny amount so it lines up.'],
+ ['snap','Shift+S','Snap pie menu','Snaps the selection or the 3D cursor to the grid, the cursor or the selection.','Placing the 3D cursor on a selected vertex before adding a new object there.'],
+ ['snap','.','Pivot point pie menu','Chooses what objects rotate and scale around, such as the 3D cursor or their individual origins.','Rotating several wheels around their own centres.'],
+ ['snap',',','Transform orientation pie','Chooses which way the X, Y and Z axes point, such as Global or Local.','Moving a tilted object along its own local axis.'],
+ ['snap','Shift+C','Reset cursor and view all','Puts the 3D cursor back at the world origin and frames the whole scene.','Resetting the view and cursor before adding new objects.'],
+
+ ['view','Numpad 1','Front view','Looks at the scene straight on from the front. Ctrl+Numpad 1 gives the back view.','Lining up a model with a front reference image.'],
+ ['view','Numpad 3','Right view','Looks from the right side. Ctrl+Numpad 3 gives the left view.','Checking the profile of a character’s face.'],
+ ['view','Numpad 7','Top view','Looks straight down from above. Ctrl+Numpad 7 gives the bottom view.','Laying out the floor plan of a room.'],
+ ['view','Numpad 5','Perspective / Orthographic','Switches between perspective (realistic depth) and orthographic (flat, no depth).','Using orthographic view to measure and align parts accurately.'],
+ ['view','Numpad 0','Camera view','Looks through the active camera.','Checking the composition of your final shot.'],
+ ['view','Ctrl+Alt+Numpad 0','Align camera to view','Moves the active camera to match your current viewport view.','You have found a great angle and want the camera to use it.'],
+ ['view','Ctrl+Numpad 0','Set active camera','Makes the selected object the active camera and looks through it.','Switching between two cameras for different shots.','Object Mode'],
+ ['view','Numpad .','Frame Selected','Zooms and centres the view on the selection.','Zooming to a small screw in a large scene.'],
+ ['view','Numpad /','Local view','Isolates the selection, hiding everything else. Press again to return.','Working on a single cushion without the sofa getting in the way.'],
+ ['view','Numpad 2 / Numpad 4 / Numpad 6 / Numpad 8','Orbit in steps','Rotates the view in 15° steps — useful without a middle mouse button.','Turning the view a little when using a laptop trackpad.'],
+
+ ['render','F12','Render image','Renders a still image from the active camera.','Creating a final image of your model for a portfolio.'],
+ ['render','Ctrl+F12','Render animation','Renders every frame of the animation.','Rendering a turntable animation of a product.'],
+ ['render','F11','Show render window','Shows the last render again.','Comparing your new render with the previous one.'],
+ ['render','Shift+Alt+S','Save rendered image','In the render window, saves the image as a file such as PNG or JPEG.','Saving your finished render to hand in.'],
+ ['render','Ctrl+S','Save','Saves the current .blend file.','Saving regularly so you don’t lose work if Blender crashes.'],
+ ['render','Ctrl+Shift+S','Save As','Saves the file under a new name or in a new location.','Saving versions such as house_v02.blend.'],
+ ['render','Ctrl+O','Open','Opens an existing .blend file.','Opening last lesson’s project.'],
+ ['render','Ctrl+N','New file','Starts a new file from a template.','Starting a fresh project.'],
+ ['render','Space','Play animation','Plays or pauses the animation in the timeline.','Previewing a bouncing ball animation.']
+];
+const SC = RAW.map((r,i)=>({id:i,cat:r[0],keys:r[1],name:r[2],desc:r[3],eg:r[4],mode:r[5]||''}));
+const SCN = Object.fromEntries(SC.map(s=>[s.name,s.id]));
+
+const GLOSSARY = [
+ ['Vertex','A single point in 3D space. Vertices (plural) are the corners of a mesh.','vertSel'],
+ ['Edge','A straight line joining two vertices.','edgeSel'],
+ ['Face','A flat surface filled in between three or more edges. Faces are what you see when you render.','cubeTop'],
+ ['Mesh','An object made of vertices, edges and faces.'],
+ ['Normal','The direction a face points (its “outside”). Normals pointing the wrong way can make faces look dark.'],
+ ['Origin','The small orange dot on an object. Objects move, rotate and scale around it by default.'],
+ ['3D cursor','The red-and-white circle in the viewport. New objects are added here, and it can be used as a pivot point.'],
+ ['Active vs selected','You can select many objects, but only one is active (shown in lighter orange). Tools such as Join use the active object.'],
+ ['Object Mode','The mode for arranging whole objects: moving, rotating, scaling and duplicating them.'],
+ ['Edit Mode','The mode for changing the shape of a mesh by editing its vertices, edges and faces.'],
+ ['Pie menu','A circular menu that appears around the mouse pointer, such as the View pie (`) or Shading pie (Z).'],
+ ['Orthographic','A flat view with no perspective. Parallel lines stay parallel, which is useful for accurate modelling.'],
+ ['Collection','A folder for organising objects, shown in the Outliner.'],
+ ['Adjust Last Operation','The panel (bottom-left, or F9) where you can change the settings of the action you just did.']
+];
+
+// Quick checks (one per category)
+const CHECKS = [
+ {cat:'nav', sc:'View pie menu', q:'Which key opens a pie menu of views — handy on a laptop without a number pad?', opts:['`','Z','N'], a:0,
+  explain:'The ` (grave accent) key, below Esc, opens the View pie menu.', notes:['','Z opens the Shading pie (wireframe, solid, etc.), not views.','N toggles the sidebar with transform values.']},
+ {cat:'select', sc:'Deselect All', q:'You want to clear your selection before starting again. Which shortcut?', opts:['Alt+A','A','Ctrl+I'], a:0,
+  explain:'Alt+A deselects everything.', notes:['','A selects everything — the opposite of what you want.','Ctrl+I inverts the selection, so something would still be selected.']},
+ {cat:'transform', sc:'Cancel a transform', q:'You pressed R to rotate but changed your mind halfway. How do you cancel?', opts:['Esc / Right click','Enter','Ctrl+A'], a:0,
+  explain:'Esc or a right-click cancels the transform and puts everything back.', notes:['','Enter confirms the rotation instead of cancelling it.','Ctrl+A opens the Apply menu — not useful mid-rotation.']},
+ {cat:'modes', sc:'Face select', q:'You are in Edit Mode and want to select whole faces. Which key?', opts:['3','1','F'], a:0,
+  explain:'1, 2 and 3 switch between vertex, edge and face select.', notes:['','1 switches to vertex select.','F fills/creates a face between selected vertices.']},
+ {cat:'mesh', sc:'Inset faces', q:'Which shortcut creates a smaller face inside the selected face — perfect for a window frame?', opts:['I','E','Ctrl+B'], a:0,
+  explain:'I (Inset) creates a smaller face inside the selection.', notes:['','E extrudes — it pulls the face outwards rather than insetting it.','Ctrl+B bevels edges to round them off.']},
+ {cat:'add', sc:'Adjust Last Operation', q:'You just added a UV sphere and want to change its number of segments. Which key brings the settings back?', opts:['F9','Shift+A','Ctrl+Z'], a:0,
+  explain:'F9 reopens the Adjust Last Operation panel.', notes:['','Shift+A would add another object.','Ctrl+Z would remove the sphere completely.']},
+ {cat:'dup', sc:'Linked duplicate', q:'You need 20 fence posts that all update when you edit one of them. Which shortcut?', opts:['Alt+D','Shift+D','Ctrl+J'], a:0,
+  explain:'Alt+D makes linked duplicates that share mesh data.', notes:['','Shift+D makes independent copies — editing one won’t change the others.','Ctrl+J joins objects into one.']},
+ {cat:'snap', sc:'Precision mode', q:'While moving an object, which key do you hold for slow, precise movement?', opts:['Shift (hold)','Ctrl (hold)','Alt+Z'], a:0,
+  explain:'Holding Shift during a transform slows it down for fine adjustments.', notes:['','Holding Ctrl switches snapping on or off.','Alt+Z toggles X-Ray.']},
+ {cat:'view', sc:'Perspective / Orthographic', q:'Which key switches between perspective and orthographic views?', opts:['Numpad 5','Numpad 0','Numpad /'], a:0,
+  explain:'Numpad 5 toggles perspective and orthographic.', notes:['','Numpad 0 looks through the camera.','Numpad / toggles Local view.']},
+ {cat:'render', sc:'Save', q:'Which shortcut saves your .blend file?', opts:['Ctrl+S','F12','Shift+Alt+S'], a:0,
+  explain:'Ctrl+S (Cmd+S on Mac) saves the .blend file.', notes:['','F12 renders an image — it doesn’t save your project.','Shift+Alt+S saves a rendered image from the render window, not the .blend file.']}
+];
+
+// Scenario quiz
+const QUIZ = [
+ {sc:'Type an exact value', q:'You have added a chair and need to slide it exactly 3 units along the X axis.', opts:['G then X then 3 then Enter','R then X then 3 then Enter','S then X then 3 then Enter','Shift+X then 3'], a:0,
+  hint:'Start with the “grab” key, lock the axis, then type the distance.',
+  explain:'G starts a move, X locks it to the X axis, typing 3 sets the distance and Enter confirms.',
+  notes:['','R rotates — this would spin the chair 3° around the X axis.','S scales — this would stretch the chair to 3 times its length along X.','Shift + an axis key excludes that axis during a transform; on its own it does not move anything.']},
+ {sc:'Front view', q:'You need to look at your model straight on from the front to line it up with a reference image.', opts:['Numpad 1','Numpad 3','Numpad 7','Numpad 0'], a:0,
+  hint:'Front comes first — think of the lowest number on the number pad that gives a view.',
+  explain:'Numpad 1 gives the front view (Ctrl+Numpad 1 for the back).',
+  notes:['','Numpad 3 is the right-side view.','Numpad 7 is the top view.','Numpad 0 looks through the camera.']},
+ {sc:'Loop cut', q:'You need an extra ring of edges around a cylinder so that it can bend smoothly.', opts:['Ctrl+R','Ctrl+B','K','E'], a:0,
+  hint:'The tool is called “Loop Cut and Slide”. Hold Ctrl and think of a “Ring”.',
+  explain:'Ctrl+R adds a loop cut. Scroll to add more cuts, then click to place it.',
+  notes:['','Ctrl+B bevels edges to round them off.','The knife (K) can cut edges, but slowly and unevenly — Loop Cut is much quicker.','E extrudes new geometry outwards.']},
+ {sc:'Frame Selected', q:'A small screw is selected somewhere in a huge scene. You want the view to zoom straight to it.', opts:['Numpad .','Home','Shift+C','Numpad 5'], a:0,
+  hint:'You need “Frame Selected”. It lives on the number pad, not the main keyboard.',
+  explain:'Numpad . (Frame Selected) zooms and centres on the selection.',
+  notes:['','Home frames everything in the scene, not just the selected screw.','Shift+C resets the 3D cursor and frames the whole scene.','Numpad 5 switches between perspective and orthographic.']},
+ {sc:'Duplicate', q:'You need an independent copy of a lamp post that you can edit separately from the original.', opts:['Shift+D','Alt+D','Ctrl+J','Shift+R'], a:0,
+  hint:'“D” for duplicate — but which modifier key makes a fully independent copy?',
+  explain:'Shift+D makes an independent duplicate and starts moving it.',
+  notes:['','Alt+D makes a linked copy — editing its mesh would change the original too.','Ctrl+J joins objects together.','Shift+R repeats the last action.']},
+ {sc:'Extrude', q:'A face on the roof of a house is selected. You want to pull it upwards to build a chimney.', opts:['E','I','F','G'], a:0,
+  hint:'Pulling out new geometry from a face is called “Extrude”.',
+  explain:'E extrudes the face, creating new geometry you can pull upwards.',
+  notes:['','I insets the face — useful first, but it doesn’t pull it upwards.','F fills/creates faces between selected vertices.','G would just move the face and stretch the roof, without adding new sides.']},
+ {sc:'Render image', q:'Your scene is finished and you want to render a still image for your portfolio.', opts:['F12','Ctrl+F12','F11','Numpad 0'], a:0,
+  hint:'It is a function key — the last one on the top row.',
+  explain:'F12 renders a still image from the active camera.',
+  notes:['','Ctrl+F12 renders the whole animation, frame by frame.','F11 only shows the last render again.','Numpad 0 looks through the camera, but doesn’t render.']},
+ {sc:'Adjust Last Operation', q:'You added a cylinder, but the panel to change its number of vertices has disappeared. How do you bring it back?', opts:['F9','N','Ctrl+A','Shift+R'], a:0,
+  hint:'It is a function key that reopens the “Adjust Last Operation” panel.',
+  explain:'F9 reopens the Adjust Last Operation panel for the last action.',
+  notes:['','N shows transform values in the sidebar, not the creation settings.','Ctrl+A applies transforms.','Shift+R repeats the action — you would get a second cylinder.']},
+ {sc:'Toggle Edit Mode', q:'You want to switch from Object Mode into Edit Mode to start moving vertices.', opts:['Tab','Ctrl+Tab','Shift+Tab','Alt+Tab'], a:0,
+  hint:'It is a single key on the left of the keyboard — no modifier keys needed.',
+  explain:'Tab toggles between Object Mode and Edit Mode.',
+  notes:['','Ctrl+Tab opens the mode pie menu — it works, but Tab is quicker.','Shift+Tab toggles snapping.','Alt+Tab switches between applications on your computer.']},
+ {sc:'Exclude an axis', q:'You want to make a table top wider and deeper, but not thicker (scale on X and Y only).', opts:['S then Shift+Z','S then Z','S then X','Shift+S'], a:0,
+  hint:'Holding Shift with an axis key excludes that axis.',
+  explain:'S then Shift+Z scales on X and Y while keeping Z (the thickness) locked.',
+  notes:['','S then Z would only change the thickness — the opposite of what you want.','S then X would only change the width.','Shift+S opens the Snap pie menu.']},
+ {sc:'Add menu', q:'You want to add a monkey head (Suzanne) to your scene.', opts:['Shift+A','A','Ctrl+A','Shift+S'], a:0,
+  hint:'“A” for Add — but plain A is already used for Select All.',
+  explain:'Shift+A opens the Add menu: Mesh › Monkey.',
+  notes:['','A selects everything.','Ctrl+A opens the Apply menu.','Shift+S opens the Snap pie menu.']},
+ {sc:'Camera view', q:'You want to look through the scene camera to check how your final shot is framed.', opts:['Numpad 0','Ctrl+Numpad 0','Numpad 5','Ctrl+Alt+Numpad 0'], a:0,
+  hint:'Cameras start at zero — a single key on the number pad.',
+  explain:'Numpad 0 shows the view through the active camera.',
+  notes:['','Ctrl+Numpad 0 makes the selected object the camera — risky if a cube is selected!','Numpad 5 switches between perspective and orthographic.','Ctrl+Alt+Numpad 0 moves the camera to match your view, which would change your shot.']}
+];
+
+// Practical tasks (practice viewport)
+const TASKS = [
+ {id:'t1', ev:'edit', title:'Enter Edit Mode', goal:'Switch the cube from Object Mode into Edit Mode so you can work on its vertices, edges and faces.', hint:'It is the key you use to jump between form fields — on the left of the keyboard.', answer:'Tab'},
+ {id:'t2', ev:'face', title:'Switch to Face select', goal:'While in Edit Mode, change the selection mode so you select whole faces.', hint:'In Edit Mode, the number keys along the top of the keyboard choose vertex, edge or face.', answer:'3'},
+ {id:'t3', ev:'extrude', title:'Extrude the selected face', goal:'The top face is selected. Extrude it upwards to make the cube taller.', hint:'“Extrude” begins with the letter you need. You must be in Face select.', answer:'E'},
+ {id:'t9', ev:'inset', title:'Inset the top face', goal:'Make a smaller face inside the selected top face.', hint:'The tool is called Inset. Its shortcut is the first letter of its name.', answer:'I'},
+ {id:'t10', ev:'chimney', title:'Extrude the inset face into a chimney', goal:'With the new inner face selected, pull it upwards to make a chimney.', hint:'Use the same tool as task 3.', answer:'E'},
+ {id:'t11', ev:'bevel', title:'Bevel an edge', goal:'Switch to Edge select (the top-right edge is selected for you) and bevel it.', hint:'Edge select is 2. Bevel uses Ctrl with the first letter of “Bevel”.', answer:'2 then Ctrl+B'},
+ {id:'t12', ev:'segments', title:'Round off the bevel', goal:'Give the bevel at least 3 segments so the edge looks rounded.', hint:'In Blender you scroll the mouse wheel while bevelling. Scroll over the viewport, or tap the Scroll key below it.', answer:'Scroll'},
+ {id:'t4', ev:'object', title:'Return to Object Mode', goal:'Leave Edit Mode so you can work with the whole object again.', hint:'The same key that took you into Edit Mode brings you back out.', answer:'Tab'},
+ {id:'t5', ev:'movex', title:'Move the object along the X axis', goal:'Move the object 3 units along the red X axis.', hint:'Grab, lock to an axis, type the distance, then confirm.', answer:'G then X then 3 then Enter'},
+ {id:'t6', ev:'dup', title:'Duplicate an object', goal:'Make a copy of the object, then move the copy so both can be seen.', hint:'Hold Shift and press the first letter of “Duplicate”. The copy then follows a move — lock an axis and type a distance.', answer:'Shift+D then X then -3 then Enter'},
+ {id:'t7', ev:'front', title:'Switch to Front view', goal:'Look at the scene straight on from the front.', hint:'Use the number pad (front is the first view). No number pad? The key below Esc opens the View pie.', answer:'Numpad 1 / `'},
+ {id:'t8', ev:'frame', title:'Frame the selected object', goal:'Select one object, then zoom and centre the view on it.', hint:'The command is “Frame Selected”. It’s on the number pad, next to 0.', answer:'Numpad .'}
+];
+const SPEED = [
+ {ev:'edit',t:'Enter Edit Mode'},{ev:'face',t:'Switch to Face select'},{ev:'inset',t:'Inset the top face'},
+ {ev:'chimney',t:'Extrude the inset face upwards'},{ev:'edge',t:'Switch to Edge select'},{ev:'bevel',t:'Bevel the selected edge'},
+ {ev:'object',t:'Return to Object Mode'},{ev:'dupdone',t:'Duplicate the object and confirm the move'},{ev:'top',t:'Switch to Top view'},{ev:'home',t:'Frame everything (Frame All)'}
+];
+
+// Common mistakes
+const MISTAKES = [
+ {t:'“My shortcut does nothing!”', why:'Blender sends each shortcut to the area under your mouse pointer. If the pointer is over the Outliner, Properties panel or Timeline, the 3D viewport never receives the key.', fix:'Move the mouse over the 3D viewport, then press the shortcut again.'},
+ {t:'I extruded, cancelled, and now my mesh looks strange', why:'Right-clicking or pressing Esc during an extrude only cancels the movement. The new geometry is still there, sitting exactly on top of the old faces. These hidden duplicates cause odd shading later.', fix:'Press Ctrl+Z straight away to undo the extrude. If you find doubled vertices later, select all (A) and press M › By Distance to merge them.'},
+ {t:'Part of my scene vanished when I pressed a number key', why:'In Object Mode the number keys along the top of the keyboard can show or hide collections. 1, 2 and 3 only switch selection modes in Edit Mode.', fix:'Click the eye icons in the Outliner to show the collections again. Use the number pad (or the ` pie) for views.'},
+ {t:'My bevel is uneven or squashed', why:'If the object was scaled in Object Mode, Blender bevels the unscaled shape and then stretches it.', fix:'In Object Mode, press Ctrl+A › Scale to apply the scale, then bevel again.'},
+ {t:'The whole screen turned into one big window', why:'Ctrl+Space maximises the area under your mouse pointer.', fix:'Press Ctrl+Space again (with the mouse over the same area) to restore the layout.'},
+ {t:'Number pad keys don’t change the view', why:'Num Lock may be off, or your laptop has no number pad.', fix:'Turn on Num Lock, use the ` View pie menu, or turn on Emulate Numpad in Edit › Preferences › Input.'},
+ {t:'I moved an object but it went the wrong way', why:'A free move (G on its own) follows the mouse across the screen, so it is easy to move things in depth by accident.', fix:'Lock the move to an axis (G then X, Y or Z) and check the result from the front or side view.'},
+ {t:'Some faces look dark or inside-out', why:'Their normals are pointing inwards, often after extruding or flipping geometry.', fix:'In Edit Mode, select all (A) and press Shift+N to recalculate normals.'},
+ {t:'I pressed a letter and a strange tool started', why:'Many single letters start a tool immediately — for example K starts the knife and C starts circle select.', fix:'Press Esc or right-click to cancel. The status bar at the bottom of Blender shows which tool is running.'}
+];
+const CONTEXT = [
+ ['G','Moves whole objects','Moves the selected vertices, edges or faces'],
+ ['1 / 2 / 3','Can show or hide collections','Vertex, edge or face select'],
+ ['M','Move to Collection menu','Merge menu (e.g. At Center, By Distance)'],
+ ['X','Delete the selected objects (asks to confirm)','Delete menu: vertices, edges, faces and more'],
+ ['Shift+D','Duplicates whole objects','Duplicates the selected geometry inside the same object'],
+ ['Ctrl+L','Link / Transfer Data menu','Select linked geometry'],
+ ['E','No effect','Extrude']
+];
+const MQ = [
+ {q:'You press G but nothing moves. Your mouse is over the Properties panel. What should you do?', opts:['Move the mouse over the 3D viewport and press G again','Restart Blender','Press Tab first'], a:0,
+  explain:'Shortcuts go to the area under the mouse pointer.', notes:['','Restarting won’t help — the shortcut went to the wrong area.','Tab switches mode; G works in both modes.']},
+ {q:'You extruded a face, then right-clicked to cancel. What should you do next?', opts:['Press Ctrl+Z to undo the extrude','Nothing — the extrude was cancelled','Press E again'], a:0,
+  explain:'Cancelling only stops the movement; the extra geometry is still there until you undo.', notes:['','The new geometry is still there, hidden on top of the old faces.','That would add even more hidden geometry.']},
+ {q:'Your bevel looks squashed on a cube you stretched earlier.', opts:['Apply the scale (Ctrl+A › Scale), then bevel again','Add more bevel segments','Scale the cube back to its old size'], a:0,
+  explain:'Applying the scale makes the bevel even on every side.', notes:['','More segments make it rounder, but still squashed.','That would undo your design rather than fix the bevel.']},
+ {q:'You are in Edit Mode and press M. What happens?', opts:['A Merge menu appears','The object moves to a collection','The mesh is mirrored'], a:0,
+  explain:'In Edit Mode, M merges the selected vertices. In Object Mode it moves objects to a collection.', notes:['','That is what M does in Object Mode.','Mirroring uses a different shortcut.']},
+ {q:'Your model has a few dark, odd-looking faces after extruding.', opts:['In Edit Mode, press A then Shift+N','Press F12 to render it','Delete the object and start again'], a:0,
+  explain:'Shift+N recalculates the normals so all faces point outwards.', notes:['','Rendering shows the same problem.','No need — recalculating normals fixes it in seconds.']}
+];
+
+// Mini project (in real Blender)
+const PROJECT = [
+ {t:'Set up your file', d:'Start a new General file and save it straight away as house.blend. Keep the default cube — it will become the house.', k:['Ctrl+N','Ctrl+S']},
+ {t:'Make the house wider', d:'In Object Mode, stretch the cube along X, then apply the scale (choose Scale from the Apply menu) so later tools behave evenly.', k:['S then X then 1.5 then Enter','Ctrl+A']},
+ {t:'Select the top face', d:'Enter Edit Mode, switch to Face select and click the top face.', k:['Tab','3']},
+ {t:'Build a pitched roof', d:'Extrude the top face upwards, then scale it to zero along Y to make a ridge.', k:['E then 1 then Enter','S then Y then 0 then Enter']},
+ {t:'Add a window', d:'Switch to Front view, click the front wall face, inset it, then extrude it inwards.', k:['Numpad 1','I then 0.3 then Enter','E then -0.15 then Enter'], fig:'window'},
+ {t:'Soften the corners', d:'Switch to Edge select, click a vertical corner edge, Shift+click the other three, then bevel. Scroll to add 3 segments before clicking.', k:['2','Shift+Left click','Ctrl+B'], fig:'bevel4'},
+ {t:'Add the ground', d:'Back in Object Mode, add a plane, make it bigger, then lower it to the bottom of the house (the default cube’s base sits at −1 on Z).', k:['Tab','Shift+A','S then 10 then Enter','G then Z then -1 then Enter']},
+ {t:'Build a street', d:'Select the house and duplicate it to make a neighbour. Repeat the last action to add more houses.', k:['Shift+D then X then 5 then Enter','Shift+R']},
+ {t:'Frame, render and save', d:'Look through the camera. If the shot is poor, find a better view and align the camera to it. Render, save the image, then save your file.', k:['Numpad 0','Ctrl+Alt+Numpad 0','F12','Shift+Alt+S','Ctrl+S']}
+];
+
+/* =========================================================
+   UTILITIES
+   ========================================================= */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
+function h(tag, attrs, ...kids){
+  const el = document.createElement(tag);
+  if(attrs) for(const [k,v] of Object.entries(attrs)){
+    if(v==null || v===false) continue;
+    if(k==='class') el.className = v;
+    else if(k==='text') el.textContent = v;
+    else if(k.startsWith('on') && typeof v==='function') el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v===true ? '' : v);
+  }
+  for(const c of kids.flat()){
+    if(c==null || c===false) continue;
+    el.append(c.nodeType ? c : document.createTextNode(String(c)));
+  }
+  return el;
+}
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function add(el,...kids){ el.append(...kids.flat().filter(x=>x!=null&&x!==false)); }
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- Progress store (loaded early: other parts read it) ---------- */
+const STORE='blender-shortcut-trainer-v1';
+function blank(){ return {cats:{},checks:{},quiz:{},tasks:{},mist:{},proj:{},deck:{},final:{best:null,done:false},speedBest:null,reflect:'',name:''}; }
+let P = blank();
+try{ const raw=localStorage.getItem(STORE); if(raw){ const o=JSON.parse(raw); P=Object.assign(blank(),o); P.final=Object.assign({best:null,done:false},o.final||{}); } }catch(e){}
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify(P)); }catch(e){} updateProgress(); }
+
+/* ---------- Keys ---------- */
+let MAC = typeof P.mac==='boolean' ? P.mac : /Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent||'');
+const CMD_COMBOS = new Set(['Ctrl+S','Ctrl+Shift+S','Ctrl+O','Ctrl+N','Ctrl+Z','Ctrl+Shift+Z']);
+const SYM = {'`':'grave accent','.':'full stop',',':'comma','/':'slash'};
+function kbd(label){
+  let hold=false;
+  if(/\(hold\)/.test(label)){ hold=true; label=label.replace(/\s*\(hold\)/,''); }
+  const mouse = /MMB|click|Scroll|drag/i.test(label);
+  const k = h('kbd',{class:'k'+(mouse?' mouse':'')});
+  const m = label.match(/^(Numpad )?([`.,\/])$/);
+  if(m){ k.append(h('span',{'aria-hidden':'true'},label), h('span',{class:'sr-only'},(m[1]||'')+SYM[m[2]])); }
+  else k.textContent = label;
+  const w = h('span',{class:'kwrap'},k);
+  if(hold) w.append(h('span',{class:'op'},'hold'));
+  return w;
+}
+function macStep(step){
+  if(!MAC) return step;
+  if(CMD_COMBOS.has(step)) step=step.replace('Ctrl','Cmd');
+  return step.replace(/\bAlt\b/g,'Option');
+}
+function renderKeys(spec){
+  const wrap = h('span',{class:'keyseq'});
+  spec.split(' / ').forEach((alt,ai)=>{
+    if(ai) wrap.append(h('span',{class:'op'},'or'));
+    alt.split(' then ').forEach((step,si)=>{
+      if(si) wrap.append(h('span',{class:'op'},'then'));
+      macStep(step.trim()).split('+').forEach((key,ki)=>{
+        if(ki) wrap.append(h('span',{class:'op'},'+'));
+        wrap.append(kbd(key.trim()));
+      });
+    });
+  });
+  return wrap;
+}
+const keysText = spec => spec.split(' / ').map(a=>a.split(' then ').map(s=>macStep(s.trim())).join(', then ')).join(' or ');
+let toastT;
+function toast(msg){
+  const t=$('#toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600);
+}
+function feedback(el, kind, title, text){
+  el.innerHTML='';
+  el.append(h('div',{class:kind}, h('strong',{},title), text ? h('p',{},text) : null));
+}
+function addToDeck(id){ if(id==null || !SC[id]) return; P.deck[id]=1; save(); if(!rv || rv.done) renderReview(); }
+
+/* ---------- Generic multiple-choice question ---------- */
+function mcBlock(c){
+  const fb=h('div',{class:'fb','aria-live':'polite'});
+  const opts=h('div',{class:'opts'+(c.kind==='text'?' text-opts':'')});
+  const order=c.order||shuffle(c.opts.map((_,i)=>i));
+  order.forEach(i=>{
+    const b=h('button',{type:'button',class:'opt'}, h('span',{class:'lbl'}, c.kind==='text'?c.opts[i]:renderKeys(c.opts[i])), h('span',{class:'mark','aria-hidden':'true'}));
+    if(c.done){ b.disabled=true; if(i===c.a) b.classList.add('correct'); }
+    b.addEventListener('click',()=>{
+      if(i===c.a){
+        b.classList.add('correct'); $$('.opt',opts).forEach(x=>x.disabled=true);
+        feedback(fb,'ok','Correct!',c.explain); c.onCorrect && c.onCorrect();
+      } else {
+        b.classList.add('wrong'); b.disabled=true;
+        feedback(fb,'hint','Not quite — try again.',c.notes[i]); c.onWrong && c.onWrong(i);
+      }
+    });
+    opts.append(b);
+  });
+  if(c.done) feedback(fb,'ok','Correct!',c.explain);
+  const qid='q'+Math.random().toString(36).slice(2,9);
+  return h('div',{class:'kc',role:'group','aria-labelledby':qid}, c.label?h('p',{class:'kc-label'},c.label):null, h('p',{class:'kc-q',id:qid},c.q), opts, fb);
+}
+
+/* ---------- Matching real key presses against a shortcut ---------- */
+function evToken(e){
+  const c=e.code||'', k=e.key||'';
+  if(c.startsWith('Numpad')){ const r=c.slice(6); return ({Decimal:'num.',Enter:'enter',Divide:'num/',Multiply:'num*',Subtract:'num-',Add:'num+'})[r] || 'num'+r; }
+  if(c.startsWith('Digit')) return c.slice(5);
+  if(/^[a-z]$/i.test(k)) return k.toLowerCase();
+  if(/^Key[A-Z]$/.test(c)) return c.slice(3).toLowerCase();
+  const map={Backquote:'`',Period:'.',Comma:',',Slash:'/',Minus:'-',Space:'space',Tab:'tab',Enter:'enter',Escape:'esc',Delete:'delete',Home:'home',Backspace:'backspace'};
+  if(map[c]) return map[c];
+  if(k===' ') return 'space'; if(k==='Escape') return 'esc';
+  return k.toLowerCase();
+}
+const MOD_TOKENS=['shift','control','alt','meta','capslock','numlock','altgraph','os',''];
+function evCombo(e){ return {ctrl:!!(e.ctrlKey||e.metaKey), shift:!!e.shiftKey, alt:!!e.altKey, main:evToken(e)}; }
+function parseCombo(str){
+  const parts=str.split('+').map(s=>s.trim()); const main=parts.pop().toLowerCase();
+  const mods=parts.map(p=>p.toLowerCase());
+  return {ctrl:mods.includes('ctrl')||mods.includes('cmd'), shift:mods.includes('shift'), alt:mods.includes('alt'),
+    main: main.startsWith('numpad ') ? 'num'+main.slice(7) : main};
+}
+const sameCombo=(a,b)=>a.ctrl===b.ctrl&&a.shift===b.shift&&a.alt===b.alt&&a.main===b.main;
+function comboText(c){
+  let m=c.main;
+  if(m.startsWith('num') && m.length>3) m='Numpad '+m.slice(3);
+  else if(m==='esc') m='Esc'; else if(m.length===1) m=m.toUpperCase(); else m=m.charAt(0).toUpperCase()+m.slice(1);
+  return [c.ctrl?'Ctrl':'',c.alt?'Alt':'',c.shift?'Shift':'',m].filter(Boolean).join('+');
+}
+const MOUSE_RE=/MMB|click|Scroll|drag|\(hold\)/i;
+const BLOCKED=new Set(['Ctrl+N','Ctrl+Tab','Ctrl+Space','F11','F12','Ctrl+W','Ctrl+T']);
+function pressAlts(spec){
+  return spec.split(' / ').filter(a=>!MOUSE_RE.test(a) && a.split(' then ').every(s=>!BLOCKED.has(s.trim())))
+    .map(a=>a.split(' then ').map(s=>parseCombo(s.trim())));
+}
+const pressable = spec => pressAlts(spec).length>0;
+function keyCapture(spec, {onDone, hint, tries=2, onFallback}){
+  const alts=pressAlts(spec); let steps=[], left=tries, finished=false;
+  const shown=h('span',{class:'cap-keys'});
+  const status=h('p',{class:'cap-status','aria-live':'polite'});
+  const box=h('div',{class:'capture',tabindex:'0',role:'application','aria-label':'Answer area. Select it, then press the shortcut keys.'},
+    h('span',{class:'cap-prompt'},'Click here, then press the shortcut'), shown);
+  const showSteps=()=>{ shown.innerHTML=''; if(steps.length) shown.append(renderKeys(steps.map(comboText).join(' then '))); };
+  box.addEventListener('click',()=>box.focus());
+  box.addEventListener('keydown',e=>{
+    if(finished) return;
+    const c=evCombo(e);
+    if(MOD_TOKENS.includes(c.main)) return;
+    e.preventDefault(); e.stopPropagation();
+    steps.push(c); showSteps();
+    if(alts.some(a=>a.length===steps.length && a.every((x,i)=>sameCombo(x,steps[i])))){
+      finished=true; box.classList.add('ok'); status.textContent='';
+      onDone(true, steps.map(comboText).join(' then ')); return;
+    }
+    if(alts.some(a=>a.length>steps.length && steps.every((x,i)=>sameCombo(x,a[i])))){ status.textContent='Good — keep going…'; return; }
+    const pressed=steps.map(comboText).join(' then '); steps=[]; left--;
+    if(left>0){
+      box.classList.add('bad'); setTimeout(()=>box.classList.remove('bad'),500);
+      status.innerHTML=''; status.append(h('strong',{},`You pressed ${pressed} — not quite. `), hint?`Hint: ${hint} `:'', 'Try again.');
+    } else { finished=true; onDone(false, pressed); }
+  });
+  const skip=h('button',{type:'button',class:'btn small',onclick:()=>{ if(finished) return; finished=true; onDone(false,null); }},'I don’t know');
+  const fallback=onFallback?h('button',{type:'button',class:'btn small',onclick:onFallback},'No keyboard? Show options'):null;
+  return h('div',{class:'capwrap'}, box, status, h('div',{class:'btn-row'},skip,fallback));
+}
+function keyHint(s){
+  const a=pressAlts(s.keys)[0]; if(!a) return '';
+  const n=a.reduce((t,c)=>t+1+(c.ctrl?1:0)+(c.shift?1:0)+(c.alt?1:0),0);
+  return `It uses ${n} key${n>1?'s':''}${a.length>1?' pressed one after another':''}.`;
+}
+
+/* =========================================================
+   MESH DIAGRAMS: simple isometric before/after pictures
+   ========================================================= */
+const SEL_FILL='#e8913a', SEL_LINE='#ffab52';
+function figSVG(items, label){
+  const pts=[]; let out='';
+  const ISO=p=>[(p[0]-p[1])*0.866, (p[0]+p[1])*0.5-p[2]];
+  const P=p=>{ const q=ISO(p); pts.push(q); return q[0].toFixed(3)+','+q[1].toFixed(3); };
+  const LT=[0.45,0.25,0.86];
+  const shade=n=>{ const d=Math.max(0,n[0]*LT[0]+n[1]*LT[1]+n[2]*LT[2]); const v=Math.round(64+128*d); return `rgb(${v},${v},${v})`; };
+  const poly=(ps,fill)=>`<polygon points="${ps.map(P).join(' ')}" fill="${fill}" stroke="#151515" stroke-width="1.2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
+  items.forEach(it=>{
+    if(it.prism){
+      const {prof,y0=0,y1=1,hl,skipTop}=it.prism;
+      const cx=prof.reduce((a,p)=>a+p[0],0)/prof.length, cz=prof.reduce((a,p)=>a+p[1],0)/prof.length;
+      prof.forEach((a,i)=>{
+        const b=prof[(i+1)%prof.length];
+        let n=[b[1]-a[1],0,-(b[0]-a[0])];
+        if(n[0]*((a[0]+b[0])/2-cx)+n[2]*((a[1]+b[1])/2-cz)<0) n=n.map(v=>-v);
+        const len=Math.hypot(n[0],n[2]); n=[n[0]/len,0,n[2]/len];
+        if(n[0]+1.2*n[2]<=0.001) return;
+        if(skipTop && n[2]>0.99) return;
+        const on=(hl==='top'&&n[2]>0.99)||(hl==='chamfer'&&n[0]>0.01&&n[2]>0.01);
+        out+=poly([[a[0],y0,a[1]],[b[0],y0,b[1]],[b[0],y1,b[1]],[a[0],y1,a[1]]], on?SEL_FILL:shade(n));
+      });
+      out+=poly(prof.map(a=>[a[0],y1,a[1]]), shade([0,1,0]));
+    }
+    if(it.poly) out+=poly(it.poly, it.fill||SEL_FILL);
+    if(it.hole){ const d=it.hole.map(r=>'M'+r.map(P).join(' L')+' Z').join(' ');
+      out+=`<path d="${d}" fill="${it.fill}" fill-rule="evenodd" stroke="#151515" stroke-width="1.2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`; }
+    if(it.line){ const a=ISO(it.line[0]), b=ISO(it.line[1]); pts.push(a,b);
+      out+=`<line x1="${a[0].toFixed(3)}" y1="${a[1].toFixed(3)}" x2="${b[0].toFixed(3)}" y2="${b[1].toFixed(3)}" stroke="${it.color||'#151515'}" stroke-width="${it.w||1.2}" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`; }
+    if(it.dot){ const a=ISO(it.dot); pts.push(a); out+=`<circle cx="${a[0].toFixed(3)}" cy="${a[1].toFixed(3)}" r="0.075" fill="${SEL_LINE}" stroke="#151515" stroke-width="1" vector-effect="non-scaling-stroke"/>`; }
+  });
+  const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
+  const x0=Math.min(...xs), x1=Math.max(...xs), yA=Math.min(...ys), yB=Math.max(...ys);
+  const sz=Math.max(x1-x0,(yB-yA)*1.2)+0.2;
+  const vb=[(x0+x1)/2-sz/2,(yA+yB)/2-sz/2/1.2,sz,sz/1.2].map(v=>v.toFixed(3)).join(' ');
+  return `<svg viewBox="${vb}" role="img" aria-label="${label}">${out}</svg>`;
+}
+const FIGS=(()=>{
+  const SQ=[[0,0],[1,0],[1,1],[0,1]], m=0.24, d=0.28, b=0.3;
+  const outer=[[0,0,1],[1,0,1],[1,1,1],[0,1,1]];
+  const inner=[[m,m,1],[1-m,m,1],[1-m,1-m,1],[m,1-m,1]];
+  const spokes=outer.map((o,i)=>({line:[o,inner[i]]}));
+  const arc=[]; for(let k=0;k<=4;k++){ const t=k/4*Math.PI/2; arc.push([1-b+b*Math.cos(t),1-b+b*Math.sin(t)]); }
+  return {
+    cubeTop:{label:'A cube with its top face selected',items:[{prism:{prof:SQ,hl:'top'}}]},
+    vertSel:{label:'A cube with one corner vertex selected',items:[{prism:{prof:SQ}},{dot:[1,1,1]}]},
+    extruded:{label:'The top face extruded upwards, adding a new section with its own ring of edges',items:[{prism:{prof:[[0,0],[1,0],[1,1.7],[0,1.7]],hl:'top'}},{line:[[1,0,1],[1,1,1]]},{line:[[1,1,1],[0,1,1]]}]},
+    inset:{label:'A smaller face inset inside the top face, joined to the corners by new edges',items:[{prism:{prof:SQ}},{poly:inner},...spokes]},
+    chimney:{label:'The inset face extruded upwards to form a chimney',items:[{prism:{prof:SQ}},...spokes,{prism:{prof:[[m,1],[1-m,1],[1-m,1.65],[m,1.65]],y0:m,y1:1-m,hl:'top'}}]},
+    window:{label:'The inset face extruded downwards into the cube to form a recess',items:[
+      {prism:{prof:SQ,skipTop:true}},
+      {poly:inner.map(p=>[p[0],p[1],1-d])},
+      {poly:[[m,m,1],[m,1-m,1],[m,1-m,1-d],[m,m,1-d]],fill:'rgb(122,122,122)'},
+      {poly:[[m,m,1],[1-m,m,1],[1-m,m,1-d],[m,m,1-d]],fill:'rgb(98,98,98)'},
+      {hole:[outer,inner],fill:'rgb(174,174,174)'},...spokes]},
+    edgeSel:{label:'A cube with one top edge selected',items:[{prism:{prof:SQ}},{line:[[1,0,1],[1,1,1]],color:SEL_LINE,w:4}]},
+    bevel1:{label:'The edge bevelled with one segment, giving a flat chamfer',items:[{prism:{prof:[[0,0],[1,0],[1,1-b],[1-b,1],[0,1]],hl:'chamfer'}}]},
+    bevel4:{label:'The edge bevelled with four segments, giving a rounded edge',items:[{prism:{prof:[[0,0],[1,0],...arc,[0,1]],hl:'chamfer'}}]},
+    loopcut:{label:'A cube with a new loop of edges around its middle',items:[{prism:{prof:SQ}},{line:[[1,0,.5],[1,1,.5]],color:SEL_LINE,w:3},{line:[[1,1,.5],[0,1,.5]],color:SEL_LINE,w:3}]}
+  };
+})();
+function fig(key, cap){
+  const holder=h('div'); holder.innerHTML=figSVG(FIGS[key].items, FIGS[key].label);
+  return h('figure',{class:'fig'}, holder.firstChild, cap?h('figcaption',{},cap):null);
+}
+function arrow(keys, text){ return h('div',{class:'fig-arrow'}, h('span',{class:'ar','aria-hidden':'true'},'→'), keys?renderKeys(keys):null, text?h('span',{},text):null); }
+function stages(list){ return h('div',{class:'stages'}, list.map(s=> Array.isArray(s) ? fig(s[0],s[1]) : arrow(s.k,s.t))); }
+
+const CARD_FIGS = {
+  'Extrude':[['cubeTop','Before'],{k:'E',t:'move up'},['extruded','After']],
+  'Inset faces':[['cubeTop','Before'],{k:'I',t:'move inwards'},['inset','After']],
+  'Bevel':[['edgeSel','Before'],{k:'Ctrl+B',t:'drag, scroll'},['bevel4','After']],
+  'Loop cut':[['cubeTop','Before'],{k:'Ctrl+R',t:'click twice'},['loopcut','After']]
+};
+const WORKED = [
+  {title:'Extrude — raise a face', use:'Extrude adds new geometry from what is selected. Use it to pull out walls, legs, arms, steps or any new section.',
+   stages:[['cubeTop','1. Face select (3), click the top face'],{k:'E',t:'move the mouse up, then click'},['extruded','2. A new section with a new ring of edges']],
+   tip:['For an exact height type a value: ','E then 0.7 then Enter','. Right-click cancels the movement, but the extruded geometry stays — press Ctrl+Z to remove it.']},
+  {title:'Inset — a face inside a face', use:'Inset creates a border of new faces and a smaller face in the middle. It is often the first step before extruding.',
+   stages:[['cubeTop','1. Select the top face'],{k:'I',t:'move the mouse inwards, then click'},['inset','2. A smaller inner face and a border']],
+   tip:['Type a border width for precision: ','I then 0.2 then Enter','. With several faces selected, press I again while insetting to inset each face individually.']},
+  {title:'Chimney — Inset, then Extrude up', use:'Combining tools is where shortcuts really speed things up. Inset first, so the extrusion is smaller than the face it came from.',
+   stages:[['cubeTop','1. Select the roof face'],{k:'I',t:'inset'},['inset','2. Inner face selected'],{k:'E',t:'move up'},['chimney','3. A chimney']],
+   tip:['The whole sequence: ','I then E',' — no menus needed.']},
+  {title:'Window recess — Inset, then Extrude inwards', use:'Extruding with a negative value pushes the face into the object instead of out of it. Use it on a wall face for windows and doorways.',
+   stages:[['cubeTop','1. Select the face'],{k:'I',t:'inset'},['inset','2. Window frame made'],{k:'E then -0.3 then Enter',t:''},['window','3. A recessed window']],
+   tip:['Typing a minus sign while extruding reverses the direction: ','E then - then 0.3 then Enter','.']},
+  {title:'Bevel — soften a hard edge', use:'Real objects rarely have perfectly sharp edges. Bevelling catches the light and makes models look more realistic.',
+   stages:[['edgeSel','1. Edge select (2), click an edge'],{k:'Ctrl+B',t:'drag the mouse'},['bevel1','2. One segment: a chamfer'],{k:'Scroll',t:'scroll to add segments'},['bevel4','3. Four segments: rounded']],
+   tip:['Use ','Ctrl+Shift+B',' to bevel a single vertex (a corner) instead of an edge. If the bevel looks uneven, apply the scale in Object Mode with Ctrl+A first.']}
+];
+const SPOT = [
+  {b:'cubeTop',a:'inset',opts:['I','E','Ctrl+B'],ans:0,explain:'Inset (I) made a smaller face inside the original, joined by new edges at the corners.',
+   notes:['','Extrude would raise the face up rather than make a smaller face inside it.','Bevel works on edges, rounding them off.']},
+  {b:'edgeSel',a:'bevel4',opts:['Ctrl+R','Ctrl+B','I'],ans:1,explain:'Bevel (Ctrl+B) with several segments rounded off the selected edge.',
+   notes:['Loop cut adds a ring of edges across the mesh — it doesn’t round off an edge.','','Inset makes a smaller face inside a face.']},
+  {b:'cubeTop',a:'extruded',opts:['S then Z','E','I'],ans:1,explain:'Extrude (E) added new geometry — look for the new ring of edges where the old top used to be.',
+   notes:['Scaling on Z would stretch the cube taller, but it would not add the new ring of edges halfway up.','','Inset would make a smaller face inside the top face.']}
+];
+function renderSpot(){
+  const grid=h('div',{class:'spot-grid'});
+  SPOT.forEach((s,qi)=>{
+    const fb=h('div',{class:'fb','aria-live':'polite'}), opts=h('div',{class:'opts'});
+    shuffle(s.opts.map((_,i)=>i)).forEach(i=>{
+      const b=h('button',{type:'button',class:'opt'},h('span',{class:'lbl'},renderKeys(s.opts[i])),h('span',{class:'mark','aria-hidden':'true'}));
+      b.addEventListener('click',()=>{
+        if(i===s.ans){ b.classList.add('correct'); $$('.opt',opts).forEach(x=>x.disabled=true); feedback(fb,'ok','Correct!',s.explain); }
+        else { b.classList.add('wrong'); b.disabled=true; feedback(fb,'hint','Not quite — look again.',s.notes[i]); }
+      });
+      opts.append(b);
+    });
+    grid.append(h('div',{class:'spot',role:'group','aria-label':'Picture question '+(qi+1)},
+      h('p',{class:'kc-q'},`${qi+1}. Which shortcut turned the left shape into the right one?`),
+      stages([[s.b,'Before'],{t:'?'},[s.a,'After']]), opts, fb));
+  });
+  return grid;
+}
+function renderWorked(){
+  return h('div',{class:'worked'},
+    h('h3',{},'Worked examples: Extrude, Inset and Bevel'),
+    h('p',{},'Follow each sequence from left to right. Orange shows what is selected. Try each one on the default cube in Blender.'),
+    WORKED.map(w=>h('div',{class:'wk'},
+      h('h4',{},w.title), h('p',{},w.use), stages(w.stages),
+      h('p',{class:'wk-tip'}, h('strong',{},'Tip: '), w.tip[0], renderKeys(w.tip[1]), w.tip[2]))),
+    h('div',{class:'kc'}, h('p',{class:'kc-label'},'🔍 Spot the tool'), h('p',{style:'margin:0;color:var(--muted)'},'Look at each before and after picture and choose the shortcut that was used.'), renderSpot())
+  );
+}
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+function counts(){
+  return {
+    cats: CATS.filter(c=>P.cats[c.id]).length,
+    checks: CATS.filter(c=>P.checks[c.id]).length,
+    mist: MQ.filter((q,i)=>P.mist[i]).length,
+    quiz: QUIZ.filter((q,i)=>P.quiz[i]).length,
+    quizFirst: QUIZ.filter((q,i)=>P.quiz[i] && P.quiz[i].first).length,
+    tasks: TASKS.filter(t=>P.tasks[t.id]).length,
+    proj: PROJECT.filter((p,i)=>P.proj[i]).length,
+    deck: Object.keys(P.deck).filter(id=>SC[id]).length,
+    deckDue: Object.keys(P.deck).filter(id=>SC[id] && P.deck[id]<5).length,
+    mastered: Object.keys(P.deck).filter(id=>SC[id] && P.deck[id]>=5).length,
+    final: P.final.done?1:0
+  };
+}
+function overallPct(c){
+  const total = CATS.length*2 + MQ.length + QUIZ.length + TASKS.length + PROJECT.length + 4;
+  const done = c.cats + c.checks + c.mist + c.quiz + c.tasks + c.proj + c.final*4;
+  return Math.round(done/total*100);
+}
+function updateProgress(){
+  const c=counts(), pct=overallPct(c);
+  $('#prog-pct').textContent = pct+'%';
+  $('#prog-fill').style.width = pct+'%';
+  $('#prog-bar-fill').style.width = pct+'%';
+  $('.prog-bar').setAttribute('aria-valuenow', pct);
+  const rows = [
+    ['Categories explored', c.cats, CATS.length],
+    ['Quick checks passed', c.checks, CATS.length],
+    ['Common mistakes questions', c.mist, MQ.length],
+    ['Scenario quiz answered', c.quiz, QUIZ.length],
+    ['Practical tasks completed', c.tasks, TASKS.length],
+    ['Mini project steps', c.proj, PROJECT.length],
+    ['Final challenge', c.final, 1, P.final.best!=null ? 'Best '+P.final.best+'%' : 'Not attempted']
+  ];
+  const list=$('#prog-list'); list.innerHTML='';
+  rows.forEach(([lbl,v,max,txt])=> list.append(h('li',{class:v>=max?'done':''}, h('span',{},lbl), h('span',{class:'v'}, txt || (v+' / '+max)))));
+  const badge=(id,v,max,txt)=>{ const b=$(id); b.textContent = txt || (v+'/'+max); b.classList.toggle('done', max!=null && v>=max); };
+  badge('#nb-learn', c.cats, CATS.length);
+  badge('#nb-mist', c.mist, MQ.length);
+  badge('#nb-quiz', c.quiz, QUIZ.length);
+  badge('#nb-practice', c.tasks, TASKS.length);
+  badge('#nb-proj', c.proj, PROJECT.length);
+  badge('#nb-review', 0, null, String(c.deckDue));
+  badge('#nb-final', c.final, 1, P.final.best!=null ? P.final.best+'%' : '–');
+  $$('.tab').forEach(t=>{ t.classList.toggle('seen', !!P.cats[t.dataset.cat]); t.classList.toggle('checked', !!P.checks[t.dataset.cat]); });
+  renderSummary();
+}
+$('#reset-btn').addEventListener('click', ()=>{
+  if(!confirm('Reset all progress? This clears your categories, quiz answers, tasks, project, review deck and scores.')) return;
+  const mac=P.mac; P = blank(); if(typeof mac==='boolean') P.mac=mac;
+  $('#sum-name').value='';
+  save(); rerenderAll(); $('#prog').open=false; toast('Progress reset');
+});
+
+/* ---------- Mac toggle ---------- */
+function syncMacButtons(){ $$('.mac-toggle').forEach(b=>{ b.setAttribute('aria-pressed',String(MAC)); b.textContent = MAC?'Showing Mac keys':'Show Mac keys'; }); }
+$$('.mac-toggle').forEach(b=>b.addEventListener('click',()=>{ MAC=!MAC; P.mac=MAC; save(); syncMacButtons(); rerenderAll(); toast(MAC?'Showing Mac keys (Cmd, Option)':'Showing Windows/Linux keys'); }));
+function rerenderAll(){ renderPanel(); refFilter(); renderMistakes(); renderQuiz(); renderTasks(); renderSpeed(); renderProject(); renderReview(); if(!fc.active) fcIntro(); }
+
+/* =========================================================
+   INTRO: glossary
+   ========================================================= */
+GLOSSARY.forEach(([t,d,f])=>{
+  $('#gloss').append(h('details',{class:'acc'}, h('summary',{},t), h('div',{class:'acc-body'}, h('p',{},d), f?h('div',{class:'stages'},fig(f)):null)));
+});
+
+/* =========================================================
+   LEARN: tabs, cards and quick checks
+   ========================================================= */
+let curCat = CATS[0].id;
+const tabsEl = $('#tabs'), panelEl = $('#learn-panel');
+CATS.forEach((c,i)=>{
+  tabsEl.append(h('button',{type:'button',role:'tab',class:'tab',id:'tab-'+c.id,'data-cat':c.id,'aria-controls':'learn-panel','aria-selected':String(i===0),tabindex:i===0?'0':'-1',
+    onclick:()=>selectCat(c.id)},
+    h('span',{class:'tab-num','aria-hidden':'true'},String(i+1)), c.name, h('span',{class:'tab-done'},h('span',{'aria-hidden':'true'},'✓'),h('span',{class:'sr-only'},' (explored)'))));
+});
+tabsEl.addEventListener('keydown', e=>{
+  const tabs=$$('.tab'); const i=tabs.indexOf(document.activeElement); if(i<0) return;
+  let n=null;
+  if(e.key==='ArrowRight') n=(i+1)%tabs.length; else if(e.key==='ArrowLeft') n=(i-1+tabs.length)%tabs.length;
+  else if(e.key==='Home') n=0; else if(e.key==='End') n=tabs.length-1;
+  if(n!=null){ e.preventDefault(); selectCat(tabs[n].dataset.cat); tabs[n].focus(); }
+});
+function markCat(id){ if(!P.cats[id]){ P.cats[id]=true; save(); } }
+function selectCat(id, scroll){
+  curCat=id;
+  $$('.tab').forEach(t=>{ const on=t.dataset.cat===id; t.setAttribute('aria-selected',String(on)); t.tabIndex=on?0:-1; if(on) t.scrollIntoView({block:'nearest',inline:'nearest'}); });
+  renderPanel(); markCat(id);
+  if(scroll) $('#learn').scrollIntoView({behavior:reduceMotion?'auto':'smooth'});
+}
+function deckButton(s){
+  const b=h('button',{type:'button',class:'btn small'});
+  const sync=()=>{ const on=P.deck[s.id]!=null; b.setAttribute('aria-pressed',String(on)); b.textContent = on?'★ In your review deck':'☆ Add to review deck'; };
+  b.addEventListener('click',()=>{ if(P.deck[s.id]!=null) delete P.deck[s.id]; else P.deck[s.id]=1; save(); sync(); renderReview(); });
+  sync(); return b;
+}
+function card(s){
+  const bid='card-b-'+s.id;
+  const btn = h('button',{type:'button',class:'card-head','aria-expanded':'false','aria-controls':bid},
+    renderKeys(s.keys),
+    h('span',{}, h('span',{class:'nm'},s.name), s.mode? h('span',{},h('br'),h('span',{class:'mode'+(s.mode==='Edit Mode'?' edit':'')},s.mode)) : null),
+    h('span',{class:'chev','aria-hidden':'true'},'▾'));
+  const body = h('div',{class:'card-body',id:bid,hidden:true},
+    h('p',{},s.desc),
+    h('p',{class:'eg'}, h('strong',{},'Example: '), s.eg),
+    CARD_FIGS[s.name] ? stages(CARD_FIGS[s.name]) : null,
+    h('div',{class:'btn-row'}, deckButton(s)));
+  btn.addEventListener('click',()=>{ const open=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded',String(!open)); body.hidden=open; markCat(s.cat); });
+  return h('article',{class:'card'}, btn, body);
+}
+const chkOrder = {};
+function renderCheck(chk){
+  const order = chkOrder[chk.cat] || (chkOrder[chk.cat]=shuffle(chk.opts.map((_,i)=>i)));
+  return mcBlock({...chk, order, kind:'keys', label:'✎ Quick check', done:!!P.checks[chk.cat],
+    onCorrect:()=>{ P.checks[chk.cat]=true; save(); toast('Quick check passed ✓'); },
+    onWrong:()=>addToDeck(SCN[chk.sc])});
+}
+function renderPanel(){
+  const c=CATMAP[curCat], idx=CATS.indexOf(c), list=SC.filter(s=>s.cat===c.id);
+  panelEl.setAttribute('aria-labelledby','tab-'+c.id);
+  panelEl.innerHTML='';
+  const grid=h('div',{class:'cards'}, list.map(card));
+  const toggle=h('button',{type:'button',class:'btn small'},'Expand all');
+  toggle.addEventListener('click',()=>{
+    const open = toggle.textContent==='Expand all';
+    $$('.card-head',grid).forEach(b=>{ b.setAttribute('aria-expanded',String(open)); $('#'+b.getAttribute('aria-controls')).hidden=!open; });
+    toggle.textContent = open?'Collapse all':'Expand all';
+    markCat(c.id);
+  });
+  const prev = idx>0 ? h('button',{type:'button',class:'btn',onclick:()=>selectCat(CATS[idx-1].id,true)},'← '+CATS[idx-1].name) : h('span');
+  const next = idx<CATS.length-1 ? h('button',{type:'button',class:'btn primary',onclick:()=>selectCat(CATS[idx+1].id,true)},CATS[idx+1].name+' →')
+                                 : h('a',{class:'btn primary',href:'#reference'},'Next: Reference →');
+  add(panelEl,
+    h('div',{class:'cat-head'}, h('div',{}, h('h3',{},`${idx+1}. ${c.name}`), h('p',{},c.intro)), h('div',{class:'btn-row'}, h('span',{class:'score-pill'},list.length+' shortcuts'), toggle)),
+    grid,
+    c.id==='mesh' ? renderWorked() : null,
+    renderCheck(CHECKS.find(k=>k.cat===c.id)),
+    h('div',{class:'pager'}, prev, next)
+  );
+}
+if('IntersectionObserver' in window){
+  new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) markCat(curCat); }),{rootMargin:'-35% 0px -35% 0px'}).observe(panelEl);
+}
+
+/* =========================================================
+   REFERENCE: search, filter, "press a shortcut", cheat sheet
+   ========================================================= */
+const refQ=$('#ref-q'), refList=$('#ref-list'), refChips=$('#ref-chips');
+let refCat='all', exactKeys=false, recording=false;
+const keyTokens = s => s.keys.toLowerCase().split(/[\s+]+/).filter(Boolean);
+[{id:'all',name:'All'}].concat(CATS).forEach(c=>{
+  refChips.append(h('button',{type:'button',class:'chip','aria-pressed':String(c.id==='all'),'data-c':c.id,onclick:()=>{
+    refCat=c.id; $$('.chip',refChips).forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.c===c.id))); refFilter();
+  }}, c.name));
+});
+function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function hl(text,toks){
+  const t=toks.filter(x=>x.length>1).map(escRe);
+  if(!t.length || exactKeys) return document.createTextNode(text);
+  const re=new RegExp('('+t.join('|')+')','ig');
+  const f=document.createDocumentFragment();
+  text.split(re).forEach((part,i)=>{ if(part) f.append(i%2 ? h('mark',{},part) : part); });
+  return f;
+}
+function refFilter(){
+  const q=refQ.value.trim().toLowerCase().replace(/\bcmd\b/g,'ctrl').replace(/\boption\b/g,'alt');
+  const toks=q.split(/[\s+]+/).filter(Boolean);
+  const res=SC.filter(s=>{
+    if(refCat!=='all' && s.cat!==refCat) return false;
+    if(!toks.length) return true;
+    const kt=keyTokens(s);
+    if(exactKeys) return toks.every(t=>kt.includes(t));
+    const hay=(s.name+' '+s.desc+' '+s.eg+' '+s.keys+' '+CATMAP[s.cat].name+' '+s.mode).toLowerCase();
+    return toks.every(t=> t.length<=1 ? kt.includes(t) : (kt.includes(t) || hay.includes(t)));
+  });
+  refList.innerHTML='';
+  res.forEach(s=>refList.append(h('li',{class:'ref-row'},
+    h('div',{},renderKeys(s.keys)),
+    h('div',{}, h('div',{class:'ref-name'},hl(s.name,toks)), h('div',{class:'ref-meta'}, CATMAP[s.cat].name + (s.mode?' · '+s.mode:''))),
+    h('div',{class:'ref-desc'}, hl(s.desc,toks), h('div',{class:'ref-eg'},'e.g. ',s.eg))
+  )));
+  if(!res.length) refList.append(h('li',{class:'empty'},'No shortcuts match. Try a different word, such as “move”, “view” or “save”, or choose “All” categories.'));
+  $('#ref-count').textContent = `Showing ${res.length} of ${SC.length} shortcuts` + (q?` for “${refQ.value.trim()}”`:'') + (refCat!=='all'?` in ${CATMAP[refCat].name}`:'');
+}
+refQ.addEventListener('input',()=>{ exactKeys=false; refFilter(); });
+$('#ref-clear').addEventListener('click',()=>{ refQ.value=''; exactKeys=false; refFilter(); refQ.focus(); });
+const recBtn=$('#ref-rec');
+function setRec(on){ recording=on; recBtn.setAttribute('aria-pressed',String(on)); recBtn.textContent = on ? '● Press keys now… (Esc to cancel)' : '⌨ Press a shortcut'; }
+recBtn.addEventListener('click',()=>setRec(!recording));
+document.addEventListener('keydown',e=>{
+  if(!recording) return;
+  if(['Shift','Control','Alt','Meta'].includes(e.key)) return;
+  e.preventDefault(); e.stopPropagation();
+  if(e.key==='Escape' && !e.shiftKey && !e.ctrlKey){ setRec(false); return; }
+  const c=evCombo(e), t=[];
+  if(c.ctrl) t.push('ctrl'); if(c.alt) t.push('alt'); if(c.shift) t.push('shift');
+  if(c.main.startsWith('num') && c.main.length>3) t.push('numpad', c.main.slice(3)); else t.push(c.main);
+  refQ.value=t.join(' '); exactKeys=true; setRec(false); refCat='all';
+  $$('.chip',refChips).forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.c==='all')));
+  refFilter(); recBtn.focus();
+}, true);
+
+function printNode(node){
+  const pa=$('#print-area'); pa.innerHTML=''; pa.append(node);
+  window.print();
+}
+$('#print-cheat').addEventListener('click',()=>{
+  printNode(h('div',{},
+    h('h1',{},'Blender Shortcut Cheat Sheet'),
+    h('p',{},'Blender 4.x · default keymap (left-click select)'+(MAC?' · Mac keys shown':'')+' · Shortcuts act on the area under the mouse pointer.'),
+    h('div',{class:'cheat'}, CATS.map(c=>h('section',{}, h('h2',{},c.name),
+      SC.filter(s=>s.cat===c.id).map(s=>h('div',{class:'row'}, h('span',{},s.name+(s.mode==='Edit Mode'?' (Edit)':'')), renderKeys(s.keys))))))));
+});
+
+/* =========================================================
+   COMMON MISTAKES
+   ========================================================= */
+function renderMistakes(){
+  const box=$('#mist-box'); box.innerHTML='';
+  box.append(
+    h('div',{}, MISTAKES.map(m=>h('details',{class:'acc'}, h('summary',{},m.t),
+      h('div',{class:'acc-body'}, h('p',{class:'why'},h('strong',{style:'color:var(--text)'},'Why it happens: '),m.why), h('p',{class:'fix'},h('strong',{},'Fix: '),m.fix))))),
+    h('h3',{style:'margin-top:28px'},'Same key, different mode'),
+    h('p',{class:'lead'},'Many keys do different things in Object Mode and Edit Mode. Always check the mode shown in the top-left of the viewport.'),
+    h('div',{class:'table-wrap'}, h('table',{class:'ctx'},
+      h('thead',{}, h('tr',{}, h('th',{scope:'col'},'Key'), h('th',{scope:'col'},'In Object Mode'), h('th',{scope:'col'},'In Edit Mode'))),
+      h('tbody',{}, CONTEXT.map(r=>h('tr',{}, h('td',{},renderKeys(r[0])), h('td',{},r[1]), h('td',{},r[2])))))),
+    h('h3',{style:'margin-top:28px'},'What would you do?'),
+    h('div',{class:'mq-grid'}, MQ.map((q,i)=>mcBlock({...q, kind:'text', label:`Problem ${i+1}`, done:!!P.mist[i],
+      onCorrect:()=>{ P.mist[i]=true; save(); }})))
+  );
+}
+
+/* =========================================================
+   SCENARIO QUIZ with hints
+   ========================================================= */
+const qOrder = QUIZ.map(q=>shuffle(q.opts.map((_,i)=>i)));
+const qTries = {}, qHint = {};
+let qi = 0;
+function renderQuiz(focusQ){
+  const box=$('#quiz-box'); box.innerHTML='';
+  const q=QUIZ[qi], st=P.quiz[qi], c=counts();
+  const dots=h('ol',{class:'dots','aria-label':'Questions'});
+  QUIZ.forEach((_,i)=>{
+    const s=P.quiz[i];
+    const d=h('button',{type:'button',class:'dot'+(s?(s.first?' first':' later'):''),'aria-label':`Question ${i+1}`+(s?(s.first?', correct first time':', answered'):''),onclick:()=>{qi=i;renderQuiz(true);}},String(i+1));
+    if(i===qi) d.setAttribute('aria-current','step');
+    dots.append(h('li',{},d));
+  });
+  box.append(h('div',{class:'quiz-top'}, dots, h('span',{class:'score-pill'},`Correct first time: ${c.quizFirst} / ${c.quiz} answered`)));
+
+  const fb=h('div',{class:'fb','aria-live':'polite'});
+  const hintBox=h('div',{class:'hintbox',id:'qhint',hidden:!qHint[qi]}, h('strong',{},'Hint: '), q.hint);
+  const hintBtn=h('button',{type:'button',class:'btn small','aria-expanded':String(!!qHint[qi]),'aria-controls':'qhint'}, '💡 Show hint');
+  hintBtn.addEventListener('click',()=>{ qHint[qi]=true; hintBox.hidden=false; hintBtn.setAttribute('aria-expanded','true'); hintBtn.disabled=true; });
+  if(qHint[qi]||st) hintBtn.disabled=true;
+
+  const opts=h('div',{class:'opts'});
+  qOrder[qi].forEach(i=>{
+    const b=h('button',{type:'button',class:'opt','data-i':String(i)}, h('span',{class:'lbl'},renderKeys(q.opts[i])), h('span',{class:'mark','aria-hidden':'true'}));
+    if(st){ b.disabled=true; if(i===q.a) b.classList.add('correct'); }
+    b.addEventListener('click',()=>{
+      if(P.quiz[qi]) return;
+      const tries=qTries[qi]||0;
+      if(i===q.a){
+        b.classList.add('correct'); $$('.opt',opts).forEach(x=>x.disabled=true);
+        P.quiz[qi]={first:tries===0}; save();
+        feedback(fb,'ok', tries===0?'Correct — first time!':'Correct!', q.explain);
+        hintBtn.disabled=true; refreshQuizTop();
+      } else {
+        qTries[qi]=tries+1; b.classList.add('wrong'); b.disabled=true;
+        addToDeck(SCN[q.sc]);
+        if(tries===0){
+          qHint[qi]=true; hintBox.hidden=false; hintBtn.disabled=true; hintBtn.setAttribute('aria-expanded','true');
+          feedback(fb,'hint','Not quite — have another go.', q.notes[i]+' Read the hint below.');
+        } else {
+          $$('.opt',opts).forEach(x=>{ x.disabled=true; });
+          opts.querySelector(`[data-i="${q.a}"]`).classList.add('correct');
+          P.quiz[qi]={first:false}; save();
+          feedback(fb,'bad','Not this time.', q.notes[i]+' The answer is '+keysText(q.opts[q.a])+'. '+q.explain+' It has been added to your review deck.');
+          refreshQuizTop();
+        }
+      }
+    });
+    opts.append(b);
+  });
+  if(st) feedback(fb,'ok', st.first?'You answered this correctly first time.':'Answered.', q.explain);
+
+  const qh=h('p',{class:'scen',tabindex:'-1'},q.q);
+  const prev=h('button',{type:'button',class:'btn',disabled:qi===0,onclick:()=>{qi--;renderQuiz(true);}},'← Previous');
+  const last=qi===QUIZ.length-1;
+  const next= last ? h('a',{class:'btn primary',href:'#practice'},'Next: Practise →')
+                   : h('button',{type:'button',class:'btn primary',onclick:()=>{qi++;renderQuiz(true);}},'Next scenario →');
+  box.append(
+    h('p',{class:'eyebrow'},`Scenario ${qi+1} of ${QUIZ.length}`), qh,
+    h('p',{class:'qsub'},'Which shortcut would you use?'),
+    opts, h('div',{class:'btn-row',style:'margin-top:12px'},hintBtn), hintBox, fb,
+    h('div',{class:'pager'},prev,next)
+  );
+  if(focusQ) qh.focus();
+}
+function refreshQuizTop(){
+  const c=counts();
+  $$('#quiz-box .dot').forEach((d,i)=>{ const s=P.quiz[i]; d.className='dot'+(s?(s.first?' first':' later'):''); });
+  const pill=$('#quiz-box .score-pill'); if(pill) pill.textContent=`Correct first time: ${c.quizFirst} / ${c.quiz} answered`;
+  if(c.quiz===QUIZ.length) toast(`Scenario quiz complete: ${c.quizFirst}/${QUIZ.length} first time`);
+}
+
+/* =========================================================
+   PRACTICE VIEWPORT (mini Blender simulation)
+   Objects are built from "prisms": a profile in X/Z pushed along Y.
+   ========================================================= */
+const W=720, H=420, DEG=Math.PI/180, BASE=42, M_IN=0.5, BEV=0.35, SELC='#e8913a';
+const VIEWS = {
+  user:{yaw:-38*DEG,pitch:26*DEG,label:'User'},
+  front:{yaw:0,pitch:0,label:'Front'}, back:{yaw:180*DEG,pitch:0,label:'Back'},
+  right:{yaw:-90*DEG,pitch:0,label:'Right'}, left:{yaw:90*DEG,pitch:0,label:'Left'},
+  top:{yaw:0,pitch:90*DEG,label:'Top'}, bottom:{yaw:0,pitch:-90*DEG,label:'Bottom'}
+};
+const LIGHT=(v=>{const l=Math.hypot(...v);return v.map(x=>x/l);})([0.35,-0.55,0.76]);
+const sb={};
+const svg=$('#vp-svg'), vp=$('#vp');
+const newObj=(id,name)=>({id,name,x:0,y:0,z:0,s:1,ext:0,inset:false,chim:0,bev:0});
+function sbInit(){
+  Object.assign(sb,{objects:[newObj(1,'Cube')],active:1,mode:'object',sel:'vert',view:'user',persp:true,
+    center:{x:0,y:0,z:0},zoom:1,op:null,confirm:null,nextId:2,hist:[],log:[],anim:null,bevelLive:false});
+  VIEWS.user.yaw=-38*DEG; VIEWS.user.pitch=26*DEG;
+}
+const act=()=>sb.objects.find(o=>o.id===sb.active);
+const snap=()=>JSON.stringify({objects:sb.objects,active:sb.active,mode:sb.mode,sel:sb.sel,nextId:sb.nextId});
+function pushHist(s){ sb.hist.push(s||snap()); if(sb.hist.length>50) sb.hist.shift(); }
+function restore(s){ Object.assign(sb, JSON.parse(s)); }
+function msg(t,kind){ const m=$('#vp-msg'); m.textContent=t; m.className='msg'+(kind?' '+kind:''); }
+function emit(ev){
+  const t=TASKS.find(x=>x.ev===ev);
+  if(t && !P.tasks[t.id]){ P.tasks[t.id]=true; save(); renderTasks(); toast('Task complete: '+t.title+' ✓'); }
+  speedCheck(ev);
+}
+
+function prisms(o){
+  const t=1+o.ext; let prof;
+  if(o.bev){ const arc=[]; for(let k=0;k<=o.bev;k++){ const a=k/o.bev*Math.PI/2; arc.push([1-BEV+BEV*Math.cos(a), t-BEV+BEV*Math.sin(a)]); }
+    prof=[[-1,-1],[1,-1],...arc,[-1,t]]; }
+  else prof=[[-1,-1],[1,-1],[1,t],[-1,t]];
+  const list=[{prof,y0:-1,y1:1,base:true}];
+  if(o.chim>0) list.push({prof:[[-M_IN,t],[M_IN,t],[M_IN,t+o.chim],[-M_IN,t+o.chim]],y0:-M_IN,y1:M_IN,chim:true});
+  return list;
+}
+function faceList(o){
+  const out=[];
+  prisms(o).forEach(pr=>{
+    const {prof,y0,y1}=pr;
+    const cx=prof.reduce((a,p)=>a+p[0],0)/prof.length, cz=prof.reduce((a,p)=>a+p[1],0)/prof.length;
+    prof.forEach((a,i)=>{
+      const b=prof[(i+1)%prof.length];
+      let n=[b[1]-a[1],0,-(b[0]-a[0])];
+      if(n[0]*((a[0]+b[0])/2-cx)+n[2]*((a[1]+b[1])/2-cz)<0) n=n.map(v=>-v);
+      const len=Math.hypot(n[0],n[2]); n=[n[0]/len,0,n[2]/len];
+      const kind = n[2]>0.99?'top':(n[0]>0.01&&n[2]>0.01?'chamfer':'side');
+      out.push({pr,n,kind,local:[[a[0],y0,a[1]],[b[0],y0,b[1]],[b[0],y1,b[1]],[a[0],y1,a[1]]]});
+    });
+    out.push({pr,n:[0,-1,0],kind:'cap',local:prof.map(a=>[a[0],y0,a[1]])});
+    out.push({pr,n:[0,1,0],kind:'cap',local:prof.map(a=>[a[0],y1,a[1]])});
+  });
+  return out;
+}
+const toW=(o,p)=>[o.x+p[0]*o.s, o.y+p[1]*o.s, o.z+p[2]*o.s];
+function objBounds(list){
+  let mn=[1e9,1e9,1e9], mx=[-1e9,-1e9,-1e9];
+  list.forEach(o=>faceList(o).forEach(F=>F.local.forEach(p=>toW(o,p).forEach((n,i)=>{ mn[i]=Math.min(mn[i],n); mx[i]=Math.max(mx[i],n); }))));
+  return {c:{x:(mn[0]+mx[0])/2,y:(mn[1]+mx[1])/2,z:(mn[2]+mx[2])/2}, ext:Math.max(mx[0]-mn[0],mx[1]-mn[1],mx[2]-mn[2])/2};
+}
+function proj(p){
+  const v=VIEWS[sb.view], c=sb.center;
+  const dx=p[0]-c.x, dy=p[1]-c.y, dz=p[2]-c.z;
+  const cy=Math.cos(v.yaw), sy=Math.sin(v.yaw), cp=Math.cos(v.pitch), sp=Math.sin(v.pitch);
+  const x1=dx*cy-dy*sy, y1=dx*sy+dy*cy;
+  const up=dz*cp+y1*sp, depth=y1*cp-dz*sp;
+  let k=BASE*sb.zoom;
+  if(sb.persp && sb.view==='user') k*=16/Math.max(3,16+depth);
+  return [W/2+x1*k, H/2-up*k, depth];
+}
+function normDepth(n){
+  const v=VIEWS[sb.view], cy=Math.cos(v.yaw), sy=Math.sin(v.yaw), cp=Math.cos(v.pitch), sp=Math.sin(v.pitch);
+  return (n[0]*sy+n[1]*cy)*cp - n[2]*sp;
+}
+const f1=n=>n.toFixed(1);
+const ptsStr=ps=>ps.map(p=>f1(p[0])+','+f1(p[1])).join(' ');
+function line(a,b,extra){ const p=proj(a),q=proj(b); if(Math.hypot(p[0]-q[0],p[1]-q[1])<1) return ''; return `<line x1="${f1(p[0])}" y1="${f1(p[1])}" x2="${f1(q[0])}" y2="${f1(q[1])}" ${extra||''}/>`; }
+function viewLabel(){
+  if(sb.view==='user') return 'User '+(sb.persp?'Perspective':'Orthographic');
+  return VIEWS[sb.view].label+' Orthographic';
+}
+function render(){
+  let out='<g stroke-linecap="round" pointer-events="none">';
+  const plane = ['user','top','bottom'].includes(sb.view)?'xy':(['front','back'].includes(sb.view)?'xz':'yz');
+  const R=12, col='stroke="#4c4c4c" stroke-width="1"';
+  for(let i=-R;i<=R;i++){
+    if(i===0) continue;
+    if(plane==='xy') out+=line([i,-R,0],[i,R,0],col)+line([-R,i,0],[R,i,0],col);
+    else if(plane==='xz') out+=line([i,0,-R],[i,0,R],col)+line([-R,0,i],[R,0,i],col);
+    else out+=line([0,i,-R],[0,i,R],col)+line([0,-R,i],[0,R,i],col);
+  }
+  out+=line([-R,0,0],[R,0,0],'stroke="#e05566" stroke-width="2"');
+  out+=line([0,-R,0],[0,R,0],'stroke="#8ccf4d" stroke-width="2"');
+  if(plane!=='xy') out+=line([0,0,-R],[0,0,R],'stroke="#5a9cff" stroke-width="1.6" opacity=".8"');
+  out+='</g>';
+
+  const faces=[];
+  sb.objects.forEach(o=>faceList(o).forEach(F=>{
+    if(normDepth(F.n)>=-1e-6) return;
+    const pts=F.local.map(p=>proj(toW(o,p)));
+    faces.push({o,F,pts,depth:pts.reduce((a,p)=>a+p[2],0)/pts.length,lit:Math.max(0,F.n[0]*LIGHT[0]+F.n[1]*LIGHT[1]+F.n[2]*LIGHT[2])});
+  }));
+  faces.sort((a,b)=>b.depth-a.depth);
+  const editing = sb.mode==='edit' ? act() : null;
+  faces.forEach(X=>{
+    const o=X.o, F=X.F, isEdit=editing&&o.id===editing.id, isAct=o.id===sb.active;
+    const v=Math.round(255*(isEdit?0.36+0.3*X.lit:0.27+0.42*X.lit));
+    let fill=`rgb(${v},${v},${v})`;
+    if(isEdit){
+      if(sb.sel==='face' && F.kind==='top' && (F.pr.chim || (F.pr.base && !o.chim && !o.inset))) fill=SELC;
+      if(sb.sel==='edge' && F.kind==='chamfer') fill=SELC;
+    }
+    const stroke = isEdit ? '#141414' : (isAct ? '#ffab52' : '#161616');
+    out+=`<polygon data-obj="${o.id}" points="${ptsStr(X.pts)}" fill="${fill}" stroke="${stroke}" stroke-width="${isEdit?1.2:(isAct?2:1)}" stroke-linejoin="round"/>`;
+    if(F.kind==='top' && F.pr.base && o.inset){
+      const t=1+o.ext, xr=o.bev?1-BEV:1;
+      const outer=[[-1,-1,t],[xr,-1,t],[xr,1,t],[-1,1,t]], inner=[[-M_IN,-M_IN,t],[M_IN,-M_IN,t],[M_IN,M_IN,t],[-M_IN,M_IN,t]];
+      const ip=inner.map(p=>proj(toW(o,p)));
+      const sel=isEdit && sb.sel==='face' && !o.chim;
+      out+=`<polygon points="${ptsStr(ip)}" fill="${sel?SELC:'none'}" stroke="${isEdit?'#141414':stroke}" stroke-width="1" pointer-events="none"/>`;
+      outer.forEach((p,i)=>{ const a=proj(toW(o,p)), b=ip[i]; out+=`<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(b[0])}" y2="${f1(b[1])}" stroke="${isEdit?'#141414':'#222'}" stroke-width="1" pointer-events="none"/>`; });
+    }
+  });
+  if(editing){
+    const o=editing, t=1+o.ext, xr=o.bev?1-BEV:1;
+    const vis=new Map();
+    faces.filter(X=>X.o.id===o.id).forEach(X=>X.F.local.forEach(p=>vis.set(p.join(','),p)));
+    vis.forEach(p=>{ const q=proj(toW(o,p)); out+=`<circle cx="${f1(q[0])}" cy="${f1(q[1])}" r="2.6" fill="#111" pointer-events="none"/>`; });
+    if(sb.sel==='vert'){
+      const corners = o.chim ? [[-M_IN,-M_IN,t+o.chim],[M_IN,-M_IN,t+o.chim],[M_IN,M_IN,t+o.chim],[-M_IN,M_IN,t+o.chim]]
+                    : o.inset ? [[-M_IN,-M_IN,t],[M_IN,-M_IN,t],[M_IN,M_IN,t],[-M_IN,M_IN,t]]
+                    : [[-1,-1,t],[xr,-1,t],[xr,1,t],[-1,1,t]];
+      corners.forEach(p=>{ const q=proj(toW(o,p)); out+=`<circle cx="${f1(q[0])}" cy="${f1(q[1])}" r="4.3" fill="#ffab52" stroke="#111" pointer-events="none"/>`; });
+    }
+    if(sb.sel==='edge' && !o.bev){ const a=proj(toW(o,[1,-1,t])), b=proj(toW(o,[1,1,t]));
+      out+=`<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(b[0])}" y2="${f1(b[1])}" stroke="#ffab52" stroke-width="3.5" stroke-linecap="round" pointer-events="none"/>`; }
+  } else {
+    const o=act();
+    if(o){ const p=proj([o.x,o.y,o.z]); out+=`<circle cx="${f1(p[0])}" cy="${f1(p[1])}" r="3.5" fill="#ffab52" stroke="#000" stroke-width="1" pointer-events="none"/>`; }
+  }
+  const c=proj([0,0,0]);
+  out+=`<g pointer-events="none"><circle cx="${f1(c[0])}" cy="${f1(c[1])}" r="9" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/><circle cx="${f1(c[0])}" cy="${f1(c[1])}" r="9" fill="none" stroke="#e33" stroke-width="2" stroke-dasharray="4 4" stroke-dashoffset="4"/></g>`;
+  svg.innerHTML=out;
+
+  const o=act();
+  $('#vp-label').innerHTML='';
+  $('#vp-label').append(viewLabel(), h('br'), '(1) Collection | '+(o?o.name:'—'));
+  const mb=$('#vp-mode'); mb.textContent = sb.mode==='edit'?'Edit Mode':'Object Mode'; mb.classList.toggle('edit',sb.mode==='edit');
+  $('#vp-sel').hidden = sb.mode!=='edit';
+  $$('#vp-sel span').forEach(s=>s.classList.toggle('on', s.dataset.m===sb.sel));
+  $('#vp-op').textContent = opText();
+  const keys=$('#vp-keys'); keys.innerHTML=''; sb.log.forEach(l=>keys.append(renderKeys(l)));
+}
+function sceneText(){
+  const o=act();
+  return `${viewLabel()}. ${sb.mode==='edit'?'Edit Mode, '+({vert:'vertex',edge:'edge',face:'face'})[sb.sel]+' select':'Object Mode'}. ${sb.objects.length} object${sb.objects.length===1?'':'s'}. `+
+    (o?`Active: ${o.name} at X ${o.x.toFixed(1)}, Y ${o.y.toFixed(1)}, Z ${o.z.toFixed(1)}`+(o.inset?', inset':'')+(o.chim?', with chimney':'')+(o.bev?`, bevelled with ${o.bev} segment${o.bev>1?'s':''}`:'')+'.':'Nothing selected.');
+}
+function announce(){ $('#vp-scene').textContent=sceneText(); }
+
+function animateView(tc, tz){
+  if(reduceMotion){ sb.center=tc; sb.zoom=tz; render(); return; }
+  const c0={...sb.center}, z0=sb.zoom, t0=performance.now(), D=260;
+  cancelAnimationFrame(sb.anim);
+  const step=t=>{ const k=Math.min(1,(t-t0)/D), e=1-Math.pow(1-k,3);
+    sb.center={x:c0.x+(tc.x-c0.x)*e,y:c0.y+(tc.y-c0.y)*e,z:c0.z+(tc.z-c0.z)*e}; sb.zoom=z0+(tz-z0)*e; render();
+    if(k<1) sb.anim=requestAnimationFrame(step); };
+  sb.anim=requestAnimationFrame(step);
+}
+function frameSelected(){
+  const o=act(); if(!o){ msg('Nothing is selected. Click an object first, then frame it.','warn'); return false; }
+  const b=objBounds([o]);
+  animateView(b.c, Math.min(3,2.3/Math.max(.4,b.ext)));
+  msg(`Frame Selected: the view is centred on “${o.name}”.`,'ok'); emit('frame'); return true;
+}
+function frameAll(){
+  if(!sb.objects.length){ animateView({x:0,y:0,z:0},1); msg('Frame All: the scene is empty.'); return; }
+  const b=objBounds(sb.objects);
+  animateView(b.c, Math.max(.3,Math.min(2.2,3.4/(b.ext+.4))));
+  msg('Frame All: everything in the scene now fits in the view.','ok'); emit('home');
+}
+function setView(v){
+  sb.view=v;
+  if(v==='front') emit('front');
+  if(v==='top') emit('top');
+  msg(`${viewLabel()}.`+(v==='front'?' You are looking straight at the front of the scene.':''),'ok');
+}
+
+function startOp(type, extra){
+  const o=act();
+  sb.op={type, axis:null, buf:'', mouse:0, mx:null, orig:{x:o.x,y:o.y,z:o.z,s:o.s}, snap:(extra&&extra.snap)||snap(), dup:!!(extra&&extra.dup)};
+  if(!sb.op.dup) msg(type==='move'?'Moving: press X, Y or Z to lock an axis, type a distance, then Enter (or click). Esc cancels.':'Scaling: type a factor (e.g. 2), then Enter (or click). Esc cancels.');
+  applyOp();
+}
+function opValue(){
+  const op=sb.op;
+  if(op.buf!=='' && op.buf!=='-' && op.buf!=='.'){ const v=parseFloat(op.buf); if(!isNaN(v)) return v; }
+  return op.type==='scale' ? 1+op.mouse*0.4 : op.mouse;
+}
+function applyOp(){
+  const op=sb.op, o=act(); if(!op||!o) return;
+  Object.assign(o, op.orig);
+  const v=opValue();
+  if(op.type==='move'){
+    const ax=op.axis;
+    if(ax==='x'||!ax) o.x+=v; else if(ax==='y') o.y+=v; else if(ax==='z') o.z+=v;
+    else if(ax==='-z'){ o.x+=v; o.y+=v; } else if(ax==='-x'){ o.y+=v; o.z+=v; } else if(ax==='-y'){ o.x+=v; o.z+=v; }
+  } else o.s=op.orig.s*Math.max(0.05,Math.abs(v));
+}
+function opText(){
+  const op=sb.op; if(!op) return sb.confirm?'Delete selected object?  X / Delete / Enter = OK':'';
+  const v=opValue();
+  const axName={x:'along global X',y:'along global Y',z:'along global Z','-x':'locking X','-y':'locking Y','-z':'locking Z'};
+  if(op.type==='move') return `${op.dup?'Duplicate › ':''}Move  D: ${op.buf!==''?op.buf:v.toFixed(2)} m  ${op.axis?axName[op.axis]:'(free)'}`;
+  return `Scale  ${op.buf!==''?op.buf:v.toFixed(2)}`;
+}
+function confirmOp(){
+  const op=sb.op, o=act(), v=opValue();
+  pushHist(op.snap); sb.op=null;
+  if(op.type==='move'){
+    if(op.axis==='x' && v!==0){ msg(`Moved “${o.name}” ${v} m along the X axis.`,'ok'); emit('movex'); }
+    else if(v===0) msg(op.dup?`Duplicate “${o.name}” placed on top of the original. Tip: after Shift+D, press X and type a distance.`:'Move confirmed, but the distance was 0. Type a number (e.g. 3) before pressing Enter.','warn');
+    else msg(`Moved “${o.name}” ${v} m ${op.axis?({y:'along Y',z:'along Z'})[op.axis]||'on two axes':'(free move)'}.`,'ok');
+    if(op.dup) emit('dupdone');
+  } else msg(`Scaled “${o.name}” by ${Math.max(0.05,Math.abs(v)).toFixed(2)}.`,'ok');
+  announce();
+}
+function cancelOp(){
+  const op=sb.op, o=act(); Object.assign(o,op.orig); sb.op=null;
+  if(op.dup){ pushHist(op.snap); msg('Move cancelled — the duplicate stays in the same place as the original.','warn'); emit('dupdone'); }
+  else msg('Cancelled — the object went back to where it was.','warn');
+}
+function opKey(k,e){
+  const op=sb.op;
+  if(['x','y','z'].includes(k)){
+    op.axis = e.shiftKey ? '-'+k : k;
+    if(op.type==='scale' && !e.shiftKey) msg('This practice viewport scales evenly on all axes, but in Blender S then '+k.toUpperCase()+' scales on that axis only.');
+  }
+  else if(/^(num)?[0-9]$/.test(k)) op.buf+=k.replace('num','');
+  else if(k==='.'||k==='num.'){ if(!op.buf.includes('.')) op.buf+='.'; }
+  else if(k==='-'||k==='num-') op.buf = op.buf.startsWith('-')?op.buf.slice(1):'-'+op.buf;
+  else if(k==='backspace') op.buf=op.buf.slice(0,-1);
+  else if(k==='enter'||k==='space') { confirmOp(); return; }
+  else if(k==='esc') { cancelOp(); return; }
+  else msg('Finish the current operation first: Enter (or click) to confirm, Esc (or right-click) to cancel.','warn');
+  applyOp();
+}
+function keyLabel(e,k){ const c=evCombo(e); c.main=k; return comboText(c); }
+function handleKey(e){
+  const k=evToken(e);
+  if(MOD_TOKENS.includes(k)) return false;
+  const ctrl=e.ctrlKey||e.metaKey, alt=e.altKey, shift=e.shiftKey;
+  if(/^f([1-9]|1[01])$/.test(k) && k!=='f3' && k!=='f9') return false;
+  if(ctrl && ['c','v','w','t','n','l','tab'].includes(k)) return false;
+  sb.log.push(keyLabel(e,k)); if(sb.log.length>5) sb.log.shift();
+  sb.bevelLive=false;
+
+  if(sb.op){ opKey(k,e); render(); return true; }
+  if(sb.confirm){
+    if(['x','delete','enter'].includes(k)) doDelete(); else msg('Delete cancelled.');
+    sb.confirm=null; render(); return true;
+  }
+  const o=act();
+  const need=()=>msg('Nothing is selected. Click an object in the viewport (or press Shift+A to add a cube).','warn');
+  const needEdit=(what)=>msg(`${what} works in Edit Mode. Press Tab first.`,'warn');
+
+  if(k==='tab'){
+    if(ctrl) msg('Ctrl+Tab opens the Mode pie menu in Blender. Here, use Tab to toggle Edit Mode.');
+    else if(shift) msg('Shift+Tab toggles snapping in Blender (not simulated here).');
+    else if(!o) need();
+    else { pushHist(); sb.mode = sb.mode==='object'?'edit':'object';
+      if(sb.mode==='edit'){ msg(`Edit Mode: you can now edit the vertices, edges and faces of “${o.name}”.`,'ok'); emit('edit'); }
+      else { msg('Object Mode: you are working with whole objects again.','ok'); emit('object'); } }
+  }
+  else if(['1','2','3'].includes(k) && !ctrl && !alt){
+    if(sb.mode==='edit'){ sb.sel=['vert','edge','face'][+k-1];
+      msg({vert:'Vertex select: the top corner vertices are selected.',edge:o.bev?'Edge select: the bevelled faces are selected.':'Edge select: the top-right edge is selected.',face:'Face select: the top face is selected.'}[sb.sel],'ok');
+      emit(sb.sel); }
+    else msg('In Object Mode the number keys can show or hide collections. Press Tab to enter Edit Mode, then use 1, 2 or 3.','warn');
+  }
+  else if(k==='g' && alt){ if(!o) need(); else { pushHist(); o.x=0;o.y=0;o.z=0; msg('Clear Location: the object is back at the world origin.','ok'); } }
+  else if(k==='s' && alt){ if(!o) need(); else { pushHist(); o.s=1; msg('Clear Scale: the object is back to its original size.','ok'); } }
+  else if(k==='g' && !ctrl){
+    if(sb.mode==='edit') msg('In Edit Mode, G moves the selected vertices, edges or faces. Press Tab to go back to Object Mode to move the whole object.','warn');
+    else if(!o) need(); else startOp('move');
+  }
+  else if(k==='s' && ctrl) msg('Ctrl+S would save your .blend file. Remember to save often!','ok');
+  else if(k==='s' && shift) msg('Shift+S opens the Snap pie menu in Blender (not simulated here).');
+  else if(k==='s'){
+    if(sb.mode==='edit') msg('In Edit Mode, S scales the selected components. Press Tab to scale the whole object.','warn');
+    else if(!o) need(); else startOp('scale');
+  }
+  else if(k==='r' && ctrl) msg(sb.mode==='edit'?'Ctrl+R (Loop Cut) adds an edge loop in Blender. It isn’t simulated in this mini viewport.':'Ctrl+R is the Loop Cut tool — it works in Edit Mode.');
+  else if(k==='r') msg('Rotation isn’t simulated here. In Blender try R, then Z, then 45, then Enter.');
+  else if(k==='b' && ctrl){
+    if(sb.mode!=='edit') needEdit('Bevel (Ctrl+B)');
+    else if(sb.sel!=='edge') msg('Bevel works on edges. Press 2 for Edge select — the top-right edge will be selected.','warn');
+    else if(o.bev){ sb.bevelLive=true; msg('This edge is already bevelled. Scroll (or tap Scroll ↑) to change the number of segments.'); }
+    else { pushHist(); o.bev=1; sb.bevelLive=true; msg('Bevelled with 1 segment (a chamfer). Now scroll the mouse wheel over the viewport, or tap Scroll ↑, to add segments.','ok'); emit('bevel'); }
+  }
+  else if(k==='b') msg('B starts Box select in Blender: drag a rectangle to select.');
+  else if(k==='i' && !ctrl && !alt){
+    if(sb.mode!=='edit') needEdit('Inset (I)');
+    else if(sb.sel!=='face') msg('Inset works on faces. Press 3 for Face select first.','warn');
+    else if(o.chim) msg('This face already has a chimney. Press Ctrl+Z to undo, or Reset scene to start again.');
+    else if(o.inset) msg('Already inset — press E to extrude the inner face.');
+    else { pushHist(); o.inset=true; msg('Inset: a smaller face (now selected) sits inside the top face. In Blender you would move the mouse, then click.','ok'); emit('inset'); }
+  }
+  else if(k==='d' && (shift||alt) && !ctrl){
+    if(sb.mode==='edit') msg('In Edit Mode, Shift+D duplicates the selected geometry. Press Tab to duplicate the whole object.','warn');
+    else if(!o) need();
+    else {
+      const before=snap(); const n=sb.objects.filter(x=>x.name.startsWith('Cube')).length;
+      const copy={...o,id:sb.nextId++,name:'Cube.'+String(n).padStart(3,'0')};
+      sb.objects.push(copy); sb.active=copy.id;
+      startOp('move',{snap:before,dup:true});
+      msg(`${alt?'Linked duplicate':'Duplicate'} made! The copy is following a move — press X, type a distance (e.g. -3) and press Enter. Esc leaves it in place.`,'ok');
+      emit('dup');
+    }
+  }
+  else if(k==='e' && !ctrl && !alt){
+    if(sb.mode!=='edit') needEdit('E (Extrude)');
+    else if(sb.sel!=='face') msg(`E would extrude the selected ${sb.sel==='vert'?'vertices':'edges'}. For these tasks, press 3 for Face select so a face is selected.`,'warn');
+    else if(o.inset){ pushHist(); o.chim+=0.7; msg('Extruded the inset face upwards — a chimney! Press E again to make it taller.','ok'); emit('chimney'); emit('extrude'); }
+    else { pushHist(); o.ext+=1; msg('Extruded the top face upwards. In Blender you would move the mouse, then click or press Enter to confirm.','ok'); emit('extrude'); }
+  }
+  else if((k==='x'||k==='delete') && !ctrl && !alt && !shift){
+    if(sb.mode==='edit') msg('In Edit Mode, X opens the Delete menu (Vertices, Edges, Faces…). Not simulated here.');
+    else if(!o) need();
+    else if(k==='delete') doDelete();
+    else { sb.confirm='delete'; msg(`Delete “${o.name}”? Press X, Delete or Enter (or click) to confirm. Any other key cancels.`,'warn'); }
+  }
+  else if(k==='a' && shift && !ctrl){
+    if(sb.mode==='edit') msg('Shift+A in Edit Mode adds geometry to the current mesh. Press Tab to add a new object.','warn');
+    else { pushHist(); const n=sb.objects.filter(x=>x.name.startsWith('Cube')).length;
+      const c=newObj(sb.nextId++, n?'Cube.'+String(n).padStart(3,'0'):'Cube');
+      sb.objects.push(c); sb.active=c.id; msg('Added a cube at the 3D cursor (the red and white circle). In Blender, Shift+A opens the full Add menu.','ok'); }
+  }
+  else if(k==='a' && alt){ if(sb.mode==='edit') msg('Alt+A deselects all components in Blender.'); else { sb.active=null; msg('Deselect All: nothing is selected now.','ok'); } }
+  else if(k==='a') msg('A selects everything. In this mini viewport, click an object to select it.');
+  else if(k==='z' && ctrl && shift) msg('Ctrl+Shift+Z is Redo in Blender (not simulated here).');
+  else if(k==='z' && ctrl){ if(sb.hist.length){ restore(sb.hist.pop()); msg('Undo.','ok'); } else msg('Nothing to undo.'); }
+  else if(k==='z' && alt) msg('Alt+Z toggles X-Ray in Blender (not simulated here).');
+  else if(k==='z') msg('Z opens the Shading pie menu in Blender (Wireframe, Solid, Material Preview, Rendered).');
+  else if(k==='home') frameAll();
+  else if(k==='num.') frameSelected();
+  else if(k==='num1') setView(ctrl?'back':'front');
+  else if(k==='num3') setView(ctrl?'left':'right');
+  else if(k==='num7') setView(ctrl?'bottom':'top');
+  else if(k==='num5'){ sb.view='user'; sb.persp=!sb.persp; msg(viewLabel()+'.','ok'); }
+  else if(k==='num0') msg('There is no camera in this practice scene. In Blender, Numpad 0 looks through the active camera.');
+  else if(/^num[2468]$/.test(k)){ VIEWS.user.yaw += ({num4:-15,num6:15,num2:0,num8:0})[k]*DEG; VIEWS.user.pitch=Math.max(-89*DEG,Math.min(89*DEG,VIEWS.user.pitch+({num8:-15,num2:15,num4:0,num6:0})[k]*DEG)); sb.view='user'; msg('Orbit in 15° steps.','ok'); }
+  else if(k==='`') openPie();
+  else if(k==='n') msg('N toggles the Sidebar in Blender, showing exact Location, Rotation and Scale values.');
+  else if(k==='t') msg('T toggles the Toolbar in Blender.');
+  else if(k==='k') msg('K starts the Knife tool in Blender. Press Esc to cancel it if you pressed it by accident!');
+  else if(k==='f12') msg('F12 would render an image from the camera.');
+  else if(k==='f9') msg('F9 reopens the Adjust Last Operation panel in Blender.');
+  else if(k==='f3') msg('F3 opens the search menu in Blender — type the name of any command.');
+  else if(k==='enter'||k==='space') msg(k==='space'?'Space plays the animation in Blender.':'Nothing to confirm right now.');
+  else if(k==='esc'){ leaveViewport(); return true; }
+  else msg(`${keyLabel(e,k)} isn’t simulated in this practice viewport — try it in Blender!`);
+  render(); announce();
+  return true;
+}
+function wheelBevel(d){
+  const o=act();
+  if(!o || !o.bev || sb.mode!=='edit'){ msg('Scrolling adds segments while bevelling. In Edit Mode, press 2, then Ctrl+B first.','warn'); return; }
+  sb.bevelLive=true; o.bev=Math.max(1,Math.min(6,o.bev+d));
+  msg(`Bevel segments: ${o.bev}`+(o.bev>=3?' — a smooth, rounded edge.':' — keep scrolling to round it off.'),'ok');
+  if(o.bev>=3) emit('segments');
+  render(); announce();
+}
+function doDelete(){ const o=act(); if(!o) return; pushHist(); sb.objects=sb.objects.filter(x=>x!==o); sb.active=null; msg(`Deleted “${o.name}”. Press Ctrl+Z to undo, or Shift+A to add a new cube.`,'ok'); announce(); }
+function leaveViewport(){ vp.blur(); $('#tasks-h').focus(); msg('Left the viewport. Click it (or Tab back to it) to continue.'); render(); }
+
+vp.addEventListener('keydown',e=>{ if(recording) return; if(handleKey(e)) e.preventDefault(); });
+vp.addEventListener('focus',()=>{ if(/Click the viewport/.test($('#vp-msg').textContent)) msg('Keyboard active. Try pressing Tab to enter Edit Mode. (Esc leaves the viewport.)'); });
+vp.addEventListener('wheel',e=>{ if(!sb.bevelLive) return; e.preventDefault(); wheelBevel(e.deltaY<0?1:-1); },{passive:false});
+svg.addEventListener('pointerdown',e=>{
+  vp.focus({preventScroll:true});
+  if(e.button===2){ if(sb.op){ cancelOp(); render(); announce(); } return; }
+  if(e.button!==0) return;
+  sb.bevelLive=false;
+  if(sb.op){ confirmOp(); render(); return; }
+  if(sb.confirm){ doDelete(); sb.confirm=null; render(); return; }
+  const t=e.target.closest('[data-obj]');
+  if(sb.mode==='edit'){ msg('In Edit Mode, clicking selects vertices, edges or faces. Use 1, 2 or 3 to change what is selected here.'); return; }
+  if(t){ sb.active=+t.dataset.obj; msg(`Selected “${act().name}”.`,'ok'); }
+  else { sb.active=null; msg('Clicked empty space: everything is deselected.'); }
+  render(); announce();
+});
+svg.addEventListener('contextmenu',e=>e.preventDefault());
+svg.addEventListener('pointermove',e=>{
+  const op=sb.op; if(!op || op.buf!=='') return;
+  const r=svg.getBoundingClientRect();
+  if(op.mx==null){ op.mx=e.clientX; return; }
+  op.mouse=Math.round((e.clientX-op.mx)*(W/r.width)/(BASE*sb.zoom)*10)/10;
+  applyOp(); render();
+});
+$$('.kp').forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.wheel){ sb.log.push('Scroll'); if(sb.log.length>5) sb.log.shift(); wheelBevel(1); return; }
+  const [key,code,mod]=b.dataset.k.split('|');
+  const e={key,code,shiftKey:mod==='shift',ctrlKey:mod==='ctrl',altKey:false,metaKey:false};
+  if(code==='Escape' && !sb.op && !sb.confirm){ sb.log.push('Esc'); if(sb.log.length>5) sb.log.shift(); msg('Esc cancels a move or scale while it is running.'); render(); return; }
+  handleKey(e);
+}));
+const pie=$('#pie');
+function openPie(){ pie.hidden=false; msg('View pie menu: choose a view.'); pie.querySelector('[data-pie="front"]').focus(); }
+function closePie(){ pie.hidden=true; vp.focus({preventScroll:true}); }
+pie.addEventListener('keydown',e=>{ if(e.key==='Escape'){ e.preventDefault(); closePie(); msg('View pie closed.'); } });
+pie.addEventListener('click',e=>{
+  const b=e.target.closest('[data-pie]');
+  if(!b){ if(e.target===pie) closePie(); return; }
+  const v=b.dataset.pie; pie.hidden=true; vp.focus({preventScroll:true});
+  if(v==='frame') frameSelected();
+  else if(v==='camera') msg('There is no camera in this practice scene.');
+  else setView(v);
+  render(); announce();
+});
+$('#vp-reset').addEventListener('click',()=>{ sbInit(); msg('Scene reset. Your completed tasks are kept.'); render(); announce(); });
+
+const tShown={};
+function renderTasks(){
+  const list=$('#tasks'); list.innerHTML='';
+  const all=TASKS.every(t=>P.tasks[t.id]);
+  const ad=$('#tasks-alldone'); ad.innerHTML='';
+  if(all) ad.append(h('div',{class:'all-done'}, h('strong',{},'All tasks complete! '), 'Try the speed run below, then the ',h('a',{href:'#project'},'mini project'),' in Blender.'));
+  TASKS.forEach((t,i)=>{
+    const done=!!P.tasks[t.id], st=tShown[t.id]||{};
+    const hintId='th-'+t.id, ansId='ta-'+t.id;
+    const hint=h('div',{class:'reveal h',id:hintId,hidden:!st.hint}, h('strong',{},'Hint: '), t.hint);
+    const ans=h('div',{class:'reveal a',id:ansId,hidden:!st.ans}, h('strong',{},'Answer: '), renderKeys(t.answer));
+    const hb=h('button',{type:'button',class:'btn small','aria-expanded':String(!!st.hint),'aria-controls':hintId},'💡 Hint');
+    const ab=h('button',{type:'button',class:'btn small','aria-expanded':String(!!st.ans),'aria-controls':ansId,disabled:!st.hint && !done,title:(!st.hint&&!done)?'Try the hint first':null},'Show answer');
+    hb.addEventListener('click',()=>{ hint.hidden=!hint.hidden; tShown[t.id]={...tShown[t.id],hint:!hint.hidden||!!(tShown[t.id]||{}).hint}; hb.setAttribute('aria-expanded',String(!hint.hidden)); ab.disabled=false; ab.removeAttribute('title'); });
+    ab.addEventListener('click',()=>{ ans.hidden=!ans.hidden; tShown[t.id]={...tShown[t.id],ans:!ans.hidden}; ab.setAttribute('aria-expanded',String(!ans.hidden)); });
+    list.append(h('li',{class:'task'+(done?' done':'')},
+      h('div',{class:'task-top'},
+        h('span',{class:'task-st','aria-hidden':'true'}, done?'✓':String(i+1)),
+        h('div',{}, h('h4',{}, t.title, h('span',{class:'sr-only'}, done?' (completed)':' (not yet completed)')), h('p',{},t.goal))),
+      h('div',{class:'btn-row'},hb,ab), hint, ans));
+  });
+}
+
+/* ---------- Speed run ---------- */
+let sr=null;
+const fmtT=s=>s<60?s.toFixed(1)+' s':Math.floor(s/60)+' min '+(s%60).toFixed(1)+' s';
+function renderSpeed(){
+  const box=$('#speed'); box.innerHTML='';
+  if(sr && !sr.done){
+    const step=SPEED[sr.i];
+    box.append(
+      h('div',{class:'fc-top'}, h('h3',{style:'margin:0'},'⏱ Speed run'), h('span',{class:'clock',id:'sr-clock'},fmtT((performance.now()-sr.t0)/1000))),
+      h('p',{class:'eyebrow',style:'margin:8px 0 0'},`Step ${sr.i+1} of ${SPEED.length}`),
+      h('p',{class:'step','aria-live':'polite'},step.t),
+      h('p',{style:'font-size:.88rem;color:var(--muted)'},'Use the practice viewport. No answers are shown — recall them!'),
+      h('button',{type:'button',class:'btn small',onclick:()=>{ clearInterval(sr.tid); sr=null; renderSpeed(); }},'Stop'));
+    return;
+  }
+  add(box,h('h3',{},'⏱ Speed run'),
+    sr&&sr.done ? h('div',{class:'all-done'}, h('strong',{},'Finished in '+fmtT(sr.time)+'! '), sr.best?'New personal best!':'') : null,
+    h('p',{style:'font-size:.93rem;color:var(--muted)'},`Complete ${SPEED.length} modelling steps as fast as you can, with no hints. The scene resets when you start.`),
+    P.speedBest!=null ? h('p',{}, h('strong',{},'Your best: '), fmtT(P.speedBest)) : null,
+    h('button',{type:'button',class:'btn primary',onclick:startSpeed}, sr&&sr.done?'Try again':'Start speed run'));
+}
+function startSpeed(){
+  sbInit(); render(); announce(); msg('Speed run started! Follow the steps on the right.');
+  sr={i:0,t0:performance.now(),done:false};
+  sr.tid=setInterval(()=>{ const c=$('#sr-clock'); if(c) c.textContent=fmtT((performance.now()-sr.t0)/1000); },100);
+  renderSpeed(); vp.focus({preventScroll:true});
+}
+function speedCheck(ev){
+  if(!sr || sr.done || SPEED[sr.i].ev!==ev) return;
+  sr.i++;
+  if(sr.i>=SPEED.length){
+    clearInterval(sr.tid); sr.done=true; sr.time=(performance.now()-sr.t0)/1000;
+    sr.best = P.speedBest==null || sr.time<P.speedBest;
+    if(sr.best){ P.speedBest=+sr.time.toFixed(1); save(); }
+    toast('Speed run: '+fmtT(sr.time));
+  }
+  renderSpeed();
+}
+
+/* =========================================================
+   MINI PROJECT
+   ========================================================= */
+let reflectT;
+function renderProject(){
+  const box=$('#proj-box'); box.innerHTML='';
+  const ta=h('textarea',{id:'reflect','aria-describedby':'reflect-q'}); ta.value=P.reflect||'';
+  ta.addEventListener('input',()=>{ P.reflect=ta.value; clearTimeout(reflectT); reflectT=setTimeout(save,400); });
+  add(box,
+    h('ol',{class:'proj'}, PROJECT.map((p,i)=>{
+      const id='proj-'+i;
+      const cb=h('input',{type:'checkbox',id}); cb.checked=!!P.proj[i];
+      const li=h('li',{class:P.proj[i]?'done':''}, cb, h('div',{},
+        h('h4',{}, h('label',{for:id}, `${i+1}. ${p.t}`)), h('p',{},p.d),
+        h('div',{class:'keys-list'}, p.k.map(k=>renderKeys(k))),
+        p.fig ? h('div',{class:'stages'},fig(p.fig)) : null));
+      cb.addEventListener('change',()=>{ P.proj[i]=cb.checked; li.classList.toggle('done',cb.checked); save();
+        if(PROJECT.every((_,j)=>P.proj[j])) toast('Mini project complete! 🏠'); });
+      return li;
+    })),
+    h('div',{class:'panel',style:'margin-top:16px'},
+      h('h3',{style:'font-size:1.05rem'},'Extension tasks'),
+      h('ul',{class:'outcomes'},
+        h('li',{},'Add a door: loop cut (Ctrl+R) the front wall, then inset (I) and extrude (E) inwards.'),
+        h('li',{},'Add a chimney: select a roof face, inset it (I), then extrude it (E).'),
+        h('li',{},'Build a fence: one post, then Alt+D and move, then Shift+R to repeat. Edit one post — they all change!'),
+        h('li',{},'Render the street from two angles using Ctrl+Alt+Numpad 0, and save both images.'))),
+    h('div',{class:'panel',style:'margin-top:16px'},
+      h('h3',{style:'font-size:1.05rem'},'Reflection'),
+      h('p',{id:'reflect-q',style:'color:var(--muted)'},'Which shortcut saved you the most time? Which do you still need to practise, and how will you practise it?'),
+      ta, h('p',{style:'font-size:.85rem;color:var(--muted);margin-top:6px'},'Saved automatically and included in your summary.'))
+  );
+}
+
+/* =========================================================
+   REVIEW DECK (Leitner-style flashcards)
+   ========================================================= */
+let rv=null;
+const BOXES=['New / missed','Learning','Getting there','Nearly there','Mastered'];
+function deckIds(){ return Object.keys(P.deck).map(Number).filter(id=>SC[id]); }
+function addMany(list){ let n=0; list.forEach(s=>{ if(P.deck[s.id]==null){ P.deck[s.id]=1; n++; } }); save(); renderReview(); toast(n?`Added ${n} card${n===1?'':'s'}`:'Those cards are already in your deck'); }
+function renderReview(){
+  const box=$('#review-box'); box.innerHTML='';
+  if(rv && !rv.done) return renderFlash(box);
+  const ids=deckIds(), by=[0,0,0,0,0]; ids.forEach(id=>by[Math.min(5,P.deck[id])-1]++);
+  const due=ids.filter(id=>P.deck[id]<5).length;
+  const pressT=h('input',{type:'checkbox'}); pressT.checked=!!P.deckPress;
+  pressT.addEventListener('change',()=>{ P.deckPress=pressT.checked; save(); });
+  const sel=h('select',{'aria-label':'Category to add'}, CATS.map(c=>h('option',{value:c.id},c.name)));
+  add(box,
+    rv&&rv.done ? h('div',{class:'all-done'}, h('strong',{},'Session complete. '), `Knew it: ${rv.r.yes} · Unsure: ${rv.r.unsure} · Didn’t know: ${rv.r.no}`) : null,
+    h('p',{}, ids.length ? `Your deck has ${ids.length} card${ids.length===1?'':'s'}; ${due} still to master.` : 'Your deck is empty. Shortcuts you get wrong in quizzes are added automatically, or add some below.'),
+    h('div',{class:'deck-stats'}, BOXES.map((l,i)=>h('div',{class:'box-stat'+(i===4?' m':'')}, h('b',{},String(by[i])), l))),
+    h('div',{class:'btn-row'},
+      h('button',{type:'button',class:'btn primary',disabled:!due,onclick:startReview},'Start review (up to 10 cards)'),
+      h('label',{class:'switch'},pressT,'Answer by pressing the keys where possible')),
+    h('h3',{style:'margin-top:22px;font-size:1rem'},'Add cards'),
+    h('div',{class:'btn-row'}, sel,
+      h('button',{type:'button',class:'btn',onclick:()=>addMany(SC.filter(s=>s.cat===sel.value))},'Add this category'),
+      h('button',{type:'button',class:'btn',onclick:()=>addMany(SC)},'Add every shortcut'),
+      ids.length ? h('button',{type:'button',class:'btn',onclick:()=>{ if(confirm('Remove all cards from your review deck?')){ P.deck={}; save(); renderReview(); } }},'Clear deck') : null)
+  );
+}
+function startReview(){
+  const ids=deckIds().filter(id=>P.deck[id]<5);
+  const q=shuffle(ids).sort((a,b)=>P.deck[a]-P.deck[b]).slice(0,10);
+  rv={q,i:0,phase:'front',r:{yes:0,unsure:0,no:0},done:false};
+  renderReview(); const t=$('#review-box h3'); if(t) t.focus();
+}
+function rate(level){
+  const id=rv.q[rv.i], b=P.deck[id];
+  P.deck[id] = level==='no' ? 1 : level==='unsure' ? b : Math.min(5,b+1);
+  rv.r[level]++; if(P.deck[id]===5) toast('Mastered: '+SC[id].name+' ★');
+  save();
+}
+function nextCard(){ rv.i++; rv.phase='front'; if(rv.i>=rv.q.length) rv.done=true; renderReview(); const t=$('#review-box h3,#review-box .all-done'); if(t){ t.tabIndex=-1; t.focus(); } }
+function renderFlash(box){
+  const id=rv.q[rv.i], s=SC[id];
+  const head=h('h3',{tabindex:'-1'},s.name);
+  const back=()=>h('div',{class:'back'}, renderKeys(s.keys), h('p',{style:'margin:10px 0 0'}, h('strong',{},'Example: '), s.eg));
+  const wrap=h('div',{class:'flash'},
+    h('p',{class:'eyebrow'},`Card ${rv.i+1} of ${rv.q.length} · ${CATMAP[s.cat].name} · ${BOXES[P.deck[id]-1]}`),
+    h('p',{style:'color:var(--muted);margin:0'},'What is the shortcut for…'), head, h('p',{},s.desc));
+  if(rv.phase==='front'){
+    if(P.deckPress && pressable(s.keys)){
+      wrap.append(keyCapture(s.keys,{hint:keyHint(s),onDone:(ok)=>{ rate(ok?'yes':'no'); rv.phase='auto'; rv.ok=ok; renderReview(); }}));
+    } else {
+      const b=h('button',{type:'button',class:'btn primary',onclick:()=>{ rv.phase='back'; renderReview(); $('#review-box .r-yes')?.focus(); }},'Show answer');
+      wrap.append(h('p',{style:'color:var(--muted);font-size:.9rem'},'Say or picture the keys first, then check.'), b);
+    }
+  } else if(rv.phase==='back'){
+    wrap.append(back(), h('p',{style:'margin-top:14px'},'How well did you know it?'),
+      h('div',{class:'rate'},
+        h('button',{type:'button',class:'r-no',onclick:()=>{ rate('no'); nextCard(); }},'✕ Didn’t know'),
+        h('button',{type:'button',class:'r-unsure',onclick:()=>{ rate('unsure'); nextCard(); }},'~ Unsure'),
+        h('button',{type:'button',class:'r-yes',onclick:()=>{ rate('yes'); nextCard(); }},'✓ Knew it')));
+  } else {
+    const fb=h('div',{class:'fb'}); feedback(fb, rv.ok?'ok':'bad', rv.ok?'Correct — card moves up a box.':'Not this time — the card goes back to the start.', '');
+    const nb=h('button',{type:'button',class:'btn primary',style:'margin-top:12px',onclick:nextCard}, rv.i===rv.q.length-1?'Finish':'Next card →');
+    wrap.append(fb, back(), nb);
+    setTimeout(()=>nb.focus(),0);
+  }
+  box.append(wrap, h('div',{class:'pager'}, h('button',{type:'button',class:'btn small',onclick:()=>{ rv=null; renderReview(); }},'End session'), h('span')));
+}
+
+/* =========================================================
+   FINAL CHALLENGE (scored, randomised, optional timer & key presses)
+   ========================================================= */
+const FC_N=12, FC_TIME=20;
+const fc={qs:[],i:0,score:0,missed:[],timer:false,mode:'mixed',tid:null,locked:false,active:false};
+function fcIntro(){
+  clearInterval(fc.tid); fc.active=false;
+  const box=$('#final-box'); box.innerHTML='';
+  const tm=h('input',{type:'checkbox'});
+  const modes=[['mixed','Mixed (recommended)'],['press','Press the keys'],['mc','Multiple choice']];
+  const cur=P.fcMode||'mixed';
+  const radios=h('div',{class:'radio-row',role:'radiogroup','aria-label':'How you answer'}, modes.map(([v,l])=>{
+    const r=h('input',{type:'radio',name:'fc-mode',value:v}); r.checked=v===cur; return h('label',{},r,l); }));
+  add(box,
+    h('h3',{},'Ready to test yourself?'),
+    h('p',{},`You will get ${FC_N} questions drawn from all ten categories. Score 80% or more to show you have mastered the essentials.`),
+    P.final.best!=null ? h('p',{}, h('strong',{},'Your best score: '), P.final.best+'%') : null,
+    h('p',{style:'margin:0;font-weight:650'},'How do you want to answer?'),
+    radios,
+    h('p',{style:'font-size:.9rem;color:var(--muted)'},'Pressing the real keys is the best practice for remembering them. Mouse-only shortcuts always use multiple choice.'),
+    h('p',{}, h('label',{class:'switch'}, tm, `Add a ${FC_TIME}-second timer to each question`)),
+    h('div',{class:'btn-row'}, h('button',{type:'button',class:'btn primary',onclick:()=>{
+      const m=(radios.querySelector('input:checked')||{}).value||'mixed'; P.fcMode=m; save(); fcStart(tm.checked,m); }},'Start the challenge'))
+  );
+}
+function fcBuild(mode){
+  const pool = mode==='press' ? SC.filter(s=>pressable(s.keys)) : SC;
+  return shuffle(pool).slice(0,FC_N).map(s=>{
+    let type;
+    if(mode==='press') type='press';
+    else if(mode==='mc') type=Math.random()<.5?'keys':'name';
+    else { const t=['keys','name']; if(pressable(s.keys)) t.push('press','press'); type=t[Math.floor(Math.random()*t.length)]; }
+    const field=type==='name'?'name':'keys';
+    const same=shuffle(SC.filter(x=>x.cat===s.cat && x[field]!==s[field]));
+    const other=shuffle(SC.filter(x=>x.cat!==s.cat && x[field]!==s[field]));
+    const seen=new Set([s[field]]), ds=[];
+    for(const x of same.concat(other)){ if(ds.length===3) break; if(!seen.has(x[field])){ seen.add(x[field]); ds.push(x); } }
+    return {s,type,opts:shuffle([s].concat(ds))};
+  });
+}
+function fcStart(timer,mode){ fc.qs=fcBuild(mode); fc.i=0; fc.score=0; fc.missed=[]; fc.timer=timer; fc.mode=mode; fc.active=true; fcRender(); }
+function fcRender(){
+  clearInterval(fc.tid); fc.locked=false;
+  const box=$('#final-box'); box.innerHTML='';
+  const Q=fc.qs[fc.i], s=Q.s;
+  const prompt = Q.type==='name'
+    ? h('p',{class:'fc-q',tabindex:'-1'},'What does ', renderKeys(s.keys),' do?')
+    : h('p',{class:'fc-q',tabindex:'-1'}, Q.type==='press'?'Press the shortcut for ':'Which shortcut performs ', h('em',{},'“'+s.name+'”'),'?');
+  const ctx = h('p',{class:'qsub'}, Q.type==='name' ? 'Category: '+CATMAP[s.cat].name+(s.mode?' · '+s.mode:'') : s.desc);
+  const fb=h('div',{class:'fb','aria-live':'polite'});
+  const nextBtn=h('button',{type:'button',class:'btn primary',hidden:true,onclick:()=>{ fc.i++; fc.i<fc.qs.length?fcRender():fcEnd(); }}, fc.i===fc.qs.length-1?'See my score':'Next question →');
+  let body;
+  function finish(ok, pressed, btn){
+    if(fc.locked) return; fc.locked=true; clearInterval(fc.tid);
+    if(Q.type!=='press') $$('.opt',body).forEach((x,i)=>{ x.disabled=true; if(Q.opts[i].id===s.id) x.classList.add('correct'); });
+    if(ok){ fc.score++; feedback(fb,'ok','Correct!', `${s.name}: ${s.desc}`); }
+    else {
+      if(btn) btn.classList.add('wrong');
+      fc.missed.push(s); addToDeck(s.id);
+      const right = Q.type==='name' ? h('span',{},'It is ', h('strong',{style:'display:inline'},s.name),'. ') : h('span',{},'The answer is ',renderKeys(s.keys),'. ');
+      fb.innerHTML=''; fb.append(h('div',{class:'bad'}, h('strong',{}, pressed===undefined?'Time’s up!':(pressed?`Not quite — you pressed ${pressed}.`:'Not quite.')), h('p',{}, right, s.desc)));
+    }
+    $('#fc-score').textContent=`Score: ${fc.score}`;
+    nextBtn.hidden=false; nextBtn.focus();
+  }
+  if(Q.type==='press'){
+    body=keyCapture(s.keys,{hint:keyHint(s), onDone:(ok,pressed)=>finish(ok,pressed||null),
+      onFallback:()=>{ Q.type='keys'; fcRender(); }});
+  } else {
+    body=h('div',{class:'opts'});
+    Q.opts.forEach(o=>{
+      const b=h('button',{type:'button',class:'opt'}, h('span',{class:'lbl'}, Q.type==='keys'?renderKeys(o.keys):o.name), h('span',{class:'mark','aria-hidden':'true'}));
+      b.addEventListener('click',()=>finish(o.id===s.id,null,b));
+      body.append(b);
+    });
+  }
+  const parts=[h('div',{class:'fc-top'}, h('span',{class:'eyebrow',style:'margin:0'},`Question ${fc.i+1} of ${fc.qs.length}`), h('span',{class:'score-pill',id:'fc-score'},`Score: ${fc.score}`))];
+  if(fc.timer){
+    const bar=h('span'), tl=h('div',{class:'timer',role:'timer','aria-label':'Time remaining'},bar);
+    parts.push(tl);
+    let left=FC_TIME*10;
+    fc.tid=setInterval(()=>{ left--; bar.style.width=(left/(FC_TIME*10)*100)+'%'; tl.classList.toggle('low',left<=50);
+      if(left<=0){ clearInterval(fc.tid); finish(false,undefined,null); } },100);
+  }
+  parts.push(prompt,ctx,body,fb,h('div',{class:'pager'},h('button',{type:'button',class:'btn small',onclick:()=>{ if(confirm('Stop this attempt? Your score will not be saved.')) fcIntro(); }},'Quit'),nextBtn));
+  box.append(...parts);
+  if(Q.type==='press') setTimeout(()=>$('.capture',box).focus(),0);
+  else if(fc.i>0) prompt.focus();
+}
+function fcEnd(){
+  fc.active=false;
+  const pct=Math.round(fc.score/fc.qs.length*100);
+  P.final.done=true; P.final.best=Math.max(P.final.best||0,pct); save();
+  const box=$('#final-box'); box.innerHTML='';
+  const band = pct>=90?['Outstanding!','You really know your Blender shortcuts. Try the timer or press-the-keys mode for an extra challenge.']
+             : pct>=80?['Mastered the essentials!','Great work. Review any you missed below — they are now in your review deck.']
+             : pct>=50?['Good progress','You know many shortcuts. Use your review deck for the ones you missed, then try again.']
+             : ['Keep practising','Go back through the Learn section, practise in the viewport and use your review deck, then try again — each attempt is different.'];
+  const h3=h('h3',{tabindex:'-1'},band[0]);
+  add(box,
+    h('p',{class:'big-score'},pct+'%'),
+    h('p',{},`You scored ${fc.score} out of ${fc.qs.length}.`+(fc.timer?' (timed)':'')+(fc.mode==='press'?' (pressing the keys)':'')),
+    h3, h('p',{},band[1]),
+    fc.missed.length ? h('div',{}, h('h4',{},'Shortcuts to review'), h('ul',{class:'review'}, fc.missed.map(s=>h('li',{}, renderKeys(s.keys), h('span',{}, h('strong',{},s.name),' — ',s.desc), h('span',{class:'cat-tag'},CATMAP[s.cat].name))))) : h('p',{},'You got every question right. 🎉'),
+    h('div',{class:'btn-row',style:'margin-top:16px'},
+      h('button',{type:'button',class:'btn primary',onclick:()=>fcStart(fc.timer,fc.mode)},'Try again'),
+      h('button',{type:'button',class:'btn',onclick:fcIntro},'Change settings'),
+      fc.missed.length ? h('a',{class:'btn',href:'#review'},'Go to review deck') : null,
+      h('a',{class:'btn',href:'#summary'},'See my summary'))
+  );
+  h3.focus();
+  toast('Final challenge: '+pct+'%');
+}
+
+/* =========================================================
+   SUMMARY (print / copy)
+   ========================================================= */
+const nameIn=$('#sum-name');
+nameIn.value=P.name||'';
+let nameT; nameIn.addEventListener('input',()=>{ P.name=nameIn.value; clearTimeout(nameT); nameT=setTimeout(save,400); });
+function summaryRows(){
+  const c=counts();
+  return [
+    ['Overall progress', overallPct(c)+'%', overallPct(c)>=100],
+    ['Categories explored', `${c.cats} / ${CATS.length}`, c.cats>=CATS.length],
+    ['Quick checks passed', `${c.checks} / ${CATS.length}`, c.checks>=CATS.length],
+    ['Common mistakes questions', `${c.mist} / ${MQ.length}`, c.mist>=MQ.length],
+    ['Scenario quiz', `${c.quiz} / ${QUIZ.length} answered, ${c.quizFirst} correct first time`, c.quiz>=QUIZ.length],
+    ['Practical tasks', `${c.tasks} / ${TASKS.length}`, c.tasks>=TASKS.length],
+    ['Speed run best time', P.speedBest!=null?fmtT(P.speedBest):'Not attempted', P.speedBest!=null],
+    ['Mini project steps', `${c.proj} / ${PROJECT.length}`, c.proj>=PROJECT.length],
+    ['Review deck', `${c.mastered} mastered, ${c.deckDue} in progress`, c.deck>0 && c.deckDue===0],
+    ['Final challenge best score', P.final.best!=null?P.final.best+'%':'Not attempted', P.final.best!=null && P.final.best>=80]
+  ];
+}
+function renderSummary(){
+  const t=$('#sum-table'); if(!t) return;
+  t.innerHTML='';
+  summaryRows().forEach(([l,v,d])=>t.append(h('tr',{class:d?'done':''}, h('td',{},l), h('td',{},v))));
+  const r=$('#sum-reflect'); r.textContent = P.reflect ? P.reflect : 'No reflection written yet.';
+}
+const today=()=>new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+$('#sum-print').addEventListener('click',()=>{
+  printNode(h('div',{},
+    h('h1',{},'Blender Shortcut Trainer — Learning summary'),
+    h('p',{}, h('strong',{},'Name: '), P.name||'____________________', '   ', h('strong',{},'Date: '), today()),
+    h('h2',{},'Results'),
+    h('table',{class:'pa-table'}, summaryRows().map(([l,v])=>h('tr',{},h('td',{},l),h('td',{},v)))),
+    h('h2',{},'Learning outcomes'),
+    h('ul',{}, $$('.outcomes li', $('#intro')).map(li=>h('li',{},li.textContent))),
+    h('h2',{},'Reflection'),
+    h('div',{class:'pa-box'}, P.reflect||'(No reflection written.)'),
+    h('p',{style:'margin-top:10pt;font-size:8pt'},'Results are self-reported and stored on the student’s own device.')));
+});
+$('#sum-copy').addEventListener('click',async ()=>{
+  const text=['Blender Shortcut Trainer — Learning summary','Name: '+(P.name||'-'),'Date: '+today(),'',
+    ...summaryRows().map(([l,v])=>`${l}: ${v}`),'','Reflection:',P.reflect||'(none)'].join('\n');
+  try{ await navigator.clipboard.writeText(text); toast('Summary copied'); }
+  catch(e){ const ta=h('textarea',{style:'position:fixed;left:-9999px'}); ta.value=text; document.body.append(ta); ta.select();
+    try{ document.execCommand('copy'); toast('Summary copied'); }catch(e2){ toast('Copy failed — please select and copy manually'); } ta.remove(); }
+});
+
+/* =========================================================
+   NAV: highlight the current section
+   ========================================================= */
+if('IntersectionObserver' in window){
+  const links=$$('.nav a');
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ links.forEach(a=>{ const on=a.dataset.sec===e.target.id; a.classList.toggle('current',on); if(on){ a.setAttribute('aria-current','true'); const nv=a.closest('.nav'); const l=a.offsetLeft-nv.offsetLeft; if(l<nv.scrollLeft||l+a.offsetWidth>nv.scrollLeft+nv.clientWidth) nv.scrollLeft=l-16; } else a.removeAttribute('aria-current'); }); } });
+  },{rootMargin:'-40% 0px -55% 0px'});
+  $$('section.block').forEach(s=>io.observe(s));
+}
+document.addEventListener('click',e=>{ const p=$('#prog'); if(p.open && !p.contains(e.target)) p.open=false; });
+
+/* =========================================================
+   INIT
+   ========================================================= */
+syncMacButtons();
+renderPanel();
+refFilter();
+renderMistakes();
+renderQuiz();
+sbInit(); render(); announce();
+renderTasks();
+renderSpeed();
+renderProject();
+renderReview();
+fcIntro();
+updateProgress();
+})();
+</script>
+</body>
+</html>

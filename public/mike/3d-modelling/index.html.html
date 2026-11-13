@@ -1,0 +1,2108 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D Modelling Foundations</title>
+<meta name="description" content="An interactive introduction to 3D space, mesh components and polygon types, in preparation for learning Blender.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root {
+  --bg: #1D1D1D;
+  --panel: #303030;
+  --panel-inset: #282828;
+  --header: #232323;
+  --border: #3D3D3D;
+  --btn: #545454;
+  --btn-hover: #656565;
+  --text: #E6E6E6;
+  --text-2: #A5A5A5;
+  --blue: #4772B3;
+  --orange: #FFA033;
+  --edit-orange: #FF8500;
+  --correct: #6BB35B;
+  --incorrect: #D9534F;
+  --x: #FF3352;
+  --y: #8BDC00;
+  --z: #2890FF;
+  --link: #7FA6E0;
+  --tri: #4FB3A9;
+  --quad: #9A9A9A;
+  --ngon: #B07FD6;
+  --vp-top: #3D3D3D;
+  --vp-bottom: #303030;
+  --grid: #545454;
+  --on-accent: #111111;
+  --diagram-line: #1A1A1A;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #BDBDBD;
+  --panel: #D6D6D6;
+  --panel-inset: #E3E3E3;
+  --header: #C4C4C4;
+  --border: #A6A6A6;
+  --btn: #F0F0F0;
+  --btn-hover: #FFFFFF;
+  --text: #1A1A1A;
+  --text-2: #444444;
+  --link: #2A559A;
+  --diagram-line: #1A1A1A;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+}
+a { color: var(--link); }
+h1, h2, h3, h4 { line-height: 1.25; margin: 0 0 8px; font-weight: 600; }
+h1 { font-size: 28px; }
+h2 { font-size: 22px; }
+h3 { font-size: 17px; }
+h4 { font-size: 15px; }
+p { margin: 0 0 10px; }
+ul, ol { margin: 0 0 10px; padding-left: 20px; }
+li { margin-bottom: 4px; }
+code, kbd {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.9em;
+  background: var(--panel-inset);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0 4px;
+}
+.muted { color: var(--text-2); }
+.small { font-size: 13px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.skip-link {
+  position: absolute; left: 8px; top: -40px; z-index: 100;
+  background: var(--blue); color: #fff; padding: 6px 12px; border-radius: 4px;
+}
+.skip-link:focus { top: 8px; }
+
+/* Sticky header and navigation */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--header);
+  border-bottom: 1px solid var(--border);
+}
+.topbar-inner {
+  max-width: 1200px; margin: 0 auto; padding: 8px 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; white-space: nowrap; }
+.brand-mark {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: conic-gradient(var(--x) 0 120deg, var(--y) 0 240deg, var(--z) 0 360deg);
+}
+.topbar nav { flex: 1; overflow-x: auto; scrollbar-width: thin; }
+.topbar nav ul { list-style: none; display: flex; gap: 2px; margin: 0; padding: 0; }
+.topbar nav li { margin: 0; }
+.topbar nav a {
+  display: block; padding: 4px 10px; border-radius: 4px;
+  color: var(--text-2); text-decoration: none; font-size: 13px; white-space: nowrap;
+}
+.topbar nav a:hover { background: var(--btn); color: var(--text); }
+.topbar nav a.active { background: var(--blue); color: #fff; }
+.progress { height: 3px; background: var(--border); }
+.progress span { display: block; height: 100%; width: 0; background: var(--blue); transition: width 0.1s linear; }
+
+/* Buttons and inputs */
+.btn {
+  background: var(--btn); color: var(--text);
+  border: 1px solid var(--border); border-radius: 4px;
+  padding: 5px 12px; font: inherit; font-size: 13px; cursor: pointer;
+  line-height: 1.4;
+}
+.btn:hover { background: var(--btn-hover); }
+.btn[aria-pressed="true"] { background: var(--blue); color: #fff; border-color: var(--blue); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.btn-sm { padding: 3px 10px; font-size: 12px; }
+.btn-primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+.btn-primary:hover { background: #5683C7; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible,
+summary:focus-visible, canvas:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--orange); outline-offset: 2px;
+}
+select {
+  background: var(--btn); color: var(--text); border: 1px solid var(--border);
+  border-radius: 4px; padding: 4px 8px; font: inherit; font-size: 13px;
+}
+
+/* Blender style grouped mode buttons */
+.seg { display: inline-flex; border-radius: 999px; overflow: hidden; border: 1px solid var(--border); }
+.seg button {
+  background: var(--btn); color: var(--text); border: 0; border-right: 1px solid var(--border);
+  padding: 5px 14px; font: inherit; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+}
+.seg button:last-child { border-right: 0; }
+.seg button:hover { background: var(--btn-hover); }
+.seg button[aria-pressed="true"] { background: var(--blue); color: #fff; }
+.seg button:focus-visible { outline-offset: -3px; }
+.seg svg { width: 14px; height: 14px; }
+
+/* Layout */
+main { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+.hero { margin-bottom: 16px; }
+.hero p { color: var(--text-2); max-width: 70ch; }
+.section { padding-top: 12px; margin-bottom: 40px; }
+.section-head {
+  display: flex; align-items: baseline; gap: 12px;
+  border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 16px;
+}
+.section-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 30px; height: 30px; border-radius: 4px; background: var(--blue); color: #fff; font-weight: 700;
+}
+.grid-2 { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.grid-2.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 900px) {
+  .grid-2, .grid-2.even { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .grid-3 { grid-template-columns: 1fr; }
+  .brand span:last-child { display: none; }
+}
+
+/* Panels */
+.panel {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
+  padding: 14px 16px; margin-bottom: 16px;
+}
+.panel > h3:first-child, .panel > h4:first-child { margin-top: 0; }
+details.panel { padding: 0; }
+details.panel > summary {
+  list-style: none; cursor: pointer; padding: 10px 16px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px; user-select: none;
+}
+details.panel > summary::-webkit-details-marker { display: none; }
+details.panel > summary::before {
+  content: ""; width: 0; height: 0;
+  border-left: 6px solid var(--text-2); border-top: 4px solid transparent; border-bottom: 4px solid transparent;
+  transition: transform 0.15s;
+}
+details.panel[open] > summary::before { transform: rotate(90deg); }
+details.panel[open] > summary { border-bottom: 1px solid var(--border); }
+details.panel > .panel-body { padding: 14px 16px; }
+.sub-panel { background: var(--panel-inset); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; margin-bottom: 10px; }
+.sub-panel h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-2); margin-bottom: 8px; }
+
+.note {
+  border: 1px solid var(--border); border-left: 4px solid var(--blue);
+  background: var(--panel); border-radius: 4px; padding: 12px 14px; margin-bottom: 16px;
+}
+.note.warn { border-left-color: var(--orange); }
+.note h4 { margin-bottom: 4px; }
+
+.objectives ol { margin: 0; }
+.objectives li { margin-bottom: 6px; }
+
+/* Axis chips */
+.ax {
+  display: inline-block; min-width: 20px; text-align: center; padding: 0 6px;
+  border-radius: 3px; font-weight: 700; font-size: 0.85em; color: var(--on-accent); line-height: 1.6;
+}
+.ax-x { background: var(--x); }
+.ax-y { background: var(--y); }
+.ax-z { background: var(--z); }
+.swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -1px; margin-right: 4px; border: 1px solid rgba(0,0,0,0.4); }
+
+/* Viewports */
+.viewport {
+  position: relative; height: 400px; border-radius: 4px; overflow: hidden;
+  background: linear-gradient(to bottom, var(--vp-top), var(--vp-bottom));
+  border: 1px solid var(--border);
+  touch-action: none;
+}
+.viewport.short { height: 320px; }
+.viewport canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+.viewport canvas:active { cursor: grabbing; }
+.vp-hint {
+  position: absolute; left: 10px; bottom: 8px; font-size: 12px; color: #B5B5B5;
+  pointer-events: none; text-shadow: 0 1px 2px #000;
+}
+.vp-title {
+  position: absolute; left: 10px; top: 8px; font-size: 12px; color: #E6E6E6;
+  pointer-events: none; text-shadow: 0 1px 2px #000; line-height: 1.5;
+}
+.vp-title strong { color: #FFA033; font-weight: 600; }
+.vp-reset { position: absolute; right: 8px; top: 8px; background: #545454; color: #E6E6E6; border-color: #3D3D3D; }
+.vp-reset:hover { background: #656565; }
+.vp-error { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; color: #E6E6E6; }
+
+/* Property rows (Blender N panel style) */
+.prop-row { display: grid; grid-template-columns: 90px minmax(0, 1fr) 64px; align-items: center; gap: 8px; margin-bottom: 8px; }
+.prop-row label { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 6px; }
+.prop-row output {
+  font-variant-numeric: tabular-nums; font-size: 13px; text-align: right;
+  background: var(--btn); border-radius: 4px; padding: 2px 6px;
+}
+input[type="range"] { width: 100%; accent-color: var(--blue); }
+input.rng-x { accent-color: var(--x); }
+input.rng-y { accent-color: var(--y); }
+input.rng-z { accent-color: var(--z); }
+.btn-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
+.readout { font-variant-numeric: tabular-nums; font-size: 13px; }
+.readout table { border-collapse: collapse; width: 100%; }
+.readout td { padding: 2px 4px; }
+
+/* Tables */
+table.data { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.data th, table.data td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+table.data th { color: var(--text-2); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* Stats */
+.stats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.stat {
+  background: var(--panel-inset); border: 1px solid var(--border); border-radius: 4px;
+  padding: 6px 10px; min-width: 84px;
+}
+.stat .lbl { font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.04em; display: block; }
+.stat .val { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.info-box {
+  background: var(--panel-inset); border: 1px solid var(--border); border-left: 3px solid var(--edit-orange);
+  border-radius: 4px; padding: 8px 10px; min-height: 64px; font-size: 14px;
+}
+
+/* Definition cards */
+.def-card { display: flex; gap: 12px; align-items: flex-start; }
+.def-card svg { flex: 0 0 auto; width: 84px; height: 84px; background: linear-gradient(var(--vp-top), var(--vp-bottom)); border-radius: 4px; }
+.def-card h3 { margin-bottom: 4px; }
+.def-card p { margin: 0; font-size: 14px; }
+
+/* Legend */
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; margin-bottom: 8px; }
+
+/* Subdivision layout */
+.sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 700px) { .sub-grid { grid-template-columns: 1fr; } }
+.sub-grid figure { margin: 0; }
+.sub-grid figcaption { font-size: 13px; margin-top: 6px; }
+
+/* Identification task */
+.task-svg { width: 100%; height: auto; display: block; background: linear-gradient(var(--vp-top), var(--vp-bottom)); border-radius: 4px; border: 1px solid var(--border); }
+.task-svg polygon.face { fill: #8A8A8A; stroke: #111; stroke-width: 2; cursor: pointer; transition: fill 0.1s; }
+.task-svg polygon.face:hover { fill: #A0A0A0; }
+.task-svg polygon.face[aria-pressed="true"] { fill: #CA873E; }
+.task-svg polygon.face:focus { outline: none; }
+.task-svg polygon.face:focus-visible { stroke: var(--orange); stroke-width: 4; }
+.task-svg polygon.face.res-correct { stroke: var(--correct); stroke-width: 5; }
+.task-svg polygon.face.res-wrong { stroke: var(--incorrect); stroke-width: 5; }
+.task-svg polygon.face.res-missed { stroke: var(--orange); stroke-width: 5; stroke-dasharray: 10 6; }
+.task-svg circle.v { fill: #111; pointer-events: none; }
+.task-svg text.count { fill: #fff; font: 600 18px Inter, sans-serif; pointer-events: none; paint-order: stroke; stroke: #111; stroke-width: 3px; }
+
+/* Quizzes */
+.quiz { background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 14px 16px; margin-bottom: 16px; }
+.quiz-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.quiz-head h3 { margin: 0; }
+.quiz-score { font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+fieldset.q { border: 1px solid var(--border); border-radius: 4px; margin: 0 0 12px; padding: 10px 12px 12px; background: var(--panel-inset); }
+fieldset.q legend { font-weight: 600; padding: 0 4px; font-size: 14px; }
+.opts { display: grid; gap: 6px; margin-top: 6px; }
+.opt {
+  text-align: left; background: var(--btn); color: var(--text); border: 1px solid var(--border);
+  border-radius: 4px; padding: 7px 10px; font: inherit; font-size: 14px; cursor: pointer;
+}
+.opt:hover:not([aria-disabled="true"]) { background: var(--btn-hover); }
+.opt[aria-disabled="true"] { cursor: default; }
+.opt.is-correct { border-color: var(--correct); box-shadow: inset 4px 0 0 var(--correct); }
+.opt.is-wrong { border-color: var(--incorrect); box-shadow: inset 4px 0 0 var(--incorrect); }
+.opt .tag { font-size: 11px; font-weight: 700; margin-left: 8px; padding: 0 6px; border-radius: 3px; color: var(--on-accent); }
+.opt.is-correct .tag { background: var(--correct); }
+.opt.is-wrong .tag { background: var(--incorrect); color: #fff; }
+.fb { margin-top: 8px; font-size: 14px; border-radius: 4px; padding: 0; }
+.fb:not(:empty) { padding: 8px 10px; border: 1px solid var(--border); background: var(--panel); }
+.fb.ok { border-left: 4px solid var(--correct); }
+.fb.bad { border-left: 4px solid var(--incorrect); }
+.fb .verdict { font-weight: 700; }
+.result-box { border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 4px; padding: 10px 12px; background: var(--panel-inset); margin-bottom: 10px; }
+.result-box .big { font-size: 24px; font-weight: 700; }
+
+.why-list li { margin-bottom: 8px; }
+.glossary dl { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 6px 14px; margin: 0; }
+.glossary dt { font-weight: 600; }
+.glossary dd { margin: 0; color: var(--text); }
+@media (max-width: 600px) { .glossary dl { grid-template-columns: 1fr; } .glossary dd { margin-bottom: 8px; } }
+
+.next-steps { border-left: 4px solid var(--orange); }
+footer { max-width: 1200px; margin: 0 auto; padding: 16px; color: var(--text-2); font-size: 12px; border-top: 1px solid var(--border); }
+
+.diagram-2d { width: 100%; max-width: 260px; height: auto; display: block; }
+.axis-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 420px; }
+.axis-compare figure { margin: 0; text-align: center; font-size: 13px; }
+.axis-compare svg { width: 100%; height: auto; background: linear-gradient(var(--vp-top), var(--vp-bottom)); border-radius: 4px; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>3D Modelling Foundations</span></div>
+    <nav aria-label="Page sections">
+      <ul id="navList">
+        <li><a href="#objectives">Objectives</a></li>
+        <li><a href="#s1">1. 3D Space</a></li>
+        <li><a href="#s2">2. Vertices, Edges, Faces</a></li>
+        <li><a href="#s3">3. Polygons</a></li>
+        <li><a href="#final">Final Quiz</a></li>
+        <li><a href="#next">Next Steps</a></li>
+        <li><a href="#glossary" id="glossaryLink">Glossary</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-sm" id="themeToggle" aria-pressed="false">Light theme</button>
+  </div>
+  <div class="progress" id="progress" role="progressbar" aria-label="Reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressBar"></span></div>
+</header>
+
+<main id="main">
+  <div class="hero">
+    <h1>Foundations of 3D Modelling</h1>
+    <p>Preparation for Blender. This resource introduces the core ideas behind every 3D model: how position is described in 3D space, what a mesh is made of, and which polygon types to use. Work through each section in order and complete the checks for learning as you go.</p>
+  </div>
+
+  <section id="objectives" class="panel objectives" aria-labelledby="obj-h">
+    <h2 id="obj-h">Learning objectives</h2>
+    <p>By the end of this resource, you will be able to:</p>
+    <ol>
+      <li>Identify the X, Y and Z axes and describe how they define position in 3D space.</li>
+      <li>Explain the difference between local and global coordinates.</li>
+      <li>Identify vertices, edges and faces as the component parts of a mesh.</li>
+      <li>Distinguish between tris, quads and n-gons.</li>
+      <li>Justify why quads are the preferred polygon type in most modelling workflows.</li>
+    </ol>
+  </section>
+
+  <details class="panel glossary" id="glossary">
+    <summary>Key terms glossary</summary>
+    <div class="panel-body">
+      <dl>
+        <dt>Axis</dt><dd>A straight reference line used to measure position. 3D space has three axes: X, Y and Z.</dd>
+        <dt>Origin</dt><dd>The point where all axes meet, at coordinates (0, 0, 0). Objects in Blender also have their own origin point.</dd>
+        <dt>Coordinate</dt><dd>A number describing a position along one axis. A point in 3D needs three coordinates (X, Y, Z).</dd>
+        <dt>Global</dt><dd>Coordinates and axes measured from the world origin. Global axes are fixed and never rotate.</dd>
+        <dt>Local</dt><dd>Coordinates and axes that belong to an object. Local axes move and rotate with the object.</dd>
+        <dt>Vertex</dt><dd>A single point in 3D space defined by X, Y and Z coordinates. Plural: vertices.</dd>
+        <dt>Edge</dt><dd>A straight line connecting two vertices.</dd>
+        <dt>Face</dt><dd>A flat surface enclosed by three or more edges.</dd>
+        <dt>Mesh</dt><dd>A collection of vertices, edges and faces that together define the shape of a 3D object.</dd>
+        <dt>Polygon</dt><dd>A closed shape made of straight edges. In 3D modelling, "polygon" and "face" are often used to mean the same thing.</dd>
+        <dt>Tri</dt><dd>A face with three vertices (a triangle).</dd>
+        <dt>Quad</dt><dd>A face with four vertices (a quadrilateral).</dd>
+        <dt>N-gon</dt><dd>A face with five or more vertices.</dd>
+        <dt>Topology</dt><dd>The arrangement and flow of vertices, edges and faces across a mesh.</dd>
+        <dt>Edge loop</dt><dd>A connected line of edges that runs across a mesh through a series of quads, often returning to its start.</dd>
+        <dt>Subdivision</dt><dd>A process that splits each face into smaller faces, often smoothing the surface at the same time.</dd>
+        <dt>Wireframe</dt><dd>A display mode that shows only the edges of a mesh, without filled faces.</dd>
+      </dl>
+    </div>
+  </details>
+
+  <!-- ============ SECTION 1 ============ -->
+  <section id="s1" class="section" aria-labelledby="s1-h">
+    <div class="section-head"><span class="section-num" aria-hidden="true">1</span><h2 id="s1-h">3D Space and the X, Y and Z Axes</h2></div>
+
+    <div class="grid-2 even">
+      <div class="panel">
+        <h3>From 2D to 3D</h3>
+        <p><strong>2D space</strong> is flat, like a sheet of paper or a sprite in a 2D game. Any point can be described with two numbers:</p>
+        <ul>
+          <li><span class="ax ax-x">X</span> horizontal position (left and right)</li>
+          <li><span class="ax ax-y">Y</span> vertical position (up and down on the page)</li>
+        </ul>
+        <p><strong>3D space</strong> adds a third axis, <span class="ax ax-z">Z</span>, which adds depth. A point in 3D is written as <code>(X, Y, Z)</code>.</p>
+        <p>In Blender, <strong>Z points up</strong>. X and Y describe position across the floor, and Z describes height.</p>
+      </div>
+      <div class="panel">
+        <h3>A point in 2D</h3>
+        <svg class="diagram-2d" viewBox="0 0 260 190" role="img" aria-labelledby="d2d-t">
+          <title id="d2d-t">2D diagram: a red X axis runs horizontally and a green Y axis runs vertically. A point at X 3, Y 2 is marked with dotted guide lines to each axis.</title>
+          <g stroke="#545454" stroke-width="1">
+            <line x1="40" y1="30" x2="40" y2="160"/><line x1="80" y1="30" x2="80" y2="160"/><line x1="120" y1="30" x2="120" y2="160"/><line x1="160" y1="30" x2="160" y2="160"/><line x1="200" y1="30" x2="200" y2="160"/>
+            <line x1="40" y1="40" x2="240" y2="40"/><line x1="40" y1="80" x2="240" y2="80"/><line x1="40" y1="120" x2="240" y2="120"/>
+          </g>
+          <line x1="40" y1="160" x2="240" y2="160" stroke="#FF3352" stroke-width="3"/>
+          <polygon points="244,160 234,155 234,165" fill="#FF3352"/>
+          <line x1="40" y1="160" x2="40" y2="24" stroke="#8BDC00" stroke-width="3"/>
+          <polygon points="40,18 35,28 45,28" fill="#8BDC00"/>
+          <text x="236" y="182" fill="#FF3352" font-size="14" font-weight="700" font-family="Inter, sans-serif">X</text>
+          <text x="20" y="28" fill="#8BDC00" font-size="14" font-weight="700" font-family="Inter, sans-serif">Y</text>
+          <line x1="160" y1="80" x2="160" y2="160" stroke="#E6E6E6" stroke-dasharray="4 4"/>
+          <line x1="40" y1="80" x2="160" y2="80" stroke="#E6E6E6" stroke-dasharray="4 4"/>
+          <circle cx="160" cy="80" r="6" fill="#FF8500"/>
+          <text x="168" y="72" fill="#E6E6E6" font-size="13" font-family="Inter, sans-serif">(3, 2)</text>
+          <text x="26" y="176" fill="#A5A5A5" font-size="11" font-family="Inter, sans-serif">0</text>
+        </svg>
+        <p class="small muted">In 2D, a point needs two coordinates. In 3D, it needs a third coordinate for Z.</p>
+      </div>
+    </div>
+
+    <h3>Interactive: the 3D viewport</h3>
+    <div class="grid-2">
+      <div>
+        <div class="viewport" id="vp1">
+          <div class="vp-title" id="vp1Title">User Perspective<br><strong>Cube</strong></div>
+          <div class="vp-hint">Drag to orbit, scroll to zoom. Keyboard: arrow keys orbit, + and - zoom.</div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="sub-panel">
+            <h4>Location</h4>
+            <div class="prop-row"><label for="posX"><span class="ax ax-x">X</span> Location</label><input type="range" id="posX" class="rng-x" min="-4" max="4" step="0.1" value="0"><output id="posXOut" for="posX">0.00 m</output></div>
+            <div class="prop-row"><label for="posY"><span class="ax ax-y">Y</span> Location</label><input type="range" id="posY" class="rng-y" min="-4" max="4" step="0.1" value="0"><output id="posYOut" for="posY">0.00 m</output></div>
+            <div class="prop-row"><label for="posZ"><span class="ax ax-z">Z</span> Location</label><input type="range" id="posZ" class="rng-z" min="-4" max="4" step="0.1" value="0"><output id="posZOut" for="posZ">0.00 m</output></div>
+          </div>
+          <div class="sub-panel">
+            <h4>Rotation</h4>
+            <div class="prop-row"><label for="rotX"><span class="ax ax-x">X</span> Rotation</label><input type="range" id="rotX" class="rng-x" min="0" max="360" step="1" value="0"><output id="rotXOut" for="rotX">0&deg;</output></div>
+            <div class="prop-row"><label for="rotZ"><span class="ax ax-z">Z</span> Rotation</label><input type="range" id="rotZ" class="rng-z" min="0" max="360" step="1" value="30"><output id="rotZOut" for="rotZ">30&deg;</output></div>
+          </div>
+          <div class="sub-panel">
+            <h4>Transform orientation</h4>
+            <div class="btn-row">
+              <div class="seg" role="group" aria-label="Axis orientation shown on the cube">
+                <button type="button" data-orient="global" aria-pressed="true">Global</button>
+                <button type="button" data-orient="local" aria-pressed="false">Local</button>
+              </div>
+            </div>
+            <div class="btn-row" role="group" aria-label="Move the cube one unit along an axis">
+              <span class="small muted">Move 1 m along:</span>
+              <button type="button" class="btn btn-sm" data-nudge="0">+X</button>
+              <button type="button" class="btn btn-sm" data-nudge="1">+Y</button>
+              <button type="button" class="btn btn-sm" data-nudge="2">+Z</button>
+              <button type="button" class="btn btn-sm" id="resetCube">Reset cube</button>
+            </div>
+            <div class="readout" id="orientReadout" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2 even">
+      <div class="panel">
+        <h3>Positive and negative directions</h3>
+        <p>Every axis has a positive and a negative direction, measured from the origin <code>(0, 0, 0)</code>. In the viewport, the solid part of each axis line is positive and the dashed part is negative.</p>
+        <table class="data">
+          <caption class="sr-only">Axis directions in Blender, as seen from the front view</caption>
+          <thead><tr><th scope="col">Axis</th><th scope="col">Positive (+)</th><th scope="col">Negative (-)</th></tr></thead>
+          <tbody>
+            <tr><td><span class="ax ax-x">X</span></td><td>Right</td><td>Left</td></tr>
+            <tr><td><span class="ax ax-y">Y</span></td><td>Away from the viewer (back)</td><td>Towards the viewer (front)</td></tr>
+            <tr><td><span class="ax ax-z">Z</span></td><td>Up</td><td>Down</td></tr>
+          </tbody>
+        </table>
+        <p class="small muted" style="margin-top:8px">Directions are given for Blender's front view. One unit equals one metre by default.</p>
+      </div>
+      <div class="panel">
+        <h3>Global and local coordinates</h3>
+        <ul>
+          <li><strong>Global (world) axes</strong> are fixed to the scene. They always point in the same directions, whatever an object is doing.</li>
+          <li><strong>Local axes</strong> belong to an object. When the object rotates, its local axes rotate with it.</li>
+        </ul>
+        <p><strong>Try it:</strong> set the Z rotation to 45&deg;, then press <strong>+X</strong> in Global and in Local orientation. Global moves the cube along the red grid line. Local moves it in the direction the cube is facing.</p>
+        <p class="small muted">In Blender, choose the orientation from the Transform Orientation menu in the viewport header. Pressing an axis key twice while moving (for example <kbd>G</kbd> <kbd>X</kbd> <kbd>X</kbd>) switches to the local axis.</p>
+      </div>
+    </div>
+
+    <div class="note warn">
+      <h4>Z-up and Y-up: why it matters when exporting</h4>
+      <div class="grid-2 even" style="align-items:center">
+        <div>
+          <p>Blender uses a <strong>Z-up</strong> coordinate system. Some game engines, including Unity, use a <strong>Y-up</strong> system. Unreal Engine is Z-up, but uses a different handedness.</p>
+          <p>When you export a model (for example as FBX), the exporter must convert between systems. If the axis settings are wrong, the model may appear rotated by 90&deg;, lying on its back or facing the wrong way. You may also see an unexpected rotation value, such as -90&deg; on X, on the imported object.</p>
+          <p class="small muted">Always check the Forward and Up settings in Blender's export options, and test imports early in your engine.</p>
+        </div>
+        <div class="axis-compare">
+          <figure>
+            <svg viewBox="0 0 160 140" role="img" aria-labelledby="bl-ax-t">
+              <title id="bl-ax-t">Blender axes: blue Z points up, red X points right, green Y points back into the scene.</title>
+              <line x1="70" y1="95" x2="70" y2="25" stroke="#2890FF" stroke-width="4"/><text x="76" y="28" fill="#2890FF" font-weight="700" font-size="15" font-family="Inter, sans-serif">Z</text>
+              <line x1="70" y1="95" x2="140" y2="95" stroke="#FF3352" stroke-width="4"/><text x="140" y="116" fill="#FF3352" font-weight="700" font-size="15" font-family="Inter, sans-serif">X</text>
+              <line x1="70" y1="95" x2="112" y2="60" stroke="#8BDC00" stroke-width="4"/><text x="116" y="58" fill="#8BDC00" font-weight="700" font-size="15" font-family="Inter, sans-serif">Y</text>
+              <circle cx="70" cy="95" r="4" fill="#E6E6E6"/>
+            </svg>
+            <figcaption>Blender: Z-up</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 160 140" role="img" aria-labelledby="un-ax-t">
+              <title id="un-ax-t">Unity axes: green Y points up, red X points right, blue Z points forward into the scene.</title>
+              <line x1="70" y1="95" x2="70" y2="25" stroke="#8BDC00" stroke-width="4"/><text x="76" y="28" fill="#8BDC00" font-weight="700" font-size="15" font-family="Inter, sans-serif">Y</text>
+              <line x1="70" y1="95" x2="140" y2="95" stroke="#FF3352" stroke-width="4"/><text x="140" y="116" fill="#FF3352" font-weight="700" font-size="15" font-family="Inter, sans-serif">X</text>
+              <line x1="70" y1="95" x2="112" y2="60" stroke="#2890FF" stroke-width="4"/><text x="116" y="58" fill="#2890FF" font-weight="700" font-size="15" font-family="Inter, sans-serif">Z</text>
+              <circle cx="70" cy="95" r="4" fill="#E6E6E6"/>
+            </svg>
+            <figcaption>Unity: Y-up</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+    <div class="quiz" id="quiz1"></div>
+  </section>
+
+  <!-- ============ SECTION 2 ============ -->
+  <section id="s2" class="section" aria-labelledby="s2-h">
+    <div class="section-head"><span class="section-num" aria-hidden="true">2</span><h2 id="s2-h">Vertices, Edges and Faces</h2></div>
+    <p>Every 3D model you build in Blender is a <strong>mesh</strong>: a collection of three types of component.</p>
+
+    <div class="grid-3">
+      <div class="panel def-card">
+        <svg viewBox="0 0 84 84" role="img" aria-labelledby="dv-t"><title id="dv-t">A single orange point.</title>
+          <circle cx="42" cy="42" r="7" fill="#FF8500"/></svg>
+        <div><h3>Vertex</h3><p>A single point in 3D space defined by X, Y and Z coordinates.</p></div>
+      </div>
+      <div class="panel def-card">
+        <svg viewBox="0 0 84 84" role="img" aria-labelledby="de-t"><title id="de-t">An orange line joining two black points.</title>
+          <line x1="16" y1="64" x2="68" y2="20" stroke="#FF8500" stroke-width="4"/><circle cx="16" cy="64" r="6" fill="#111"/><circle cx="68" cy="20" r="6" fill="#111"/></svg>
+        <div><h3>Edge</h3><p>A straight line connecting two vertices.</p></div>
+      </div>
+      <div class="panel def-card">
+        <svg viewBox="0 0 84 84" role="img" aria-labelledby="df-t"><title id="df-t">An orange shaded four sided surface bounded by black edges.</title>
+          <polygon points="14,62 50,70 70,24 30,16" fill="#CA873E" stroke="#111" stroke-width="3"/>
+          <g fill="#111"><circle cx="14" cy="62" r="4"/><circle cx="50" cy="70" r="4"/><circle cx="70" cy="24" r="4"/><circle cx="30" cy="16" r="4"/></g></svg>
+        <div><h3>Face</h3><p>A flat surface enclosed by three or more edges.</p></div>
+      </div>
+    </div>
+
+    <h3>Interactive: Edit Mode selection</h3>
+    <p class="small muted">In Blender, you edit these components in Edit Mode (<kbd>Tab</kbd>). The three buttons below mirror Blender's selection modes. Click a component to select it. Hold <kbd>Shift</kbd> and click to add to the selection. Click empty space to deselect.</p>
+    <div class="grid-2">
+      <div>
+        <div class="viewport" id="vp2">
+          <div class="vp-title">User Perspective<br><strong id="vp2Name">Cube</strong> (Edit Mode)</div>
+          <div class="vp-hint">Click to select. Drag to orbit, scroll to zoom. Keys 1, 2, 3 change mode.</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="btn-row">
+          <div class="seg" role="group" aria-label="Selection mode" id="modeGroup">
+            <button type="button" data-mode="vertex" aria-pressed="true">
+              <svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11" fill="none" stroke="currentColor"/><rect x="0" y="9" width="5" height="5" fill="currentColor"/></svg>Vertex</button>
+            <button type="button" data-mode="edge" aria-pressed="false">
+              <svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11" fill="none" stroke="currentColor"/><line x1="1.5" y1="12.5" x2="12.5" y2="12.5" stroke="currentColor" stroke-width="3"/></svg>Edge</button>
+            <button type="button" data-mode="face" aria-pressed="false">
+              <svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11" fill="currentColor" fill-opacity="0.6" stroke="currentColor"/></svg>Face</button>
+          </div>
+        </div>
+        <div class="btn-row">
+          <label for="meshSelect" class="small muted">Mesh:</label>
+          <select id="meshSelect">
+            <option value="cube">Cube</option>
+            <option value="plane">Plane</option>
+            <option value="cylinder">Cylinder (8 sides)</option>
+          </select>
+        </div>
+        <div class="stats" aria-live="polite">
+          <div class="stat"><span class="lbl">Vertices</span><span class="val" id="statV">0/8</span></div>
+          <div class="stat"><span class="lbl">Edges</span><span class="val" id="statE">0/12</span></div>
+          <div class="stat"><span class="lbl">Faces</span><span class="val" id="statF">0/6</span></div>
+        </div>
+        <p class="small muted" style="margin-bottom:6px">Shown as selected / total, as in Blender's Statistics overlay.</p>
+        <div class="info-box" id="s2Info" aria-live="polite">Nothing selected. Click a vertex in the viewport.</div>
+        <div class="btn-row" style="margin-top:8px" role="group" aria-label="Keyboard selection controls">
+          <button type="button" class="btn btn-sm" id="selPrev">Select previous</button>
+          <button type="button" class="btn btn-sm" id="selNext">Select next</button>
+          <button type="button" class="btn btn-sm" id="selAll">Select all</button>
+          <button type="button" class="btn btn-sm" id="selNone">Deselect</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2 even">
+      <div class="panel">
+        <h3>What to notice</h3>
+        <ul>
+          <li>Each vertex stores only a position: three coordinates.</li>
+          <li>Edges do not store a position of their own. They are defined by the two vertices they connect.</li>
+          <li>Faces are defined by their surrounding edges. Moving one vertex changes every edge and face attached to it.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Compare the counts</h3>
+        <ul>
+          <li><strong>Plane:</strong> 4 vertices, 4 edges, 1 face.</li>
+          <li><strong>Cube:</strong> 8 vertices, 12 edges, 6 faces.</li>
+          <li><strong>Cylinder:</strong> the top and bottom are single faces with 8 vertices each. You will meet this type of face again in Section 3.</li>
+        </ul>
+        <p class="small muted">Blender's default cylinder has 32 sides, so its counts are much higher.</p>
+      </div>
+    </div>
+
+    <div class="quiz" id="quiz2"></div>
+  </section>
+
+  <!-- ============ SECTION 3 ============ -->
+  <section id="s3" class="section" aria-labelledby="s3-h">
+    <div class="section-head"><span class="section-num" aria-hidden="true">3</span><h2 id="s3-h">Polygons: Tris, Quads and N-gons</h2></div>
+    <p>Faces are named by how many vertices they have. Count the vertices, not the visible corners.</p>
+
+    <div class="grid-3">
+      <div class="panel def-card">
+        <svg viewBox="0 0 84 84" role="img" aria-labelledby="pt-t"><title id="pt-t">A triangle with three vertices.</title>
+          <polygon points="42,12 72,70 12,70" fill="var(--tri)" stroke="#111" stroke-width="3"/>
+          <g fill="#111"><circle cx="42" cy="12" r="4.5"/><circle cx="72" cy="70" r="4.5"/><circle cx="12" cy="70" r="4.5"/></g></svg>
+        <div><h3>Tri</h3><p>A face with three vertices.</p></div>
+      </div>
+      <div class="panel def-card">
+        <svg viewBox="0 0 84 84" role="img" aria-labelledby="pq-t"><title id="pq-t">A square with four vertices.</title>
+          <polygon points="14,14 70,14 70,70 14,70" fill="var(--quad)" stroke="#111" stroke-width="3"/>
+          <g fill="#111"><circle cx="14" cy="14" r="4.5"/><circle cx="70" cy="14" r="4.5"/><circle cx="70" cy="70" r="4.5"/><circle cx="14" cy="70" r="4.5"/></g></svg>
+        <div><h3>Quad</h3><p>A face with four vertices.</p></div>
+      </div>
+      <div class="panel def-card">
+        <svg viewBox="0 0 84 84" role="img" aria-labelledby="pn-t"><title id="pn-t">A hexagon with six vertices.</title>
+          <polygon points="42,8 72,25 72,59 42,76 12,59 12,25" fill="var(--ngon)" stroke="#111" stroke-width="3"/>
+          <g fill="#111"><circle cx="42" cy="8" r="4.5"/><circle cx="72" cy="25" r="4.5"/><circle cx="72" cy="59" r="4.5"/><circle cx="42" cy="76" r="4.5"/><circle cx="12" cy="59" r="4.5"/><circle cx="12" cy="25" r="4.5"/></g></svg>
+        <div><h3>N-gon</h3><p>A face with five or more vertices.</p></div>
+      </div>
+    </div>
+
+    <h3>Interactive: the same shape, three ways</h3>
+    <div class="grid-2">
+      <div>
+        <div class="viewport short" id="vp3">
+          <div class="vp-title">User Perspective<br><strong id="vp3Name">Cylinder built from quads</strong></div>
+          <div class="vp-hint">Drag to orbit, scroll to zoom.</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="btn-row">
+          <div class="seg" role="group" aria-label="Polygon type used to build the cylinder" id="buildGroup">
+            <button type="button" data-build="tris" aria-pressed="false">Tris</button>
+            <button type="button" data-build="quads" aria-pressed="true">Quads</button>
+            <button type="button" data-build="ngons" aria-pressed="false">N-gons</button>
+          </div>
+          <button type="button" class="btn btn-sm" id="wire3" aria-pressed="false">Wireframe</button>
+        </div>
+        <div class="legend" aria-hidden="true">
+          <span><span class="swatch" style="background:var(--tri)"></span>Tri</span>
+          <span><span class="swatch" style="background:var(--quad)"></span>Quad</span>
+          <span><span class="swatch" style="background:var(--ngon)"></span>N-gon</span>
+        </div>
+        <div class="stats" aria-live="polite" id="stats3"></div>
+        <div id="explain3" class="small" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <h3>Interactive: subdivision</h3>
+    <p>Subdivision splits every face into smaller faces and smooths the result. Blender's Subdivision Surface modifier works this way. The two meshes below have the same outer shape. The left top is built from a grid of quads. The right top is a single n-gon with 16 vertices.</p>
+    <div class="panel">
+      <div class="prop-row" style="grid-template-columns: 130px minmax(0,1fr) 64px; max-width: 520px;">
+        <label for="subLevel">Subdivision level</label>
+        <input type="range" id="subLevel" min="0" max="3" step="1" value="2">
+        <output id="subLevelOut" for="subLevel">2</output>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-sm" id="subWire" aria-pressed="true">Wireframe overlay</button>
+        <button type="button" class="btn btn-sm" id="subSmooth" aria-pressed="true">Smooth shading</button>
+        <button type="button" class="btn btn-sm" id="subTop">Top view</button>
+      </div>
+      <div class="sub-grid">
+        <figure>
+          <div class="viewport short" id="vpA">
+            <div class="vp-title"><strong>Quad-based top</strong></div>
+            <div class="vp-hint">Views are linked. Drag either one.</div>
+          </div>
+          <figcaption id="capA"></figcaption>
+        </figure>
+        <figure>
+          <div class="viewport short" id="vpB">
+            <div class="vp-title"><strong>N-gon top</strong></div>
+          </div>
+          <figcaption id="capB"></figcaption>
+        </figure>
+      </div>
+      <p style="margin-top:10px"><strong>What to look for:</strong> on the left, the quads divide into an even grid and the surface curves smoothly. On the right, many long, thin faces meet at one central point (a pole). Look for pinching around that point and uneven shading rippling out from the centre. Use Top view and the wireframe overlay to compare.</p>
+    </div>
+
+    <div class="grid-2 even">
+      <div class="panel">
+        <h3>Why quads are preferred</h3>
+        <ul class="why-list">
+          <li><strong>Predictable subdivision and smoothing.</strong> A quad always splits into four smaller quads, giving an even, smooth surface.</li>
+          <li><strong>Clean edge loops and edge flow.</strong> Edge loops pass straight through quads, so you can select and edit whole rings of geometry in one click (<kbd>Alt</kbd> + click in Blender). Tris and n-gons stop a loop.</li>
+          <li><strong>Better deformation when rigged and animated.</strong> Evenly spaced quads bend cleanly at joints such as elbows and knees. Tris and n-gons can crease or collapse.</li>
+          <li><strong>Easier UV unwrapping.</strong> Quad grids flatten into regular, predictable UV layouts, which makes texturing simpler.</li>
+        </ul>
+      </div>
+      <div class="note" style="margin-bottom:16px">
+        <h4>Are tris ever acceptable?</h4>
+        <p>Yes. Game engines and graphics cards only draw triangles. Every quad and n-gon is converted to triangles at render time, so tris are acceptable in final game assets.</p>
+        <p>However, you should <strong>model in quads</strong> because it keeps the mesh easier to edit, subdivide and animate. Triangulate at the end of the process, or let the engine do it on import.</p>
+        <p class="small muted">N-gons are also acceptable on flat surfaces that will not deform or be subdivided, but the engine may triangulate them in unexpected ways.</p>
+      </div>
+    </div>
+
+    <div class="panel" id="task">
+      <h3>Practical task: find the n-gons</h3>
+      <p>Select every n-gon in this flat mesh, then press <strong>Check answer</strong>. Count the black vertex dots around each face. Some n-gons look like rectangles because a vertex sits along one of their edges. You can use <kbd>Tab</kbd> to move between faces and <kbd>Enter</kbd> to select.</p>
+      <svg class="task-svg" id="taskSvg" viewBox="0 0 700 360" role="group" aria-label="Flat mesh made of tris, quads and n-gons. Each face is a selectable button."></svg>
+      <div class="btn-row" style="margin-top:10px">
+        <button type="button" class="btn btn-primary" id="taskCheck">Check answer</button>
+        <button type="button" class="btn" id="taskReveal">Show vertex counts</button>
+        <button type="button" class="btn" id="taskReset">Reset</button>
+        <span class="small muted" id="taskSelCount" aria-live="polite">0 faces selected</span>
+      </div>
+      <div class="fb" id="taskFb" aria-live="polite" tabindex="-1"></div>
+    </div>
+
+    <div class="quiz" id="quiz3"></div>
+  </section>
+
+  <!-- ============ FINAL QUIZ ============ -->
+  <section id="final" class="section" aria-labelledby="final-h">
+    <div class="section-head"><span class="section-num" aria-hidden="true">&#10003;</span><h2 id="final-h">Final Summary Quiz</h2></div>
+    <p>Ten questions covering all three sections. Your score appears when you have answered every question.</p>
+    <div class="quiz" id="quizFinal"></div>
+  </section>
+
+  <!-- ============ NEXT STEPS ============ -->
+  <section id="next" class="section" aria-labelledby="next-h">
+    <div class="panel next-steps">
+      <h2 id="next-h">Next steps: the Blender interface and viewport navigation</h2>
+      <p>In the next session you will open Blender and apply these concepts directly.</p>
+      <div class="grid-2 even">
+        <div>
+          <h3>What you will recognise</h3>
+          <ul>
+            <li>The same dark theme, blue highlights and orange selection colours used on this page.</li>
+            <li>The red, green and blue axis lines on the viewport floor, with Z pointing up.</li>
+            <li>The Vertex, Edge and Face selection buttons in Edit Mode.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>What you will learn</h3>
+          <ul>
+            <li>Orbit with the middle mouse button, pan with <kbd>Shift</kbd> + middle mouse and zoom with the scroll wheel.</li>
+            <li>Switch views with the numeric keypad: <kbd>1</kbd> front, <kbd>3</kbd> right, <kbd>7</kbd> top.</li>
+            <li>Enter Edit Mode with <kbd>Tab</kbd> and change selection mode with <kbd>1</kbd>, <kbd>2</kbd> and <kbd>3</kbd>.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="small muted" style="margin:0">Before the session: install the current Blender LTS release and open it once to check it runs on your machine.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  3D Modelling Foundations. Level 4 Software Engineering (Game Development). Colours based on Blender's default theme. 3D rendering uses Three.js.
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------------------------------------------------------------
+     Theme, navigation and progress
+  --------------------------------------------------------------- */
+  var rootEl = document.documentElement;
+  var themeBtn = document.getElementById('themeToggle');
+  themeBtn.addEventListener('click', function () {
+    var light = rootEl.getAttribute('data-theme') !== 'light';
+    rootEl.setAttribute('data-theme', light ? 'light' : 'dark');
+    themeBtn.setAttribute('aria-pressed', String(light));
+  });
+
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('#navList a'));
+  var tracked = ['objectives', 's1', 's2', 's3', 'final', 'next'].map(function (id) { return document.getElementById(id); });
+  var progressBar = document.getElementById('progressBar');
+  var progressEl = document.getElementById('progress');
+  function onScroll() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    var p = max > 0 ? Math.min(1, h.scrollTop / max) : 0;
+    progressBar.style.width = (p * 100).toFixed(1) + '%';
+    progressEl.setAttribute('aria-valuenow', String(Math.round(p * 100)));
+    var current = null;
+    tracked.forEach(function (s) { if (s.getBoundingClientRect().top < 140) current = s.id; });
+    if (max > 0 && h.scrollTop >= max - 4) current = 'next';
+    navLinks.forEach(function (a) {
+      var on = a.getAttribute('href') === '#' + current;
+      a.classList.toggle('active', on);
+      if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  document.getElementById('glossaryLink').addEventListener('click', function () {
+    document.getElementById('glossary').open = true;
+  });
+
+  /* ---------------------------------------------------------------
+     Quiz engine
+  --------------------------------------------------------------- */
+  function buildQuiz(container, title, questions, isFinal) {
+    var state;
+    function render() {
+      state = questions.map(function () { return null; });
+      container.innerHTML = '';
+      var head = document.createElement('div');
+      head.className = 'quiz-head';
+      var h = document.createElement('h3');
+      h.textContent = title;
+      var score = document.createElement('span');
+      score.className = 'quiz-score';
+      score.setAttribute('aria-live', 'polite');
+      head.appendChild(h);
+      head.appendChild(score);
+      container.appendChild(head);
+      var result = document.createElement('div');
+
+      function updateScore() {
+        var answered = state.filter(function (s) { return s !== null; }).length;
+        var correct = state.filter(function (s, i) { return s !== null && questions[i].o[s].c; }).length;
+        score.textContent = answered + ' of ' + questions.length + ' answered, ' + correct + ' correct';
+        if (answered === questions.length) {
+          result.className = 'result-box';
+          var pct = Math.round(correct / questions.length * 100);
+          var msg;
+          if (pct >= 80) msg = 'Well done. You are ready to move on.';
+          else if (pct >= 50) msg = 'A good start. Review the feedback above and revisit the sections where you lost marks.';
+          else msg = 'Revisit the three sections, then try again.';
+          result.innerHTML = '';
+          var big = document.createElement('div');
+          big.className = 'big';
+          big.textContent = (isFinal ? 'Final score: ' : 'Score: ') + correct + ' / ' + questions.length + ' (' + pct + '%)';
+          var p = document.createElement('p');
+          p.style.margin = '4px 0 0';
+          p.textContent = msg;
+          result.appendChild(big);
+          result.appendChild(p);
+        }
+      }
+
+      questions.forEach(function (q, qi) {
+        var fs = document.createElement('fieldset');
+        fs.className = 'q';
+        var lg = document.createElement('legend');
+        lg.textContent = (qi + 1) + '. ' + q.q;
+        fs.appendChild(lg);
+        var opts = document.createElement('div');
+        opts.className = 'opts';
+        var fb = document.createElement('div');
+        fb.className = 'fb';
+        fb.setAttribute('aria-live', 'polite');
+        fb.setAttribute('tabindex', '-1');
+        var buttons = [];
+        q.o.forEach(function (opt, oi) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'opt';
+          b.textContent = opt.t;
+          b.addEventListener('click', function () {
+            if (state[qi] !== null) return;
+            state[qi] = oi;
+            var correctIndex = q.o.findIndex(function (o) { return o.c; });
+            buttons.forEach(function (bb, bi) {
+              bb.setAttribute('aria-disabled', 'true');
+              if (bi === correctIndex) {
+                bb.classList.add('is-correct');
+                var t = document.createElement('span'); t.className = 'tag'; t.textContent = 'Correct answer'; bb.appendChild(t);
+              } else if (bi === oi) {
+                bb.classList.add('is-wrong');
+                var t2 = document.createElement('span'); t2.className = 'tag'; t2.textContent = 'Your answer'; bb.appendChild(t2);
+              }
+            });
+            fb.innerHTML = '';
+            var v = document.createElement('span');
+            v.className = 'verdict';
+            if (opt.c) {
+              fb.className = 'fb ok';
+              v.textContent = 'Correct. ';
+              fb.appendChild(v);
+              fb.appendChild(document.createTextNode(opt.f));
+            } else {
+              fb.className = 'fb bad';
+              v.textContent = 'Incorrect. ';
+              fb.appendChild(v);
+              fb.appendChild(document.createTextNode(opt.f + ' '));
+              var w = document.createElement('strong');
+              w.textContent = 'Why the correct answer is right: ';
+              fb.appendChild(w);
+              fb.appendChild(document.createTextNode(q.o[correctIndex].f));
+            }
+            updateScore();
+          });
+          buttons.push(b);
+          opts.appendChild(b);
+        });
+        fs.appendChild(opts);
+        fs.appendChild(fb);
+        container.appendChild(fs);
+      });
+      container.appendChild(result);
+      var rb = document.createElement('button');
+      rb.type = 'button';
+      rb.className = 'btn';
+      rb.textContent = 'Reset quiz';
+      rb.addEventListener('click', function () { render(); container.querySelector('.opt').focus(); });
+      container.appendChild(rb);
+      updateScore();
+    }
+    render();
+  }
+
+  var quiz1 = [
+    { q: 'In Blender, which axis is shown in blue and points upwards?', o: [
+      { t: 'X', f: 'X is shown in red and runs left and right across the floor.' },
+      { t: 'Y', f: 'Y is shown in green and runs forwards and backwards across the floor.' },
+      { t: 'Z', c: true, f: 'Blender uses a Z-up system, and the Z axis is always coloured blue.' }
+    ]},
+    { q: 'A cube is located at (2, -3, 0). Which description is correct?', o: [
+      { t: '2 m along positive X, 3 m along negative Y, at floor level', c: true, f: 'Coordinates are always written in the order X, Y, Z. A negative Y value means towards the viewer in front view, and Z = 0 means the origin sits on the floor plane.' },
+      { t: '2 m up, 3 m to the left, at the centre', f: 'The first value is X, not height. Height is the third value, Z.' },
+      { t: '2 m along positive X, 3 m along positive Y, 0 m up', f: 'The Y value is -3, so the cube is 3 m in the negative Y direction, not the positive one.' }
+    ]},
+    { q: 'An object is rotated 45° around Z. You move it along its local X axis. What happens?', o: [
+      { t: 'It moves parallel to the red global X line on the grid', f: 'That describes a move along the global X axis. Global axes ignore the object’s rotation.' },
+      { t: 'It moves in the direction its own X axis now points, diagonally across the grid', c: true, f: 'Local axes rotate with the object, so after a 45° turn its local X axis points diagonally relative to the world.' },
+      { t: 'It moves straight up', f: 'Moving up would be along Z. Rotating around Z does not change which way Z points.' }
+    ]},
+    { q: 'Why might a model exported from Blender appear rotated by 90° when imported into Unity?', o: [
+      { t: 'Blender is Z-up and Unity is Y-up, so the axes must be converted on export', c: true, f: 'The two programs disagree about which axis points up. If the exporter’s Forward and Up settings are wrong, the model is rotated.' },
+      { t: 'Unity cannot read models that contain quads', f: 'Unity imports quads without problems. It triangulates them automatically.' },
+      { t: 'The file was compressed during export', f: 'Compression does not change the orientation of a model.' }
+    ]}
+  ];
+
+  var quiz2 = [
+    { q: 'Which definition describes a vertex?', o: [
+      { t: 'A single point in 3D space defined by X, Y and Z coordinates', c: true, f: 'A vertex is the most basic mesh component. It stores only a position.' },
+      { t: 'A straight line connecting two points', f: 'That is the definition of an edge.' },
+      { t: 'A flat surface enclosed by edges', f: 'That is the definition of a face.' }
+    ]},
+    { q: 'How many vertices, edges and faces does a cube have?', o: [
+      { t: '6 vertices, 12 edges, 8 faces', f: 'The vertex and face counts are swapped. A cube has 8 corners and 6 sides.' },
+      { t: '8 vertices, 12 edges, 6 faces', c: true, f: 'A cube has 8 corners (vertices), 12 edges and 6 square sides (faces). You can confirm this with the counter in the interactive viewport.' },
+      { t: '8 vertices, 6 edges, 12 faces', f: 'A cube has 6 faces, not 12. It has 12 edges.' }
+    ]},
+    { q: 'What is the smallest number of edges that can enclose a face?', o: [
+      { t: '2', f: 'Two edges cannot enclose an area. They can only form a line or an open angle.' },
+      { t: '3', c: true, f: 'Three edges form a triangle, which is the simplest possible face.' },
+      { t: '4', f: 'Four edges form a quad, but a face can be made with fewer.' }
+    ]},
+    { q: 'You want to select the whole top surface of a cube in Edit Mode with a single click. Which selection mode should you use?', o: [
+      { t: 'Vertex mode', f: 'In Vertex mode, one click selects a single point. You would need to select four vertices.' },
+      { t: 'Edge mode', f: 'In Edge mode, one click selects a single line. You would need to select four edges.' },
+      { t: 'Face mode', c: true, f: 'Face mode lets you click a surface directly to select the whole face.' }
+    ]}
+  ];
+
+  var quiz3 = [
+    { q: 'A face has six vertices. What is it called?', o: [
+      { t: 'A quad', f: 'A quad has exactly four vertices.' },
+      { t: 'An n-gon', c: true, f: 'Any face with five or more vertices is an n-gon.' },
+      { t: 'A tri', f: 'A tri has exactly three vertices.' }
+    ]},
+    { q: 'Which type of face is most likely to cause pinching when a mesh is subdivided?', o: [
+      { t: 'A quad in an even grid', f: 'Quads in a regular grid subdivide into more even quads, giving a clean result.' },
+      { t: 'A large n-gon', c: true, f: 'An n-gon subdivides into many thin faces meeting at a single point, which causes pinching and shading artefacts.' },
+      { t: 'All faces subdivide equally well', f: 'The subdivision demonstration shows that n-gons produce a noticeably worse result than quads.' }
+    ]},
+    { q: 'What happens to a quad-based mesh when it is rendered in a game engine?', o: [
+      { t: 'Its faces are converted to triangles', c: true, f: 'Graphics hardware only draws triangles, so every face is triangulated at render time.' },
+      { t: 'It is rendered as quads', f: 'Graphics hardware does not draw quads directly. They are split into two triangles each.' },
+      { t: 'It cannot be rendered until all faces are n-gons', f: 'N-gons are also converted to triangles. Engines never require n-gons.' }
+    ]},
+    { q: 'Why do quads make edge loop selection easier?', o: [
+      { t: 'Edge loops pass straight through quads, so a whole ring of edges can be selected at once', c: true, f: 'In a quad, each edge has one clear opposite edge, so the loop can continue predictably across the mesh.' },
+      { t: 'Quads have more vertices than n-gons', f: 'N-gons have more vertices than quads. The number of vertices is not what makes loops work.' },
+      { t: 'Quads are always coloured differently in Blender', f: 'Blender does not colour faces by type. Loop selection depends on topology.' }
+    ]}
+  ];
+
+  var quizFinal = [
+    { q: 'What is the point (0, 0, 0) called?', o: [
+      { t: 'The vertex', f: 'A vertex can be anywhere. (0, 0, 0) has a specific name.' },
+      { t: 'The origin', c: true, f: 'The origin is where all three axes meet.' },
+      { t: 'The pole', f: 'A pole is a vertex where an unusual number of edges meet. It is not a fixed location.' }
+    ]},
+    { q: 'Which axis is coloured green in Blender?', o: [
+      { t: 'X', f: 'X is red.' },
+      { t: 'Y', c: true, f: 'Blender colours X red, Y green and Z blue. A helpful memory aid: RGB matches XYZ.' },
+      { t: 'Z', f: 'Z is blue.' }
+    ]},
+    { q: 'An object’s origin is sitting exactly on the grid floor in Blender. What is its Z coordinate?', o: [
+      { t: '0', c: true, f: 'The grid floor is the plane where Z = 0, because Z measures height.' },
+      { t: '1', f: 'Z = 1 would place the origin 1 m above the floor.' },
+      { t: 'It depends on the X value', f: 'Each coordinate is independent. The X value does not affect Z.' }
+    ]},
+    { q: 'Global coordinates are measured relative to what?', o: [
+      { t: 'The selected object’s own axes', f: 'That describes local coordinates.' },
+      { t: 'The camera', f: 'Coordinates in Blender are not measured from the camera.' },
+      { t: 'The world origin and fixed world axes', c: true, f: 'Global axes belong to the scene and never rotate.' }
+    ]},
+    { q: 'What does an edge connect?', o: [
+      { t: 'Two faces', f: 'An edge can be shared by two faces, but it is defined by the vertices at each end.' },
+      { t: 'Two vertices', c: true, f: 'An edge is a straight line between exactly two vertices.' },
+      { t: 'Three or more vertices', f: 'Three or more vertices are needed to make a face, not an edge.' }
+    ]},
+    { q: 'How many vertices, edges and faces does a single plane have?', o: [
+      { t: '4 vertices, 4 edges, 1 face', c: true, f: 'A plane is one quad: four corners joined by four edges around one face.' },
+      { t: '4 vertices, 4 edges, 2 faces', f: 'A plane has only one face. It does not have a separate back face.' },
+      { t: '1 vertex, 4 edges, 4 faces', f: 'The vertex and face counts are swapped.' }
+    ]},
+    { q: 'What is the term for a collection of vertices, edges and faces that defines a 3D shape?', o: [
+      { t: 'A mesh', c: true, f: 'A mesh is the complete set of components that make up a model.' },
+      { t: 'A wireframe', f: 'Wireframe is a display mode that shows only edges.' },
+      { t: 'An axis', f: 'An axis is a reference line used to measure position.' }
+    ]},
+    { q: 'How many vertices does a quad have?', o: [
+      { t: '3', f: 'Three vertices make a tri.' },
+      { t: '4', c: true, f: 'A quad is a four-sided face with four vertices.' },
+      { t: '5', f: 'Five or more vertices make an n-gon.' }
+    ]},
+    { q: 'What does "topology" describe?', o: [
+      { t: 'The colours and textures applied to a mesh', f: 'That describes materials and texturing.' },
+      { t: 'The arrangement and flow of vertices, edges and faces across a mesh', c: true, f: 'Good topology means clean, evenly spaced quads with sensible edge flow.' },
+      { t: 'The height of a model above the floor', f: 'Height is described by the Z coordinate, not topology.' }
+    ]},
+    { q: 'Is it acceptable for a finished game asset to contain tris?', o: [
+      { t: 'No, game engines reject any mesh that contains tris', f: 'Engines work entirely with triangles, so tris are never rejected.' },
+      { t: 'Yes, but you should never use quads at any stage', f: 'Quads are preferred while modelling because they are easier to edit.' },
+      { t: 'Yes, engines triangulate everything, but modelling in quads keeps the mesh easier to edit', c: true, f: 'Tris are fine in the final asset. Quads are recommended during modelling for clean subdivision, edge loops, deformation and UVs.' }
+    ]}
+  ];
+
+  buildQuiz(document.getElementById('quiz1'), 'Check your learning: 3D space', quiz1, false);
+  buildQuiz(document.getElementById('quiz2'), 'Check your learning: mesh components', quiz2, false);
+  buildQuiz(document.getElementById('quiz3'), 'Check your learning: polygons', quiz3, false);
+  buildQuiz(document.getElementById('quizFinal'), 'Summary quiz', quizFinal, true);
+
+  /* ---------------------------------------------------------------
+     Practical task: find the n-gons (SVG)
+  --------------------------------------------------------------- */
+  (function taskInit() {
+    var svg = document.getElementById('taskSvg');
+    var NS = 'http://www.w3.org/2000/svg';
+    function P(i, j) { return [20 + i * 110, 20 + j * 105]; }
+    var C = [20 + 5.5 * 110, 20 + 0.5 * 105];
+    var faces = [
+      [P(0,0), P(1,0), P(1,1), P(0,1)],
+      [P(1,0), P(3,0), P(3,1), P(2,1), P(1,1)],
+      [P(3,0), P(4,0), P(4,1)],
+      [P(3,0), P(4,1), P(3,1)],
+      [P(4,0), P(5,0), P(5,1), P(4,1)],
+      [P(5,0), P(6,0), C],
+      [P(6,0), P(6,1), C],
+      [P(6,1), P(5,1), C],
+      [P(5,1), P(5,0), C],
+      [P(0,1), P(1,1), P(1,2)],
+      [P(0,1), P(1,2), P(0,2)],
+      [P(1,1), P(2,1), P(2,2), P(1,2)],
+      [P(2,1), P(3,1), P(3,2), P(2,2)],
+      [P(3,1), P(4,1), P(5,1), P(5,2), P(5,3), P(4,3), P(4,2), P(3,2)],
+      [P(5,1), P(6,1), P(6,2), P(5,2)],
+      [P(0,2), P(1,2), P(1,3), P(0,3)],
+      [P(1,2), P(2,2), P(1,3)],
+      [P(2,2), P(2,3), P(1,3)],
+      [P(2,2), P(3,2), P(4,2), P(4,3), P(2,3)],
+      [P(5,2), P(6,2), P(6,3), P(5,3)]
+    ];
+    function typeName(n) { return n === 3 ? 'tri' : n === 4 ? 'quad' : 'n-gon'; }
+    var selected = faces.map(function () { return false; });
+    var polys = [];
+    var countLabels = [];
+    var checked = false;
+    faces.forEach(function (f, i) {
+      var pg = document.createElementNS(NS, 'polygon');
+      pg.setAttribute('points', f.map(function (p) { return p.join(','); }).join(' '));
+      pg.setAttribute('class', 'face');
+      pg.setAttribute('tabindex', '0');
+      pg.setAttribute('role', 'button');
+      pg.setAttribute('aria-pressed', 'false');
+      pg.setAttribute('aria-label', 'Face ' + (i + 1));
+      function toggle() {
+        selected[i] = !selected[i];
+        pg.setAttribute('aria-pressed', String(selected[i]));
+        clearResults();
+        updateCount();
+      }
+      pg.addEventListener('click', toggle);
+      pg.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      });
+      svg.appendChild(pg);
+      polys.push(pg);
+    });
+    var seen = {};
+    faces.forEach(function (f) {
+      f.forEach(function (p) {
+        var k = p.join(',');
+        if (seen[k]) return;
+        seen[k] = true;
+        var c = document.createElementNS(NS, 'circle');
+        c.setAttribute('class', 'v');
+        c.setAttribute('cx', p[0]); c.setAttribute('cy', p[1]); c.setAttribute('r', '6');
+        svg.appendChild(c);
+      });
+    });
+    faces.forEach(function (f) {
+      var cx = 0, cy = 0;
+      f.forEach(function (p) { cx += p[0]; cy += p[1]; });
+      cx /= f.length; cy /= f.length;
+      if (f.length === 8) { cx = 20 + 4.5 * 110; cy = 20 + 2.1 * 105; }
+      var t = document.createElementNS(NS, 'text');
+      t.setAttribute('class', 'count');
+      t.setAttribute('x', cx); t.setAttribute('y', cy + 6);
+      t.setAttribute('text-anchor', 'middle');
+      t.style.display = 'none';
+      t.textContent = String(f.length);
+      svg.appendChild(t);
+      countLabels.push(t);
+    });
+    var selCount = document.getElementById('taskSelCount');
+    var fb = document.getElementById('taskFb');
+    function updateCount() {
+      var n = selected.filter(Boolean).length;
+      selCount.textContent = n + (n === 1 ? ' face' : ' faces') + ' selected';
+    }
+    function clearResults() {
+      if (!checked) return;
+      checked = false;
+      polys.forEach(function (p) { p.classList.remove('res-correct', 'res-wrong', 'res-missed'); });
+    }
+    document.getElementById('taskCheck').addEventListener('click', function () {
+      checked = true;
+      var totalN = 0, found = 0, wrong = [], missed = 0;
+      faces.forEach(function (f, i) {
+        var isN = f.length >= 5;
+        polys[i].classList.remove('res-correct', 'res-wrong', 'res-missed');
+        if (isN) totalN++;
+        if (isN && selected[i]) { found++; polys[i].classList.add('res-correct'); }
+        else if (isN && !selected[i]) { missed++; polys[i].classList.add('res-missed'); }
+        else if (!isN && selected[i]) { wrong.push(i); polys[i].classList.add('res-wrong'); }
+      });
+      // Draw outlined faces above their neighbours but below the vertex dots
+      var firstDot = svg.querySelector('circle');
+      polys.forEach(function (p) { if (p.classList.length > 1) svg.insertBefore(p, firstDot); });
+      fb.innerHTML = '';
+      var v = document.createElement('span');
+      v.className = 'verdict';
+      var allRight = found === totalN && wrong.length === 0;
+      fb.className = 'fb ' + (allRight ? 'ok' : 'bad');
+      v.textContent = allRight ? 'Correct. ' : 'Not quite. ';
+      fb.appendChild(v);
+      var msg = 'You found ' + found + ' of ' + totalN + ' n-gons. ';
+      if (allRight) {
+        msg += 'The mesh has two 5-sided n-gons that look like rectangles, and one 8-sided L-shaped n-gon. Each has a vertex part way along an edge, which adds to its vertex count.';
+      } else {
+        if (missed) msg += 'Faces with a dashed orange outline are n-gons you missed. Count their vertex dots, including any sitting along a straight edge. ';
+        if (wrong.length) {
+          msg += 'Faces with a red outline are not n-gons: ' + wrong.map(function (i) {
+            return 'face ' + (i + 1) + ' has ' + faces[i].length + ' vertices, so it is a ' + typeName(faces[i].length);
+          }).join('; ') + '. ';
+        }
+        msg += 'Green outlines show correct selections.';
+      }
+      fb.appendChild(document.createTextNode(msg));
+      fb.focus();
+    });
+    var revealBtn = document.getElementById('taskReveal');
+    var revealed = false;
+    revealBtn.addEventListener('click', function () {
+      revealed = !revealed;
+      countLabels.forEach(function (t) { t.style.display = revealed ? '' : 'none'; });
+      revealBtn.textContent = revealed ? 'Hide vertex counts' : 'Show vertex counts';
+    });
+    document.getElementById('taskReset').addEventListener('click', function () {
+      selected = selected.map(function () { return false; });
+      polys.forEach(function (p) { p.setAttribute('aria-pressed', 'false'); });
+      checked = true; clearResults();
+      fb.innerHTML = ''; fb.className = 'fb';
+      if (revealed) revealBtn.click();
+      updateCount();
+    });
+  })();
+
+  /* ---------------------------------------------------------------
+     3D: shared helpers
+  --------------------------------------------------------------- */
+  var viewportIds = ['vp1', 'vp2', 'vp3', 'vpA', 'vpB'];
+  if (typeof THREE === 'undefined') {
+    viewportIds.forEach(function (id) {
+      var d = document.createElement('div');
+      d.className = 'vp-error';
+      d.textContent = 'The 3D viewer could not load. Check your internet connection, then reload the page.';
+      document.getElementById(id).appendChild(d);
+    });
+    return;
+  }
+
+  var COL = {
+    x: 0xFF3352, y: 0x8BDC00, z: 0x2890FF,
+    grid: 0x545454, active: 0xFFA033, sel: 0xFF8500,
+    face: 0x8A8A8A, faceSel: 0xCA873E, wire: 0x111111,
+    tri: 0x4FB3A9, quad: 0x9A9A9A, ngon: 0xB07FD6
+  };
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function deg(r) { return r * 180 / Math.PI; }
+  function rad(d) { return d * Math.PI / 180; }
+  function fmt(n) { var s = (Math.abs(n) < 0.005 ? 0 : n).toFixed(2); return s; }
+
+  function Viewport(el, opts) {
+    var self = this;
+    this.el = el;
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera(opts.fov || 40, 1, 0.05, 500);
+    this.camera.up.set(0, 0, 1);
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    this.renderer.setClearColor(0x000000, 0);
+    var c = this.renderer.domElement;
+    c.setAttribute('tabindex', '0');
+    c.setAttribute('role', 'img');
+    c.setAttribute('aria-label', opts.label);
+    el.insertBefore(c, el.firstChild);
+    this.canvas = c;
+    this.target = opts.target ? opts.target.clone() : new THREE.Vector3();
+    this.defaults = { theta: opts.theta, phi: opts.phi, radius: opts.radius };
+    this.theta = opts.theta; this.phi = opts.phi; this.radius = opts.radius;
+    this.minR = opts.minR || 2; this.maxR = opts.maxR || 40;
+    this.raycaster = new THREE.Raycaster();
+    this.mouse = new THREE.Vector2();
+    this.onClick = null;
+    this.onOrbit = null;
+
+    this.scene.add(new THREE.HemisphereLight(0xffffff, 0x3a3a3a, 0.65));
+    var hemi = this.scene.children[0]; hemi.position.set(0, 0, 1);
+    var key = new THREE.DirectionalLight(0xffffff, 0.75);
+    key.position.set(-1.5, 2, 0.5);
+    this.scene.add(this.camera);
+    this.camera.add(key);
+    var fill = new THREE.AmbientLight(0xffffff, 0.12);
+    this.scene.add(fill);
+
+    var drag = null;
+    c.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      drag = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, moved: false };
+      try { c.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+    });
+    c.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      if (!drag.moved && Math.abs(e.clientX - drag.sx) + Math.abs(e.clientY - drag.sy) < 5) return;
+      drag.moved = true;
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      drag.x = e.clientX; drag.y = e.clientY;
+      self.theta -= dx * 0.008;
+      self.phi = clamp(self.phi + dy * 0.008, -1.5, 1.5);
+      self.update(true);
+    });
+    function end(e) {
+      if (!drag) return;
+      var wasClick = !drag.moved;
+      drag = null;
+      if (wasClick && self.onClick && e.type === 'pointerup') self.onClick(e);
+    }
+    c.addEventListener('pointerup', end);
+    c.addEventListener('pointercancel', end);
+    c.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      self.radius = clamp(self.radius * Math.exp(e.deltaY * 0.001), self.minR, self.maxR);
+      self.update(true);
+    }, { passive: false });
+    c.addEventListener('keydown', function (e) {
+      var handled = true;
+      switch (e.key) {
+        case 'ArrowLeft': self.theta += 0.12; break;
+        case 'ArrowRight': self.theta -= 0.12; break;
+        case 'ArrowUp': self.phi = clamp(self.phi + 0.1, -1.5, 1.5); break;
+        case 'ArrowDown': self.phi = clamp(self.phi - 0.1, -1.5, 1.5); break;
+        case '+': case '=': self.radius = clamp(self.radius * 0.9, self.minR, self.maxR); break;
+        case '-': case '_': self.radius = clamp(self.radius * 1.1, self.minR, self.maxR); break;
+        case 'Home': self.reset(); return e.preventDefault();
+        default: handled = false;
+      }
+      if (handled) { e.preventDefault(); self.update(true); }
+    });
+
+    var rb = document.createElement('button');
+    rb.type = 'button';
+    rb.className = 'btn btn-sm vp-reset';
+    rb.textContent = 'Reset view';
+    rb.addEventListener('click', function () { self.reset(); });
+    el.appendChild(rb);
+
+    if (window.ResizeObserver) new ResizeObserver(function () { self.resize(); }).observe(el);
+    else window.addEventListener('resize', function () { self.resize(); });
+    this.resize();
+    this.update(false);
+  }
+  Viewport.prototype.reset = function () {
+    this.theta = this.defaults.theta; this.phi = this.defaults.phi; this.radius = this.defaults.radius;
+    this.update(true);
+  };
+  Viewport.prototype.update = function (fromUser) {
+    var cp = Math.cos(this.phi);
+    this.camera.position.set(
+      this.target.x + this.radius * cp * Math.cos(this.theta),
+      this.target.y + this.radius * cp * Math.sin(this.theta),
+      this.target.z + this.radius * Math.sin(this.phi)
+    );
+    this.camera.lookAt(this.target);
+    this.camera.updateMatrixWorld();
+    this.requestRender();
+    if (fromUser && this.onOrbit) this.onOrbit(this);
+  };
+  Viewport.prototype.resize = function () {
+    var w = this.el.clientWidth, h = this.el.clientHeight;
+    if (!w || !h) return;
+    this.renderer.setSize(w, h, false);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+    this.requestRender();
+  };
+  Viewport.prototype.requestRender = function () {
+    var self = this;
+    if (this.pending) return;
+    this.pending = true;
+    requestAnimationFrame(function () {
+      self.pending = false;
+      self.renderer.render(self.scene, self.camera);
+    });
+  };
+  Viewport.prototype.raycast = function (e, objects) {
+    var r = this.canvas.getBoundingClientRect();
+    this.mouse.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    this.camera.updateMatrixWorld();
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    return this.raycaster.intersectObjects(objects, false);
+  };
+
+  function makeGrid(size, divisions, opacity) {
+    var g = new THREE.GridHelper(size, divisions, COL.grid, COL.grid);
+    g.rotation.x = Math.PI / 2;
+    g.material.transparent = true;
+    g.material.opacity = opacity;
+    g.material.depthWrite = false;
+    g.renderOrder = -2;
+    return g;
+  }
+  function floorAxes(len) {
+    var grp = new THREE.Group();
+    [[COL.x, new THREE.Vector3(1, 0, 0)], [COL.y, new THREE.Vector3(0, 1, 0)]].forEach(function (a) {
+      var geo = new THREE.BufferGeometry().setFromPoints([a[1].clone().multiplyScalar(-len), a[1].clone().multiplyScalar(len)]);
+      var m = new THREE.LineBasicMaterial({ color: a[0], transparent: true, opacity: 0.85, depthWrite: false });
+      var l = new THREE.Line(geo, m);
+      l.renderOrder = -1;
+      grp.add(l);
+    });
+    return grp;
+  }
+  function makeLabel(text, color, h) {
+    var cv = document.createElement('canvas');
+    cv.width = 128; cv.height = 64;
+    var g = cv.getContext('2d');
+    g.font = '700 40px Inter, system-ui, sans-serif';
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.lineWidth = 7; g.strokeStyle = 'rgba(0,0,0,0.75)';
+    g.strokeText(text, 64, 34);
+    g.fillStyle = color;
+    g.fillText(text, 64, 34);
+    var tex = new THREE.CanvasTexture(cv);
+    var s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
+    s.scale.set(h * 2, h, 1);
+    s.renderOrder = 30;
+    return s;
+  }
+  function cylBetween(a, b, r, mat, segs) {
+    var d = new THREE.Vector3().subVectors(b, a);
+    var len = d.length();
+    var m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, segs || 8, 1, false), mat);
+    m.position.copy(a).addScaledVector(d, 0.5);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
+    return m;
+  }
+  function arrow(dir, len, color, radius, overlay) {
+    var grp = new THREE.Group();
+    var mat = new THREE.MeshBasicMaterial({ color: color, depthTest: !overlay, transparent: !!overlay });
+    var shaft = cylBetween(new THREE.Vector3(), dir.clone().multiplyScalar(len), radius, mat);
+    var cone = new THREE.Mesh(new THREE.ConeGeometry(radius * 3.2, radius * 9, 16), mat);
+    cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+    cone.position.copy(dir).multiplyScalar(len + radius * 4.5);
+    grp.add(shaft, cone);
+    if (overlay) grp.traverse(function (o) { o.renderOrder = 20; });
+    return grp;
+  }
+  function disposeObject(obj) {
+    obj.traverse(function (o) {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) { (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (m) { if (m.map) m.map.dispose(); m.dispose(); }); }
+    });
+  }
+
+  /* Polygon mesh helpers */
+  function sub(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
+  function avg(pts) {
+    var s = [0, 0, 0];
+    pts.forEach(function (p) { s[0] += p[0]; s[1] += p[1]; s[2] += p[2]; });
+    return [s[0] / pts.length, s[1] / pts.length, s[2] / pts.length];
+  }
+  function norm(v) { var l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / l, v[1] / l, v[2] / l]; }
+  function newell(V, f) {
+    var n = [0, 0, 0];
+    for (var i = 0; i < f.length; i++) {
+      var a = V[f[i]], b = V[f[(i + 1) % f.length]];
+      n[0] += (a[1] - b[1]) * (a[2] + b[2]);
+      n[1] += (a[2] - b[2]) * (a[0] + b[0]);
+      n[2] += (a[0] - b[0]) * (a[1] + b[1]);
+    }
+    return n;
+  }
+  function edgeKey(a, b) { return a < b ? a + '_' + b : b + '_' + a; }
+  function meshEdges(F) {
+    var map = new Map(), list = [];
+    F.forEach(function (f) {
+      for (var k = 0; k < f.length; k++) {
+        var a = f[k], b = f[(k + 1) % f.length], key = edgeKey(a, b);
+        if (!map.has(key)) { map.set(key, list.length); list.push([Math.min(a, b), Math.max(a, b)]); }
+      }
+    });
+    return { list: list, map: map };
+  }
+  function triangulate(f) {
+    if (f.length === 3) return [[0, 1, 2]];
+    if (f.length === 4) return [[0, 1, 2], [0, 2, 3]];
+    var out = [];
+    for (var k = 0; k < f.length; k++) out.push([-1, k, (k + 1) % f.length]);
+    return out;
+  }
+  // Build a renderable object from {verts, faces}
+  function buildPolyObject(mesh, o) {
+    var V = mesh.verts, F = mesh.faces;
+    var fN = F.map(function (f) { return newell(V, f); });
+    var vN = null;
+    if (o.smooth) {
+      vN = V.map(function () { return [0, 0, 0]; });
+      F.forEach(function (f, fi) { f.forEach(function (i) { vN[i][0] += fN[fi][0]; vN[i][1] += fN[fi][1]; vN[i][2] += fN[fi][2]; }); });
+      vN = vN.map(norm);
+    }
+    var pos = [], nor = [], col = [];
+    var c = new THREE.Color();
+    F.forEach(function (f, fi) {
+      c.setHex(o.colour ? o.colour(f, fi) : 0xAAAAAA);
+      var fn = norm(fN[fi]);
+      var cen = null, cenN = null;
+      if (f.length > 4) {
+        cen = avg(f.map(function (i) { return V[i]; }));
+        cenN = o.smooth ? norm(avg(f.map(function (i) { return vN[i]; }))) : fn;
+      }
+      triangulate(f).forEach(function (t) {
+        t.forEach(function (k) {
+          var p, n;
+          if (k === -1) { p = cen; n = cenN; }
+          else { p = V[f[k]]; n = o.smooth ? vN[f[k]] : fn; }
+          pos.push(p[0], p[1], p[2]);
+          nor.push(n[0], n[1], n[2]);
+          col.push(c.r, c.g, c.b);
+        });
+      });
+    });
+    var grp = new THREE.Group();
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    var mat = new THREE.MeshStandardMaterial({
+      vertexColors: true, roughness: o.roughness != null ? o.roughness : 0.65, metalness: 0,
+      polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1
+    });
+    var faceMesh = new THREE.Mesh(geo, mat);
+    faceMesh.visible = o.showFaces !== false;
+    grp.add(faceMesh);
+    if (o.showEdges) {
+      var E = meshEdges(F).list, lp = [];
+      E.forEach(function (e) { var a = V[e[0]], b = V[e[1]]; lp.push(a[0], a[1], a[2], b[0], b[1], b[2]); });
+      var lg = new THREE.BufferGeometry();
+      lg.setAttribute('position', new THREE.Float32BufferAttribute(lp, 3));
+      var lm = new THREE.LineBasicMaterial({ color: o.edgeColour, transparent: true, opacity: o.edgeOpacity != null ? o.edgeOpacity : 1 });
+      grp.add(new THREE.LineSegments(lg, lm));
+    }
+    return grp;
+  }
+
+  function catmullClark(mesh) {
+    var V = mesh.verts, F = mesh.faces, nv = V.length;
+    var facePts = F.map(function (f) { return avg(f.map(function (i) { return V[i]; })); });
+    var edgeMap = new Map(), edges = [];
+    F.forEach(function (f, fi) {
+      for (var k = 0; k < f.length; k++) {
+        var a = f[k], b = f[(k + 1) % f.length], key = edgeKey(a, b);
+        var e = edgeMap.get(key);
+        if (!e) { e = { a: a, b: b, faces: [], idx: edges.length }; edgeMap.set(key, e); edges.push(e); }
+        e.faces.push(fi);
+      }
+    });
+    var edgePts = edges.map(function (e) {
+      if (e.faces.length !== 2) return avg([V[e.a], V[e.b]]);
+      return avg([V[e.a], V[e.b], facePts[e.faces[0]], facePts[e.faces[1]]]);
+    });
+    var vFaces = V.map(function () { return []; }), vEdges = V.map(function () { return []; });
+    F.forEach(function (f, fi) { f.forEach(function (i) { vFaces[i].push(fi); }); });
+    edges.forEach(function (e) { vEdges[e.a].push(e); vEdges[e.b].push(e); });
+    var newV = V.map(function (p, i) {
+      var bnd = vEdges[i].filter(function (e) { return e.faces.length !== 2; });
+      if (bnd.length === 2) {
+        var o1 = bnd[0].a === i ? V[bnd[0].b] : V[bnd[0].a];
+        var o2 = bnd[1].a === i ? V[bnd[1].b] : V[bnd[1].a];
+        return [(6 * p[0] + o1[0] + o2[0]) / 8, (6 * p[1] + o1[1] + o2[1]) / 8, (6 * p[2] + o1[2] + o2[2]) / 8];
+      }
+      if (bnd.length) return p.slice();
+      var n = vEdges[i].length;
+      var Fa = avg(vFaces[i].map(function (fi) { return facePts[fi]; }));
+      var R = avg(vEdges[i].map(function (e) { return avg([V[e.a], V[e.b]]); }));
+      return [(Fa[0] + 2 * R[0] + (n - 3) * p[0]) / n, (Fa[1] + 2 * R[1] + (n - 3) * p[1]) / n, (Fa[2] + 2 * R[2] + (n - 3) * p[2]) / n];
+    });
+    var verts = newV.concat(edgePts, facePts);
+    var eBase = nv, fBase = nv + edges.length;
+    var faces = [];
+    F.forEach(function (f, fi) {
+      var L = f.length;
+      for (var k = 0; k < L; k++) {
+        var vi = f[k], nx = f[(k + 1) % L], pv = f[(k - 1 + L) % L];
+        faces.push([vi, eBase + edgeMap.get(edgeKey(vi, nx)).idx, fBase + fi, eBase + edgeMap.get(edgeKey(pv, vi)).idx]);
+      }
+    });
+    return { verts: verts, faces: faces };
+  }
+
+  /* Mesh definitions */
+  function meshCube() {
+    return {
+      verts: [[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]],
+      faces: [[0,3,2,1],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]]
+    };
+  }
+  function meshPlane() {
+    return { verts: [[-1,-1,0],[1,-1,0],[1,1,0],[-1,1,0]], faces: [[0,1,2,3]] };
+  }
+  function cylinderVerts(n, r, h) {
+    var v = [];
+    for (var i = 0; i < n; i++) { var a = i / n * Math.PI * 2; v.push([r * Math.cos(a), r * Math.sin(a), -h]); }
+    for (var j = 0; j < n; j++) { var b = j / n * Math.PI * 2; v.push([r * Math.cos(b), r * Math.sin(b), h]); }
+    return v;
+  }
+  function meshCylinder() {
+    var n = 8, verts = cylinderVerts(n, 1, 1), faces = [];
+    for (var i = 0; i < n; i++) { var k = (i + 1) % n; faces.push([i, k, n + k, n + i]); }
+    var top = [], bot = [];
+    for (var t = 0; t < n; t++) top.push(n + t);
+    for (var b = n - 1; b >= 0; b--) bot.push(b);
+    faces.push(top, bot);
+    return { verts: verts, faces: faces };
+  }
+  // The same cylinder built three ways
+  function cylinderBuild(kind) {
+    var n = 8, verts = cylinderVerts(n, 1, 0.7), faces = [];
+    for (var i = 0; i < n; i++) {
+      var k = (i + 1) % n;
+      if (kind === 'tris') { faces.push([i, k, n + k]); faces.push([i, n + k, n + i]); }
+      else faces.push([i, k, n + k, n + i]);
+    }
+    var capsTop, capsBot;
+    function capFaces(ring) {
+      if (kind === 'ngons') return [ring.slice()];
+      if (kind === 'quads') return [[ring[0], ring[1], ring[2], ring[3]], [ring[0], ring[3], ring[4], ring[7]], [ring[4], ring[5], ring[6], ring[7]]];
+      var out = [];
+      for (var t = 1; t < 7; t++) out.push([ring[0], ring[t], ring[t + 1]]);
+      return out;
+    }
+    var topRing = [], botRing = [];
+    for (var j = 0; j < n; j++) { topRing.push(n + j); botRing.push(j); }
+    capsTop = capFaces(topRing);
+    capsBot = capFaces(botRing).map(function (f) { return f.slice().reverse(); });
+    return { verts: verts, faces: faces.concat(capsTop, capsBot) };
+  }
+  // A box whose top and bottom are either a grid of quads or one n-gon
+  function boxMesh(N, ngon) {
+    var verts = [], faces = [], S = 1, H = 0.6;
+    function grid(z) {
+      var m = [];
+      for (var j = 0; j <= N; j++) {
+        m[j] = [];
+        for (var i = 0; i <= N; i++) {
+          var onB = i === 0 || j === 0 || i === N || j === N;
+          if (ngon && !onB) { m[j][i] = -1; continue; }
+          m[j][i] = verts.length;
+          verts.push([-S + 2 * S * i / N, -S + 2 * S * j / N, z]);
+        }
+      }
+      return m;
+    }
+    function ring(m) {
+      var r = [], i, j;
+      for (i = 0; i < N; i++) r.push(m[0][i]);
+      for (j = 0; j < N; j++) r.push(m[j][N]);
+      for (i = N; i > 0; i--) r.push(m[N][i]);
+      for (j = N; j > 0; j--) r.push(m[j][0]);
+      return r;
+    }
+    var T = grid(H), B = grid(-H);
+    if (!ngon) {
+      for (var j = 0; j < N; j++) for (var i = 0; i < N; i++) {
+        faces.push([T[j][i], T[j][i + 1], T[j + 1][i + 1], T[j + 1][i]]);
+        faces.push([B[j][i], B[j + 1][i], B[j + 1][i + 1], B[j][i + 1]]);
+      }
+    } else {
+      faces.push(ring(T));
+      faces.push(ring(B).slice().reverse());
+    }
+    var rt = ring(T), rb = ring(B), L = rt.length;
+    for (var k = 0; k < L; k++) { var k2 = (k + 1) % L; faces.push([rb[k], rb[k2], rt[k2], rt[k]]); }
+    return { verts: verts, faces: faces };
+  }
+  function polyType(n) { return n === 3 ? 'tri' : n === 4 ? 'quad' : 'n-gon'; }
+
+  /* ---------------------------------------------------------------
+     Section 1: axes viewport
+  --------------------------------------------------------------- */
+  (function section1() {
+    var el = document.getElementById('vp1');
+    var vp;
+    try {
+      vp = new Viewport(el, { label: '3D viewport showing a grid floor, a red X axis, a green Y axis and a blue Z axis pointing up, with a grey cube that can be moved using the location sliders.', theta: -0.75, phi: 0.45, radius: 14.5, maxR: 40, target: new THREE.Vector3(0, 0, 1) });
+    } catch (err) { showErr(el); return; }
+    var S = vp.scene;
+    S.add(makeGrid(12, 12, 0.9));
+    var L = 6;
+    [['X', new THREE.Vector3(1, 0, 0), COL.x, '#FF3352'], ['Y', new THREE.Vector3(0, 1, 0), COL.y, '#8BDC00'], ['Z', new THREE.Vector3(0, 0, 1), COL.z, '#2890FF']].forEach(function (a) {
+      var dir = a[1];
+      S.add(arrow(dir, L, a[2], 0.03, false));
+      var neg = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), dir.clone().multiplyScalar(-L)]);
+      var nl = new THREE.Line(neg, new THREE.LineDashedMaterial({ color: a[2], dashSize: 0.25, gapSize: 0.18 }));
+      nl.computeLineDistances();
+      S.add(nl);
+      var lp = makeLabel('+' + a[0], a[3], 0.8); lp.position.copy(dir).multiplyScalar(L + 0.9); S.add(lp);
+      var ln = makeLabel('-' + a[0], a[3], 0.65); ln.position.copy(dir).multiplyScalar(-L - 0.7); S.add(ln);
+    });
+    var originDotW = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 12), new THREE.MeshBasicMaterial({ color: 0xE6E6E6 }));
+    S.add(originDotW);
+    var ol = makeLabel('0,0,0', '#E6E6E6', 0.45); ol.position.set(-0.9, -0.9, 0.3); S.add(ol);
+
+    var cube = new THREE.Group();
+    var box = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0x9A9A9A, roughness: 0.6 }));
+    var outline = new THREE.LineSegments(new THREE.EdgesGeometry(box.geometry), new THREE.LineBasicMaterial({ color: COL.active }));
+    var dot = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 8), new THREE.MeshBasicMaterial({ color: COL.active, depthTest: false, transparent: true }));
+    dot.renderOrder = 25;
+    cube.add(box, outline, dot);
+    S.add(cube);
+
+    var gizmo = new THREE.Group();
+    var gX = arrow(new THREE.Vector3(1, 0, 0), 1.25, COL.x, 0.025, true);
+    var gY = arrow(new THREE.Vector3(0, 1, 0), 1.25, COL.y, 0.025, true);
+    var gZ = arrow(new THREE.Vector3(0, 0, 1), 1.25, COL.z, 0.025, true);
+    gizmo.add(gX, gY, gZ);
+    S.add(gizmo);
+
+    var pos = [0, 0, 0];
+    var inputs = ['posX', 'posY', 'posZ'].map(function (id) { return document.getElementById(id); });
+    var outputs = ['posXOut', 'posYOut', 'posZOut'].map(function (id) { return document.getElementById(id); });
+    var rotX = document.getElementById('rotX'), rotZ = document.getElementById('rotZ');
+    var rotXOut = document.getElementById('rotXOut'), rotZOut = document.getElementById('rotZOut');
+    var title = document.getElementById('vp1Title');
+    var readout = document.getElementById('orientReadout');
+    var orient = 'global';
+    var orientBtns = Array.prototype.slice.call(document.querySelectorAll('[data-orient]'));
+
+    function update() {
+      cube.position.set(pos[0], pos[1], pos[2]);
+      cube.rotation.set(rad(+rotX.value), 0, rad(+rotZ.value));
+      cube.updateMatrixWorld();
+      gizmo.position.copy(cube.position);
+      if (orient === 'local') gizmo.quaternion.copy(cube.quaternion); else gizmo.quaternion.identity();
+      outputs.forEach(function (o, i) { o.textContent = fmt(pos[i]) + ' m'; });
+      rotXOut.textContent = rotX.value + '°';
+      rotZOut.textContent = rotZ.value + '°';
+      title.innerHTML = 'User Perspective<br><strong>Cube</strong> at (' + fmt(pos[0]) + ', ' + fmt(pos[1]) + ', ' + fmt(pos[2]) + ')';
+      var html;
+      if (orient === 'global') {
+        html = '<p style="margin:0 0 4px"><strong>Global:</strong> the arrows on the cube match the world axes, whatever its rotation.</p>' +
+          '<table><tr><td><span class="ax ax-x">X</span></td><td>(1.00, 0.00, 0.00)</td></tr>' +
+          '<tr><td><span class="ax ax-y">Y</span></td><td>(0.00, 1.00, 0.00)</td></tr>' +
+          '<tr><td><span class="ax ax-z">Z</span></td><td>(0.00, 0.00, 1.00)</td></tr></table>';
+      } else {
+        var q = cube.quaternion;
+        var rows = [['x', new THREE.Vector3(1, 0, 0)], ['y', new THREE.Vector3(0, 1, 0)], ['z', new THREE.Vector3(0, 0, 1)]].map(function (r) {
+          var v = r[1].applyQuaternion(q);
+          return '<tr><td><span class="ax ax-' + r[0] + '">' + r[0].toUpperCase() + '</span></td><td>(' + fmt(v.x) + ', ' + fmt(v.y) + ', ' + fmt(v.z) + ')</td></tr>';
+        }).join('');
+        html = '<p style="margin:0 0 4px"><strong>Local:</strong> the arrows rotate with the cube. Each local axis currently points along these global directions:</p><table>' + rows + '</table>';
+      }
+      readout.innerHTML = html;
+      vp.requestRender();
+    }
+    inputs.forEach(function (inp, i) {
+      inp.addEventListener('input', function () { pos[i] = +inp.value; update(); });
+    });
+    rotX.addEventListener('input', update);
+    rotZ.addEventListener('input', update);
+    orientBtns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        orient = b.getAttribute('data-orient');
+        orientBtns.forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        update();
+      });
+    });
+    Array.prototype.slice.call(document.querySelectorAll('[data-nudge]')).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var axis = +b.getAttribute('data-nudge');
+        var v = new THREE.Vector3(axis === 0 ? 1 : 0, axis === 1 ? 1 : 0, axis === 2 ? 1 : 0);
+        if (orient === 'local') v.applyQuaternion(cube.quaternion);
+        pos = [clamp(pos[0] + v.x, -4, 4), clamp(pos[1] + v.y, -4, 4), clamp(pos[2] + v.z, -4, 4)];
+        inputs.forEach(function (inp, i) { inp.value = pos[i]; });
+        update();
+      });
+    });
+    document.getElementById('resetCube').addEventListener('click', function () {
+      pos = [0, 0, 0];
+      inputs.forEach(function (inp) { inp.value = 0; });
+      rotX.value = 0; rotZ.value = 30;
+      update();
+    });
+    update();
+  })();
+
+  function showErr(el) {
+    var d = document.createElement('div');
+    d.className = 'vp-error';
+    d.textContent = 'WebGL is not available in this browser, so the 3D viewer cannot be shown.';
+    el.appendChild(d);
+  }
+
+  /* ---------------------------------------------------------------
+     Section 2: Edit Mode selection viewer
+  --------------------------------------------------------------- */
+  (function section2() {
+    var el = document.getElementById('vp2');
+    var vp;
+    try {
+      vp = new Viewport(el, { label: 'Edit Mode viewport showing a mesh. Click vertices, edges or faces to select them. Details of the selection appear in the panel beside the viewport.', theta: -0.75, phi: 0.5, radius: 8, minR: 3, maxR: 20 });
+    } catch (err) { showErr(el); return; }
+    var S = vp.scene;
+    S.add(makeGrid(10, 10, 0.6));
+    S.add(floorAxes(5));
+
+    var meshes = { cube: meshCube, plane: meshPlane, cylinder: meshCylinder };
+    var names = { cube: 'Cube', plane: 'Plane', cylinder: 'Cylinder' };
+    var mode = 'vertex';
+    var mesh, edges, edgeMap, group;
+    var vObjs = [], vPick = [], eObjs = [], ePick = [], fObjs = [], fDots = [];
+    var sel = new Set();
+    var pickMat = new THREE.MeshBasicMaterial({ visible: false });
+    var sphereGeo = new THREE.SphereGeometry(0.055, 14, 10);
+    var pickSphereGeo = new THREE.SphereGeometry(0.16, 8, 6);
+    var dotGeo = new THREE.BoxGeometry(0.08, 0.08, 0.08);
+
+    function build(key) {
+      if (group) { S.remove(group); disposeObject(group); }
+      mesh = meshes[key]();
+      var e = meshEdges(mesh.faces);
+      edges = e.list; edgeMap = e.map;
+      group = new THREE.Group();
+      vObjs = []; vPick = []; eObjs = []; ePick = []; fObjs = []; fDots = [];
+      var V = mesh.verts.map(function (p) { return new THREE.Vector3(p[0], p[1], p[2]); });
+      mesh.faces.forEach(function (f, fi) {
+        var pos = [];
+        var cen = avg(f.map(function (i) { return mesh.verts[i]; }));
+        triangulate(f).forEach(function (t) {
+          t.forEach(function (k) { var p = k === -1 ? cen : mesh.verts[f[k]]; pos.push(p[0], p[1], p[2]); });
+        });
+        var g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+        g.computeVertexNormals();
+        var m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: COL.face, roughness: 0.8, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }));
+        m.userData = { kind: 'face', index: fi };
+        group.add(m); fObjs.push(m);
+        var n = norm(newell(mesh.verts, f));
+        var d = new THREE.Mesh(dotGeo, new THREE.MeshBasicMaterial({ color: COL.wire }));
+        d.position.set(cen[0] + n[0] * 0.01, cen[1] + n[1] * 0.01, cen[2] + n[2] * 0.01);
+        group.add(d); fDots.push(d);
+      });
+      edges.forEach(function (ed, ei) {
+        var m = cylBetween(V[ed[0]], V[ed[1]], 0.014, new THREE.MeshBasicMaterial({ color: COL.wire }), 6);
+        group.add(m); eObjs.push(m);
+        var p = cylBetween(V[ed[0]], V[ed[1]], 0.1, pickMat, 6);
+        p.userData = { kind: 'edge', index: ei };
+        group.add(p); ePick.push(p);
+      });
+      V.forEach(function (v, vi) {
+        var m = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({ color: COL.wire }));
+        m.position.copy(v);
+        group.add(m); vObjs.push(m);
+        var p = new THREE.Mesh(pickSphereGeo, pickMat);
+        p.position.copy(v);
+        p.userData = { kind: 'vertex', index: vi };
+        group.add(p); vPick.push(p);
+      });
+      S.add(group);
+      document.getElementById('vp2Name').textContent = names[key];
+      sel.clear();
+      refresh();
+    }
+
+    function count() { return mode === 'vertex' ? mesh.verts.length : mode === 'edge' ? edges.length : mesh.faces.length; }
+    function derived() {
+      // Derive which vertices, edges and faces count as selected (as Blender does)
+      var sv = new Set(), se = new Set(), sf = new Set();
+      if (mode === 'vertex') {
+        sel.forEach(function (i) { sv.add(i); });
+        edges.forEach(function (e, ei) { if (sv.has(e[0]) && sv.has(e[1])) se.add(ei); });
+        mesh.faces.forEach(function (f, fi) { if (f.every(function (i) { return sv.has(i); })) sf.add(fi); });
+      } else if (mode === 'edge') {
+        sel.forEach(function (i) { se.add(i); sv.add(edges[i][0]); sv.add(edges[i][1]); });
+        mesh.faces.forEach(function (f, fi) {
+          var all = true;
+          for (var k = 0; k < f.length; k++) if (!se.has(edgeMap.get(edgeKey(f[k], f[(k + 1) % f.length])))) { all = false; break; }
+          if (all) sf.add(fi);
+        });
+      } else {
+        sel.forEach(function (fi) {
+          sf.add(fi);
+          var f = mesh.faces[fi];
+          f.forEach(function (i, k) { sv.add(i); se.add(edgeMap.get(edgeKey(i, f[(k + 1) % f.length]))); });
+        });
+      }
+      return { v: sv, e: se, f: sf };
+    }
+    function refresh() {
+      var d = derived();
+      vObjs.forEach(function (m, i) {
+        m.visible = mode === 'vertex';
+        m.material.color.setHex(d.v.has(i) ? COL.sel : COL.wire);
+        m.scale.setScalar(d.v.has(i) ? 1.35 : 1);
+      });
+      eObjs.forEach(function (m, i) {
+        var s = d.e.has(i);
+        m.material.color.setHex(s ? COL.sel : COL.wire);
+        var k = (mode === 'edge' ? 1.6 : 1) * (s ? 1.4 : 1);
+        m.scale.set(k, 1, k);
+      });
+      fObjs.forEach(function (m, i) { m.material.color.setHex(d.f.has(i) ? COL.faceSel : COL.face); });
+      fDots.forEach(function (m, i) {
+        m.visible = mode === 'face';
+        m.material.color.setHex(d.f.has(i) ? COL.sel : COL.wire);
+      });
+      document.getElementById('statV').textContent = d.v.size + '/' + mesh.verts.length;
+      document.getElementById('statE').textContent = d.e.size + '/' + edges.length;
+      document.getElementById('statF').textContent = d.f.size + '/' + mesh.faces.length;
+      info();
+      vp.requestRender();
+    }
+    function coordHTML(p) {
+      return '<span class="ax ax-x">X</span> ' + fmt(p[0]) + '&nbsp; <span class="ax ax-y">Y</span> ' + fmt(p[1]) + '&nbsp; <span class="ax ax-z">Z</span> ' + fmt(p[2]);
+    }
+    function info() {
+      var box = document.getElementById('s2Info');
+      var ids = Array.from(sel).sort(function (a, b) { return a - b; });
+      if (!ids.length) {
+        box.innerHTML = 'Nothing selected. Click ' + (mode === 'vertex' ? 'a vertex (a black dot)' : mode === 'edge' ? 'an edge (a black line)' : 'a face (a grey surface)') + ' in the viewport.';
+        return;
+      }
+      var html = '';
+      if (ids.length > 1) html += '<p style="margin:0 0 6px"><strong>' + ids.length + ' ' + (mode === 'vertex' ? 'vertices' : mode + 's') + ' selected.</strong> Details of the most recent selection:</p>';
+      var i = lastPicked != null && sel.has(lastPicked) ? lastPicked : ids[ids.length - 1];
+      if (mode === 'vertex') {
+        html += '<strong>Vertex ' + i + '</strong><br>' + coordHTML(mesh.verts[i]) +
+          '<br><span class="small muted">A vertex stores only its position.</span>';
+      } else if (mode === 'edge') {
+        var e = edges[i], a = mesh.verts[e[0]], b = mesh.verts[e[1]];
+        var len = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+        html += '<strong>Edge ' + i + '</strong> connects vertex ' + e[0] + ' and vertex ' + e[1] + '.<br>' +
+          '<span class="small">Vertex ' + e[0] + ': ' + coordHTML(a) + '</span><br>' +
+          '<span class="small">Vertex ' + e[1] + ': ' + coordHTML(b) + '</span><br>Length: ' + len.toFixed(2) + ' m';
+      } else {
+        var f = mesh.faces[i];
+        var t = polyType(f.length);
+        html += '<strong>Face ' + i + '</strong> has ' + f.length + ' vertices and ' + f.length + ' edges, so it is ' + (t === 'n-gon' ? 'an' : 'a') + ' <strong>' + t + '</strong>.<br>' +
+          '<span class="small">Vertices: ' + f.join(', ') + '. Centre: ' + coordHTML(avg(f.map(function (k) { return mesh.verts[k]; }))) + '</span>';
+      }
+      box.innerHTML = html;
+    }
+    var lastPicked = null;
+    function pickAt(e) {
+      var pickers = mode === 'vertex' ? vPick : mode === 'edge' ? ePick : [];
+      var hits = vp.raycast(e, fObjs.concat(pickers));
+      var faceDist = Infinity;
+      for (var h = 0; h < hits.length; h++) if (hits[h].object.userData.kind === 'face') { faceDist = hits[h].distance; break; }
+      var chosen = null;
+      for (var k = 0; k < hits.length; k++) {
+        var ud = hits[k].object.userData;
+        if (ud.kind === mode) {
+          if (mode === 'face' || hits[k].distance <= faceDist + 0.2) chosen = ud.index;
+          break;
+        }
+        if (ud.kind === 'face' && mode !== 'face' && hits[k].distance > faceDist + 0.2) break;
+      }
+      return chosen;
+    }
+    vp.onClick = function (e) {
+      var idx = pickAt(e);
+      if (idx == null) { if (!e.shiftKey) sel.clear(); }
+      else if (e.shiftKey) { if (sel.has(idx)) sel.delete(idx); else sel.add(idx); }
+      else { sel.clear(); sel.add(idx); }
+      lastPicked = idx;
+      refresh();
+    };
+    function setMode(m) {
+      mode = m;
+      sel.clear(); lastPicked = null;
+      Array.prototype.forEach.call(document.querySelectorAll('[data-mode]'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === m)); });
+      refresh();
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('[data-mode]'), function (b) {
+      b.addEventListener('click', function () { setMode(b.getAttribute('data-mode')); });
+    });
+    vp.canvas.addEventListener('keydown', function (e) {
+      if (e.key === '1') setMode('vertex');
+      else if (e.key === '2') setMode('edge');
+      else if (e.key === '3') setMode('face');
+    });
+    function step(dir) {
+      var n = count();
+      var cur = lastPicked != null ? lastPicked : (dir > 0 ? -1 : 0);
+      var next = ((cur + dir) % n + n) % n;
+      sel.clear(); sel.add(next); lastPicked = next;
+      refresh();
+    }
+    document.getElementById('selNext').addEventListener('click', function () { step(1); });
+    document.getElementById('selPrev').addEventListener('click', function () { step(-1); });
+    document.getElementById('selAll').addEventListener('click', function () {
+      sel.clear(); for (var i = 0; i < count(); i++) sel.add(i); lastPicked = null; refresh();
+    });
+    document.getElementById('selNone').addEventListener('click', function () { sel.clear(); lastPicked = null; refresh(); });
+    document.getElementById('meshSelect').addEventListener('change', function (e) { lastPicked = null; build(e.target.value); });
+    build('cube');
+  })();
+
+  /* ---------------------------------------------------------------
+     Section 3a: tris, quads and n-gons comparison
+  --------------------------------------------------------------- */
+  (function section3a() {
+    var el = document.getElementById('vp3');
+    var vp;
+    try {
+      vp = new Viewport(el, { label: 'Viewport showing an eight-sided cylinder. Faces are coloured by type: teal for tris, grey for quads and purple for n-gons.', theta: -0.75, phi: 0.62, radius: 6.2, minR: 2.5, maxR: 20 });
+    } catch (err) { showErr(el); return; }
+    vp.scene.add(makeGrid(8, 8, 0.6));
+    var build = 'quads', wire = false, obj = null;
+    var text = {
+      tris: 'Every face is a triangle. The sides are split diagonally and each cap is a fan of six tris. This is how a game engine sees every mesh.',
+      quads: 'The sides are quads and each cap is split into three quads. This is the cleanest option for editing and subdivision.',
+      ngons: 'The sides are quads, but each cap is a single n-gon with eight vertices. It is quick to create, but causes problems when subdivided.'
+    };
+    function render() {
+      if (obj) { vp.scene.remove(obj); disposeObject(obj); }
+      var m = cylinderBuild(build);
+      obj = buildPolyObject(m, {
+        colour: function (f) { return f.length === 3 ? COL.tri : f.length === 4 ? COL.quad : COL.ngon; },
+        showFaces: !wire, showEdges: true,
+        edgeColour: wire ? 0xE6E6E6 : 0x111111
+      });
+      vp.scene.add(obj);
+      var t = 0, q = 0, n = 0;
+      m.faces.forEach(function (f) { if (f.length === 3) t++; else if (f.length === 4) q++; else n++; });
+      var edgesCount = meshEdges(m.faces).list.length;
+      document.getElementById('stats3').innerHTML =
+        '<div class="stat"><span class="lbl">Vertices</span><span class="val">' + m.verts.length + '</span></div>' +
+        '<div class="stat"><span class="lbl">Edges</span><span class="val">' + edgesCount + '</span></div>' +
+        '<div class="stat"><span class="lbl">Tris</span><span class="val">' + t + '</span></div>' +
+        '<div class="stat"><span class="lbl">Quads</span><span class="val">' + q + '</span></div>' +
+        '<div class="stat"><span class="lbl">N-gons</span><span class="val">' + n + '</span></div>';
+      document.getElementById('explain3').textContent = text[build] + ' The outer shape and vertex count stay the same in all three versions; only the way the faces are divided changes.';
+      document.getElementById('vp3Name').textContent = 'Cylinder built from ' + (build === 'ngons' ? 'n-gons' : build) + (wire ? ' (wireframe)' : '');
+      vp.requestRender();
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('[data-build]'), function (b) {
+      b.addEventListener('click', function () {
+        build = b.getAttribute('data-build');
+        Array.prototype.forEach.call(document.querySelectorAll('[data-build]'), function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        render();
+      });
+    });
+    var wb = document.getElementById('wire3');
+    wb.addEventListener('click', function () { wire = !wire; wb.setAttribute('aria-pressed', String(wire)); render(); });
+    render();
+  })();
+
+  /* ---------------------------------------------------------------
+     Section 3b: subdivision comparison
+  --------------------------------------------------------------- */
+  (function section3b() {
+    var elA = document.getElementById('vpA'), elB = document.getElementById('vpB');
+    var vA, vB;
+    var camOpts = { theta: -1.1, phi: 0.75, radius: 6.5, minR: 2.5, maxR: 20 };
+    try {
+      vA = new Viewport(elA, Object.assign({ label: 'Subdivided box with a top made from a grid of quads. The surface is smooth and evenly divided.' }, camOpts));
+      vB = new Viewport(elB, Object.assign({ label: 'Subdivided box with a top made from one n-gon. Thin faces meet at a central point, causing pinching and uneven shading.' }, camOpts));
+    } catch (err) { showErr(elA); showErr(elB); return; }
+    var syncing = false;
+    function link(src, dst) {
+      src.onOrbit = function () {
+        if (syncing) return;
+        syncing = true;
+        dst.theta = src.theta; dst.phi = src.phi; dst.radius = src.radius;
+        dst.update(true);
+        syncing = false;
+      };
+    }
+    link(vA, vB); link(vB, vA);
+
+    var cache = { q: [boxMesh(3, false)], n: [boxMesh(3, true)] };
+    function levelMesh(key, l) {
+      var arr = cache[key];
+      while (arr.length <= l) arr.push(catmullClark(arr[arr.length - 1]));
+      return arr[l];
+    }
+    var level = 2, wire = true, smooth = true;
+    var objs = { q: null, n: null };
+    var levelInput = document.getElementById('subLevel');
+    function render() {
+      [['q', vA, 'capA'], ['n', vB, 'capB']].forEach(function (s) {
+        var key = s[0], vp = s[1];
+        if (objs[key]) { vp.scene.remove(objs[key]); disposeObject(objs[key]); }
+        var m = levelMesh(key, level);
+        objs[key] = buildPolyObject(m, {
+          colour: function () { return 0xB4B4B4; },
+          smooth: smooth, roughness: 0.4,
+          showEdges: wire, edgeColour: 0x111111, edgeOpacity: 0.55
+        });
+        vp.scene.add(objs[key]);
+        var base = cache[key][0];
+        var ng = base.faces.filter(function (f) { return f.length > 4; }).length;
+        document.getElementById(s[2]).textContent = 'Original: ' + base.faces.length + ' faces (' + (ng ? ng + ' n-gons' : 'all quads') + '). After level ' + level + ': ' + m.faces.length + ' faces, ' + m.verts.length + ' vertices.';
+        vp.requestRender();
+      });
+      document.getElementById('subLevelOut').textContent = String(level);
+    }
+    levelInput.addEventListener('input', function () { level = +levelInput.value; render(); });
+    var wb = document.getElementById('subWire');
+    wb.addEventListener('click', function () { wire = !wire; wb.setAttribute('aria-pressed', String(wire)); render(); });
+    var sb = document.getElementById('subSmooth');
+    sb.addEventListener('click', function () { smooth = !smooth; sb.setAttribute('aria-pressed', String(smooth)); render(); });
+    document.getElementById('subTop').addEventListener('click', function () {
+      vA.theta = -Math.PI / 2; vA.phi = 1.5; vA.radius = 5.5;
+      vA.update(true);
+    });
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
