@@ -1,3 +1,4 @@
+@charset "utf-8";
 /* ===== Access Lab v2: Access look and feel ===== */
 .hunt{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:.8rem}
 .hunt-msg{flex:1 1 16rem;min-width:0}
@@ -612,3 +613,23 @@ mark.hl-p{background:#FFB3D1;color:#1B1B1B}
 .relc.free{display:block;overflow:visible}
 .relc.free .rbox{position:absolute;width:13.5rem}
 .rbox-h{cursor:move;touch-action:none}
+
+.sqled{width:100%;min-height:14rem;font-family:ui-monospace,Consolas,monospace;font-size:.9rem;background:#fff;color:#111;border:1px solid #888;padding:.5rem;box-sizing:border-box}
+
+body,.acc,.fs,button,input,select,textarea{font-family:var(--ax-font,var(--font)),"Segoe UI Symbol","Segoe UI Emoji","Apple Symbols","Noto Sans Symbols 2","Noto Color Emoji",system-ui,sans-serif}
+.top{background:#242627;color:#fff;border-bottom:4px solid #010ED0}
+.top .brandbtn{display:flex;align-items:center;gap:.7rem;color:#fff}
+.bfc-logo{height:2.8rem;width:auto;display:block}
+.top .brand b{color:#fff}.top .brand span{color:#C9CCFF}
+.top .xp{color:#fff}.top .xpbar{background:#4a4d50}
+.top .btn{background:#fff;color:#010ED0;border-color:#fff}
+.top .btn.alt{background:transparent;color:#fff;border-color:#fff}
+.home-hero{background:#010ED0;color:#fff;border-radius:1rem;padding:2rem 1.6rem;margin:1rem 0 1.4rem}
+.home-hero h1{color:#fff;margin:0 0 .6rem}.home-hero .lead{color:#E8EAFF;max-width:44rem}
+.home-hero a:not(.btn){color:#fff;text-decoration:underline}
+.home-hero .a-hint{color:#D5D8FF}
+.home-btns{display:flex;flex-wrap:wrap;gap:1rem;margin:1.2rem 0}
+.btn.big{font-size:1.25rem;min-height:3.6rem;padding:.8rem 1.8rem}
+.home-hero .btn.big{background:#fff;color:#010ED0;border-color:#fff}
+.home-hero .btn.big:hover{background:#242627;color:#fff;border-color:#fff}
+.home-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1rem;margin-bottom:1.6rem}

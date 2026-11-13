@@ -477,7 +477,7 @@ function closeItem(i){
   const it=UI.open[i];
   const doClose=()=>{const k=UI.open.indexOf(it);if(k<0)return;UI.open.splice(k,1);if(UI.act>=UI.open.length)UI.act=UI.open.length-1;else if(k<UI.act)UI.act--;renderDoc()};
   if(it.kind==='form'&&(it.view==='view'||it.view==='layout')&&it.rt&&it.rt.dirty){const r=it.rt.save();if(!r.ok){msgBox(r.msg);return}}
-  if(it.view==='design'&&NAMEL[it.kind]&&!(it.kind==='table'&&L.lock)&&(it.isNew||it.dirty))
+  if((it.view==='design'||it.view==='sql')&&NAMEL[it.kind]&&!(it.kind==='table'&&L.lock)&&(it.isNew||it.dirty))
     return confirmBox('Do you want to save changes to the design of '+it.kind+' “'+(it.name||NAMEL[it.kind]+'1')+'”?',()=>saveObject(it,doClose),doClose,true);
   doClose();
 }
@@ -510,7 +510,7 @@ function saveActive(){
   if(!it){setStatus('Nothing to save. Open or create an object first.');return}
   if(it.kind==='table'&&it.view==='data'){if(it.commit)it.commit();return}
   if(it.kind==='form'&&(it.view==='view'||it.view==='layout')){if(it.rt){const r=it.rt.save();if(!r.ok)msgBox(r.msg);else{renderWork();setStatus('Record saved.')}}return}
-  if(NAMEL[it.kind]){if(it.view==='design'||it.isNew)saveObject(it);else setStatus('Nothing to save.')}
+  if(NAMEL[it.kind]){if(it.view==='sql'&&it.sqlApply&&!it.sqlApply())return;if(it.view==='design'||it.view==='sql'||it.isNew)saveObject(it);else setStatus('Nothing to save.')}
 }
 function deleteObject(kind,name){
   if(kind==='table'&&L.lock)return msgBox('The tables in this database cannot be deleted in this exam.');
@@ -543,7 +543,7 @@ function viewMenu(b,it){menuAt(b,VIEWS[it.kind].map(([v,l])=>({label:l+(it.view=
 function ctxTab(it){
   if(!it)return null;
   const xc=extraCtx(it);if(xc)return xc;
-  if(it.kind==='query'&&it.view==='design')return['Query Design','Query Tools'];
+  if(it.kind==='query'&&(it.view==='design'||it.view==='sql'))return['Query Design','Query Tools'];
   if(it.kind==='form'&&it.view==='design')return['Design','Form Design Tools'];
   if(it.kind==='macro')return['Design','Macro Tools'];
   return null;
@@ -557,12 +557,13 @@ function groups(tab,it){
    {n:'Views',c:[view()]},
    {n:'Sort & Filter',c:[[cmd('Ascending','az',sorter('asc'),'Sort A to Z, smallest to largest, oldest first. Click a cell in the column first.'),cmd('Descending','za',sorter('desc'),'Sort Z to A, largest to smallest, newest first.'),cmd('Remove Sort','funnel',sorter(''),'Put the records back in their original order.')]]},
    {n:'Records',c:[cmd('New','plus',()=>{if(it&&it.newRec&&(isData||isForm))it.newRec();else setStatus('Open a table or a form in Form View to add a record.')},'Start a new record.'),[cmd('Save','save',()=>saveActive(),'Save the record you are editing.'),cmd('Delete','delrow',()=>{if(it&&it.delRec&&(isData||isForm))it.delRec();else setStatus('Select a record first.')},'Delete the selected record.')]]},
+   {n:'Find',c:[cmd('Find','sql',()=>findDlg(it),'Find a value in the datasheet.')]},
    {n:'Clipboard',c:[cmd('Paste','paste',()=>{if(it&&it.paste&&isData)it.paste();else setStatus('Open a table in Datasheet View to paste records into it.')},'Paste rows of data into the datasheet.')]}];
   if(tab==='Create')return[
-   !L.lock?{n:'Tables',c:[cmd('Table Design','tabledesign',newTable,'Create a table in Design View. You type the field names and choose the data types.')]}:null,
+   !L.lock?{n:'Tables',c:[cmd('Table','table',()=>{newTable();setStatus('Real Access opens a datasheet with a Click to Add column. Here the table opens in Design View so you can type the field names and choose the data types.')},'Create a new table. (Here it opens in Design View.)'),cmd('Table Design','tabledesign',newTable,'Create a table in Design View. You type the field names and choose the data types.')]}:null,
    {n:'Queries',c:[cmd('Query Design','query',newQuery,'Create a query in Design View. You choose the tables, fields and criteria.')]},
-   featOn('form')?{n:'Forms',c:[cmd('Form','form',quickForm,'Create a form from the table or query selected in the Navigation Pane.'),cmd('Form Design','tabledesign',()=>newForm(),'Create a blank form in Design View.')]}:null,
-   featOn('report')?{n:'Reports',c:[cmd('Report Design','report',newReport,'Create a report in Design View. You choose the grouping and the controls.')]}:null,
+   featOn('form')?{n:'Forms',c:[cmd('Form','form',quickForm,'Create a form from the table or query selected in the Navigation Pane.'),cmd('Form Design','tabledesign',()=>newForm(),'Create a blank form in Design View.'),[cmd('Blank Form','form',()=>newForm(),'Create a blank form.'),cmd('Form Wizard','form',()=>wizard('form'),'Choose the fields and let Access build the form.')]]}:null,
+   featOn('report')?{n:'Reports',c:[cmd('Report','report',quickReport,'Create a report from the table or query selected in the Navigation Pane.'),cmd('Report Design','report',newReport,'Create a report in Design View. You choose the grouping and the controls.'),[cmd('Blank Report','report',newReport,'Create a blank report.'),cmd('Report Wizard','report',()=>wizard('report'),'Choose the fields, grouping and sorting and let Access build the report.')]]}:null,
    featOn('macro')?{n:'Macros & Code',c:[cmd('Macro','macro',newMacro,'Create a macro: a list of actions Access does for you.')]}:null].filter(Boolean);
   if(tab==='Database Tools')return[
    {n:'Relationships',c:[cmd('Relationships','rel',()=>openObj('rel','Relationships','rel'),'See how the tables are linked.')]}];
@@ -828,15 +829,17 @@ function runQuery(q,db){
   db=db||L;
   const srcs=qSources(q,db);
   if(!srcs.length)return{err:'This query has no tables. Use Show Table to add one.'};
+  (function(){const rem=srcs.slice(1);const ord=[srcs[0]];while(rem.length){const k=rem.findIndex(t=>ord.some(j=>db.rels.some(x=>(x.oneT===j&&x.manyT===t)||(x.manyT===j&&x.oneT===t))));if(k<0)break;ord.push(rem.splice(k,1)[0])}srcs.splice(0,srcs.length,...ord.concat(rem))})();
   const base=db.tables[srcs[0]];
   let rows=base.rows.map(r=>{const o={};base.fields.forEach(f=>o[base.name+'.'+f.n]=r[f.n]);return{v:o,refs:{[base.name]:r}}});
-  const joined=[srcs[0]];
+  const joined=[srcs[0]];const joins=[];
   for(let i=1;i<srcs.length;i++){
     const t2=db.tables[srcs[i]];
     let rel=null,from=null;
     for(const j of joined){const r=db.rels.find(x=>(x.oneT===j&&x.manyT===srcs[i])||(x.manyT===j&&x.oneT===srcs[i]));if(r){rel=r;from=j;break}}
     if(!rel)return{err:'The table “'+srcs[i]+'” is not joined to the other tables. Tables are joined by the relationships in the database (Database Tools, Relationships).'};
     const kFrom=rel.oneT===from?rel.oneF:rel.manyF,kTo=rel.oneT===from?rel.manyF:rel.oneF;
+    joins.push({t:srcs[i],on:from+'.'+kFrom+' = '+srcs[i]+'.'+kTo});
     const out=[];
     rows.forEach(r=>t2.rows.forEach(j2=>{const k=r.v[from+'.'+kFrom];if(k!==''&&k!=null&&String(k)===String(j2[kTo])){const o=Object.assign({},r.v);t2.fields.forEach(f=>o[t2.name+'.'+f.n]=j2[f.n]);out.push({v:o,refs:Object.assign({},r.refs,{[t2.name]:j2})})}}));
     const J=rel.join||1;
@@ -878,11 +881,12 @@ function runQuery(q,db){
     agg=aggs.length>0;
     const groups=new Map();
     rows.forEach(r=>{const key=JSON.stringify(group.map(x=>val(x.p,r)));if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r)});
-    outCols=group.map(x=>x.p.label).concat(aggs.map(x=>x.c.total+'Of'+x.p.label));
+    outCols=group.map(x=>x.p.label).concat(aggs.map(x=>x.c.total==='Expression'?x.p.label:x.c.total+'Of'+x.p.label));
     const entries=[...groups.values()];entries.sort((A,B)=>cmpRows(A[0],B[0]));
     outRows=entries.map(g=>group.map(x=>val(x.p,g[0])).concat(aggs.map(x=>{
+      if(x.c.total==='Expression'){if(x.p.kind!=='expr')return val(x.p,g[0]);const cx=Object.assign({},rowCtx(g[0]),{aggRows:g,rowRef:(r,p)=>{const f=resolveField(q,p[p.length-1],db);return f?exFromStore(f.f.t,r.v[f.ref]):EXERR('#Name?')}});const v=exRun(x.p.src,cx);return isErr(v)?v.$err:(isDt(v)?dtStr(v.$d):(v==null?'':(typeof v==='number'?Math.round(v*1e6)/1e6:v)))}
       const arr=g.map(r=>val(x.p,r));const nums=arr.map(v=>+v).filter(v=>v===v);
-      const fn=x.c.total;if(fn==='Count')return arr.filter(v=>v!==''&&v!=null).length;
+      const fn=x.c.total;if(fn==='First')return arr.length?arr[0]:'';if(fn==='Last')return arr.length?arr[arr.length-1]:'';if(fn==='Count')return arr.filter(v=>v!==''&&v!=null).length;
       if(x.p.type==='Date/Time'&&(fn==='Min'||fn==='Max')){const ord=v=>{const a=pDate(v);return a!==null?a:pTime(v)};const okv=arr.filter(v=>v!==''&&v!=null&&ord(v)!==null);if(!okv.length)return '';return okv.reduce((m,v)=>(fn==='Min'?ord(v)<ord(m):ord(v)>ord(m))?v:m)}
       if(!nums.length)return '';if(fn==='Min')return Math.min(...nums);if(fn==='Max')return Math.max(...nums);
       const s=nums.reduce((a,b)=>a+b,0);return fn==='Sum'?Math.round(s*100)/100:Math.round(s/nums.length*100)/100})));
@@ -892,10 +896,7 @@ function runQuery(q,db){
     outCols=shown.map(x=>x.p.label);outRows=rows.map(r=>shown.map(x=>val(x.p,r)));
     refs=rows.map(r=>({refs:r.refs,fieldRefs:shown.map(x=>x.p.kind==='f'?x.p.ref:null)}));
   }
-  const nm=x=>x.p.kind==='expr'?x.p.label+': '+x.p.src:x.p.ref;
-  const where=[];cols.forEach(x=>{[0,1].forEach(k=>{if((x.c.crit[k]||'').trim())where.push(nm(x).split(': ').pop()+' '+x.c.crit[k].trim())})});
-  const sel=cols.filter(x=>x.c.show!==false&&x.c.total!=='Where').map(x=>q.totals&&x.c.total&&x.c.total!=='Group By'?x.c.total.toUpperCase()+'('+nm(x)+')':nm(x));
-  const sql='SELECT '+sel.join(', ')+'\nFROM '+srcs.join(' INNER JOIN ')+(where.length?'\nWHERE '+where.join(' OR '):'')+(sorted.length?'\nORDER BY '+sorted.map(x=>nm(x)+(x.c.sort==='Descending'?' DESC':'')).join(', '):'')+';';
+  const sql=qSqlText(q,cols,srcs,joins);
   return{cols:outCols,rows:outRows,sql,agg,refs,srcs};
 }
 
@@ -1040,7 +1041,7 @@ function qryDesign(it,box){
     else if(key==='t'){const p=c.f.trim()?parseCol(q,c.f):null;const td=h('td',{class:'ro'},p&&!p.err&&p.ref?p.ref.split('.')[0]:'');tdTable[i]=td;return td}
     else if(key==='sort'){cell=h('select',{'aria-label':'Sort, column '+(i+1)},h('option',{value:''},'(not sorted)'),h('option',{value:'Ascending'},'Ascending'),h('option',{value:'Descending'},'Descending'));cell.value=c.sort;cell.addEventListener('change',()=>c.sort=cell.value)}
     else if(key==='show'){cell=h('input',{type:'checkbox','aria-label':'Show, column '+(i+1)});cell.checked=c.show!==false;cell.addEventListener('change',()=>c.show=cell.checked)}
-    else if(key==='total'){cell=h('select',{'aria-label':'Total, column '+(i+1)},...['Group By','Count','Min','Max','Avg','Sum','Where'].map(x=>h('option',{value:x},x)));cell.value=c.total||'Group By';cell.addEventListener('change',()=>c.total=cell.value)}
+    else if(key==='total'){cell=h('select',{'aria-label':'Total, column '+(i+1)},...['Group By','Sum','Avg','Min','Max','Count','StDev','Var','First','Last','Expression','Where'].map(x=>h('option',{value:x},x)));cell.value=c.total||'Group By';cell.addEventListener('change',()=>c.total=cell.value)}
     else{const k=key==='c0'?0:1;cell=h('input',{type:'text','aria-label':(k?'Or criteria':'Criteria')+', column '+(i+1),value:c.crit[k]||''});cell.addEventListener('input',()=>c.crit[k]=cell.value)}
     return h('td',{},cell);
   })))));
@@ -1658,6 +1659,7 @@ function checkFieldFull(db,t,f,raw){
   if(raw===''){
     if(f.req)return{msg:'You must enter a value in the “'+label+'” field.'};
     if(f.pk&&t.fields.filter(x=>x.pk).length>=1)return{msg:'Index or primary key cannot contain a Null value.'};
+    if(f.rule&&/is\s+not\s+null/i.test(f.rule)){let ok=true;try{ok=ruleCheck(f.rule,f.t,'',f.n)}catch(e){}if(!ok)return{msg:(f.msg||'').trim()||('One or more values are prohibited by the validation rule “'+f.rule+'” set for “'+label+'”. Enter a value that the expression for this field can accept.'),rule:true,custom:!!(f.msg||'').trim()}}
     return{ok:true,v:''};
   }
   const c=coerceField(f,raw);if(!c.ok)return{msg:c.msg};
@@ -1676,6 +1678,12 @@ function commitRecord(db,tn,vals,idx){
     const c=checkFieldFull(db,t,f,vals[f.n]);
     if(!c.ok)return{msg:c.msg,field:f.n,rule:c.rule,custom:c.custom};
     rec[f.n]=c.v;
+  }
+  const trule=((t.props&&t.props['Validation Rule'])||'').trim();
+  if(trule){
+    const cx={ref:p=>{const n=p[p.length-1];const f=t.fields.find(x=>lc(x.n)===lc(n));return f?exFromStore(f.t,rec[f.n]):EXERR('#Name?')},column:()=>null,domainRows:nm=>domainRows(db,nm)};
+    const v=exRun(trule,cx);
+    if(v===false||(v&&isErr(v))){const tx=((t.props['Validation Text'])||'').trim();return{msg:tx||('One or more values are prohibited by the validation rule “'+trule+'” set for ‘'+tn+'’. Enter a value that the expression can accept.'),rule:true,custom:!!tx}}
   }
   const pks=t.fields.filter(f=>f.pk);
   if(pks.length&&t.rows.some((r,i)=>i!==idx&&pks.every(f=>String(r[f.n])===String(rec[f.n]))))return{msg:'The changes you requested to the table were not successful because they would create duplicate values in the index, primary key, or relationship. Change the data in the field or fields that contain duplicate data, remove the index, or redefine the index to permit duplicate entries and try again.'};
@@ -1830,6 +1838,7 @@ function tblDesign(it,box){
 }
 function tableSyntaxProblem(D){
   if(!D.fields.length)return 'Add at least one field first.';
+  const trl=((D.props&&D.props['Validation Rule'])||'').trim();if(trl&&!exValid(trl))return 'Microsoft Access cannot understand the table Validation Rule. Check the field names are in [square brackets] and the brackets match.';
   const names=D.fields.map(f=>f.n);
   if(names.some(n=>!n))return 'Every field needs a name.';
   if(new Set(names.map(n=>n.toLowerCase())).size!==names.length)return 'Two fields have the same name. Field names must be different.';
@@ -1845,7 +1854,7 @@ function commitTable(it,name,done){
     const fields=D.fields.map(f=>({n:f.n,t:f.t,pk:!!f.pk,req:!!f.req,rule:f.rule||'',msg:f.msg||'',size:f.size||'',def:f.def||'',desc:f.desc||'',fmt:f.fmt||'',mask:f.mask||'',idx:f.idx||'',lookup:f.lookup?clone(f.lookup):null}));
     const rows=old?old.rows.map(r=>{const o={};fields.forEach(f=>{const src=old.fields.find(x=>x.n===f.n);let v=src?r[f.n]:(f.t==='Yes/No'?false:'');if(src&&src.t!==f.t){const c=coerceField(f,v);v=c.ok?c.v:''}o[f.n]=v});return o}):[];
     if(old&&!it.isNew&&old.name!==name)delete L.tables[old.name];
-    L.tables[name]={name,fields,rows};
+    L.tables[name]={name,fields,rows,props:clone(D.props||{})};
     if(it.name&&it.name!==name&&!it.isNew){L.rels.forEach(r=>{if(r.oneT===it.name)r.oneT=name;if(r.manyT===it.name)r.manyT=name})}
     it.d=clone(L.tables[name]);it.d.fields.forEach(f=>f.orig=true);
     labSave();done();
@@ -2195,8 +2204,8 @@ function fieldPropsPane(it,D,bot,lock,drawProps){
 function tableProps(it){
   const D=it.d;D.props=D.props||{};
   const specs=[['Read Only When Disconnected','No',['Yes','No']],['Subdatasheet Expanded','No',['Yes','No']],['Subdatasheet Height','0"'],['Orientation','Left-to-Right',['Left-to-Right','Right-to-Left']],['Description',''],['Default View','Datasheet',['Datasheet','PivotTable','PivotChart']],['Validation Rule',''],['Validation Text',''],['Filter',''],['Order By',''],['Subdatasheet Name','[Auto]'],['Link Child Fields',''],['Link Master Fields',''],['Filter On Load','No',['Yes','No']],['Order By On Load','Yes',['Yes','No']]];
-  const trs=specs.map(([l,def,opts])=>{const cur=D.props[l]!==undefined?D.props[l]:def;let n;if(opts){n=h('select',{'aria-label':l,disabled:!!L.lock},...opts.map(o=>h('option',{value:o},o)));n.value=cur}else n=h('input',{type:'text','aria-label':l,value:cur,disabled:!!L.lock});n.addEventListener('change',()=>{D.props[l]=n.value;it.dirty=true;inertMsg(l)});return h('tr',{class:'inert'},h('th',{},l),h('td',{},n))});
-  dlg({title:'Property Sheet',wide:true,body:h('div',{},h('p',{class:'ps-sel'},'Selection type: Table Properties'),h('p',{class:'a-hint'},'The table properties are shown as in Access. They are not needed for this task, so you only need to look.'),h('div',{class:'pp-wrap one'},h('table',{class:'pp-tbl'},h('caption',{class:'sr-only'},'Table properties'),h('tbody',{},...trs)))),buttons:[{label:'Close',primary:true}]});
+  const trs=specs.map(([l,def,opts])=>{const real=l==='Validation Rule'||l==='Validation Text';const cur=D.props[l]!==undefined?D.props[l]:def;let n;if(opts){n=h('select',{'aria-label':l,disabled:!!L.lock},...opts.map(o=>h('option',{value:o},o)));n.value=cur}else n=h('input',{type:'text','aria-label':l,value:cur,disabled:!!L.lock});n.addEventListener('change',()=>{D.props[l]=n.value;it.dirty=true;if(!real)inertMsg(l)});return h('tr',{class:real?'':'inert'},h('th',{},l),h('td',{},n))});
+  dlg({title:'Property Sheet',wide:true,body:h('div',{},h('p',{class:'ps-sel'},'Selection type: Table Properties'),h('p',{class:'a-hint'},'These are the table properties, as in Access. The Validation Rule and Validation Text are used: a rule here can check several fields at once, for example [StartDate]<=[EndDate]. The other properties are not needed for this task.'),h('div',{class:'pp-wrap one'},h('table',{class:'pp-tbl'},h('caption',{class:'sr-only'},'Table properties'),h('tbody',{},...trs)))),buttons:[{label:'Close',primary:true}]});
 }
 function indexesDlg(it){
   const D=it.d;
@@ -2435,4 +2444,237 @@ function frmDatasheet(it,box,rec){
   if(tn){const tmp=it.dsItem&&it.dsItem.name===tn?it.dsItem:(it.dsItem={kind:'table',name:tn,view:'data',sel:-1,edit:-1,d:null});tblData(tmp,box,rec);return}
   if(qn){const tmp=it.dsItem&&it.dsItem.name===qn?it.dsItem:(it.dsItem={kind:'query',name:qn,view:'run',sel:-1,edit:-1,d:null});qryRun(tmp,box,rec);return}
   box.append(h('p',{class:'m-empty',style:'padding:1rem'},'This form has no Record Source, so there is no datasheet to show. Set the Record Source in the Property Sheet first.'));
+}
+/* ===== Access: SQL View (editable), wizards, quick report/form, Find ===== */
+
+/* --- SQL text written from the design grid (the same shape Access writes) --- */
+function qSqlText(q,cols,srcs,joins){
+  const crit=t=>{t=String(t).trim();if(/^(<=|>=|<>|<|>|=|like\b|between\b|in\b|is\b|not\b)/i.test(t))return t;if(/^-?\d+(\.\d+)?$/.test(t)||/^#.*#$/.test(t)||/^".*"$/.test(t)||/[()\[\]!]/.test(t))return '= '+t;return '= "'+t+'"'};
+  const ftxt=x=>x.p.kind==='f'?x.p.ref:x.p.src;
+  const used=cols.filter(x=>x.c.total!=='Where'&&x.c.show!==false);
+  const isAgg=x=>q.totals&&x.c.total&&x.c.total!=='Group By'&&x.c.total!=='Expression';
+  const sel=used.map(x=>{
+    if(isAgg(x))return x.c.total+'('+ftxt(x)+') AS '+x.c.total+'Of'+x.p.label;
+    if(q.totals&&x.c.total==='Expression')return ftxt(x)+' AS '+x.p.label;
+    if(x.p.kind==='expr')return x.p.src+' AS '+x.p.label;
+    return x.p.label!==x.p.ref.split('.').pop()?x.p.ref+' AS '+x.p.label:x.p.ref;
+  });
+  let from=srcs[0];joins.forEach(j=>{from='('+from+' INNER JOIN '+j.t+' ON '+j.on+')'});
+  if(joins.length)from=from.slice(1,-1);
+  const rowsW=[0,1].map(k=>cols.filter(x=>(x.c.crit[k]||'').trim()).map(x=>ftxt(x)+' '+crit(x.c.crit[k])));
+  const where=rowsW.filter(a=>a.length).map(a=>a.join(' AND '));
+  const wtxt=where.length>1?where.map(w=>'('+w+')').join(' OR '):where[0]||'';
+  const grp=q.totals?used.filter(x=>!x.c.total||x.c.total==='Group By').map(ftxt):[];
+  const sorted=cols.filter(x=>x.c.sort);
+  return 'SELECT '+sel.join(', ')+'\nFROM '+from+(wtxt?'\nWHERE '+wtxt:'')+(grp.length?'\nGROUP BY '+grp.join(', '):'')+(sorted.length?'\nORDER BY '+sorted.map(x=>ftxt(x)+(x.c.sort==='Descending'?' DESC':'')).join(', '):'')+';';
+}
+
+/* --- a small SQL reader that turns typed SQL back into the design grid --- */
+function sqlScan(s,fn){
+  let depth=0,q=null;
+  for(let i=0;i<s.length;i++){
+    const c=s[i];
+    if(q){if(c===q)q=null;continue}
+    if(c==='"'||c==="'"){q=c;continue}
+    if(c==='['){q=']';continue}
+    if(c==='#'){q='#';continue}
+    if(c==='('){depth++;continue}
+    if(c===')'){depth--;continue}
+    if(depth===0&&fn(i,c)===true)return i;
+  }
+  return -1;
+}
+function sqlClauses(sql){
+  const pos=[];
+  const re=/^(SELECT|FROM|WHERE|GROUP\s+BY|HAVING|ORDER\s+BY)\b/i;
+  sqlScan(sql,(i)=>{if(i>0&&/\w/.test(sql[i-1]))return;const m=re.exec(sql.slice(i));if(m)pos.push({kw:m[1].toUpperCase().replace(/\s+/g,' '),i,len:m[0].length})});
+  const out={};
+  pos.forEach((p,k)=>{out[p.kw]=sql.slice(p.i+p.len,k+1<pos.length?pos[k+1].i:sql.length).trim()});
+  return out;
+}
+function sqlSplitTop(s,sep){
+  const out=[];let last=0;
+  const isWord=sep!==',';
+  const re=isWord?new RegExp('^\\s'+sep+'\\s','i'):null;
+  let between=false;
+  sqlScan(s,(i,c)=>{
+    if(!isWord){if(c===','){out.push(s.slice(last,i));last=i+1}return}
+    if(/^\sbetween\s/i.test(s.slice(i,i+9)))between=true;
+    const m=re.exec(s.slice(i));
+    if(m){if(sep.toUpperCase()==='AND'&&between){between=false;return}out.push(s.slice(last,i));last=i+m[0].length-1}
+  });
+  out.push(s.slice(last));
+  return out.map(x=>x.trim()).filter(x=>x!=='');
+}
+const stripParens=s=>{s=s.trim();while(s[0]==='('&&s[s.length-1]===')'){let d=0,ok=true;for(let i=0;i<s.length-1;i++){if(s[i]==='(')d++;if(s[i]===')')d--;if(d===0){ok=false;break}}if(!ok)break;s=s.slice(1,-1).trim()}return s};
+const SIMPLE_ID=/^\[?[A-Za-z_][\w ]*\]?(\.\[?[A-Za-z_][\w ]*\]?)?$/;
+const sqlName=s=>s.replace(/\[|\]/g,'').trim();
+function parseSql(sql,db){
+  db=db||L;
+  const fail=m=>({err:m});
+  sql=String(sql||'').replace(/;\s*$/,'').trim();
+  if(!sql||/^select$/i.test(sql))return fail('This query has no tables. Type a FROM clause, for example: SELECT * FROM tblRunner;');
+  if(!/^select\b/i.test(sql))return fail('Syntax error in query expression. A query in this tutorial must start with SELECT.');
+  const C=sqlClauses(sql);
+  if(!C.SELECT||!C.FROM)return fail('Syntax error in query expression. A SELECT query needs a SELECT list and a FROM clause, for example: SELECT RunnerSurname FROM tblRunner;');
+  if(C.HAVING!==undefined)return fail('HAVING is not needed for this task. Put the condition in WHERE, or use a column with Criteria in Design View.');
+  const from=C.FROM.replace(/[()]/g,' ');
+  const parts=from.split(/\b(?:(?:INNER|LEFT|RIGHT|FULL|CROSS)\s+)?(?:OUTER\s+)?JOIN\b/i);
+  const src=[];
+  for(let i=0;i<parts.length;i++){
+    let seg=parts[i].replace(/\bON\b[\s\S]*$/i,'').trim();
+    seg.split(',').forEach(t=>{t=sqlName(t.replace(/\s+AS\s+\w+$/i,''));if(!t)return;const tn=Object.keys(db.tables).find(n=>lc(n)===lc(t));if(!tn){src.push({bad:t});return}if(!src.some(x=>x===tn))src.push(tn)});
+  }
+  const bad=src.find(x=>x&&x.bad);
+  if(bad)return fail('The Microsoft Access database engine cannot find the input table or query ‘'+bad.bad+'’. Make sure it exists and that its name is spelled correctly.');
+  const mkCol=(f,o)=>Object.assign({f,sort:'',show:true,crit:['',''],total:'Group By'},o||{});
+  const allFields=src.flatMap(tn=>db.tables[tn].fields.map(f=>tn+'.'+f.n));
+  let cols=[];let hasAgg=false;
+  const keyOf=f=>{f=String(f).trim();const m=/^[^:"\[(]+?:\s*(.+)$/.exec(f);const e=(m?m[1]:f).trim();return sqlName(e).toLowerCase()};
+  const normField=e=>{e=e.trim();if(SIMPLE_ID.test(e)){const n=sqlName(e);if(n.includes('.'))return n;const hit=allFields.find(x=>x.split('.')[1].toLowerCase()===n.toLowerCase());return hit&&allFields.filter(x=>x.split('.')[1].toLowerCase()===n.toLowerCase()).length===1?n:(hit||n)}return e};
+  for(let item of sqlSplitTop(C.SELECT,',')){
+    item=item.replace(/^DISTINCT(ROW)?\s+/i,'').trim();
+    if(item==='*'||/^\[?\w+\]?\.\*$/.test(item)){const only=item==='*'?null:sqlName(item.slice(0,-2));allFields.filter(f=>!only||lc(f.split('.')[0])===lc(only)).forEach(f=>cols.push(mkCol(f)));continue}
+    let alias=null;const am=/^([\s\S]*?)\s+AS\s+(\[[^\]]+\]|\w+)$/i.exec(item);
+    if(am){item=am[1].trim();alias=sqlName(am[2])}
+    const gm=/^(count|min|max|sum|avg)\s*\(([\s\S]*)\)$/i.exec(item);
+    if(gm&&stripParens('('+gm[2]+')')===gm[2].trim()&&(()=>{let d=0;for(const c of gm[2]){if(c==='(')d++;if(c===')'){d--;if(d<0)return false}}return d===0})()){
+      hasAgg=true;const fn=gm[1][0].toUpperCase()+gm[1].slice(1).toLowerCase();const inner=normField(gm[2].trim());
+      const lbl=alias||null;
+      cols.push(mkCol((lbl?lbl.replace(/^(Count|Min|Max|Sum|Avg)Of/,'')+': ':'')+inner,{total:fn,_alias:lbl}));continue;
+    }
+    if(/\b(count|min|max|sum|avg)\s*\(/i.test(item)){hasAgg=true;cols.push(mkCol((alias?alias+': ':'Expr1: ')+item,{total:'Expression'}));continue}
+    const f=normField(item);
+    cols.push(mkCol(alias&&alias.toLowerCase()!==sqlName(item).split('.').pop().toLowerCase()?alias+': '+f:f));
+  }
+  if(!cols.length)return fail('Syntax error in query expression. The SELECT list is empty.');
+  const totals=hasAgg||C['GROUP BY']!==undefined;
+  if(totals){
+    const gb=C['GROUP BY']?sqlSplitTop(C['GROUP BY'],',').map(x=>keyOf(normField(x))):[];
+    if(hasAgg){const miss=cols.find(c=>c.total==='Group By'&&C['GROUP BY']===undefined);if(miss)return fail('You tried to execute a query that does not include the specified expression ‘'+miss.f+'’ as part of an aggregate function. Add a GROUP BY clause, or press Totals (Σ) in Design View.')}
+    cols.forEach(c=>{if(c.total==='Group By'&&gb.length&&!gb.includes(keyOf(c.f))){/* selected but not grouped: Access refuses */}});
+  }
+  const attach=(cond,k)=>{
+    cond=stripParens(cond);
+    let opAt=-1,opLen=0,opTxt='';
+    const OPS=['<=','>=','<>','=','<','>'];
+    sqlScan(cond,(i)=>{
+      const rest=cond.slice(i);
+      const kw=/^\s(NOT\s+LIKE|LIKE|BETWEEN|NOT\s+IN|IN|IS\s+NOT|IS)\s/i.exec(rest);
+      if(kw){opAt=i;opLen=kw[0].length;opTxt=kw[1].replace(/\s+/g,' ');return true}
+      for(const o of OPS)if(rest.startsWith(o)){opAt=i;opLen=o.length;opTxt=o;return true}
+    });
+    if(opAt<0)return 'Syntax error (missing operator) in query expression ‘'+cond+'’.';
+    const lhs=normField(stripParens(cond.slice(0,opAt).trim()));const rhs=cond.slice(opAt+opLen).trim();
+    let text;
+    if(/^[<>=]/.test(opTxt))text=opTxt+' '+rhs;
+    else if(/^not like$/i.test(opTxt))text='Not Like '+rhs;
+    else if(/^not in$/i.test(opTxt))text='Not In '+rhs;
+    else if(/^is not$/i.test(opTxt))text='Is Not '+rhs;
+    else text=opTxt[0].toUpperCase()+opTxt.slice(1).toLowerCase()+' '+rhs;
+    let col=cols.find(c=>keyOf(c.f)===keyOf(lhs)&&!(c.crit[k]||'').trim());
+    if(!col){col=mkCol(lhs,{show:false,total:totals?'Where':'Group By'});cols.push(col)}
+    col.crit[k]=text;return null;
+  };
+  if(C.WHERE){
+    const ors=sqlSplitTop(C.WHERE,'OR').map(stripParens);
+    if(ors.length>2)return fail('This query has more than two OR groups. In Design View put them in the Criteria and “or” rows (two rows).');
+    for(let k=0;k<ors.length;k++){for(const cond of sqlSplitTop(ors[k],'AND')){const e=attach(cond,k);if(e)return fail(e)}}
+  }
+  if(C['ORDER BY']){
+    for(const o of sqlSplitTop(C['ORDER BY'],',')){
+      const m=/^([\s\S]*?)(?:\s+(ASC|DESC))?$/i.exec(o);const f=normField(m[1]);const dir=/desc/i.test(m[2]||'')?'Descending':'Ascending';
+      let col=cols.find(c=>keyOf(c.f)===keyOf(f));
+      if(!col){col=mkCol(f,{show:false,total:totals?'Where':'Group By'});cols.push(col)}
+      col.sort=dir;
+    }
+  }
+  while(cols.length<6)cols.push(mkCol(''));
+  cols.forEach(c=>delete c._alias);
+  return{q:{src,cols,totals},tables:src};
+}
+function qrySql(it,box){
+  if(!it.d)prepDesign(it);
+  const q=it.d;
+  if(it.sqlText===undefined){
+    const r=runQuery(q);
+    it.sqlText=r&&!r.err?r.sql:'SELECT;';
+  }
+  const ta=h('textarea',{class:'sqlv sqled',spellcheck:'false','aria-label':'SQL View. Type or edit the SQL statement.'});
+  ta.value=it.sqlText;
+  ta.addEventListener('input',()=>{it.sqlText=ta.value;it.sqlDirty=true;it.dirty=true});
+  box.append(ta,h('p',{class:'a-hint'},'This is the SQL that Access writes for you from the design grid. You can also type your own SQL here. When you switch to Design View or Datasheet View (or press Run), Access reads it and updates the design grid.'));
+  it.sqlApply=()=>{
+    if(!it.sqlDirty)return true;
+    const r=parseSql(it.sqlText,L);
+    if(r.err){msgBox(r.err);return false}
+    it.d=r.q;it.sqlDirty=false;it.dirty=true;return true;
+  };
+}
+const _setViewBase=setView;
+setView=function(it,v){
+  if(it.kind==='query'&&it.view==='sql'&&v!=='sql'&&it.sqlApply){if(!it.sqlApply())return;it.sqlText=undefined}
+  if(it.kind==='query'&&v==='sql')it.sqlText=undefined;
+  return _setViewBase(it,v);
+};
+
+/* --- quick report / form and the two wizards --- */
+function srcFields(name){
+  const tn=Object.keys(L.tables).find(n=>lc(n)===lc(name));if(tn)return L.tables[tn].fields.map(f=>f.n);
+  const qn=Object.keys(L.queries).find(n=>lc(n)===lc(name));if(qn){const r=runQuery(L.queries[qn],L);return r.err?[]:r.cols}
+  return[];
+}
+function makeReport(src,fields,group,sort){
+  const d=newReportDef(src);d.nextN=0;
+  d.bands.reportHeader=[{type:'label',name:'Label0',text:src}];
+  d.bands.pageHeader=fields.filter(f=>f!==group).map((f,i)=>({type:'label',name:'Label'+(i+1),text:f}));
+  d.bands.detail=fields.filter(f=>f!==group).map((f,i)=>({type:'text',name:'Text'+(i+1),src:f}));
+  if(group){d.groupField=group;d.bands.groupHeader=[{type:'label',name:'LabelG',text:group+':'},{type:'text',name:'TextG',src:group}]}
+  if(sort)d.sortField=sort;
+  const it=openObj('report','','view',d,true);it.dirty=true;return it;
+}
+function makeForm(src,fields){
+  const d=newFormDef();d.recordSource=src;
+  fields.forEach((f,i)=>{d.nextN+=2;d.controls.push({id:'c'+d.nextN,type:'label',name:'Label'+(d.nextN-1),caption:f,x:20,y:16+i*30,w:150,h:22});d.controls.push({id:'c'+(d.nextN+1000),type:'textbox',name:f,controlSource:f,x:180,y:16+i*30,w:220,h:22,events:{}})});
+  const it=openObj('form','','view',d,true);it.dirty=true;return it;
+}
+function selSource(){return UI.navSel&&(UI.navSel.kind==='table'||UI.navSel.kind==='query')?UI.navSel.name:''}
+function quickReport(){
+  const s=selSource();if(!s){msgBox('Select a table or query in the Navigation Pane first, then choose Report.');return}
+  makeReport(s,srcFields(s),'','');
+}
+function wizard(kind){
+  const names=Object.keys(L.tables).concat(Object.keys(L.queries));
+  if(!names.length){msgBox('There are no tables or queries to use yet.');return}
+  const st={src:selSource()||names[0],fields:[],group:'',sort:''};
+  const body=h('div',{class:'stack wiz'});
+  const draw=()=>{
+    body.replaceChildren();
+    const fl=srcFields(st.src);
+    const srcSel=lblSel(names.map(n=>[n,(L.tables[n]?'Table: ':'Query: ')+n]),st.src,v=>{st.src=v;st.fields=[];st.group='';st.sort='';draw()},'Tables/Queries');
+    body.append(h('label',{class:'ps-f'},h('span',{},'Tables/Queries'),srcSel),h('b',{},'Available Fields: tick the ones you want in the '+kind));
+    fl.forEach((f,i)=>{const c=h('input',{type:'checkbox',id:'wz'+i,'aria-label':f});c.checked=st.fields.includes(f);c.addEventListener('change',()=>{st.fields=c.checked?st.fields.concat([f]):st.fields.filter(x=>x!==f)});body.append(h('label',{class:'opt',for:'wz'+i},c,h('span',{},f)))});
+    if(kind==='report')body.append(h('label',{class:'ps-f'},h('span',{},'Group by (optional)'),lblSel([['','(no grouping)']].concat(fl.map(f=>[f,f])),st.group,v=>st.group=v,'Group by')),h('label',{class:'ps-f'},h('span',{},'Sort by (optional)'),lblSel([['','(none)']].concat(fl.map(f=>[f,f])),st.sort,v=>st.sort=v,'Sort by')));
+  };
+  draw();
+  dlg({title:(kind==='report'?'Report':'Form')+' Wizard',wide:true,body,buttons:[{label:'Finish',primary:true,fn:()=>{
+    const f=st.fields.length?st.fields:srcFields(st.src);
+    if(kind==='report')makeReport(st.src,st.group&&!f.includes(st.group)?f.concat([st.group]):f,st.group,st.sort);else makeForm(st.src,f);
+  }},{label:'Cancel'}]});
+}
+/* --- Find --- */
+function findDlg(it){
+  if(!it||it.kind!=='table'||it.view!=='data'){setStatus('Open a table in Datasheet View, then choose Find.');return}
+  const t=L.tables[it.name];if(!t)return;
+  const ti=h('input',{class:'inp',type:'text',id:'fdText','aria-label':'Find What'});
+  const scope=lblSel([['all','Current document'],['col','Current field']],'all',()=>{},'Look In');
+  const msg=h('div',{class:'a-hint',role:'status'},'');
+  let last=it.sel>=0?it.sel:-1;
+  const next=()=>{
+    const q=ti.value.trim().toLowerCase();if(!q){msg.textContent='Type what to find.';return}
+    const cols=scope.value==='col'&&it.cc?[it.cc]:t.fields.map(f=>f.n);
+    for(let k=1;k<=t.rows.length;k++){const i=(last+k)%t.rows.length;if(cols.some(c=>String(fmtv(t.rows[i][c])).toLowerCase().includes(q))){last=i;it.sel=i;closeDlg();renderWork();setStatus('Found in record '+(i+1)+'.');return}}
+    msg.textContent='Microsoft Access finished searching the records. The search item was not found.';
+  };
+  dlg({title:'Find and Replace',body:h('div',{class:'stack'},h('label',{for:'fdText'},'Find What:'),ti,h('label',{},'Look In: ',scope),msg),buttons:[{label:'Find Next',primary:true,keep:true,fn:next},{label:'Cancel'}],focus:ti});
 }
